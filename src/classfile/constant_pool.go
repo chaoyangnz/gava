@@ -38,6 +38,7 @@ CONSTANT_Class_info {
 }
  */
 type ConstantClassInfo struct {
+	tag       uint8
 	nameIndex uint16
 }
 
@@ -55,6 +56,7 @@ CONSTANT_Fieldref_info {
 }
  */
 type ConstantFieldrefInfo struct {
+	tag              uint8
 	classIndex       uint16
 	nameAndTypeIndex uint16
 }
@@ -74,6 +76,7 @@ CONSTANT_Methodref_info {
 }
  */
 type ConstantMethodrefInfo struct {
+	tag              uint8
 	classIndex       uint16
 	nameAndTypeIndex uint16
 }
@@ -93,6 +96,7 @@ CONSTANT_InterfaceMethodref_info {
 }
  */
 type ConstantInterfaceMethodrefInfo struct {
+	tag              uint8
 	classIndex       uint16
 	nameAndTypeIndex uint16
 }
@@ -111,6 +115,7 @@ CONSTANT_String_info {
 }
  */
 type ConstantStringInfo struct {
+	tag         uint8
 	stringIndex uint16
 }
 
@@ -127,6 +132,7 @@ CONSTANT_Integer_info {
 }
  */
 type ConstantIntegerInfo struct {
+	tag   uint8
 	bytes uint32
 }
 
@@ -143,6 +149,7 @@ CONSTANT_Float_info {
 }
  */
 type ConstantFloatInfo struct {
+	tag   uint8
 	bytes uint32
 }
 
@@ -160,6 +167,7 @@ CONSTANT_Long_info {
 }
  */
 type ConstantLongInfo struct {
+	tag       uint8
 	highBytes uint32
 	lowBytes  uint32
 }
@@ -178,6 +186,7 @@ CONSTANT_Double_info {
 }
  */
 type ConstantDoubleInfo struct {
+	tag       uint8
 	highBytes uint32
 	lowBytes  uint32
 }
@@ -196,6 +205,7 @@ CONSTANT_NameAndType_info {
 }
  */
 type ConstantNameAndTypeInfo struct {
+	tag             uint8
 	nameIndex       uint16
 	descriptorIndex uint16
 }
@@ -214,6 +224,7 @@ CONSTANT_Utf8_info {
 }
  */
 type ConstantUtf8Info struct {
+	tag    uint8
 	bytes []byte //u2 length
 }
 
@@ -230,6 +241,7 @@ CONSTANT_MethodHandle_info {
 }
  */
 type ConstantMethodHandleInfo struct {
+	tag            uint8
 	referenceKind  uint8
 	referenceIndex uint16
 }
@@ -247,6 +259,7 @@ CONSTANT_MethodType_info {
 }
  */
 type ConstantMethodTypeInfo struct {
+	tag             uint8
 	descriptorIndex uint16
 }
 
@@ -263,6 +276,7 @@ CONSTANT_InvokeDynamic_info {
 }
  */
 type ConstantInvokeDynamicInfo struct {
+	tag                      uint8
 	bootstrapMethodAttrIndex uint16
 	nameAndTypeIndex         uint16
 }

@@ -30,12 +30,13 @@ Code_attribute {
 }
 */
 type CodeAttribute struct {
-	// attributeNameIndex uint16
-	// attributeLength    uint32
+	attributeNameIndex uint16
+	attributeLength    uint32
 	maxStack   uint16
 	maxLocals  uint16
 	code       []uint8          //u4 code_length
 	exceptions []ExceptionTable //u2 exception_table_length
+	attributesCount uint16
 	attributes []AttributeInfo  //u2 attributes_count
 }
 
@@ -52,9 +53,10 @@ func (this *CodeAttribute) ReadInfo(reader *ClassReader) {
 		this.exceptions[i] = exceptionTable
 	}
 	attributesCount := reader.ReadUint16()
+	this.attributesCount = attributesCount
 	this.attributes = make([]AttributeInfo, attributesCount)
 	for i := uint16(0); i < attributesCount; i++ {
-		this.attributes[i] = reader.ReadAsAttribute()
+		reader.readAttribute(&this.attributes[i])
 	}
 }
 
@@ -83,6 +85,9 @@ LineNumberTable_attribute {
 }
 */
 type LineNumberTableAttribute struct {
+	attributeNameIndex uint16
+	attributeLength    uint32
+	lineNumberTableLength uint16
 	lineNumberTables []LineNumberTable
 }
 
@@ -93,6 +98,7 @@ type LineNumberTable struct {
 
 func (this *LineNumberTableAttribute) ReadInfo(reader *ClassReader) {
 	lineNumberTableLength := reader.ReadUint16()
+	this.lineNumberTableLength = lineNumberTableLength
 	this.lineNumberTables = make([]LineNumberTable, lineNumberTableLength)
 	for i := uint16(0); i < lineNumberTableLength; i++ {
 		this.lineNumberTables[i] = LineNumberTable{reader.ReadUint16(), reader.ReadUint16()}
@@ -108,9 +114,54 @@ SourceFile_attribute {
  */
 
 type SourceFileAttribue struct {
+	attributeNameIndex uint16
+	attributeLength    uint32
 	sourceFileIndex uint16
 }
 
 func (this *SourceFileAttribue) ReadInfo(reader *ClassReader) {
 	this.sourceFileIndex = reader.ReadUint16()
 }
+
+/*
+LocalVariableTable_attribute {
+    u2 attribute_name_index;
+    u4 attribute_length;
+    u2 local_variable_table_length;
+    {   u2 start_pc;
+        u2 length;
+        u2 name_index;
+        u2 descriptor_index;
+        u2 index;
+    } local_variable_table[local_variable_table_length];
+}
+ */
+type LocalVariableTableAttribute struct {
+	attributeNameIndex       uint16
+	attributeLength          uint32
+	localVariableTableLength uint16
+	localVariableTable       []LocalVariableTable
+}
+
+type LocalVariableTable struct {
+	startPc             uint16
+	length              uint16
+	nameIndex           uint16
+	descriptorIndex     uint16
+	index               uint16
+}
+
+func (this *LocalVariableTableAttribute) ReadInfo(reader *ClassReader) {
+	localVariableTableLength := reader.ReadUint16()
+	this.localVariableTableLength = localVariableTableLength
+	this.localVariableTable = make([]LocalVariableTable, localVariableTableLength)
+	for i := uint16(0); i < localVariableTableLength; i++ {
+		this.localVariableTable[i] = LocalVariableTable{
+			reader.ReadUint16(),
+			reader.ReadUint16(),
+			reader.ReadUint16(),
+			reader.ReadUint16(),
+			reader.ReadUint16()}
+	}
+}
+
