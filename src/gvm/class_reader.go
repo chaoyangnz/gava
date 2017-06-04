@@ -31,7 +31,7 @@ func (this *ClassReader) ReadUint8() uint8 {
 	return uint8(this.ReadBytes(1)[0])
 }
 
-func (this *ClassReader) ReadBytes(len int) []byte {
+func (this *ClassReader) ReadBytes(len uint32) []byte {
 	bytes := this.bytecode[:len]
 	this.bytecode = this.bytecode[len:]
 	return bytes
@@ -79,50 +79,73 @@ func (this *ClassReader) readConstantPool() {
 	for i := uint16(1); i < constantPoolCount; i++ {
 		//fmt.Printf(" #%2d = ", i)
 		tag := this.ReadUint8()
-		var cpInfo ConstantPoolInfo
+
 		switch tag {
 		case CONSTANT_Class:
-			cpInfo = &ConstantClassInfo{tag: tag}
+			cpInfo := &ConstantClassInfo{tag: tag}
+			this.readConstantClassInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Fieldref:
-			cpInfo = &ConstantFieldrefInfo{tag: tag}
+			cpInfo := &ConstantFieldrefInfo{tag: tag}
+			this.readConstantFieldrefInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Methodref:
-			cpInfo = &ConstantMethodrefInfo{tag: tag}
+			cpInfo := &ConstantMethodrefInfo{tag: tag}
+			this.readConstantMethodrefInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_InterfaceMethodref:
-			cpInfo = &ConstantInterfaceMethodrefInfo{tag: tag}
+			cpInfo := &ConstantInterfaceMethodrefInfo{tag: tag}
+			this.readConstantInterfaceMethodrefInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_String:
-			cpInfo = &ConstantStringInfo{tag: tag}
+			cpInfo := &ConstantStringInfo{tag: tag}
+			this.readConstantStringInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Integer:
-			cpInfo = &ConstantIntegerInfo{tag: tag}
+			cpInfo := &ConstantIntegerInfo{tag: tag}
+			this.readConstantIntegerInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Float:
-			cpInfo = &ConstantFloatInfo{tag: tag}
+			cpInfo := &ConstantFloatInfo{tag: tag}
+			this.readConstantFloatInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Long:
 			// occupy two entries
-			cpInfo = &ConstantLongInfo{tag: tag}
+			cpInfo := &ConstantLongInfo{tag: tag}
+			this.readConstantLongInfo(cpInfo)
 			this.classfile.constantPool[i] = cpInfo
 			i++
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Double:
 			// occupy two entries
-			cpInfo = &ConstantDoubleInfo{tag: tag}
+			cpInfo := &ConstantDoubleInfo{tag: tag}
+			this.readConstantDoubleInfo(cpInfo)
 			this.classfile.constantPool[i] = cpInfo
 			i++
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_NameAndType:
-			cpInfo = &ConstantNameAndTypeInfo{tag: tag}
+			cpInfo := &ConstantNameAndTypeInfo{tag: tag}
+			this.readConstantNameAndTypeInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_Utf8:
-			cpInfo = &ConstantUtf8Info{tag: tag}
+			cpInfo := &ConstantUtf8Info{tag: tag}
+			this.readConstantUtf8Info(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_MethodHandle:
-			cpInfo = &ConstantMethodHandleInfo{tag: tag}
+			cpInfo := &ConstantMethodHandleInfo{tag: tag}
+			this.readConstantMethodHandleInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_MethodType:
-			cpInfo = &ConstantMethodTypeInfo{tag: tag}
+			cpInfo := &ConstantMethodTypeInfo{tag: tag}
+			this.readConstantMethodTypeInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		case CONSTANT_InvokeDynamic:
-			cpInfo = &ConstantInvokeDynamicInfo{tag: tag}
+			cpInfo := &ConstantInvokeDynamicInfo{tag: tag}
+			this.readConstantInvokeDynamicInfo(cpInfo)
+			this.classfile.constantPool[i] = cpInfo
 		default:
 			// ignore
 		}
-
-		if cpInfo != nil {
-			cpInfo.Read(this)
-		}
-		this.classfile.constantPool[i] = cpInfo
 	}
 }
 
@@ -203,15 +226,106 @@ func (this *ClassReader) readAttribute(attributeInfo *AttributeInfo)  {
 		*attributeInfo = &CodeAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	case "SourceFile":
 		*attributeInfo = &SourceFileAttribue{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
-	case "LineNumberTable":
+	case "LineNumberTableEntry":
 		*attributeInfo = &LineNumberTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
-	case "LocalVariableTable":
+	case "LocalVariableTableEntry":
 		*attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
-		this.ReadBytes(int(attributeLength)) // just skip out
+		this.ReadBytes(uint32(attributeLength)) // just skip out
 	}
 
 	if *attributeInfo != nil {
 		(*attributeInfo).ReadInfo(this)
 	}
+}
+
+func (this *ClassReader) readConstantClassInfo(cp *ConstantClassInfo) {
+	cp.nameIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantFieldrefInfo(cp *ConstantFieldrefInfo) {
+	cp.classIndex = this.ReadUint16()
+	cp.nameAndTypeIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantMethodrefInfo(cp *ConstantMethodrefInfo) {
+	cp.classIndex = this.ReadUint16()
+	cp.nameAndTypeIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantStringInfo(cp *ConstantStringInfo) {
+	cp.stringIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantInterfaceMethodrefInfo(cp *ConstantInterfaceMethodrefInfo) {
+	cp.classIndex = this.ReadUint16()
+	cp.nameAndTypeIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantIntegerInfo(cp *ConstantIntegerInfo) {
+	cp.bytes = this.ReadUint32()
+}
+
+
+
+func (this *ClassReader) readConstantFloatInfo(cp *ConstantFloatInfo) {
+	cp.bytes = this.ReadUint32()
+}
+
+
+
+func (this *ClassReader) readConstantLongInfo(cp *ConstantLongInfo) {
+	cp.highBytes = this.ReadUint32()
+	cp.lowBytes = this.ReadUint32()
+}
+
+
+
+func (this *ClassReader) readConstantDoubleInfo(cp *ConstantDoubleInfo) {
+	cp.highBytes = this.ReadUint32()
+	cp.lowBytes = this.ReadUint32()
+}
+
+
+
+func (this *ClassReader) readConstantNameAndTypeInfo(cp *ConstantNameAndTypeInfo) {
+	cp.nameIndex = this.ReadUint16()
+	cp.descriptorIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantUtf8Info(cp *ConstantUtf8Info) {
+	cp.length = this.ReadUint16()
+	cp.bytes = this.ReadBytes(uint32(cp.length))
+}
+
+
+
+func (this *ClassReader) readConstantMethodHandleInfo(cp *ConstantMethodHandleInfo) {
+	cp.referenceKind = this.ReadBytes(1)[0]
+	cp.referenceIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantMethodTypeInfo(cp *ConstantMethodTypeInfo) {
+	cp.descriptorIndex = this.ReadUint16()
+}
+
+
+
+func (this *ClassReader) readConstantInvokeDynamicInfo(cp *ConstantInvokeDynamicInfo) {
+	cp.bootstrapMethodAttrIndex = this.ReadUint16()
+	cp.nameAndTypeIndex = this.ReadUint16()
 }

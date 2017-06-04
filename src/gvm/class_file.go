@@ -140,45 +140,246 @@ func (this *ClassFile) cpUtf8(index uint16) string  {
 	return string(this.constantPool[index].(*ConstantUtf8Info).bytes)
 }
 
-func (this *ClassFile) cpClass(index uint16) string  {
-	classInfo := this.constantPool[index].(*ConstantClassInfo)
-	return this.cpUtf8(classInfo.nameIndex)
+//func (this *ClassFile) cpClass(index uint16) string  {
+//	classInfo := this.constantPool[index].(*ConstantClassInfo)
+//	return this.cpUtf8(classInfo.nameIndex)
+//}
+//
+//func (this *ClassFile) cpNameAndType(index uint16) (string, string)  {
+//	nameAndTypeInfo := this.constantPool[index].(*ConstantNameAndTypeInfo)
+//	return this.cpUtf8(nameAndTypeInfo.nameIndex), this.cpUtf8(nameAndTypeInfo.descriptorIndex)
+//}
+//
+//// FieldRef, MethodRef, InterfaceMethodRef
+//func (this *ClassFile) cpMemberRef(index uint16) (string, string, string)  {
+//	memberRefInfo := this.constantPool[index].(*ConstantFieldrefInfo)
+//	name, descriptor := this.cpNameAndType(memberRefInfo.nameAndTypeIndex)
+//	return this.cpClass(memberRefInfo.classIndex), name, descriptor
+//}
+//
+//
+//func (this *ClassFile) cpString(index uint16) string  {
+//	stringInfo := this.constantPool[index].(*ConstantStringInfo)
+//	return this.cpUtf8(stringInfo.stringIndex)
+//}
+//
+//func (this *ClassFile) cpInteger(index uint16) int32  {
+//	integerInfo := this.constantPool[index].(*ConstantIntegerInfo)
+//	return int32(integerInfo.bytes)
+//}
+//
+//func (this *ClassFile) cpLong(index uint16) int64  {
+//	longInfo := this.constantPool[index].(*ConstantLongInfo)
+//	return int64((longInfo.highBytes << 32) | longInfo.lowBytes)
+//}
+//
+//func (this *ClassFile) cpFloat(index uint16) float32  {
+//	floatInfo := this.constantPool[index].(*ConstantFloatInfo)
+//	return float32(floatInfo.bytes)
+//}
+//
+//func (this *ClassFile) cpDouble(index uint16) float64  {
+//	doubleInfo := this.constantPool[index].(*ConstantDoubleInfo)
+//	return float64((doubleInfo.highBytes << 32) | doubleInfo.lowBytes)
+//}
+
+
+const (
+	CONSTANT_Class              = 7
+	CONSTANT_Fieldref           = 9
+	CONSTANT_Methodref          = 10
+	CONSTANT_InterfaceMethodref = 11
+	CONSTANT_String             = 8
+	CONSTANT_Integer            = 3
+	CONSTANT_Float              = 4
+	CONSTANT_Long               = 5
+	CONSTANT_Double             = 6
+	CONSTANT_NameAndType        = 12
+	CONSTANT_Utf8               = 1
+	CONSTANT_MethodHandle       = 15
+	CONSTANT_MethodType         = 16
+	CONSTANT_InvokeDynamic      = 18
+)
+
+/*
+cp_info {
+    u1 tag;
+    u1 info[];
+}
+ */
+type ConstantPoolInfo interface {
+
 }
 
-func (this *ClassFile) cpNameAndType(index uint16) (string, string)  {
-	nameAndTypeInfo := this.constantPool[index].(*ConstantNameAndTypeInfo)
-	return this.cpUtf8(nameAndTypeInfo.nameIndex), this.cpUtf8(nameAndTypeInfo.descriptorIndex)
+/*
+CONSTANT_Class_info {
+    u1 tag;
+    u2 name_index;
+}
+ */
+type ConstantClassInfo struct {
+	tag       uint8
+	nameIndex uint16
 }
 
-// FieldRef, MethodRef, InterfaceMethodRef
-func (this *ClassFile) cpMemberRef(index uint16) (string, string, string)  {
-	memberRefInfo := this.constantPool[index].(*ConstantFieldrefInfo)
-	name, descriptor := this.cpNameAndType(memberRefInfo.nameAndTypeIndex)
-	return this.cpClass(memberRefInfo.classIndex), name, descriptor
+/*
+CONSTANT_Fieldref_info {
+    u1 tag;
+    u2 class_index;
+    u2 name_and_type_index;
+}
+ */
+type ConstantFieldrefInfo struct {
+	tag              uint8
+	classIndex       uint16
+	nameAndTypeIndex uint16
 }
 
-
-func (this *ClassFile) cpString(index uint16) string  {
-	stringInfo := this.constantPool[index].(*ConstantStringInfo)
-	return this.cpUtf8(stringInfo.stringIndex)
+/*
+CONSTANT_Methodref_info {
+    u1 tag;
+    u2 class_index;
+    u2 name_and_type_index;
+}
+ */
+type ConstantMethodrefInfo struct {
+	tag              uint8
+	classIndex       uint16
+	nameAndTypeIndex uint16
 }
 
-func (this *ClassFile) cpInteger(index uint16) int32  {
-	integerInfo := this.constantPool[index].(*ConstantIntegerInfo)
-	return int32(integerInfo.bytes)
+/*
+CONSTANT_InterfaceMethodref_info {
+    u1 tag;
+    u2 class_index;
+    u2 name_and_type_index;
+}
+ */
+type ConstantInterfaceMethodrefInfo struct {
+	tag              uint8
+	classIndex       uint16
+	nameAndTypeIndex uint16
 }
 
-func (this *ClassFile) cpLong(index uint16) int64  {
-	longInfo := this.constantPool[index].(*ConstantLongInfo)
-	return int64((longInfo.highBytes << 32) | longInfo.lowBytes)
+/*
+CONSTANT_String_info {
+    u1 tag;
+    u2 string_index;
+}
+ */
+type ConstantStringInfo struct {
+	tag         uint8
+	stringIndex uint16
 }
 
-func (this *ClassFile) cpFloat(index uint16) float32  {
-	floatInfo := this.constantPool[index].(*ConstantFloatInfo)
-	return float32(floatInfo.bytes)
+/*
+CONSTANT_Integer_info {
+    u1 tag;
+    u4 bytes;
+}
+ */
+type ConstantIntegerInfo struct {
+	tag   uint8
+	bytes uint32
 }
 
-func (this *ClassFile) cpDouble(index uint16) float64  {
-	doubleInfo := this.constantPool[index].(*ConstantDoubleInfo)
-	return float64((doubleInfo.highBytes << 32) | doubleInfo.lowBytes)
+/*
+CONSTANT_Float_info {
+    u1 tag;
+    u4 bytes;
 }
+ */
+type ConstantFloatInfo struct {
+	tag   uint8
+	bytes uint32
+}
+
+/*
+CONSTANT_Long_info {
+    u1 tag;
+    u4 high_bytes;
+    u4 low_bytes;
+}
+ */
+type ConstantLongInfo struct {
+	tag       uint8
+	highBytes uint32
+	lowBytes  uint32
+}
+
+/*
+CONSTANT_Double_info {
+    u1 tag;
+    u4 high_bytes;
+    u4 low_bytes;
+}
+ */
+type ConstantDoubleInfo struct {
+	tag       uint8
+	highBytes uint32
+	lowBytes  uint32
+}
+
+/*
+CONSTANT_NameAndType_info {
+    u1 tag;
+    u2 name_index;
+    u2 descriptor_index;
+}
+ */
+type ConstantNameAndTypeInfo struct {
+	tag             uint8
+	nameIndex       uint16
+	descriptorIndex uint16
+}
+
+/*
+CONSTANT_Utf8_info {
+    u1 tag;
+    u2 length;
+    u1 bytes[length];
+}
+ */
+type ConstantUtf8Info struct {
+	tag     uint8
+	length  uint16
+	bytes   []byte //u2 length
+}
+
+/*
+CONSTANT_MethodHandle_info {
+    u1 tag;
+    u1 reference_kind;
+    u2 reference_index;
+}
+ */
+type ConstantMethodHandleInfo struct {
+	tag            uint8
+	referenceKind  uint8
+	referenceIndex uint16
+}
+
+/*
+CONSTANT_MethodType_info {
+    u1 tag;
+    u2 descriptor_index;
+}
+ */
+type ConstantMethodTypeInfo struct {
+	tag             uint8
+	descriptorIndex uint16
+}
+
+/*
+CONSTANT_InvokeDynamic_info {
+    u1 tag;
+    u2 bootstrap_method_attr_index;
+    u2 name_and_type_index;
+}
+ */
+type ConstantInvokeDynamicInfo struct {
+	tag                      uint8
+	bootstrapMethodAttrIndex uint16
+	nameAndTypeIndex         uint16
+}
+
