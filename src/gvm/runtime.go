@@ -237,9 +237,14 @@ type Thread struct {
 
 type StackFrame struct {
 	method *MethodMirror
-	pc int // if this frame is current frame, the pc is for the pc of this thread; otherwise, it is a snapshot one since the last time
+	// if this frame is current frame, the pc is for the pc of this thread;
+	// otherwise, it is a snapshot one since the last time
+	pc int
 	localVariables []uint64
-	operandStack *OperandStack
+	// operand stack
+	operandStack []uint64
+	operandStackSize uint
+	operandStackCapacity uint
 }
 
 func NewStackFrame(method *MethodMirror) *StackFrame {
@@ -247,39 +252,200 @@ func NewStackFrame(method *MethodMirror) *StackFrame {
 		method: method,
 		pc: 0,
 		localVariables: make([]uint64, len(method.localVariables)),
-		operandStack: &OperandStack{
-			values: make([]uint64, DEFAULT_OPERAND_STACK_SIZE),
-			size: 0,
-			capacity: DEFAULT_OPERAND_STACK_SIZE,
-		},
+		operandStack: make([]uint64, DEFAULT_OPERAND_STACK_SIZE),
+		operandStackSize: 0,
+		operandStackCapacity: DEFAULT_OPERAND_STACK_SIZE,
 	}
 	return stackFrame
 }
 
-func (this *StackFrame) loadIntLocalVariable(index uint) int32  {
+func (this *StackFrame) loadByteVar(index uint) int8  {
+	return int8(this.localVariables[index])
+}
+
+func (this *StackFrame) storeByteVar(index uint, value int8)  {
+	this.localVariables[index] = uint64(value) & uint64(0xFF)
+}
+
+func (this *StackFrame) loadCharVar(index uint) uint16  {
+	return uint16(this.localVariables[index])
+}
+
+func (this *StackFrame) storeCharVar(index uint, value uint16)  {
+	this.localVariables[index] = uint64(value) & uint64(0xFF)
+}
+
+func (this *StackFrame) loadShortVar(index uint) int16  {
+	return int16(this.localVariables[index])
+}
+
+func (this *StackFrame) storeShortVar(index uint, value int16)  {
+	this.localVariables[index] = uint64(value) & uint64(0xFFFF)
+}
+
+func (this *StackFrame) loadIntVar(index uint) int32  {
 	return int32(this.localVariables[index])
 }
 
-func (this *StackFrame) storeIntLocalVariable(index uint, value int32)  {
+func (this *StackFrame) storeIntVar(index uint, value int32)  {
 	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFF)
 }
 
-type OperandStack struct {
-	values []uint64
-	size uint
-	capacity uint
+func (this *StackFrame) loadLongVar(index uint) int64  {
+	return int64(this.localVariables[index])
 }
 
-func (this *OperandStack) pushInt(java_int int32)  {
-	this.values[this.size] = uint64(java_int) & uint64(0xFFFFFFFF)
-	this.size++
+func (this *StackFrame) storeLongVar(index uint, value int64)  {
+	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFFFFFFFFFF)
 }
 
-func (this *OperandStack) popInt() int32 {
-	java_int := int32(this.values[this.size-1])
-	this.size --
+func (this *StackFrame) loadFloatVar(index uint) float32  {
+	return float32(this.localVariables[index])
+}
+
+func (this *StackFrame) storeFloatVar(index uint, value float32)  {
+	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFF)
+}
+
+func (this *StackFrame) loadDoubleVar(index uint) float64  {
+	return float64(this.localVariables[index])
+}
+
+func (this *StackFrame) storeDoubleVar(index uint, value float64)  {
+	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFFFFFFFFFF)
+}
+
+func (this *StackFrame) loadBooleanVar(index uint) bool  {
+	java_value := false
+	if this.localVariables[index] != 0 {
+		java_value = true
+	}
+	return java_value
+}
+
+func (this *StackFrame) storeBooleanVar(index uint, java_value bool)  {
+	value := 0
+	if java_value {
+		value = 1
+	}
+	this.localVariables[index] = uint64(value) & uint64(0x1)
+}
+
+func (this *StackFrame) loadReferenceVar(index uint) uint64  {
+	return this.localVariables[index]
+}
+
+func (this *StackFrame) storeReferenceVar(index uint, java_value uint64)  {
+	this.localVariables[index] = uint64(java_value)
+}
+
+func (this *StackFrame) pushByte(java_byte int8)  {
+	this.operandStack[this.operandStackSize] = uint64(java_byte) & uint64(0xFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popByte() int8 {
+	java_byte := int8(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
+	return java_byte
+}
+
+func (this *StackFrame) pushShort(java_short int16)  {
+	this.operandStack[this.operandStackSize] = uint64(java_short) & uint64(0xFFFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popShort() int16 {
+	java_short := int16(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
+	return java_short
+}
+
+func (this *StackFrame) pushChar(java_char uint16)  {
+	this.operandStack[this.operandStackSize] = uint64(java_char) & uint64(0xFFFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popChar() uint16 {
+	java_char := uint16(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
+	return java_char
+}
+
+func (this *StackFrame) pushInt(java_int int32)  {
+	this.operandStack[this.operandStackSize] = uint64(java_int) & uint64(0xFFFFFFFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popInt() int32 {
+	java_int := int32(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
 	return java_int
 }
+
+func (this *StackFrame) pushLong(java_int int64)  {
+	this.operandStack[this.operandStackSize] = uint64(java_int) & uint64(0xFFFFFFFFFFFFFFFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popLong() int64 {
+	java_long := int64(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
+	return java_long
+}
+
+func (this *StackFrame) pushFloat(java_int float32)  {
+	this.operandStack[this.operandStackSize] = uint64(java_int) & uint64(0xFFFFFFFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popFloat() float32 {
+	java_float := float32(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
+	return java_float
+}
+
+func (this *StackFrame) pushDouble(java_int float64)  {
+	this.operandStack[this.operandStackSize] = uint64(java_int) & uint64(0xFFFFFFFF)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popDouble() float64 {
+	java_double := float64(this.operandStack[this.operandStackSize-1])
+	this.operandStackSize--
+	return java_double
+}
+
+func (this *StackFrame) pushBoolean(java_boolean bool)  {
+	value := 0
+	if java_boolean {
+		value = 1
+	}
+	this.operandStack[this.operandStackSize] = uint64(value) & uint64(0x1)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popBoolean() bool {
+	java_boolean := false
+	if this.operandStack[this.operandStackSize-1] != 0 {
+		java_boolean = true
+	}
+	this.operandStackSize--
+	return java_boolean
+}
+
+func (this *StackFrame) pushReference(java_reference uint64)  {
+	this.operandStack[this.operandStackSize] = uint64(java_reference)
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popReference() uint64 {
+	java_reference := this.operandStack[this.operandStackSize-1]
+	this.operandStackSize--
+	return java_reference
+}
+
+
 
 type VMStack struct {
 	stackFrames []*StackFrame
