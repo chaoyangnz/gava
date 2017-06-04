@@ -1,8 +1,7 @@
 package main
 
 import (
-	"io/ioutil"
-	"classfile"
+	"gvm"
 	"flag"
 	"strings"
 )
@@ -14,13 +13,6 @@ func main()  {
 	flag.Parse()
 	classpath = strings.Split(*cp, ":")
 
-	bytes, _ := ioutil.ReadFile("Main.class")
-	cr := classfile.NewClassReader(bytes)
-	cf := cr.ReadAsClassFile()
-
-	//cf.Print()
-
-	cm := classfile.NewClassMirror(cf)
-	cm.FindMethod(classfile.SignatureOf("main:V()"))
-	print(1)
+	gvm.Start("Main.class")
+	//print(mainMethod)
 }
