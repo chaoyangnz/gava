@@ -239,23 +239,20 @@ type StackFrame struct {
 	method *MethodMirror
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
-	pc int
+	pc uint32
 	localVariables []uint64
 	// operand stack
 	operandStack []uint64
 	operandStackSize uint
-	operandStackCapacity uint
 }
 
 func NewStackFrame(method *MethodMirror) *StackFrame {
 	stackFrame := &StackFrame{
 		method: method,
 		pc: 0,
-		localVariables: make([]uint64, len(method.localVariables)),
-		operandStack: make([]uint64, DEFAULT_OPERAND_STACK_SIZE),
-		operandStackSize: 0,
-		operandStackCapacity: DEFAULT_OPERAND_STACK_SIZE,
-	}
+		localVariables: make([]uint64, method.maxLocals),
+		operandStack: make([]uint64, method.maxStack),
+		operandStackSize: 0}
 	return stackFrame
 }
 
@@ -444,8 +441,6 @@ func (this *StackFrame) popReference() uint64 {
 	this.operandStackSize--
 	return java_reference
 }
-
-
 
 type VMStack struct {
 	stackFrames []*StackFrame
