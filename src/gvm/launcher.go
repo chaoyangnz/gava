@@ -12,5 +12,5 @@ func Start(mainClassFile string)  {
 	cm := NewClassMirror()
 	cm.Load(cf)
 
-	Run(cm)
+	run(cm)
 }
