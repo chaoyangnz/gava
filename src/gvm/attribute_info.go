@@ -1,4 +1,4 @@
-package classfile
+package gvm
 
 /*
 attribute_info {
