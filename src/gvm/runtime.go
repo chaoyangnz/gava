@@ -341,6 +341,38 @@ func (this *StackFrame) pushByte(java_byte int8)  {
 	this.operandStackSize++
 }
 
+func (this *StackFrame) passParameters(callee *StackFrame)  {
+	method := callee.method
+	for i := 0; i < len(method.parameterDescriptors); i++ {
+		switch rune(method.parameterDescriptors[i][0]) {
+		case 'B':callee.storeByteVar(uint(i), this.popByte())
+		case 'C':callee.storeCharVar(uint(i), this.popChar())
+		case 'D':callee.storeDoubleVar(uint(i), this.popDouble())
+		case 'F':callee.storeFloatVar(uint(i), this.popFloat())
+		case 'I':callee.storeIntVar(uint(i), this.popInt())
+		case 'J':callee.storeLongVar(uint(i), this.popLong())
+		case 'S':callee.storeShortVar(uint(i), this.popShort())
+		case 'Z':callee.storeBooleanVar(uint(i), this.popBoolean())
+		case 'L', '[':callee.storeReferenceVar(uint(i), this.popReference())
+		}
+	}
+}
+
+func (this *StackFrame) passReturn(caller *StackFrame)  {
+	method := this.method
+	switch rune(method.returnDescriptor[0]) {
+	case 'B':caller.pushByte(this.popByte())
+	case 'C':caller.pushChar(this.popChar())
+	case 'D':caller.pushDouble(this.popDouble())
+	case 'F':caller.pushFloat(this.popFloat())
+	case 'I':caller.pushInt(this.popInt())
+	case 'J':caller.pushLong(this.popLong())
+	case 'S':caller.pushShort(this.popShort())
+	case 'Z':caller.pushBoolean(this.popBoolean())
+	case 'L', '[':caller.pushReference(this.popReference())
+	}
+}
+
 func (this *StackFrame) popByte() int8 {
 	java_byte := int8(this.operandStack[this.operandStackSize-1])
 	this.operandStackSize--
@@ -453,11 +485,12 @@ func (this *VMStack) push(stackFrame *StackFrame)  {
 	this.size++
 }
 
-func (this *VMStack) pop() *StackFrame  {
-	stackFrame := this.stackFrames[this.size-1]
+func (this *VMStack) pop()  {
+	if this.size == 0 {
+		return
+	}
 	this.stackFrames[this.size-1] = nil
 	this.size--
-	return stackFrame
 }
 
 func (this *VMStack) peek() *StackFrame  {

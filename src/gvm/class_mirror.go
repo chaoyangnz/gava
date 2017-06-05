@@ -2,6 +2,7 @@ package gvm
 
 import (
 	"io/ioutil"
+	"strings"
 )
 
 /*
@@ -368,6 +369,7 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 		methodInfo := &classfile.methods[i]
 		methodMirror.name = classfile.cpUtf8(methodInfo.nameIndex)
 		methodMirror.descriptor = classfile.cpUtf8(methodInfo.descriptorIndex)
+		methodMirror.parameterDescriptors, methodMirror.returnDescriptor = parametersAndReturn(methodMirror.descriptor)
 		for j := uint16(0); j < methodInfo.attributeCount; j++ {
 			attributeInfo := methodInfo.attributes[j]
 			switch attributeInfo.(type) {
@@ -401,8 +403,53 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 	classCache[this.thisClass] = this
 }
 
+func parametersAndReturn(descriptor string) ([]string, string) {
+	arr := strings.Split(descriptor, ")")
+	parametersStr := arr[0][1:]
+	returnStr := arr[1]
 
+	var parametersSlice []string
 
+	for i := 0; i < len(parametersStr); {
+		ch := rune(parametersStr[i])
+		switch ch {
+		case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z':
+			parametersSlice = append(parametersSlice, string(ch))
+			i++
+		case 'L':
+		Ref: for j := i+1; j < len(parametersStr); j++ {
+			switch rune(parametersStr[j]) {
+			case ';':
+				parametersSlice = append(parametersSlice, string(parametersStr[i:j+1]))
+				i = j+1
+				break Ref
+			}
+		}
+		case '[':
+		Arr: for j := i+1; j < len(parametersStr); j++ {
+			switch rune(parametersStr[j]) {
+			case '[':
+				continue
+			case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z':
+				parametersSlice = append(parametersSlice, string(parametersStr[i:j+1]))
+				i = j+1
+				break Arr
+			case 'L':
+				for k := j+1; j < len(parametersStr); k++ {
+					switch rune(parametersStr[k]) {
+					case ';':
+						parametersSlice = append(parametersSlice, string(parametersStr[i:k+1]))
+						i = k+1
+						break Arr
+					}
+				}
+			}
+		}
+		}
+	}
+
+	return parametersSlice, returnStr
+}
 
 func (this *ClassMirror) resolveClass(classInfo *RuntimeConstantClassInfo) {
 	classdescriptor := this.constantPool[classInfo.nameIndex].(*RuntimeConstantUtf8Info).value
