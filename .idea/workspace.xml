@@ -2,17 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8be8319a-006b-4ef5-88bd-c255a19bbe69" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/GVM.class" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/gvm/constant_pool.go" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" afterPath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Main.class" afterPath="$PROJECT_DIR$/Main.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/attribute_info.go" afterPath="$PROJECT_DIR$/src/gvm/attribute_info.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_file.go" afterPath="$PROJECT_DIR$/src/gvm/class_file.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_mirror.go" afterPath="$PROJECT_DIR$/src/gvm/class_mirror.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_reader.go" afterPath="$PROJECT_DIR$/src/gvm/class_reader.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/runtime.go" afterPath="$PROJECT_DIR$/src/gvm/runtime.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main.go" afterPath="$PROJECT_DIR$/src/main.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -27,8 +22,8 @@
       <file leaf-file-name="interpreter.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/gvm/interpreter.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="930">
-              <caret line="62" column="34" lean-forward="true" selection-start-line="62" selection-start-column="34" selection-end-line="62" selection-end-column="34" />
+            <state relative-caret-position="360">
+              <caret line="24" column="7" lean-forward="true" selection-start-line="24" selection-start-column="7" selection-end-line="24" selection-end-column="7" />
               <folding />
             </state>
           </provider>
@@ -37,8 +32,8 @@
       <file leaf-file-name="runtime.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="241" column="13" lean-forward="false" selection-start-line="241" selection-start-column="13" selection-end-line="241" selection-end-column="13" />
+            <state relative-caret-position="766">
+              <caret line="490" column="5" lean-forward="false" selection-start-line="490" selection-start-column="5" selection-end-line="490" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -47,10 +42,22 @@
       <file leaf-file-name="class_mirror.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gvm/class_mirror.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="766">
-              <caret line="433" column="0" lean-forward="false" selection-start-line="433" selection-start-column="0" selection-end-line="433" selection-end-column="0" />
+            <state relative-caret-position="501">
+              <caret line="432" column="55" lean-forward="true" selection-start-line="432" selection-start-column="17" selection-end-line="432" selection-end-column="55" />
               <folding>
-                <element signature="e#13#36#0" expanded="true" />
+                <element signature="e#13#47#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="19" column="1" lean-forward="false" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
+              <folding>
+                <element signature="e#14#69#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -71,8 +78,8 @@
       <file leaf-file-name="launcher.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gvm/launcher.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="7" column="30" lean-forward="true" selection-start-line="5" selection-start-column="4" selection-end-line="7" selection-end-column="30" />
+            <state relative-caret-position="210">
+              <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -101,6 +108,7 @@
       <find>.(*</find>
       <find>this\.thisClass \= classfile\.cpClass\(classfile\.thisClass\)\n\	classMirror\.superClass \= classfile\.cpClass\(classfile\.superClass\)\n\	classMirror\.fields \= make\(map\[string\]\*FieldMirror\)\n\	for i \:\= 0\; i \&lt; len\(classfile\.fields\)\; i\+\+ \{\n\	\	filedMirror \:\= \&amp;FieldMirror\{class\: classMirror\}\n\	\	fieldInfo \:\= classfile\.fields\[i\]\n\	\	filedMirror\.signature \= Signature\{classfile\.cpUtf8\(fieldInfo\.nameIndex\)\, classfile\.cpUtf8\(fieldInfo\.descriptorIndex\)\}\n\	\	classMirror\.fields\[filedMirror\.signature\.toString\(\)\] \= filedMirror\n\	\}\n\n\	classMirror\.methods \= make\(map\[string\]\*MethodMirror\)\n\	for i \:\= 0\; i \&lt; len\(classfile\.methods\)\; i\+\+ \{\n\	\	methodMirror \:\= \&amp;MethodMirror\{class\: classMirror\}\n\	\	methodInfo \:\= classfile\.methods\[i\]\n\	\	methodMirror\.signature \= Signature\{classfile\.cpUtf8\(methodInfo\.nameIndex\)\, classfile\.cpUtf8\(methodInfo\.descriptorIndex\)\}\n\	\	for j \:\= uint16\(0\)\; j \&lt; methodInfo\.attributeCount\; j\+\+ \{\n\	\	\	attributeInfo \:\= methodInfo\.attributes\[j\]\n\	\	\	switch attributeInfo\.\(type\) \{\n\	\	\	case \*CodeAttribute\:\n\	\	\	\	codeAttribute \:\= attributeInfo\.\(\*CodeAttribute\)\n\	\	\	\	methodMirror\.code \= codeAttribute\.code\n\	\	\	\	for k \:\= uint16\(0\)\; k \&lt; codeAttribute\.attributesCount\; k\+\+ \{\n\	\	\	\	\	codeAttributeAttribute \:\= codeAttribute\.attributes\[i\]\n\	\	\	\	\	switch codeAttributeAttribute\.\(type\) \{\n\	\	\	\	\	case \*LocalVariableTableAttribute\:\n\	\	\	\	\	\	localVariableTableAttribute \:\= codeAttributeAttribute\.\(\*LocalVariableTableAttribute\)\n\	\	\	\	\	\	methodMirror\.localVariables \= make\(\[\]Signature\, localVariableTableAttribute\.localVariableTableLength\)\n\	\	\	\	\	\	for m \:\= uint16\(0\)\; m \&lt; localVariableTableAttribute\.localVariableTableLength\; i\+\+ \{\n\	\	\	\	\	\	\	methodMirror\.localVariables\[m\] \= Signature\{\n\	\	\	\	\	\	\	\	classfile\.cpUtf8\(localVariableTableAttribute\.localVariableTable\[m\]\.nameIndex\)\,\n\	\	\	\	\	\	\	\	classfile\.cpUtf8\(localVariableTableAttribute\.localVariableTable\[m\]\.descriptorIndex\)\}\n\	\	\	\	\	\	\}\n\	\	\	\	\	\}\n\	\	\	\	\}\n\	\	\	\}\n\	\	\}\n\	\	classMirror\.methods\[methodMirror\.signature\.toString\(\)\] \= methodMirror</find>
       <find>classMirror</find>
+      <find>tostring</find>
     </findStrings>
     <replaceStrings>
       <replace>this *ClassReader</replace>
@@ -135,15 +143,15 @@
         <option value="$PROJECT_DIR$/src/gvm/classfile/constant_pool.go" />
         <option value="$PROJECT_DIR$/src/gvm/execute/interpreter.go" />
         <option value="$PROJECT_DIR$/src/launcher.go" />
-        <option value="$PROJECT_DIR$/src/main.go" />
         <option value="$PROJECT_DIR$/src/gvm/launcher.go" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/src/gvm/constant_pool.go" />
         <option value="$PROJECT_DIR$/src/gvm/class_reader.go" />
         <option value="$PROJECT_DIR$/src/gvm/attribute_info.go" />
         <option value="$PROJECT_DIR$/src/gvm/class_file.go" />
-        <option value="$PROJECT_DIR$/src/gvm/runtime.go" />
         <option value="$PROJECT_DIR$/src/gvm/class_mirror.go" />
+        <option value="$PROJECT_DIR$/src/main.go" />
+        <option value="$PROJECT_DIR$/src/gvm/runtime.go" />
         <option value="$PROJECT_DIR$/src/gvm/interpreter.go" />
       </list>
     </option>
@@ -335,17 +343,18 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="1358" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15993538" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.15993538" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328594" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24012639" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24474959" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.10742496" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23064771" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24474959" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.10742496" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23064771" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -365,28 +374,22 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/gvm/interpreter.go</url>
-          <line>81</line>
+          <url>file://$PROJECT_DIR$/src/gvm/launcher.go</url>
+          <line>14</line>
           <properties />
-          <option name="timeStamp" value="98" />
+          <option name="timeStamp" value="114" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/src/gvm/interpreter.go</url>
-          <line>79</line>
+          <line>84</line>
           <properties />
-          <option name="timeStamp" value="104" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/gvm/interpreter.go</url>
-          <line>37</line>
-          <properties />
-          <option name="timeStamp" value="107" />
+          <option name="timeStamp" value="119" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="108" />
+      <option name="time" value="120" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -423,7 +426,7 @@
         <state relative-caret-position="210">
           <caret line="18" column="0" lean-forward="true" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
           <folding>
-            <element signature="e#14#50#0" expanded="false" />
+            <element signature="e#14#69#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -477,7 +480,7 @@
         <state relative-caret-position="195">
           <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
           <folding>
-            <element signature="e#14#50#0" expanded="false" />
+            <element signature="e#14#69#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -587,7 +590,7 @@
         <state relative-caret-position="345">
           <caret line="23" column="12" lean-forward="false" selection-start-line="23" selection-start-column="12" selection-end-line="23" selection-end-column="12" />
           <folding>
-            <element signature="e#14#50#0" expanded="false" />
+            <element signature="e#14#69#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -605,7 +608,7 @@
         <state relative-caret-position="60">
           <caret line="4" column="10" lean-forward="true" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
           <folding>
-            <element signature="e#14#50#0" expanded="false" />
+            <element signature="e#14#69#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -616,16 +619,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          <folding>
-            <element signature="e#14#50#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -682,32 +675,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/launcher.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="30" lean-forward="true" selection-start-line="5" selection-start-column="4" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1192">
-          <caret line="142" column="0" lean-forward="false" selection-start-line="142" selection-start-column="2" selection-end-line="183" selection-end-column="3" />
-          <folding>
-            <marker date="1496566574000" expanded="true" signature="531:578" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="241" column="13" lean-forward="false" selection-start-line="241" selection-start-column="13" selection-end-line="241" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Main.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -740,20 +707,56 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1192">
+          <caret line="142" column="0" lean-forward="false" selection-start-line="142" selection-start-column="2" selection-end-line="183" selection-end-column="3" />
+          <folding>
+            <marker date="1496566574000" expanded="true" signature="531:578" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="19" column="1" lean-forward="false" selection-start-line="19" selection-start-column="1" selection-end-line="19" selection-end-column="1" />
+          <folding>
+            <element signature="e#14#69#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/class_mirror.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="766">
-          <caret line="433" column="0" lean-forward="false" selection-start-line="433" selection-start-column="0" selection-end-line="433" selection-end-column="0" />
+        <state relative-caret-position="501">
+          <caret line="432" column="55" lean-forward="true" selection-start-line="432" selection-start-column="17" selection-end-line="432" selection-end-column="55" />
           <folding>
-            <element signature="e#13#36#0" expanded="true" />
+            <element signature="e#13#47#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="766">
+          <caret line="490" column="5" lean-forward="false" selection-start-line="490" selection-start-column="5" selection-end-line="490" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/launcher.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/interpreter.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="930">
-          <caret line="62" column="34" lean-forward="true" selection-start-line="62" selection-start-column="34" selection-end-line="62" selection-end-column="34" />
+        <state relative-caret-position="360">
+          <caret line="24" column="7" lean-forward="true" selection-start-line="24" selection-start-column="7" selection-end-line="24" selection-end-column="7" />
           <folding />
         </state>
       </provider>
