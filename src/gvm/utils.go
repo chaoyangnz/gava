@@ -22,6 +22,14 @@ func u2s(u1s []u1) string {
 	return string(u2b(u1s))
 }
 
+func bytes2uint16(bytes []uint8) uint16 {
+	return uint16((bytes[0] << 8) | bytes[1])
+}
+
+func bytes2uint32(bytes []uint8) uint32 {
+	return uint32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3])
+}
+
 /*
 H = (S - 10000) / 400 + D800
 L = (S - 10000) % 400 + DC00
