@@ -4,6 +4,10 @@ import (
 	"fmt"
 )
 
+type u1 uint8
+type u2 uint16
+type u4 uint32
+type u8 uint64
 /*
 ClassFile {
 	u4				magic;
@@ -26,18 +30,18 @@ ClassFile {
 */
 type ClassFile struct {
 	size 	            int
-	magic               uint32
-	minorVersion        uint16
-	majorVersion        uint16
-	constantPoolCount   uint16
+	magic               u4
+	minorVersion        u2
+	majorVersion        u2
+	constantPoolCount   u2
 	constantPool        []ConstantPoolInfo
-	accessFlags         uint16
-	thisClass           uint16
-	superClass          uint16
-	interfaces          []uint16
-	fieldsCount         uint16
+	accessFlags         u2
+	thisClass           u2
+	superClass          u2
+	interfaces          []u2
+	fieldsCount         u2
 	fields              []FieldInfo
-	methodsCount        uint16
+	methodsCount        u2
 	methods             []MethodInfo
 	attributes          []AttributeInfo
 }
@@ -52,10 +56,10 @@ field_info {
 }
 */
 type FieldInfo struct {
-	accessFlags     uint16
-	nameIndex       uint16
-	descriptorIndex uint16
-	attributeCount  uint16
+	accessFlags     u2
+	nameIndex       u2
+	descriptorIndex u2
+	attributeCount  u2
 	attributes      []AttributeInfo
 }
 
@@ -71,10 +75,10 @@ method_info {
 }
 */
 type MethodInfo struct {
-	accessFlags     uint16
-	nameIndex       uint16
-	descriptorIndex uint16
-	attributeCount  uint16
+	accessFlags     u2
+	nameIndex       u2
+	descriptorIndex u2
+	attributeCount  u2
 	attributes      []AttributeInfo
 }
 
@@ -136,49 +140,49 @@ func (this *ClassFile) printAttribute(attribute AttributeInfo)  {
 }
 
 
-func (this *ClassFile) cpUtf8(index uint16) string  {
-	return string(this.constantPool[index].(*ConstantUtf8Info).bytes)
+func (this *ClassFile) cpUtf8(index u2) string  {
+	return u2s(this.constantPool[index].(*ConstantUtf8Info).bytes)
 }
 
-//func (this *ClassFile) cpClass(index uint16) string  {
+//func (this *ClassFile) cpClass(index u2) string  {
 //	classInfo := this.constantPool[index].(*ConstantClassInfo)
 //	return this.cpUtf8(classInfo.nameIndex)
 //}
 //
-//func (this *ClassFile) cpNameAndType(index uint16) (string, string)  {
+//func (this *ClassFile) cpNameAndType(index u2) (string, string)  {
 //	nameAndTypeInfo := this.constantPool[index].(*ConstantNameAndTypeInfo)
 //	return this.cpUtf8(nameAndTypeInfo.nameIndex), this.cpUtf8(nameAndTypeInfo.descriptorIndex)
 //}
 //
 //// FieldRef, MethodRef, InterfaceMethodRef
-//func (this *ClassFile) cpMemberRef(index uint16) (string, string, string)  {
+//func (this *ClassFile) cpMemberRef(index u2) (string, string, string)  {
 //	memberRefInfo := this.constantPool[index].(*ConstantFieldrefInfo)
 //	name, descriptor := this.cpNameAndType(memberRefInfo.nameAndTypeIndex)
 //	return this.cpClass(memberRefInfo.classIndex), name, descriptor
 //}
 //
 //
-//func (this *ClassFile) cpString(index uint16) string  {
+//func (this *ClassFile) cpString(index u2) string  {
 //	stringInfo := this.constantPool[index].(*ConstantStringInfo)
 //	return this.cpUtf8(stringInfo.stringIndex)
 //}
 //
-//func (this *ClassFile) cpInteger(index uint16) int32  {
+//func (this *ClassFile) cpInteger(index u2) int32  {
 //	integerInfo := this.constantPool[index].(*ConstantIntegerInfo)
 //	return int32(integerInfo.bytes)
 //}
 //
-//func (this *ClassFile) cpLong(index uint16) int64  {
+//func (this *ClassFile) cpLong(index u2) int64  {
 //	longInfo := this.constantPool[index].(*ConstantLongInfo)
 //	return int64((longInfo.highBytes << 32) | longInfo.lowBytes)
 //}
 //
-//func (this *ClassFile) cpFloat(index uint16) float32  {
+//func (this *ClassFile) cpFloat(index u2) float32  {
 //	floatInfo := this.constantPool[index].(*ConstantFloatInfo)
 //	return float32(floatInfo.bytes)
 //}
 //
-//func (this *ClassFile) cpDouble(index uint16) float64  {
+//func (this *ClassFile) cpDouble(index u2) float64  {
 //	doubleInfo := this.constantPool[index].(*ConstantDoubleInfo)
 //	return float64((doubleInfo.highBytes << 32) | doubleInfo.lowBytes)
 //}
@@ -218,8 +222,8 @@ CONSTANT_Class_info {
 }
  */
 type ConstantClassInfo struct {
-	tag       uint8
-	nameIndex uint16
+	tag       u1
+	nameIndex u2
 }
 
 /*
@@ -230,9 +234,9 @@ CONSTANT_Fieldref_info {
 }
  */
 type ConstantFieldrefInfo struct {
-	tag              uint8
-	classIndex       uint16
-	nameAndTypeIndex uint16
+	tag              u1
+	classIndex       u2
+	nameAndTypeIndex u2
 }
 
 /*
@@ -243,9 +247,9 @@ CONSTANT_Methodref_info {
 }
  */
 type ConstantMethodrefInfo struct {
-	tag              uint8
-	classIndex       uint16
-	nameAndTypeIndex uint16
+	tag              u1
+	classIndex       u2
+	nameAndTypeIndex u2
 }
 
 /*
@@ -256,9 +260,9 @@ CONSTANT_InterfaceMethodref_info {
 }
  */
 type ConstantInterfaceMethodrefInfo struct {
-	tag              uint8
-	classIndex       uint16
-	nameAndTypeIndex uint16
+	tag              u1
+	classIndex       u2
+	nameAndTypeIndex u2
 }
 
 /*
@@ -268,8 +272,8 @@ CONSTANT_String_info {
 }
  */
 type ConstantStringInfo struct {
-	tag         uint8
-	stringIndex uint16
+	tag         u1
+	stringIndex u2
 }
 
 /*
@@ -279,8 +283,8 @@ CONSTANT_Integer_info {
 }
  */
 type ConstantIntegerInfo struct {
-	tag   uint8
-	bytes uint32
+	tag   u1
+	bytes u4
 }
 
 /*
@@ -290,8 +294,8 @@ CONSTANT_Float_info {
 }
  */
 type ConstantFloatInfo struct {
-	tag   uint8
-	bytes uint32
+	tag   u1
+	bytes u4
 }
 
 /*
@@ -302,9 +306,9 @@ CONSTANT_Long_info {
 }
  */
 type ConstantLongInfo struct {
-	tag       uint8
-	highBytes uint32
-	lowBytes  uint32
+	tag       u1
+	highBytes u4
+	lowBytes  u4
 }
 
 /*
@@ -315,9 +319,9 @@ CONSTANT_Double_info {
 }
  */
 type ConstantDoubleInfo struct {
-	tag       uint8
-	highBytes uint32
-	lowBytes  uint32
+	tag       u1
+	highBytes u4
+	lowBytes  u4
 }
 
 /*
@@ -328,9 +332,9 @@ CONSTANT_NameAndType_info {
 }
  */
 type ConstantNameAndTypeInfo struct {
-	tag             uint8
-	nameIndex       uint16
-	descriptorIndex uint16
+	tag             u1
+	nameIndex       u2
+	descriptorIndex u2
 }
 
 /*
@@ -341,9 +345,9 @@ CONSTANT_Utf8_info {
 }
  */
 type ConstantUtf8Info struct {
-	tag     uint8
-	length  uint16
-	bytes   []byte //u2 length
+	tag     u1
+	length  u2
+	bytes   []u1 //u2 length
 }
 
 /*
@@ -354,9 +358,9 @@ CONSTANT_MethodHandle_info {
 }
  */
 type ConstantMethodHandleInfo struct {
-	tag            uint8
-	referenceKind  uint8
-	referenceIndex uint16
+	tag            u1
+	referenceKind  u1
+	referenceIndex u2
 }
 
 /*
@@ -366,8 +370,8 @@ CONSTANT_MethodType_info {
 }
  */
 type ConstantMethodTypeInfo struct {
-	tag             uint8
-	descriptorIndex uint16
+	tag             u1
+	descriptorIndex u2
 }
 
 /*
@@ -378,8 +382,8 @@ CONSTANT_InvokeDynamic_info {
 }
  */
 type ConstantInvokeDynamicInfo struct {
-	tag                      uint8
-	bootstrapMethodAttrIndex uint16
-	nameAndTypeIndex         uint16
+	tag                      u1
+	bootstrapMethodAttrIndex u2
+	nameAndTypeIndex         u2
 }
 

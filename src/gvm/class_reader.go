@@ -7,7 +7,7 @@ import (
 var bigEndian = binary.BigEndian
 
 type ClassReader struct {
-	bytecode []byte
+	bytecode []uint8
 	classfile *ClassFile
 }
 
@@ -15,35 +15,35 @@ func NewClassReader(bytecode []byte) *ClassReader {
 	return &ClassReader{bytecode: bytecode}
 }
 
-func (this *ClassReader) ReadUint32() uint32 {
+func (this *ClassReader) readU4() u4 {
 	value := bigEndian.Uint32(this.bytecode[:4])
 	this.bytecode = this.bytecode[4:]
-	return value
+	return u4(value)
 }
 
-func (this *ClassReader) ReadUint16() uint16 {
+func (this *ClassReader) readU2() u2 {
 	value := bigEndian.Uint16(this.bytecode[:2])
 	this.bytecode = this.bytecode[2:]
-	return value
+	return u2(value)
 }
 
-func (this *ClassReader) ReadUint8() uint8 {
-	return uint8(this.ReadBytes(1)[0])
+func (this *ClassReader) readU1() u1 {
+	return u1(this.readU1s(1)[0])
 }
 
-func (this *ClassReader) ReadBytes(len uint32) []byte {
-	bytes := this.bytecode[:len]
-	this.bytecode = this.bytecode[len:]
-	return bytes
+func (this *ClassReader) readU1s(length uint32) []u1 {
+	bytes := this.bytecode[:length]
+	this.bytecode = this.bytecode[length:]
+	return b2u(bytes)
 }
 
-func (this *ClassReader) Length() int {
+func (this *ClassReader) length() int {
 	return len(this.bytecode)
 }
 
 func (this *ClassReader) ReadAsClassFile() *ClassFile  {
 	this.classfile = &ClassFile{}
-	this.classfile.size = this.Length()
+	this.classfile.size = this.length()
 	this.readMagic()
 	this.readMinorVersion()
 	this.readMajorVersion()
@@ -60,25 +60,25 @@ func (this *ClassReader) ReadAsClassFile() *ClassFile  {
 }
 
 func (this *ClassReader) readMagic() {
-	this.classfile.magic = this.ReadUint32()
+	this.classfile.magic = this.readU4()
 }
 
 func (this *ClassReader) readMinorVersion() {
-	this.classfile.minorVersion = this.ReadUint16()
+	this.classfile.minorVersion = this.readU2()
 }
 
 func (this *ClassReader) readMajorVersion() {
-	this.classfile.majorVersion = this.ReadUint16()
+	this.classfile.majorVersion = this.readU2()
 }
 
 func (this *ClassReader) readConstantPool() {
-	var constantPoolCount = this.ReadUint16()
+	var constantPoolCount = this.readU2()
 	this.classfile.constantPoolCount = constantPoolCount
 	//fmt.Printf("cp_info count: %d\n", constantPoolCount)
 	this.classfile.constantPool = make([]ConstantPoolInfo, constantPoolCount)
-	for i := uint16(1); i < constantPoolCount; i++ {
+	for i := u2(1); i < constantPoolCount; i++ {
 		//fmt.Printf(" #%2d = ", i)
-		tag := this.ReadUint8()
+		tag := this.readU1()
 
 		switch tag {
 		case CONSTANT_Class:
@@ -150,38 +150,38 @@ func (this *ClassReader) readConstantPool() {
 }
 
 func (this *ClassReader) readAccessFlags() {
-	this.classfile.accessFlags = this.ReadUint16()
+	this.classfile.accessFlags = this.readU2()
 }
 
 func (this *ClassReader) readThisClass() {
-	this.classfile.thisClass = this.ReadUint16()
+	this.classfile.thisClass = this.readU2()
 }
 
 func (this *ClassReader) readSuperClass() {
-	this.classfile.superClass = this.ReadUint16()
+	this.classfile.superClass = this.readU2()
 }
 
 func (this *ClassReader) readInterfaces() {
-	var interfacesCount = this.ReadUint16()
-	this.classfile.interfaces = make([]uint16, interfacesCount)
-	for i := uint16(0); i < interfacesCount; i++ {
-		this.classfile.interfaces[i] = this.ReadUint16()
+	var interfacesCount = this.readU2()
+	this.classfile.interfaces = make([]u2, interfacesCount)
+	for i := u2(0); i < interfacesCount; i++ {
+		this.classfile.interfaces[i] = this.readU2()
 	}
 }
 
 func (this *ClassReader) readFields() {
-	var fieldsCount = this.ReadUint16()
+	var fieldsCount = this.readU2()
 	this.classfile.fieldsCount = fieldsCount
 	this.classfile.fields = make([]FieldInfo, fieldsCount)
-	for i := uint16(0); i < fieldsCount; i++ {
+	for i := u2(0); i < fieldsCount; i++ {
 		fieldInfo := FieldInfo{}
-		fieldInfo.accessFlags = this.ReadUint16()
-		fieldInfo.nameIndex = this.ReadUint16()
-		fieldInfo.descriptorIndex = this.ReadUint16()
-		var attributesCount = this.ReadUint16()
+		fieldInfo.accessFlags = this.readU2()
+		fieldInfo.nameIndex = this.readU2()
+		fieldInfo.descriptorIndex = this.readU2()
+		var attributesCount = this.readU2()
 		fieldInfo.attributeCount = attributesCount
 		fieldInfo.attributes = make([]AttributeInfo, attributesCount)
-		for i := uint16(0); i < attributesCount; i++ {
+		for i := u2(0); i < attributesCount; i++ {
 			 this.readAttribute(&fieldInfo.attributes[i])
 		}
 		this.classfile.fields[i] = fieldInfo
@@ -189,18 +189,18 @@ func (this *ClassReader) readFields() {
 }
 
 func (this *ClassReader) readMethods() {
-	methodsCount := this.ReadUint16()
+	methodsCount := this.readU2()
 	this.classfile.methodsCount = methodsCount
 	this.classfile.methods = make([]MethodInfo, methodsCount)
-	for i := uint16(0); i < methodsCount; i++ {
+	for i := u2(0); i < methodsCount; i++ {
 		methodInfo := MethodInfo{}
-		methodInfo.accessFlags = this.ReadUint16()
-		methodInfo.nameIndex = this.ReadUint16()
-		methodInfo.descriptorIndex = this.ReadUint16()
-		var attributesCount = this.ReadUint16()
+		methodInfo.accessFlags = this.readU2()
+		methodInfo.nameIndex = this.readU2()
+		methodInfo.descriptorIndex = this.readU2()
+		var attributesCount = this.readU2()
 		methodInfo.attributeCount = attributesCount
 		methodInfo.attributes = make([]AttributeInfo, attributesCount)
-		for i := uint16(0); i < attributesCount; i++ {
+		for i := u2(0); i < attributesCount; i++ {
 			this.readAttribute(&methodInfo.attributes[i])
 		}
 		this.classfile.methods[i] = methodInfo
@@ -209,16 +209,16 @@ func (this *ClassReader) readMethods() {
 
 
 func (this *ClassReader) readAttributes() {
-	attributesCount := this.ReadUint16()
+	attributesCount := this.readU2()
 	this.classfile.attributes = make([]AttributeInfo, attributesCount)
-	for i := uint16(0); i < attributesCount; i++ {
+	for i := u2(0); i < attributesCount; i++ {
 		this.readAttribute(&this.classfile.attributes[i])
 	}
 }
 
 func (this *ClassReader) readAttribute(attributeInfo *AttributeInfo)  {
-	attributeNameIndex := this.ReadUint16()
-	attributeLength := this.ReadUint32()
+	attributeNameIndex := this.readU2()
+	attributeLength := this.readU4()
 
 	attributeName := this.classfile.cpUtf8(attributeNameIndex)
 	switch attributeName {
@@ -226,12 +226,12 @@ func (this *ClassReader) readAttribute(attributeInfo *AttributeInfo)  {
 		*attributeInfo = &CodeAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	case "SourceFile":
 		*attributeInfo = &SourceFileAttribue{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
-	case "LineNumberTableEntry":
+	case "LineNumberTable":
 		*attributeInfo = &LineNumberTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
-	case "LocalVariableTableEntry":
+	case "LocalVariableTable":
 		*attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
-		this.ReadBytes(uint32(attributeLength)) // just skip out
+		this.readU1s(uint32(attributeLength)) // just skip out
 	}
 
 	if *attributeInfo != nil {
@@ -240,92 +240,92 @@ func (this *ClassReader) readAttribute(attributeInfo *AttributeInfo)  {
 }
 
 func (this *ClassReader) readConstantClassInfo(cp *ConstantClassInfo) {
-	cp.nameIndex = this.ReadUint16()
+	cp.nameIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantFieldrefInfo(cp *ConstantFieldrefInfo) {
-	cp.classIndex = this.ReadUint16()
-	cp.nameAndTypeIndex = this.ReadUint16()
+	cp.classIndex = this.readU2()
+	cp.nameAndTypeIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantMethodrefInfo(cp *ConstantMethodrefInfo) {
-	cp.classIndex = this.ReadUint16()
-	cp.nameAndTypeIndex = this.ReadUint16()
+	cp.classIndex = this.readU2()
+	cp.nameAndTypeIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantStringInfo(cp *ConstantStringInfo) {
-	cp.stringIndex = this.ReadUint16()
+	cp.stringIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantInterfaceMethodrefInfo(cp *ConstantInterfaceMethodrefInfo) {
-	cp.classIndex = this.ReadUint16()
-	cp.nameAndTypeIndex = this.ReadUint16()
+	cp.classIndex = this.readU2()
+	cp.nameAndTypeIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantIntegerInfo(cp *ConstantIntegerInfo) {
-	cp.bytes = this.ReadUint32()
+	cp.bytes = this.readU4()
 }
 
 
 
 func (this *ClassReader) readConstantFloatInfo(cp *ConstantFloatInfo) {
-	cp.bytes = this.ReadUint32()
+	cp.bytes = this.readU4()
 }
 
 
 
 func (this *ClassReader) readConstantLongInfo(cp *ConstantLongInfo) {
-	cp.highBytes = this.ReadUint32()
-	cp.lowBytes = this.ReadUint32()
+	cp.highBytes = this.readU4()
+	cp.lowBytes = this.readU4()
 }
 
 
 
 func (this *ClassReader) readConstantDoubleInfo(cp *ConstantDoubleInfo) {
-	cp.highBytes = this.ReadUint32()
-	cp.lowBytes = this.ReadUint32()
+	cp.highBytes = this.readU4()
+	cp.lowBytes = this.readU4()
 }
 
 
 
 func (this *ClassReader) readConstantNameAndTypeInfo(cp *ConstantNameAndTypeInfo) {
-	cp.nameIndex = this.ReadUint16()
-	cp.descriptorIndex = this.ReadUint16()
+	cp.nameIndex = this.readU2()
+	cp.descriptorIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantUtf8Info(cp *ConstantUtf8Info) {
-	cp.length = this.ReadUint16()
-	cp.bytes = this.ReadBytes(uint32(cp.length))
+	cp.length = this.readU2()
+	cp.bytes = this.readU1s(uint32(cp.length))
 }
 
 
 
 func (this *ClassReader) readConstantMethodHandleInfo(cp *ConstantMethodHandleInfo) {
-	cp.referenceKind = this.ReadBytes(1)[0]
-	cp.referenceIndex = this.ReadUint16()
+	cp.referenceKind = this.readU1s(1)[0]
+	cp.referenceIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantMethodTypeInfo(cp *ConstantMethodTypeInfo) {
-	cp.descriptorIndex = this.ReadUint16()
+	cp.descriptorIndex = this.readU2()
 }
 
 
 
 func (this *ClassReader) readConstantInvokeDynamicInfo(cp *ConstantInvokeDynamicInfo) {
-	cp.bootstrapMethodAttrIndex = this.ReadUint16()
-	cp.nameAndTypeIndex = this.ReadUint16()
+	cp.bootstrapMethodAttrIndex = this.readU2()
+	cp.nameAndTypeIndex = this.readU2()
 }

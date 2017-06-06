@@ -1,11 +1,9 @@
 package main
 
 import (
-	//"gvm"
-	//"flag"
-	"strings"
-	"flag"
 	"gvm"
+	"flag"
+	"strings"
 )
 
 var classpath []string
@@ -16,5 +14,4 @@ func main()  {
 	classpath = strings.Split(*cp, ":")
 
 	gvm.Start("Main.class")
-	//print(mainMethod)
 }

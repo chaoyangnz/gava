@@ -2,8 +2,28 @@ package gvm
 
 import (
 	"io/ioutil"
-	"strings"
 )
+
+type java_byte          int8
+type java_char          uint16
+type java_short         int16
+type java_int           int32
+type java_long          int64
+type java_boolean       int32
+type java_float         float32
+type java_double        float64
+type java_reference     *ObjectMirror
+
+type ObjectMirror struct {
+	//header part
+	class *ClassMirror
+	flags uint32
+	locks uint32
+	size  uint32
+	//fields
+	fields []uint64
+}
+
 
 /*
 cp_info {
@@ -22,13 +42,9 @@ CONSTANT_Class_info {
 }
  */
 type RuntimeConstantClassInfo struct {
-	nameIndex   uint16
-	isResolved  bool
-	class       *ClassMirror
-}
-
-func (this *RuntimeConstantClassInfo) resolved() bool  {
-	return this.isResolved
+	nameIndex u2
+	resolved  bool
+	class     *ClassMirror
 }
 
 /*
@@ -39,8 +55,8 @@ CONSTANT_Fieldref_info {
 }
  */
 type RuntimeConstantFieldrefInfo struct {
-	classIndex       uint16
-	nameAndTypeIndex uint16
+	classIndex       u2
+	nameAndTypeIndex u2
 	resolved         bool
 	field            *FieldMirror
 }
@@ -53,8 +69,8 @@ CONSTANT_Methodref_info {
 }
  */
 type RuntimeConstantMethodrefInfo struct {
-	classIndex       uint16
-	nameAndTypeIndex uint16
+	classIndex       u2
+	nameAndTypeIndex u2
 	resolved         bool
 	method           *MethodMirror
 }
@@ -67,8 +83,8 @@ CONSTANT_InterfaceMethodref_info {
 }
  */
 type RuntimeConstantInterfaceMethodrefInfo struct {
-	classIndex       uint16
-	nameAndTypeIndex uint16
+	classIndex       u2
+	nameAndTypeIndex u2
 	resolved         bool
 	method           *MethodMirror
 }
@@ -80,9 +96,9 @@ CONSTANT_String_info {
 }
  */
 type RuntimeConstantStringInfo struct {
-	stringIndex     uint16
+	stringIndex     u2
 	resolved        bool
-	value           string
+	value           []java_char
 }
 
 /*
@@ -92,9 +108,9 @@ CONSTANT_Integer_info {
 }
  */
 type RuntimeConstantIntegerInfo struct {
-	bytes       uint32
+	bytes       u4
 	resolved    bool
-	value       int32
+	value       java_int
 }
 
 /*
@@ -104,9 +120,9 @@ CONSTANT_Float_info {
 }
  */
 type RuntimeConstantFloatInfo struct {
-	bytes       uint32
+	bytes       u4
 	resolved    bool
-	value       float32
+	value       java_float
 }
 
 /*
@@ -117,10 +133,10 @@ CONSTANT_Long_info {
 }
  */
 type RuntimeConstantLongInfo struct {
-	highBytes   uint32
-	lowBytes    uint32
+	highBytes   u4
+	lowBytes    u4
 	resolved    bool
-	value       int64
+	value       java_long
 }
 
 /*
@@ -131,10 +147,10 @@ CONSTANT_Double_info {
 }
  */
 type RuntimeConstantDoubleInfo struct {
-	highBytes   uint32
-	lowBytes    uint32
+	highBytes   u4
+	lowBytes    u4
 	resolved    bool
-	value       float64
+	value       java_double
 }
 
 /*
@@ -145,8 +161,8 @@ CONSTANT_NameAndType_info {
 }
  */
 type RuntimeConstantNameAndTypeInfo struct {
-	nameIndex       uint16
-	descriptorIndex uint16
+	nameIndex       u2
+	descriptorIndex u2
 	resolved        bool
 	name            string
 	descriptor      string
@@ -164,8 +180,8 @@ CONSTANT_Utf8_info {
 }
  */
 type RuntimeConstantUtf8Info struct {
-	length          uint16
-	bytes           []byte
+	length          u2
+	bytes           []u1
 	resolved        bool
 	value           string
 }
@@ -178,8 +194,8 @@ CONSTANT_MethodHandle_info {
 }
  */
 type RuntimeConstantMethodHandleInfo struct {
-	referenceKind   uint8
-	referenceIndex  uint16
+	referenceKind   u1
+	referenceIndex  u2
 	resolved        bool
 	//TODO
 }
@@ -191,7 +207,7 @@ CONSTANT_MethodType_info {
 }
  */
 type RuntimeConstantMethodTypeInfo struct {
-	descriptorIndex uint16
+	descriptorIndex u2
 	resolved        bool
 	descriptor      string
 }
@@ -204,8 +220,8 @@ CONSTANT_InvokeDynamic_info {
 }
  */
 type RuntimeConstantInvokeDynamicInfo struct {
-	bootstrapMethodAttrIndex uint16
-	nameAndTypeIndex         uint16
+	bootstrapMethodAttrIndex u2
+	nameAndTypeIndex         u2
 	resolved                 bool
 	//TODO
 }
@@ -280,7 +296,7 @@ var classCache = make(map[string] *ClassMirror)
 
 func (this *ClassMirror) Load(classfile *ClassFile)  {
 	this.constantPool = make([]RuntimeConstantPoolInfo, classfile.constantPoolCount)
-	for i := uint16(1); i < classfile.constantPoolCount; i++ {
+	for i := u2(1); i < classfile.constantPoolCount; i++ {
 		cpInfo := classfile.constantPool[i]
 		switch cpInfo.(type) {
 		case *ConstantIntegerInfo:
@@ -288,39 +304,39 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 			this.constantPool[i] = &RuntimeConstantIntegerInfo{
 				cp.bytes,
 				true,
-				int32(cp.bytes)}
+				java_int(cp.bytes)}
 		case *ConstantLongInfo:
 			cp := cpInfo.(*ConstantLongInfo)
 			this.constantPool[i] = &RuntimeConstantLongInfo{
 				cp.highBytes, cp.lowBytes,
 				true,
-				int64((cp.highBytes << 32) | cp.lowBytes)}
+				java_long((cp.highBytes << 32) | cp.lowBytes)}
 		case *ConstantFloatInfo:
 			cp := cpInfo.(*ConstantFloatInfo)
 			this.constantPool[i] = &RuntimeConstantFloatInfo{
 				cp.bytes,
 				true,
-				float32(cp.bytes)}
+				java_float(cp.bytes)}
 		case *ConstantDoubleInfo:
 			cp := cpInfo.(*ConstantDoubleInfo)
 			this.constantPool[i] = &RuntimeConstantDoubleInfo{
 				cp.highBytes,
 				cp.lowBytes,
 				true,
-				float64((cp.highBytes << 32) | cp.lowBytes)}
+				java_double((cp.highBytes << 32) | cp.lowBytes)}
 		case *ConstantStringInfo:
 			cp := cpInfo.(*ConstantStringInfo)
 			this.constantPool[i] = &RuntimeConstantStringInfo{
 				cp.stringIndex,
 				true,
-				classfile.cpUtf8(cp.stringIndex)}
+				string2JavaChars(classfile.cpUtf8(cp.stringIndex))}
 		case *ConstantUtf8Info:
 			cp := cpInfo.(*ConstantUtf8Info)
 			this.constantPool[i] = &RuntimeConstantUtf8Info{
 				cp.length,
 				cp.bytes,
 				true,
-				string(cp.bytes)}
+				u2s(cp.bytes)}
 		case *ConstantNameAndTypeInfo:
 			cp := cpInfo.(*ConstantNameAndTypeInfo)
 			this.constantPool[i] = &RuntimeConstantNameAndTypeInfo{
@@ -370,26 +386,26 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 		methodMirror.name = classfile.cpUtf8(methodInfo.nameIndex)
 		methodMirror.descriptor = classfile.cpUtf8(methodInfo.descriptorIndex)
 		methodMirror.parameterDescriptors, methodMirror.returnDescriptor = parametersAndReturn(methodMirror.descriptor)
-		for j := uint16(0); j < methodInfo.attributeCount; j++ {
+		for j := u2(0); j < methodInfo.attributeCount; j++ {
 			attributeInfo := methodInfo.attributes[j]
 			switch attributeInfo.(type) {
 			case *CodeAttribute:
 				codeAttribute := attributeInfo.(*CodeAttribute)
-				methodMirror.maxStack = codeAttribute.maxStack
-				methodMirror.maxLocals = codeAttribute.maxLocals
-				methodMirror.code = codeAttribute.code
-				for k := uint16(0); k < codeAttribute.attributesCount; k++ {
+				methodMirror.maxStack = uint16(codeAttribute.maxStack)
+				methodMirror.maxLocals = uint16(codeAttribute.maxLocals)
+				methodMirror.code = u2b(codeAttribute.code)
+				for k := u2(0); k < codeAttribute.attributesCount; k++ {
 					codeAttributeAttribute := codeAttribute.attributes[k]
 					switch codeAttributeAttribute.(type) {
 					case *LocalVariableTableAttribute:
 						localVariableTableAttribute := codeAttributeAttribute.(*LocalVariableTableAttribute)
 						methodMirror.localVariables = make([]LocalVariable, localVariableTableAttribute.localVariableTableLength)
-						for m := uint16(0); m < localVariableTableAttribute.localVariableTableLength; m++ {
+						for m := u2(0); m < localVariableTableAttribute.localVariableTableLength; m++ {
 							methodMirror.localVariables[m] = LocalVariable{
 								methodMirror,
-								localVariableTableAttribute.localVariableTable[m].startPc,
-								localVariableTableAttribute.localVariableTable[m].length,
-								localVariableTableAttribute.localVariableTable[m].index,
+								uint16(localVariableTableAttribute.localVariableTable[m].startPc),
+								uint16(localVariableTableAttribute.localVariableTable[m].length),
+								uint16(localVariableTableAttribute.localVariableTable[m].index),
 								classfile.cpUtf8(localVariableTableAttribute.localVariableTable[m].nameIndex),
 								classfile.cpUtf8(localVariableTableAttribute.localVariableTable[m].descriptorIndex)}
 						}
@@ -403,57 +419,9 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 	classCache[this.thisClass] = this
 }
 
-func parametersAndReturn(descriptor string) ([]string, string) {
-	arr := strings.Split(descriptor, ")")
-	parametersStr := arr[0][1:]
-	returnStr := arr[1]
-
-	var parametersSlice []string
-
-	for i := 0; i < len(parametersStr); {
-		ch := rune(parametersStr[i])
-		switch ch {
-		case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z':
-			parametersSlice = append(parametersSlice, string(ch))
-			i++
-		case 'L':
-		Ref: for j := i+1; j < len(parametersStr); j++ {
-			switch rune(parametersStr[j]) {
-			case ';':
-				parametersSlice = append(parametersSlice, string(parametersStr[i:j+1]))
-				i = j+1
-				break Ref
-			}
-		}
-		case '[':
-		Arr: for j := i+1; j < len(parametersStr); j++ {
-			switch rune(parametersStr[j]) {
-			case '[':
-				continue
-			case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z':
-				parametersSlice = append(parametersSlice, string(parametersStr[i:j+1]))
-				i = j+1
-				break Arr
-			case 'L':
-				for k := j+1; j < len(parametersStr); k++ {
-					switch rune(parametersStr[k]) {
-					case ';':
-						parametersSlice = append(parametersSlice, string(parametersStr[i:k+1]))
-						i = k+1
-						break Arr
-					}
-				}
-			}
-		}
-		}
-	}
-
-	return parametersSlice, returnStr
-}
-
 func (this *ClassMirror) resolveClass(classInfo *RuntimeConstantClassInfo) {
 	classdescriptor := this.constantPool[classInfo.nameIndex].(*RuntimeConstantUtf8Info).value
-	if !classInfo.isResolved {
+	if !classInfo.resolved {
 		class := classCache[classdescriptor]
 		if class == nil {
 			bytes, _ := ioutil.ReadFile(classdescriptor + ".class")
@@ -465,7 +433,7 @@ func (this *ClassMirror) resolveClass(classInfo *RuntimeConstantClassInfo) {
 		}
 
 		classInfo.class = class
-		classInfo.isResolved = true
+		classInfo.resolved = true
 	}
 }
 

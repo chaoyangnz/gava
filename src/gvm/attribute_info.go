@@ -30,52 +30,52 @@ Code_attribute {
 }
 */
 type CodeAttribute struct {
-	attributeNameIndex   uint16
-	attributeLength      uint32
-	maxStack             uint16
-	maxLocals            uint16
-	codeLength           uint32
-	code                 []uint8               //u4 code_length
-	exceptionTableLength uint16
+	attributeNameIndex   u2
+	attributeLength      u4
+	maxStack             u2
+	maxLocals            u2
+	codeLength           u4
+	code                 []u1               //u4 code_length
+	exceptionTableLength u2
 	exceptionTable       []ExceptionTableEntry //u2 exception_table_length
-	attributesCount      uint16
+	attributesCount      u2
 	attributes           []AttributeInfo  //u2 attributes_count
 }
 
 func (this *CodeAttribute) ReadInfo(reader *ClassReader) {
-	this.maxStack = reader.ReadUint16()
-	this.maxLocals = reader.ReadUint16()
-	codeLength := reader.ReadUint32()
+	this.maxStack = reader.readU2()
+	this.maxLocals = reader.readU2()
+	codeLength := reader.readU4()
 	this.codeLength = codeLength
-	this.code = reader.ReadBytes(codeLength)
-	exceptionTableLength := reader.ReadUint16()
+	this.code = reader.readU1s(uint32(codeLength))
+	exceptionTableLength := reader.readU2()
 	this.exceptionTableLength = exceptionTableLength
 	this.exceptionTable = make([]ExceptionTableEntry, exceptionTableLength)
-	for i := uint16(0); i < exceptionTableLength; i++ {
+	for i := u2(0); i < exceptionTableLength; i++ {
 		exceptionTable := ExceptionTableEntry{}
 		exceptionTable.ReadInfo(reader)
 		this.exceptionTable[i] = exceptionTable
 	}
-	attributesCount := reader.ReadUint16()
+	attributesCount := reader.readU2()
 	this.attributesCount = attributesCount
 	this.attributes = make([]AttributeInfo, attributesCount)
-	for i := uint16(0); i < attributesCount; i++ {
+	for i := u2(0); i < attributesCount; i++ {
 		reader.readAttribute(&this.attributes[i])
 	}
 }
 
 type ExceptionTableEntry struct {
-	startPc   uint16
-	endPc     uint16
-	handlerPc uint16
-	catchType uint16
+	startPc   u2
+	endPc     u2
+	handlerPc u2
+	catchType u2
 }
 
 func (this *ExceptionTableEntry) ReadInfo(reader *ClassReader) {
-	this.startPc = reader.ReadUint16()
-	this.endPc = reader.ReadUint16()
-	this.handlerPc = reader.ReadUint16()
-	this.catchType = reader.ReadUint16()
+	this.startPc = reader.readU2()
+	this.endPc = reader.readU2()
+	this.handlerPc = reader.readU2()
+	this.catchType = reader.readU2()
 }
 
 /*
@@ -89,23 +89,23 @@ LineNumberTable_attribute {
 }
 */
 type LineNumberTableAttribute struct {
-	attributeNameIndex    uint16
-	attributeLength       uint32
-	lineNumberTableLength uint16
+	attributeNameIndex    u2
+	attributeLength       u4
+	lineNumberTableLength u2
 	lineNumberTable       []LineNumberTableEntry
 }
 
 type LineNumberTableEntry struct {
-	startPc    uint16
-	lineNumber uint16
+	startPc    u2
+	lineNumber u2
 }
 
 func (this *LineNumberTableAttribute) ReadInfo(reader *ClassReader) {
-	lineNumberTableLength := reader.ReadUint16()
+	lineNumberTableLength := reader.readU2()
 	this.lineNumberTableLength = lineNumberTableLength
 	this.lineNumberTable = make([]LineNumberTableEntry, lineNumberTableLength)
-	for i := uint16(0); i < lineNumberTableLength; i++ {
-		this.lineNumberTable[i] = LineNumberTableEntry{reader.ReadUint16(), reader.ReadUint16()}
+	for i := u2(0); i < lineNumberTableLength; i++ {
+		this.lineNumberTable[i] = LineNumberTableEntry{reader.readU2(), reader.readU2()}
 	}
 }
 
@@ -118,13 +118,13 @@ SourceFile_attribute {
  */
 
 type SourceFileAttribue struct {
-	attributeNameIndex uint16
-	attributeLength    uint32
-	sourceFileIndex uint16
+	attributeNameIndex u2
+	attributeLength    u4
+	sourceFileIndex u2
 }
 
 func (this *SourceFileAttribue) ReadInfo(reader *ClassReader) {
-	this.sourceFileIndex = reader.ReadUint16()
+	this.sourceFileIndex = reader.readU2()
 }
 
 /*
@@ -141,31 +141,31 @@ LocalVariableTable_attribute {
 }
  */
 type LocalVariableTableAttribute struct {
-	attributeNameIndex       uint16
-	attributeLength          uint32
-	localVariableTableLength uint16
+	attributeNameIndex       u2
+	attributeLength          u4
+	localVariableTableLength u2
 	localVariableTable       []LocalVariableTableEntry
 }
 
 type LocalVariableTableEntry struct {
-	startPc             uint16
-	length              uint16
-	nameIndex           uint16
-	descriptorIndex     uint16
-	index               uint16
+	startPc             u2
+	length              u2
+	nameIndex           u2
+	descriptorIndex     u2
+	index               u2
 }
 
 func (this *LocalVariableTableAttribute) ReadInfo(reader *ClassReader) {
-	localVariableTableLength := reader.ReadUint16()
+	localVariableTableLength := reader.readU2()
 	this.localVariableTableLength = localVariableTableLength
 	this.localVariableTable = make([]LocalVariableTableEntry, localVariableTableLength)
-	for i := uint16(0); i < localVariableTableLength; i++ {
+	for i := u2(0); i < localVariableTableLength; i++ {
 		this.localVariableTable[i] = LocalVariableTableEntry{
-			reader.ReadUint16(),
-			reader.ReadUint16(),
-			reader.ReadUint16(),
-			reader.ReadUint16(),
-			reader.ReadUint16()}
+			reader.readU2(),
+			reader.readU2(),
+			reader.readU2(),
+			reader.readU2(),
+			reader.readU2()}
 	}
 }
 
