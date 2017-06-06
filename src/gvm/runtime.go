@@ -238,7 +238,7 @@ type Thread struct {
 
 
 type StackFrame struct {
-	method *MethodMirror
+	method *JavaMethod
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc uint32
@@ -248,7 +248,7 @@ type StackFrame struct {
 	operandStackSize uint
 }
 
-func NewStackFrame(method *MethodMirror) *StackFrame {
+func NewStackFrame(method *JavaMethod) *StackFrame {
 	stackFrame := &StackFrame{
 		method: method,
 		pc: 0,
@@ -327,6 +327,14 @@ func (this *StackFrame) loadReferenceVar(index uint) java_reference  {
 }
 
 func (this *StackFrame) storeReferenceVar(index uint, value java_reference)  {
+	this.localVariables[index] = uint64(unsafe.Alignof((value)))
+}
+
+func (this *StackFrame) loadArrayVar(index uint) java_array  {
+	return java_array(unsafe.Pointer(uintptr(this.localVariables[index])))
+}
+
+func (this *StackFrame) storeArrayVar(index uint, value java_array)  {
 	this.localVariables[index] = uint64(unsafe.Alignof((value)))
 }
 
@@ -457,6 +465,17 @@ func (this *StackFrame) pushReference(jreference java_reference)  {
 
 func (this *StackFrame) popReference() java_reference {
 	jreference := java_reference(unsafe.Pointer(uintptr(this.operandStack[this.operandStackSize-1])))
+	this.operandStackSize--
+	return jreference
+}
+
+func (this *StackFrame) pushArray(jreference java_array)  {
+	this.operandStack[this.operandStackSize] = uint64(unsafe.Alignof(jreference))
+	this.operandStackSize++
+}
+
+func (this *StackFrame) popArray() java_array {
+	jreference := java_array(unsafe.Pointer(uintptr(this.operandStack[this.operandStackSize-1])))
 	this.operandStackSize--
 	return jreference
 }

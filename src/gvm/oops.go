@@ -4,24 +4,50 @@ import (
 	"io/ioutil"
 )
 
-type java_byte          int8
-type java_char          uint16
-type java_short         int16
-type java_int           int32
-type java_long          int64
-type java_boolean       int32
-type java_float         float32
-type java_double        float64
-type java_reference     *ObjectMirror
+type (
+	java_byte          int8
+	java_char          uint16
+	java_short         int16
+	java_int           int32
+	java_long          int64
+	java_boolean       int32
+	java_float         float32
+	java_double        float64
+	java_reference     *JavaObject
+	java_array         *JavaArray
+)
 
-type ObjectMirror struct {
+type JavaObject struct {
 	//header part
-	class *ClassMirror
+	class *JavaClass
 	flags uint32
 	locks uint32
-	size  uint32
 	//fields
 	fields []uint64
+}
+
+
+
+type JavaArray struct {
+	//header part
+	/*
+	Array Type	atype
+	T_BOOLEAN	4
+	T_CHAR	5
+	T_FLOAT	6
+	T_DOUBLE	7
+	T_BYTE	8
+	T_SHORT	9
+	T_INT	10
+	T_LONG	11
+	*/
+	atype   uint8
+	aclass  *JavaClass
+	flags   uint32
+	locks   uint32
+	size    uint32
+	//fields
+	elements []uint64
 }
 
 
@@ -44,7 +70,7 @@ CONSTANT_Class_info {
 type RuntimeConstantClassInfo struct {
 	nameIndex u2
 	resolved  bool
-	class     *ClassMirror
+	class     *JavaClass
 }
 
 /*
@@ -58,7 +84,7 @@ type RuntimeConstantFieldrefInfo struct {
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
-	field            *FieldMirror
+	field            *JavaField
 }
 
 /*
@@ -72,7 +98,7 @@ type RuntimeConstantMethodrefInfo struct {
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
-	method           *MethodMirror
+	method           *JavaMethod
 }
 
 /*
@@ -86,7 +112,7 @@ type RuntimeConstantInterfaceMethodrefInfo struct {
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
-	method           *MethodMirror
+	method           *JavaMethod
 }
 
 /*
@@ -230,25 +256,31 @@ type RuntimeConstantInvokeDynamicInfo struct {
 
 
 
-type ClassMirror struct {
-	constantPool []RuntimeConstantPoolInfo
-	accessFlags  uint16
-	thisClass    string
-	superClass   string
-	interfaces   []string
-	fields       map[string]*FieldMirror
-	methods      map[string]*MethodMirror
+type JavaClass struct {
+	constantPool    []RuntimeConstantPoolInfo
+	accessFlags     uint16
+	thisClass       string
+	superClass      string
+	interfaces      []string
+	fields          []*JavaField
+	methods         []*JavaMethod
+	fieldsMap       map[string]*JavaField
+	methodsMap      map[string]*JavaMethod
+	instanceFileds  []*JavaField
+	staticFields    []uint64
 	//attributes   []Attribute
 }
 
-type FieldMirror struct {
-	class           *ClassMirror
+type JavaField struct {
+	class           *JavaClass
+	accessFlags     uint16
 	name            string
 	descriptor      string
 }
 
-type MethodMirror struct {
-	class           *ClassMirror
+type JavaMethod struct {
+	class           *JavaClass
+	accessFlags     uint16
 	name            string
 	descriptor      string
 	maxStack        uint16
@@ -261,7 +293,7 @@ type MethodMirror struct {
 }
 
 type LocalVariable struct {
-	method              *MethodMirror
+	method              *JavaMethod
 	startPc             uint16
 	length              uint16
 	index               uint16
@@ -269,7 +301,7 @@ type LocalVariable struct {
 	descriptor          string
 }
 
-func (this *MethodMirror) localVariablesSize() uint {
+func (this *JavaMethod) localVariablesSize() uint {
 	sum := uint(0)
 	for i := 0; i < len(this.localVariables); i++ {
 		switch this.localVariables[i].descriptor[:1] {
@@ -288,13 +320,13 @@ func (this *MethodMirror) localVariablesSize() uint {
 	return sum
 }
 
-func NewClassMirror() *ClassMirror {
-	return &ClassMirror{}
+func NewClassMirror() *JavaClass {
+	return &JavaClass{}
 }
 
-var classCache = make(map[string] *ClassMirror)
+var classCache = make(map[string] *JavaClass)
 
-func (this *ClassMirror) Load(classfile *ClassFile)  {
+func (this *JavaClass) Load(classfile *ClassFile)  {
 	this.constantPool = make([]RuntimeConstantPoolInfo, classfile.constantPoolCount)
 	for i := u2(1); i < classfile.constantPoolCount; i++ {
 		cpInfo := classfile.constantPool[i]
@@ -370,18 +402,21 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 	}
 	this.thisClass = classfile.cpUtf8(classfile.constantPool[classfile.thisClass].(*ConstantClassInfo).nameIndex)
 	this.superClass = classfile.cpUtf8(classfile.constantPool[classfile.superClass].(*ConstantClassInfo).nameIndex)
-	this.fields = make(map[string]*FieldMirror)
+	this.fields = make([]*JavaField, len(classfile.fields))
+	this.fieldsMap = make(map[string]*JavaField)
 	for i := 0; i < len(classfile.fields); i++ {
-		filedMirror := &FieldMirror{class: this}
+		filedMirror := &JavaField{class: this}
 		fieldInfo := classfile.fields[i]
 		filedMirror.name = classfile.cpUtf8(fieldInfo.nameIndex)
 		filedMirror.descriptor = classfile.cpUtf8(fieldInfo.descriptorIndex)
-		this.fields[filedMirror.name + filedMirror.descriptor] = filedMirror
+		this.fields[i] = filedMirror
+		this.fieldsMap[filedMirror.name + filedMirror.descriptor] = filedMirror
 	}
 
-	this.methods = make(map[string]*MethodMirror)
+	this.methods = make([]*JavaMethod, len(classfile.methods))
+	this.methodsMap = make(map[string]*JavaMethod)
 	for i := 0; i < len(classfile.methods); i++ {
-		methodMirror := &MethodMirror{class: this}
+		methodMirror := &JavaMethod{class: this}
 		methodInfo := &classfile.methods[i]
 		methodMirror.name = classfile.cpUtf8(methodInfo.nameIndex)
 		methodMirror.descriptor = classfile.cpUtf8(methodInfo.descriptorIndex)
@@ -413,13 +448,14 @@ func (this *ClassMirror) Load(classfile *ClassFile)  {
 				}
 			}
 		}
-		this.methods[methodMirror.name + methodMirror.descriptor] = methodMirror
+		this.methods[i] = methodMirror
+		this.methodsMap[methodMirror.name + methodMirror.descriptor] = methodMirror
 	}
 
 	classCache[this.thisClass] = this
 }
 
-func (this *ClassMirror) resolveClass(classInfo *RuntimeConstantClassInfo) {
+func (this *JavaClass) resolveClass(classInfo *RuntimeConstantClassInfo) {
 	classdescriptor := this.constantPool[classInfo.nameIndex].(*RuntimeConstantUtf8Info).value
 	if !classInfo.resolved {
 		class := classCache[classdescriptor]
@@ -437,7 +473,7 @@ func (this *ClassMirror) resolveClass(classInfo *RuntimeConstantClassInfo) {
 	}
 }
 
-func (this *ClassMirror) resolveMethodRef(methodRef *RuntimeConstantMethodrefInfo)  {
+func (this *JavaClass) resolveMethodRef(methodRef *RuntimeConstantMethodrefInfo)  {
 	if !methodRef.resolved {
 		rcpClass := this.constantPool[methodRef.classIndex].(*RuntimeConstantClassInfo)
 		this.resolveClass(rcpClass)
@@ -449,6 +485,6 @@ func (this *ClassMirror) resolveMethodRef(methodRef *RuntimeConstantMethodrefInf
 }
 
 
-func (this *ClassMirror) findMethod(signature string) *MethodMirror {
-	return  this.methods[signature]
+func (this *JavaClass) findMethod(signature string) *JavaMethod {
+	return  this.methodsMap[signature]
 }

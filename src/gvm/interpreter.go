@@ -1,17 +1,19 @@
 package gvm
 
+import "fmt"
+
 const MAIN_METHOD = "main([Ljava/lang/String;)V"
 
 const DEFAULT_VM_STACK_SIZE  = 512
 
-func run(mainClass *ClassMirror)  {
+func run(mainClass *JavaClass)  {
 	mainMethod := mainClass.findMethod(MAIN_METHOD)
 	thread := &Thread{vmStack: VMStack{stackFrames: make([]*StackFrame, DEFAULT_VM_STACK_SIZE), size:0, capacity: DEFAULT_VM_STACK_SIZE}}
 	thread.vmStack.push(NewStackFrame(mainMethod))
 	for thread.vmStack.size != 0 { // per stack frame
 		f := thread.vmStack.peek()
 		for f.pc < uint32(len(f.method.code)) {
-				next, progress := interpret(f, thread)
+				next, progress := interpret(f, thread, f.method, f.method.class)
 				f.pc += progress
 				if !next {
 					break
@@ -20,7 +22,7 @@ func run(mainClass *ClassMirror)  {
 		}
 }
 
-func interpret(f *StackFrame, thread *Thread) (bool, uint32) {
+func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaClass) (bool, uint32) {
 	bytecode := f.method.code
 	opcode := bytecode[f.pc]
 	switch opcode {
@@ -62,7 +64,7 @@ func interpret(f *StackFrame, thread *Thread) (bool, uint32) {
 		f.pushInt(f.popInt() + f.popInt())
 		return true, 1
 	case INVOKESTATIC:
-		index := (bytecode[f.pc+1] << 8) | bytecode[f.pc+2]
+		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
 		methodRef := f.method.class.constantPool[index].(*RuntimeConstantMethodrefInfo)
 		f.method.class.resolveMethodRef(methodRef)
@@ -84,8 +86,35 @@ func interpret(f *StackFrame, thread *Thread) (bool, uint32) {
 	case RETURN:
 		thread.vmStack.pop()
 		return false, 1
+	case NEW:
+		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
+		classInfo := class.constantPool[index].(*RuntimeConstantClassInfo)
+		class.resolveClass(classInfo)
+		jreference := &JavaObject{class: classInfo.class}
+		jreference.fields = make([]uint64, len(classInfo.class.fields))
+		f.pushReference(jreference)
+		return true, 3
+	case ANEWARRAY:
+		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
+		count := f.popInt()
+
+		classInfo := class.constantPool[index].(*RuntimeConstantClassInfo)
+		class.resolveClass(classInfo)
+		jreference := &JavaArray{aclass: classInfo.class, size: uint32(count)}
+		jreference.elements = make([]uint64, uint32(count))
+		f.pushArray(jreference)
+		return true, 3
+	case NEWARRAY:
+		atype := uint8(bytecode[f.pc+1])
+		count := f.popInt()
+		jreference := &JavaArray{atype: atype, size: uint32(count)}
+		jreference.elements = make([]uint64, uint32(count))
+		f.pushArray(jreference)
+		return true, 2
 	default:
 		//ignore
+		fmt.Printf("No implementation for %d", opcode)
+		panic("Abort")
 		return true, 1
 	}
 	return true, 1
