@@ -242,9 +242,9 @@ type StackFrame struct {
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc uint32
-	localVariables []uint64
+	localVariables []java_any
 	// operand stack
-	operandStack []uint64
+	operandStack []java_any
 	operandStackSize uint
 }
 
@@ -252,8 +252,8 @@ func NewStackFrame(method *JavaMethod) *StackFrame {
 	stackFrame := &StackFrame{
 		method: method,
 		pc: 0,
-		localVariables: make([]uint64, method.maxLocals),
-		operandStack: make([]uint64, method.maxStack),
+		localVariables: make([]java_any, method.maxLocals),
+		operandStack: make([]java_any, method.maxStack),
 		operandStackSize: 0}
 	return stackFrame
 }
@@ -263,7 +263,7 @@ func (this *StackFrame) loadByteVar(index uint) java_byte  {
 }
 
 func (this *StackFrame) storeByteVar(index uint, value java_byte)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFF)
 }
 
 func (this *StackFrame) loadCharVar(index uint) java_char  {
@@ -271,7 +271,7 @@ func (this *StackFrame) loadCharVar(index uint) java_char  {
 }
 
 func (this *StackFrame) storeCharVar(index uint, value java_char)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFF)
 }
 
 func (this *StackFrame) loadShortVar(index uint) java_short  {
@@ -279,7 +279,7 @@ func (this *StackFrame) loadShortVar(index uint) java_short  {
 }
 
 func (this *StackFrame) storeShortVar(index uint, value java_short)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFFFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFFFF)
 }
 
 func (this *StackFrame) loadIntVar(index uint) java_int  {
@@ -287,7 +287,7 @@ func (this *StackFrame) loadIntVar(index uint) java_int  {
 }
 
 func (this *StackFrame) storeIntVar(index uint, value java_int)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFFFFFFFF)
 }
 
 func (this *StackFrame) loadLongVar(index uint) java_long  {
@@ -295,7 +295,7 @@ func (this *StackFrame) loadLongVar(index uint) java_long  {
 }
 
 func (this *StackFrame) storeLongVar(index uint, value java_long)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFFFFFFFFFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFFFFFFFFFFFFFFFF)
 }
 
 func (this *StackFrame) loadFloatVar(index uint) java_float  {
@@ -303,7 +303,7 @@ func (this *StackFrame) loadFloatVar(index uint) java_float  {
 }
 
 func (this *StackFrame) storeFloatVar(index uint, value java_float)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFFFFFFFF)
 }
 
 func (this *StackFrame) loadDoubleVar(index uint) java_double  {
@@ -311,7 +311,7 @@ func (this *StackFrame) loadDoubleVar(index uint) java_double  {
 }
 
 func (this *StackFrame) storeDoubleVar(index uint, value java_double)  {
-	this.localVariables[index] = uint64(value) & uint64(0xFFFFFFFFFFFFFFFF)
+	this.localVariables[index] = java_any(value) & java_any(0xFFFFFFFFFFFFFFFF)
 }
 
 func (this *StackFrame) loadBooleanVar(index uint) java_boolean  {
@@ -319,7 +319,7 @@ func (this *StackFrame) loadBooleanVar(index uint) java_boolean  {
 }
 
 func (this *StackFrame) storeBooleanVar(index uint, value java_boolean)  {
-	this.localVariables[index] = uint64(value) & uint64(0x1)
+	this.localVariables[index] = java_any(value) & java_any(0x1)
 }
 
 func (this *StackFrame) loadReferenceVar(index uint) java_reference  {
@@ -327,7 +327,7 @@ func (this *StackFrame) loadReferenceVar(index uint) java_reference  {
 }
 
 func (this *StackFrame) storeReferenceVar(index uint, value java_reference)  {
-	this.localVariables[index] = uint64(unsafe.Alignof((value)))
+	this.localVariables[index] = java_any(unsafe.Alignof((value)))
 }
 
 func (this *StackFrame) loadArrayVar(index uint) java_array  {
@@ -335,7 +335,7 @@ func (this *StackFrame) loadArrayVar(index uint) java_array  {
 }
 
 func (this *StackFrame) storeArrayVar(index uint, value java_array)  {
-	this.localVariables[index] = uint64(unsafe.Alignof((value)))
+	this.localVariables[index] = java_any(unsafe.Alignof((value)))
 }
 
 func (this *StackFrame) passParameters(callee *StackFrame)  {
@@ -371,7 +371,7 @@ func (this *StackFrame) passReturn(caller *StackFrame)  {
 }
 
 func (this *StackFrame) pushByte(jbyte java_byte)  {
-	this.operandStack[this.operandStackSize] = uint64(jbyte) & uint64(0xFF)
+	this.operandStack[this.operandStackSize] = java_any(jbyte) & java_any(0xFF)
 	this.operandStackSize++
 }
 
@@ -382,7 +382,7 @@ func (this *StackFrame) popByte() java_byte {
 }
 
 func (this *StackFrame) pushShort(jshort java_short) {
-	this.operandStack[this.operandStackSize] = uint64(jshort) & uint64(0xFFFF)
+	this.operandStack[this.operandStackSize] = java_any(jshort) & java_any(0xFFFF)
 	this.operandStackSize++
 }
 
@@ -393,7 +393,7 @@ func (this *StackFrame) popShort() java_short {
 }
 
 func (this *StackFrame) pushChar(jchar java_char)  {
-	this.operandStack[this.operandStackSize] = uint64(jchar) & uint64(0xFFFF)
+	this.operandStack[this.operandStackSize] = java_any(jchar) & java_any(0xFFFF)
 	this.operandStackSize++
 }
 
@@ -404,7 +404,7 @@ func (this *StackFrame) popChar() java_char {
 }
 
 func (this *StackFrame) pushInt(jint java_int)  {
-	this.operandStack[this.operandStackSize] = uint64(jint) & uint64(0xFFFFFFFF)
+	this.operandStack[this.operandStackSize] = java_any(jint) & java_any(0xFFFFFFFF)
 	this.operandStackSize++
 }
 
@@ -415,7 +415,7 @@ func (this *StackFrame) popInt() java_int {
 }
 
 func (this *StackFrame) pushLong(jlong java_long)  {
-	this.operandStack[this.operandStackSize] = uint64(jlong) & uint64(0xFFFFFFFFFFFFFFFF)
+	this.operandStack[this.operandStackSize] = java_any(jlong) & java_any(0xFFFFFFFFFFFFFFFF)
 	this.operandStackSize++
 }
 
@@ -426,7 +426,7 @@ func (this *StackFrame) popLong() java_long {
 }
 
 func (this *StackFrame) pushFloat(jfloat java_float)  {
-	this.operandStack[this.operandStackSize] = uint64(jfloat) & uint64(0xFFFFFFFF)
+	this.operandStack[this.operandStackSize] = java_any(jfloat) & java_any(0xFFFFFFFF)
 	this.operandStackSize++
 }
 
@@ -437,7 +437,7 @@ func (this *StackFrame) popFloat() java_float {
 }
 
 func (this *StackFrame) pushDouble(jdouble java_double)  {
-	this.operandStack[this.operandStackSize] = uint64(jdouble) & uint64(0xFFFFFFFF)
+	this.operandStack[this.operandStackSize] = java_any(jdouble) & java_any(0xFFFFFFFF)
 	this.operandStackSize++
 }
 
@@ -448,7 +448,7 @@ func (this *StackFrame) popDouble() java_double {
 }
 
 func (this *StackFrame) pushBoolean(jboolean java_boolean)  {
-	this.operandStack[this.operandStackSize] = uint64(jboolean) & uint64(0x1)
+	this.operandStack[this.operandStackSize] = java_any(jboolean) & java_any(0x1)
 	this.operandStackSize++
 }
 
@@ -459,7 +459,7 @@ func (this *StackFrame) popBoolean() java_boolean {
 }
 
 func (this *StackFrame) pushReference(jreference java_reference)  {
-	this.operandStack[this.operandStackSize] = uint64(unsafe.Alignof(jreference))
+	this.operandStack[this.operandStackSize] = java_any(unsafe.Alignof(jreference))
 	this.operandStackSize++
 }
 
@@ -470,7 +470,7 @@ func (this *StackFrame) popReference() java_reference {
 }
 
 func (this *StackFrame) pushArray(jreference java_array)  {
-	this.operandStack[this.operandStackSize] = uint64(unsafe.Alignof(jreference))
+	this.operandStack[this.operandStackSize] = java_any(unsafe.Alignof(jreference))
 	this.operandStackSize++
 }
 

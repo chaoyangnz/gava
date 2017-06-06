@@ -5,6 +5,8 @@ import (
 )
 
 type (
+	java_any           uint64
+
 	java_byte          int8
 	java_char          uint16
 	java_short         int16
@@ -23,7 +25,7 @@ type JavaObject struct {
 	flags uint32
 	locks uint32
 	//fields
-	fields []uint64
+	fields []java_any
 }
 
 
@@ -47,7 +49,7 @@ type JavaArray struct {
 	locks   uint32
 	size    uint32
 	//fields
-	elements []uint64
+	elements []java_any
 }
 
 
