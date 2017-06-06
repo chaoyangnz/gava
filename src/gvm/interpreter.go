@@ -91,7 +91,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		classInfo := class.constantPool[index].(*RuntimeConstantClassInfo)
 		class.resolveClass(classInfo)
 		jreference := &JavaObject{class: classInfo.class}
-		jreference.fields = make([]uint64, len(classInfo.class.fields))
+		jreference.fields = make([]java_any, len(classInfo.class.fields))
 		f.pushReference(jreference)
 		return true, 3
 	case ANEWARRAY:
@@ -101,14 +101,14 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		classInfo := class.constantPool[index].(*RuntimeConstantClassInfo)
 		class.resolveClass(classInfo)
 		jreference := &JavaArray{aclass: classInfo.class, size: uint32(count)}
-		jreference.elements = make([]uint64, uint32(count))
+		jreference.elements = make([]java_any, uint32(count))
 		f.pushArray(jreference)
 		return true, 3
 	case NEWARRAY:
 		atype := uint8(bytecode[f.pc+1])
 		count := f.popInt()
 		jreference := &JavaArray{atype: atype, size: uint32(count)}
-		jreference.elements = make([]uint64, uint32(count))
+		jreference.elements = make([]java_any, uint32(count))
 		f.pushArray(jreference)
 		return true, 2
 	default:
