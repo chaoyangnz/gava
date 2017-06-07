@@ -4,10 +4,15 @@ import (
 	"fmt"
 )
 
-type u1 uint8
-type u2 uint16
-type u4 uint32
-type u8 uint64
+type (
+	u1 uint8
+	u2 uint16
+	u4 uint32
+	u8 uint64
+)
+
+
+
 /*
 ClassFile {
 	u4				magic;

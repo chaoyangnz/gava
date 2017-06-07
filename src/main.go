@@ -13,5 +13,5 @@ func main()  {
 	flag.Parse()
 	classpath = strings.Split(*cp, ":")
 
-	gvm.Start("Main.class")
+	gvm.Start("java/Main.class")
 }
