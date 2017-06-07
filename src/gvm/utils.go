@@ -53,8 +53,8 @@ func string2JavaChars(str string) []java_char  {
 	chars := []java_char{}
 	for i := 0; i < len(runes); i++ {
 		arr := rune2utf16(runes[i])
-		for j := 0; j < len(arr); j++ {
-			chars = append(chars, arr[j])
+		for k := 0; k < len(arr); k++ {
+			chars = append(chars, arr[k])
 		}
 	}
 	return chars

@@ -73,15 +73,15 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		f.push(f.pop().(java_int) + f.pop().(java_int))
 		return true, 1
 	case ALOAD_0:
-		f.push(f.loadVar(0).(java_reference))
+		f.push(f.loadVar(0).(java_object))
 		return true, 1
 	case ASTORE:
 		index := bytecode[f.pc+1]
-		f.storeVar(uint(index), f.pop().(java_reference))
+		f.storeVar(uint(index), f.pop().(java_object))
 		return true, 2
 	case ALOAD:
 		index := bytecode[f.pc+1]
-		f.push(f.loadVar(uint(index)).(java_reference))
+		f.push(f.loadVar(uint(index)).(java_object))
 		return true, 2
 	case INVOKESTATIC:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
@@ -89,7 +89,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		methodRef := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo)
 		method := methodRef.method
 		if method.isNative() {
-			GVM_print(f.pop().(java_int))
+			GVM_print(f.pop().(java_string))
 			return true, 3
 		}
 		frame := NewStackFrame(method)
@@ -112,8 +112,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	case NEW:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 		class := class.constantPool[index].resolve().(*RuntimeConstantClassInfo).class
-		jreference := java_reference(&JavaObject{class: class})
-		jreference.fields = make([]java_any, class.instanceFieldsStart + uint16(len(class.instanceFileds)))
+		jreference := class.new()
 		f.push(jreference)
 		return true, 3
 	case ANEWARRAY:
@@ -134,7 +133,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		return true, 2
 	case GETFIELD:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		jreference := f.pop().(java_reference)
+		jreference := f.pop().(java_object)
 
 		f.push((*jreference).getField(class, index))
 		return true, 3
@@ -142,7 +141,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
 		value := f.pop()
-		jreference := f.pop().(java_reference)
+		jreference := f.pop().(java_object)
 
 		(*jreference).putField(class, index, value)
 		return true, 3
@@ -160,9 +159,36 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 
 		thread.vmStack.push(frame)
 		return false, 3
+	case BIPUSH:
+		byte := bytecode[f.pc+1]
+		f.push(java_int(byte))
+		return true, 2
+	case LDC:
+		index := bytecode[f.pc+1]
+		cpInfo := class.constantPool[index].resolve()
+		switch cpInfo.(type) {
+		case *RuntimeConstantIntegerInfo:
+			f.push(cpInfo.(*RuntimeConstantIntegerInfo).value)
+		case *RuntimeConstantFloatInfo:
+			f.push(cpInfo.(*RuntimeConstantFloatInfo).value)
+		case *RuntimeConstantStringInfo:
+			f.push(cpInfo.(*RuntimeConstantStringInfo).value)
+		}
+		return true, 2
+	case ICONST_5:
+		cpInfo := class.constantPool[5].resolve()
+		switch cpInfo.(type) {
+		case *RuntimeConstantIntegerInfo:
+			f.push(cpInfo.(*RuntimeConstantIntegerInfo).value)
+		case *RuntimeConstantFloatInfo:
+			f.push(cpInfo.(*RuntimeConstantFloatInfo).value)
+		case *RuntimeConstantStringInfo:
+			f.push(cpInfo.(*RuntimeConstantStringInfo).value)
+		}
+		return true, 1
 	default:
 		//ignore
-		fmt.Printf("No implementation for %d\n", opcode)
+		fmt.Printf("No implementation for opcode %d\n", opcode)
 		panic("Abort")
 		return true, 1
 	}

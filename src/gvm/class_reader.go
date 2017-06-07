@@ -13,16 +13,16 @@ type ClassReader struct {
 	classfile *ClassFile
 }
 
-func NewClassReader(classfile string) *ClassReader {
+func NewClassReader(classname string) *ClassReader {
 	classpath := ""
 	for i := 0; i < len(Classpath); i++ {
 		classpath += Classpath[i]
-		bytecode, err := ioutil.ReadFile(Classpath[i] + "/" + classfile)
+		bytecode, err := ioutil.ReadFile(Classpath[i] + "/" + classname + ".class")
 		if err == nil {
 			return &ClassReader{bytecode: bytecode}
 		}
 	}
-	panic(fmt.Sprintf("Cannot find class %s in class path: %s", classfile, Classpath))
+	panic(fmt.Sprintf("Cannot find class %s in class path: %s", classname, Classpath))
 }
 
 func (this *ClassReader) readU4() u4 {
