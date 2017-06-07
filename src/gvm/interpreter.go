@@ -27,42 +27,56 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	opcode := bytecode[f.pc]
 	switch opcode {
 	case ICONST_1:
-		f.pushInt(1)
+		f.push(java_int(1))
 		return true, 1
 	case ICONST_2:
-		f.pushInt(2)
+		f.push(java_int(2))
+		return true, 1
+	case ICONST_3:
+		f.push(java_int(3))
 		return true, 1
 	case ISTORE_0:
-		f.storeIntVar(0, f.popInt())
+		f.storeVar(0, f.pop())
 		return true, 1
 	case ISTORE_1:
-		f.storeIntVar(1, f.popInt())
+		f.storeVar(1, f.pop())
 		return true, 1
 	case ISTORE_2:
-		f.storeIntVar(2, f.popInt())
+		f.storeVar(2, f.pop())
 		return true, 1
 	case ISTORE_3:
-		f.storeIntVar(3, f.popInt())
+		f.storeVar(3, f.pop())
 		return true, 1
 	case ISTORE:
 		index := bytecode[f.pc+1]
-		f.storeIntVar(uint(index), f.popInt())
+		f.storeVar(uint(index), f.pop())
 		return true, 2
 	case ILOAD_0:
-		f.pushInt(f.loadIntVar(0))
+		f.push(f.loadVar(0).(java_int))
 		return true, 1
 	case ILOAD_1:
-		f.pushInt(f.loadIntVar(1))
+		f.push(f.loadVar(1).(java_int))
 		return true, 1
 	case ILOAD_2:
-		f.pushInt(f.loadIntVar(2))
+		f.push(f.loadVar(2).(java_int))
 		return true, 1
 	case ILOAD_3:
-		f.pushInt(f.loadIntVar(3))
+		f.push(f.loadVar(3).(java_int))
 		return true, 1
 	case IADD:
-		f.pushInt(f.popInt() + f.popInt())
+		f.push(f.pop().(java_int) + f.pop().(java_int))
 		return true, 1
+	case ALOAD_0:
+		f.push(f.loadVar(0).(java_reference))
+		return true, 1
+	case ASTORE:
+		index := bytecode[f.pc+1]
+		f.storeVar(uint(index), f.pop().(java_reference))
+		return true, 2
+	case ALOAD:
+		index := bytecode[f.pc+1]
+		f.push(f.loadVar(uint(index)).(java_reference))
+		return true, 2
 	case INVOKESTATIC:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
@@ -87,30 +101,58 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		return false, 1
 	case NEW:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		classInfo := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo)
-		jreference := &JavaObject{class: classInfo.class}
-		jreference.fields = make([]java_any, len(classInfo.class.fields))
-		f.pushReference(jreference)
+		class := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo).class
+		jreference := java_reference(&JavaObject{class: class})
+		jreference.fields = make([]java_any, class.instanceFieldsStart + uint16(len(class.instanceFileds)))
+		f.push(jreference)
 		return true, 3
 	case ANEWARRAY:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		count := f.popInt()
+		count := f.pop().(java_int)
 
 		classInfo := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo)
-		jreference := &JavaArray{aclass: classInfo.class, size: uint32(count)}
+		jreference := java_array(&JavaArray{aclass: classInfo.class, size: uint32(count)})
 		jreference.elements = make([]java_any, uint32(count))
-		f.pushArray(jreference)
+		f.push(jreference)
 		return true, 3
 	case NEWARRAY:
 		atype := uint8(bytecode[f.pc+1])
-		count := f.popInt()
-		jreference := &JavaArray{atype: atype, size: uint32(count)}
+		count := f.pop().(java_int)
+		jreference := java_array(&JavaArray{atype: atype, size: uint32(count)})
 		jreference.elements = make([]java_any, uint32(count))
-		f.pushArray(jreference)
+		f.push(jreference)
 		return true, 2
+	case GETFIELD:
+		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
+		jreference := f.pop().(java_reference)
+
+		f.push((*jreference).getField(index))
+		return true, 3
+	case PUTFIELD:
+		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
+
+		value := f.pop()
+		jreference := f.pop().(java_reference)
+
+		(*jreference).putField(class, index, value)
+		return true, 3
+	case DUP:
+		value := f.peek()
+		f.push(value)
+		return true, 1
+	case INVOKESPECIAL:
+		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
+
+		method := f.method.class.constantPool[index].resolve(f.method.class).(*RuntimeConstantMethodrefInfo).method
+		frame := NewStackFrame(method)
+		// pass parameters
+		f.passParameters(frame)
+
+		thread.vmStack.push(frame)
+		return false, 3
 	default:
 		//ignore
-		fmt.Printf("No implementation for %d", opcode)
+		fmt.Printf("No implementation for %d\n", opcode)
 		panic("Abort")
 		return true, 1
 	}

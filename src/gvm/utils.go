@@ -35,7 +35,7 @@ H = (S - 10000) / 400 + D800
 L = (S - 10000) % 400 + DC00
  */
 func rune2utf16(codepoint rune) []java_char {
-	if(codepoint <= 0xFFFF) {
+	if codepoint <= 0xFFFF {
 		return []java_char{ java_char(codepoint)}
 	}
 	high_surrogate := (uint32(codepoint) - 0x10000) / 0x400 + 0xD800
