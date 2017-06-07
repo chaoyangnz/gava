@@ -60,7 +60,7 @@ cp_info {
 }
  */
 type RuntimeConstantPoolInfo interface {
-	//resolved() bool
+	resolve(class *JavaClass) RuntimeConstantPoolInfo
 }
 
 /*
@@ -73,6 +73,25 @@ type RuntimeConstantClassInfo struct {
 	nameIndex u2
 	resolved  bool
 	class     *JavaClass
+}
+
+func (this *RuntimeConstantClassInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+	classdescriptor := class.constantPool[this.nameIndex].(*RuntimeConstantUtf8Info).value
+	if !this.resolved {
+		class := classCache[classdescriptor]
+		if class == nil {
+			bytes, _ := ioutil.ReadFile(classdescriptor + ".class")
+			cr := NewClassReader(bytes)
+			cf := cr.ReadAsClassFile()
+
+			class = NewClassMirror()
+			class.Load(cf)
+		}
+
+		this.class = class
+		this.resolved = true
+	}
+	return this
 }
 
 /*
@@ -89,6 +108,13 @@ type RuntimeConstantFieldrefInfo struct {
 	field            *JavaField
 }
 
+func (this *RuntimeConstantFieldrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		//TODO
+	}
+	return this
+}
+
 /*
 CONSTANT_Methodref_info {
     u1 tag;
@@ -102,6 +128,18 @@ type RuntimeConstantMethodrefInfo struct {
 	resolved         bool
 	method           *JavaMethod
 }
+
+func (this *RuntimeConstantMethodrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		rcpClass := class.constantPool[this.classIndex].resolve(class).(*RuntimeConstantClassInfo)
+
+		nameAndType := class.constantPool[this.nameAndTypeIndex].(*RuntimeConstantNameAndTypeInfo)
+		this.method = rcpClass.class.findMethod(nameAndType.toString())
+		this.resolved = true
+	}
+	return this
+}
+
 
 /*
 CONSTANT_InterfaceMethodref_info {
@@ -117,6 +155,15 @@ type RuntimeConstantInterfaceMethodrefInfo struct {
 	method           *JavaMethod
 }
 
+func (this *RuntimeConstantInterfaceMethodrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		//TODO
+
+		this.resolved = true
+	}
+	return this
+}
+
 /*
 CONSTANT_String_info {
     u1 tag;
@@ -127,6 +174,15 @@ type RuntimeConstantStringInfo struct {
 	stringIndex     u2
 	resolved        bool
 	value           []java_char
+}
+
+
+func (this *RuntimeConstantStringInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+	if !this.resolved {
+		this.value = string2JavaChars(class.constantPool[this.stringIndex].resolve(class).(*RuntimeConstantUtf8Info).value)
+		this.resolved = true
+	}
+	return this
 }
 
 /*
@@ -141,6 +197,15 @@ type RuntimeConstantIntegerInfo struct {
 	value       java_int
 }
 
+
+func (this *RuntimeConstantIntegerInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		this.value = java_int(this.bytes)
+		this.resolved = true
+	}
+	return this
+}
+
 /*
 CONSTANT_Float_info {
     u1 tag;
@@ -151,6 +216,14 @@ type RuntimeConstantFloatInfo struct {
 	bytes       u4
 	resolved    bool
 	value       java_float
+}
+
+func (this *RuntimeConstantFloatInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		this.value = java_float(this.bytes)
+		this.resolved = true
+	}
+	return this
 }
 
 /*
@@ -167,6 +240,14 @@ type RuntimeConstantLongInfo struct {
 	value       java_long
 }
 
+func (this *RuntimeConstantLongInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		this.value = java_long(this.highBytes << 8 | this.lowBytes)
+		this.resolved = true
+	}
+	return this
+}
+
 /*
 CONSTANT_Double_info {
     u1 tag;
@@ -179,6 +260,15 @@ type RuntimeConstantDoubleInfo struct {
 	lowBytes    u4
 	resolved    bool
 	value       java_double
+}
+
+
+func (this *RuntimeConstantDoubleInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		this.value = java_double(this.highBytes << 8 | this.lowBytes)
+		this.resolved = true
+	}
+	return this
 }
 
 /*
@@ -194,6 +284,15 @@ type RuntimeConstantNameAndTypeInfo struct {
 	resolved        bool
 	name            string
 	descriptor      string
+}
+
+func (this *RuntimeConstantNameAndTypeInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+	if !this.resolved {
+		this.name = class.constantPool[this.nameIndex].resolve(class).(*RuntimeConstantUtf8Info).value
+		this.descriptor = class.constantPool[this.descriptorIndex].resolve(class).(*RuntimeConstantUtf8Info).value
+		this.resolved = true
+	}
+	return this
 }
 
 func (this *RuntimeConstantNameAndTypeInfo) toString() string  {
@@ -214,6 +313,14 @@ type RuntimeConstantUtf8Info struct {
 	value           string
 }
 
+func (this *RuntimeConstantUtf8Info) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+	if !this.resolved {
+		this.value = u2s(this.bytes)
+		this.resolved = true
+	}
+	return this
+}
+
 /*
 CONSTANT_MethodHandle_info {
     u1 tag;
@@ -228,6 +335,13 @@ type RuntimeConstantMethodHandleInfo struct {
 	//TODO
 }
 
+func (this *RuntimeConstantMethodHandleInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+	if !this.resolved {
+		//TODO
+	}
+	return this
+}
+
 /*
 CONSTANT_MethodType_info {
     u1 tag;
@@ -238,6 +352,14 @@ type RuntimeConstantMethodTypeInfo struct {
 	descriptorIndex u2
 	resolved        bool
 	descriptor      string
+}
+
+func (this *RuntimeConstantMethodTypeInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+	if !this.resolved {
+		this.descriptor = class.constantPool[this.descriptorIndex].resolve(class).(*RuntimeConstantUtf8Info).value
+		this.resolved = true
+	}
+	return this
 }
 
 /*
@@ -255,7 +377,12 @@ type RuntimeConstantInvokeDynamicInfo struct {
 }
 
 
-
+func (this *RuntimeConstantInvokeDynamicInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+	if !this.resolved {
+		//TODO
+	}
+	return this
+}
 
 
 type JavaClass struct {
@@ -366,11 +493,8 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 				string2JavaChars(classfile.cpUtf8(cp.stringIndex))}
 		case *ConstantUtf8Info:
 			cp := cpInfo.(*ConstantUtf8Info)
-			this.constantPool[i] = &RuntimeConstantUtf8Info{
-				cp.length,
-				cp.bytes,
-				true,
-				u2s(cp.bytes)}
+			this.constantPool[i] = &RuntimeConstantUtf8Info{length: cp.length, bytes: cp.bytes}
+			this.constantPool[i].resolve(this)
 		case *ConstantNameAndTypeInfo:
 			cp := cpInfo.(*ConstantNameAndTypeInfo)
 			this.constantPool[i] = &RuntimeConstantNameAndTypeInfo{
