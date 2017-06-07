@@ -66,8 +66,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	case INVOKESTATIC:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
-		methodRef := f.method.class.constantPool[index].(*RuntimeConstantMethodrefInfo)
-		f.method.class.resolveMethodRef(methodRef)
+		methodRef := f.method.class.constantPool[index].resolve(f.method.class).(*RuntimeConstantMethodrefInfo)
 		method := methodRef.method
 		frame := NewStackFrame(method)
 		// pass parameters
@@ -88,8 +87,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		return false, 1
 	case NEW:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		classInfo := class.constantPool[index].(*RuntimeConstantClassInfo)
-		class.resolveClass(classInfo)
+		classInfo := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo)
 		jreference := &JavaObject{class: classInfo.class}
 		jreference.fields = make([]java_any, len(classInfo.class.fields))
 		f.pushReference(jreference)
@@ -98,8 +96,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 		count := f.popInt()
 
-		classInfo := class.constantPool[index].(*RuntimeConstantClassInfo)
-		class.resolveClass(classInfo)
+		classInfo := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo)
 		jreference := &JavaArray{aclass: classInfo.class, size: uint32(count)}
 		jreference.elements = make([]java_any, uint32(count))
 		f.pushArray(jreference)
