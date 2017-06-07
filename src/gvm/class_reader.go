@@ -2,6 +2,8 @@ package gvm
 
 import (
 	"encoding/binary"
+	"io/ioutil"
+	"fmt"
 )
 
 var bigEndian = binary.BigEndian
@@ -11,8 +13,16 @@ type ClassReader struct {
 	classfile *ClassFile
 }
 
-func NewClassReader(bytecode []byte) *ClassReader {
-	return &ClassReader{bytecode: bytecode}
+func NewClassReader(classfile string) *ClassReader {
+	classpath := ""
+	for i := 0; i < len(Classpath); i++ {
+		classpath += Classpath[i]
+		bytecode, err := ioutil.ReadFile(Classpath[i] + "/" + classfile)
+		if err == nil {
+			return &ClassReader{bytecode: bytecode}
+		}
+	}
+	panic(fmt.Sprintf("Cannot find class %s in class path: %s", classfile, Classpath))
 }
 
 func (this *ClassReader) readU4() u4 {

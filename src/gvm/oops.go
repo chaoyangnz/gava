@@ -1,9 +1,5 @@
 package gvm
 
-import (
-	"io/ioutil"
-)
-
 type (
 	java_any           interface{}
 
@@ -19,6 +15,12 @@ type (
 	java_array         *JavaArray
 )
 
+const (
+	java_true           = java_boolean(0x1)
+	java_false          = java_boolean(0x0)
+	//java_null           = nil
+)
+
 type JavaObject struct {
 	//header part
 	class *JavaClass
@@ -28,13 +30,13 @@ type JavaObject struct {
 	fields []java_any
 }
 
-func (this *JavaObject) getField(index uint16) java_any {
-	i := this.class.constantPool[index].resolve(this.class).(*RuntimeConstantFieldrefInfo).field.index
-	return this.fields[this.class.instanceFieldsStart + i]
+func (this *JavaObject) getField(caller *JavaClass, index uint16) java_any {
+	i := caller.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
+	return this.fields[i]
 }
 
 func (this *JavaObject) putField(caller *JavaClass, index uint16, value java_any) {
-	i := caller.constantPool[index].resolve(caller).(*RuntimeConstantFieldrefInfo).field.index
+	i := caller.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
 	this.fields[i] = value
 }
 
@@ -108,7 +110,7 @@ cp_info {
 }
  */
 type RuntimeConstantPoolInfo interface {
-	resolve(class *JavaClass) RuntimeConstantPoolInfo
+	resolve() RuntimeConstantPoolInfo
 }
 
 /*
@@ -118,31 +120,28 @@ CONSTANT_Class_info {
 }
  */
 type RuntimeConstantClassInfo struct {
-	nameIndex u2
-	resolved  bool
-	name      string
-	class     *JavaClass
+	hostClass       *JavaClass
+	nameIndex       u2
+	resolved        bool
+	class           *JavaClass
 }
 
-func (this *RuntimeConstantClassInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
-		name := class.constantPool[this.nameIndex].(*RuntimeConstantUtf8Info).value
+		name := this.hostClass.constantPool[this.nameIndex].resolve().(*RuntimeConstantUtf8Info).value
 		clazz := classCache[name]
 		if clazz == nil {
-			if this == class.constantPool[class.thisClass] {
-				clazz = class
+			if this == this.hostClass.constantPool[this.hostClass.thisClass] {
+				clazz = this.hostClass
 			} else {
-				bytes, _ := ioutil.ReadFile("java/" + name + ".class")
-				cr := NewClassReader(bytes)
+				cr := NewClassReader(name + ".class")
 				cf := cr.ReadAsClassFile()
 
-				clazz = NewClassMirror()
+				clazz = &JavaClass{}
 				clazz.Load(cf)
 			}
-
 		}
 
-		this.name = name
 		this.class = clazz
 		this.resolved = true
 	}
@@ -157,17 +156,18 @@ CONSTANT_Fieldref_info {
 }
  */
 type RuntimeConstantFieldrefInfo struct {
-	classIndex       u2
-	nameAndTypeIndex u2
-	resolved         bool
-	field            *JavaField
+	hostClass           *JavaClass
+	classIndex          u2
+	nameAndTypeIndex    u2
+	resolved            bool
+	field               *JavaField
 }
 
-func (this *RuntimeConstantFieldrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantFieldrefInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		rcpClass := class.constantPool[this.classIndex].resolve(class).(*RuntimeConstantClassInfo)
+		rcpClass := this.hostClass.constantPool[this.classIndex].resolve().(*RuntimeConstantClassInfo)
 
-		nameAndType := class.constantPool[this.nameAndTypeIndex].(*RuntimeConstantNameAndTypeInfo)
+		nameAndType := this.hostClass.constantPool[this.nameAndTypeIndex].resolve().(*RuntimeConstantNameAndTypeInfo)
 		this.field = rcpClass.class.findField(nameAndType.toString())
 		this.resolved = true
 	}
@@ -182,17 +182,18 @@ CONSTANT_Methodref_info {
 }
  */
 type RuntimeConstantMethodrefInfo struct {
+	hostClass       *JavaClass
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
 	method           *JavaMethod
 }
 
-func (this *RuntimeConstantMethodrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantMethodrefInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		rcpClass := class.constantPool[this.classIndex].resolve(class).(*RuntimeConstantClassInfo)
+		rcpClass := this.hostClass.constantPool[this.classIndex].resolve().(*RuntimeConstantClassInfo)
 
-		nameAndType := class.constantPool[this.nameAndTypeIndex].(*RuntimeConstantNameAndTypeInfo)
+		nameAndType := this.hostClass.constantPool[this.nameAndTypeIndex].resolve().(*RuntimeConstantNameAndTypeInfo)
 		this.method = rcpClass.class.findMethod(nameAndType.toString())
 		this.resolved = true
 	}
@@ -208,13 +209,14 @@ CONSTANT_InterfaceMethodref_info {
 }
  */
 type RuntimeConstantInterfaceMethodrefInfo struct {
+	hostClass       *JavaClass
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
 	method           *JavaMethod
 }
 
-func (this *RuntimeConstantInterfaceMethodrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantInterfaceMethodrefInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
 		//TODO
 
@@ -230,15 +232,16 @@ CONSTANT_String_info {
 }
  */
 type RuntimeConstantStringInfo struct {
+	hostClass       *JavaClass
 	stringIndex     u2
 	resolved        bool
 	value           []java_char
 }
 
 
-func (this *RuntimeConstantStringInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
-		this.value = string2JavaChars(class.constantPool[this.stringIndex].resolve(class).(*RuntimeConstantUtf8Info).value)
+		this.value = string2JavaChars(this.hostClass.constantPool[this.stringIndex].resolve().(*RuntimeConstantUtf8Info).value)
 		this.resolved = true
 	}
 	return this
@@ -251,13 +254,14 @@ CONSTANT_Integer_info {
 }
  */
 type RuntimeConstantIntegerInfo struct {
-	bytes       u4
-	resolved    bool
-	value       java_int
+	hostClass       *JavaClass
+	bytes           u4
+	resolved        bool
+	value           java_int
 }
 
 
-func (this *RuntimeConstantIntegerInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantIntegerInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
 		this.value = java_int(this.bytes)
 		this.resolved = true
@@ -272,12 +276,13 @@ CONSTANT_Float_info {
 }
  */
 type RuntimeConstantFloatInfo struct {
-	bytes       u4
-	resolved    bool
-	value       java_float
+	hostClass       *JavaClass
+	bytes           u4
+	resolved        bool
+	value           java_float
 }
 
-func (this *RuntimeConstantFloatInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantFloatInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
 		this.value = java_float(this.bytes)
 		this.resolved = true
@@ -293,13 +298,14 @@ CONSTANT_Long_info {
 }
  */
 type RuntimeConstantLongInfo struct {
-	highBytes   u4
-	lowBytes    u4
-	resolved    bool
-	value       java_long
+	hostClass       *JavaClass
+	highBytes       u4
+	lowBytes        u4
+	resolved        bool
+	value           java_long
 }
 
-func (this *RuntimeConstantLongInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantLongInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
 		this.value = java_long(this.highBytes << 8 | this.lowBytes)
 		this.resolved = true
@@ -315,14 +321,15 @@ CONSTANT_Double_info {
 }
  */
 type RuntimeConstantDoubleInfo struct {
-	highBytes   u4
-	lowBytes    u4
-	resolved    bool
-	value       java_double
+	hostClass       *JavaClass
+	highBytes       u4
+	lowBytes        u4
+	resolved        bool
+	value           java_double
 }
 
 
-func (this *RuntimeConstantDoubleInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantDoubleInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
 		this.value = java_double(this.highBytes << 8 | this.lowBytes)
 		this.resolved = true
@@ -338,6 +345,7 @@ CONSTANT_NameAndType_info {
 }
  */
 type RuntimeConstantNameAndTypeInfo struct {
+	hostClass       *JavaClass
 	nameIndex       u2
 	descriptorIndex u2
 	resolved        bool
@@ -345,10 +353,10 @@ type RuntimeConstantNameAndTypeInfo struct {
 	descriptor      string
 }
 
-func (this *RuntimeConstantNameAndTypeInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
+func (this *RuntimeConstantNameAndTypeInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.name = class.constantPool[this.nameIndex].resolve(class).(*RuntimeConstantUtf8Info).value
-		this.descriptor = class.constantPool[this.descriptorIndex].resolve(class).(*RuntimeConstantUtf8Info).value
+		this.name = this.hostClass.constantPool[this.nameIndex].resolve().(*RuntimeConstantUtf8Info).value
+		this.descriptor = this.hostClass.constantPool[this.descriptorIndex].resolve().(*RuntimeConstantUtf8Info).value
 		this.resolved = true
 	}
 	return this
@@ -366,13 +374,14 @@ CONSTANT_Utf8_info {
 }
  */
 type RuntimeConstantUtf8Info struct {
+	hostClass       *JavaClass
 	length          u2
 	bytes           []u1
 	resolved        bool
 	value           string
 }
 
-func (this *RuntimeConstantUtf8Info) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+func (this *RuntimeConstantUtf8Info) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
 		this.value = u2s(this.bytes)
 		this.resolved = true
@@ -388,13 +397,14 @@ CONSTANT_MethodHandle_info {
 }
  */
 type RuntimeConstantMethodHandleInfo struct {
+	hostClass       *JavaClass
 	referenceKind   u1
 	referenceIndex  u2
 	resolved        bool
 	//TODO
 }
 
-func (this *RuntimeConstantMethodHandleInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+func (this *RuntimeConstantMethodHandleInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
 		//TODO
 	}
@@ -408,14 +418,15 @@ CONSTANT_MethodType_info {
 }
  */
 type RuntimeConstantMethodTypeInfo struct {
+	hostClass       *JavaClass
 	descriptorIndex u2
 	resolved        bool
 	descriptor      string
 }
 
-func (this *RuntimeConstantMethodTypeInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+func (this *RuntimeConstantMethodTypeInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
-		this.descriptor = class.constantPool[this.descriptorIndex].resolve(class).(*RuntimeConstantUtf8Info).value
+		this.descriptor = this.hostClass.constantPool[this.descriptorIndex].resolve().(*RuntimeConstantUtf8Info).value
 		this.resolved = true
 	}
 	return this
@@ -429,6 +440,7 @@ CONSTANT_InvokeDynamic_info {
 }
  */
 type RuntimeConstantInvokeDynamicInfo struct {
+	hostClass                *JavaClass
 	bootstrapMethodAttrIndex u2
 	nameAndTypeIndex         u2
 	resolved                 bool
@@ -436,7 +448,7 @@ type RuntimeConstantInvokeDynamicInfo struct {
 }
 
 
-func (this *RuntimeConstantInvokeDynamicInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo {
+func (this *RuntimeConstantInvokeDynamicInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
 		//TODO
 	}
@@ -448,7 +460,9 @@ type JavaClass struct {
 	constantPool    []RuntimeConstantPoolInfo
 	accessFlags     uint16
 	thisClass       uint16
+	thisClassName   string
 	superClass      uint16
+	superClassName  string
 	interfaces      []string
 	fields          []*JavaField
 	methods         []*JavaMethod
@@ -490,8 +504,12 @@ type JavaMethod struct {
 	returnDescriptor    string
 }
 
-func (this *JavaMethod)isStatic() bool {
+func (this *JavaMethod) isStatic() bool {
 	return this.accessFlags & METHOD_ACC_STATIC > 0
+}
+
+func (this *JavaMethod) isNative() bool {
+	return this.accessFlags & METHOD_ACC_NATIVE > 0
 }
 
 type LocalVariable struct {
@@ -522,97 +540,30 @@ func (this *JavaMethod) localVariablesSize() uint {
 	return sum
 }
 
-func NewClassMirror() *JavaClass {
-	return &JavaClass{}
-}
-
 var classCache = make(map[string] *JavaClass)
 
 func (this *JavaClass) Load(classfile *ClassFile)  {
 	this.constantPool = make([]RuntimeConstantPoolInfo, classfile.constantPoolCount)
 	for i := u2(1); i < classfile.constantPoolCount; i++ {
-		cpInfo := classfile.constantPool[i]
-		switch cpInfo.(type) {
-		case *ConstantIntegerInfo:
-			cp := cpInfo.(*ConstantIntegerInfo)
-			this.constantPool[i] = &RuntimeConstantIntegerInfo{
-				cp.bytes,
-				true,
-				java_int(cp.bytes)}
-		case *ConstantLongInfo:
-			cp := cpInfo.(*ConstantLongInfo)
-			this.constantPool[i] = &RuntimeConstantLongInfo{
-				cp.highBytes, cp.lowBytes,
-				true,
-				java_long((cp.highBytes << 32) | cp.lowBytes)}
-		case *ConstantFloatInfo:
-			cp := cpInfo.(*ConstantFloatInfo)
-			this.constantPool[i] = &RuntimeConstantFloatInfo{
-				cp.bytes,
-				true,
-				java_float(cp.bytes)}
-		case *ConstantDoubleInfo:
-			cp := cpInfo.(*ConstantDoubleInfo)
-			this.constantPool[i] = &RuntimeConstantDoubleInfo{
-				cp.highBytes,
-				cp.lowBytes,
-				true,
-				java_double((cp.highBytes << 32) | cp.lowBytes)}
-		case *ConstantStringInfo:
-			cp := cpInfo.(*ConstantStringInfo)
-			this.constantPool[i] = &RuntimeConstantStringInfo{
-				cp.stringIndex,
-				true,
-				string2JavaChars(classfile.cpUtf8(cp.stringIndex))}
-		case *ConstantUtf8Info:
-			cp := cpInfo.(*ConstantUtf8Info)
-			this.constantPool[i] = &RuntimeConstantUtf8Info{length: cp.length, bytes: cp.bytes}
-			this.constantPool[i].resolve(this)
-		case *ConstantNameAndTypeInfo:
-			cp := cpInfo.(*ConstantNameAndTypeInfo)
-			this.constantPool[i] = &RuntimeConstantNameAndTypeInfo{
-				cp.nameIndex,
-				cp.descriptorIndex,
-				true,
-				classfile.cpUtf8(cp.nameIndex),
-				classfile.cpUtf8(cp.descriptorIndex)}
-		case *ConstantMethodTypeInfo:
-			cp := cpInfo.(*ConstantMethodTypeInfo)
-			this.constantPool[i] = &RuntimeConstantMethodTypeInfo{
-				cp.descriptorIndex,
-				true,
-				classfile.cpUtf8(cp.descriptorIndex)}
-
-		case *ConstantMethodrefInfo:
-			cp := cpInfo.(*ConstantMethodrefInfo)
-			this.constantPool[i] = &RuntimeConstantMethodrefInfo{
-				cp.classIndex,
-				cp.nameAndTypeIndex,
-				false,
-				nil}
-		case *ConstantFieldrefInfo:
-			cp := cpInfo.(*ConstantFieldrefInfo)
-			this.constantPool[i] = &RuntimeConstantFieldrefInfo{
-				cp.classIndex,
-				cp.nameAndTypeIndex,
-				false,
-				nil}
-		case *ConstantClassInfo:
-			cp := cpInfo.(*ConstantClassInfo)
-			this.constantPool[i] = &RuntimeConstantClassInfo{
-				nameIndex: cp.nameIndex,
-				resolved: false}
-		}
+		this.constantPool[i] = classfile.constantPool[i].runtime(this)
 	}
+	//for i := u2(1); i < classfile.constantPoolCount; i++ {
+	//	runtimeConstantPoolInfo := this.constantPool[i]
+	//	switch runtimeConstantPoolInfo.(type) {
+	//	case *RuntimeConstantIntegerInfo, *RuntimeConstantLongInfo, *RuntimeConstantFloatInfo, *RuntimeConstantDoubleInfo,
+	//		 *RuntimeConstantStringInfo, *RuntimeConstantUtf8Info, *RuntimeConstantNameAndTypeInfo, *RuntimeConstantMethodTypeInfo:
+	//		runtimeConstantPoolInfo.resolve()
+	//	}
+	//}
 	this.accessFlags = uint16(classfile.accessFlags)
 	// resolve this class
 	this.thisClass = uint16(classfile.thisClass)
-	this.constantPool[classfile.thisClass].resolve(this)
+	this.thisClassName = classfile.cpUtf8(this.constantPool[this.thisClass].resolve().(*RuntimeConstantClassInfo).nameIndex)
 
 	// resolve super class
 	this.superClass = uint16(classfile.superClass)
 	if this.superClass != 0 {
-		this.constantPool[classfile.superClass].resolve(this)
+		this.superClassName = classfile.cpUtf8(this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).nameIndex)
 	}
 
 	this.fields = make([]*JavaField, len(classfile.fields))
@@ -623,7 +574,7 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 	if this.superClass == 0 { // java/lang/Object
 		this.instanceFieldsStart = 0
 	} else {
-		superClass := this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class
+		superClass := this.constantPool[this.superClass].(*RuntimeConstantClassInfo).class
 		this.instanceFieldsStart = superClass.instanceFieldsStart + uint16(len(superClass.instanceFileds))
 	}
 	for i := 0; i < len(classfile.fields); i++ {
@@ -687,13 +638,13 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 		this.methodsMap[javaMethod.name + javaMethod.descriptor] = javaMethod
 	}
 
-	classCache[this.constantPool[this.thisClass].(*RuntimeConstantClassInfo).name] = this
+	classCache[this.thisClassName] = this
 }
 
 func (this *JavaClass) findField(signature string) *JavaField {
 	field :=  this.fieldsMap[signature]
 	if field == nil {
-		field = this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class.findField(signature)
+		field = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).class.findField(signature)
 	}
 	return field
 }
@@ -702,7 +653,7 @@ func (this *JavaClass) findField(signature string) *JavaField {
 func (this *JavaClass) findMethod(signature string) *JavaMethod {
 	method := this.methodsMap[signature]
 	if method == nil {
-		method = this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class.findMethod(signature)
+		method = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).class.findMethod(signature)
 	}
 	return method
 }

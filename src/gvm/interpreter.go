@@ -8,7 +8,9 @@ const DEFAULT_VM_STACK_SIZE  = 512
 
 func run(mainClass *JavaClass)  {
 	mainMethod := mainClass.findMethod(MAIN_METHOD)
-	thread := &Thread{vmStack: VMStack{stackFrames: make([]*StackFrame, DEFAULT_VM_STACK_SIZE), size:0, capacity: DEFAULT_VM_STACK_SIZE}}
+	thread := &Thread{
+		name: "main",
+		vmStack: VMStack{stackFrames: make([]*StackFrame, DEFAULT_VM_STACK_SIZE), size:0, capacity: DEFAULT_VM_STACK_SIZE}}
 	thread.vmStack.push(NewStackFrame(mainMethod))
 	for thread.vmStack.size != 0 { // per stack frame
 		f := thread.vmStack.peek()
@@ -63,6 +65,10 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	case ILOAD_3:
 		f.push(f.loadVar(3).(java_int))
 		return true, 1
+	case ILOAD:
+		index := bytecode[f.pc+1]
+		f.push(f.loadVar(uint(index)).(java_int))
+		return true, 2
 	case IADD:
 		f.push(f.pop().(java_int) + f.pop().(java_int))
 		return true, 1
@@ -80,8 +86,12 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	case INVOKESTATIC:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
-		methodRef := f.method.class.constantPool[index].resolve(f.method.class).(*RuntimeConstantMethodrefInfo)
+		methodRef := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo)
 		method := methodRef.method
+		if method.isNative() {
+			GVM_print(f.pop().(java_int))
+			return true, 3
+		}
 		frame := NewStackFrame(method)
 		// pass parameters
 		f.passParameters(frame)
@@ -101,7 +111,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		return false, 1
 	case NEW:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		class := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo).class
+		class := class.constantPool[index].resolve().(*RuntimeConstantClassInfo).class
 		jreference := java_reference(&JavaObject{class: class})
 		jreference.fields = make([]java_any, class.instanceFieldsStart + uint16(len(class.instanceFileds)))
 		f.push(jreference)
@@ -110,7 +120,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 		count := f.pop().(java_int)
 
-		classInfo := class.constantPool[index].resolve(class).(*RuntimeConstantClassInfo)
+		classInfo := class.constantPool[index].resolve().(*RuntimeConstantClassInfo)
 		jreference := java_array(&JavaArray{aclass: classInfo.class, size: uint32(count)})
 		jreference.elements = make([]java_any, uint32(count))
 		f.push(jreference)
@@ -126,7 +136,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 		jreference := f.pop().(java_reference)
 
-		f.push((*jreference).getField(index))
+		f.push((*jreference).getField(class, index))
 		return true, 3
 	case PUTFIELD:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
@@ -143,7 +153,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	case INVOKESPECIAL:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
-		method := f.method.class.constantPool[index].resolve(f.method.class).(*RuntimeConstantMethodrefInfo).method
+		method := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
 		frame := NewStackFrame(method)
 		// pass parameters
 		f.passParameters(frame)
