@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	java_any           uint64
+	java_any           interface{}
 
 	java_byte          int8
 	java_char          uint16
@@ -26,6 +26,16 @@ type JavaObject struct {
 	locks uint32
 	//fields
 	fields []java_any
+}
+
+func (this *JavaObject) getField(index uint16) java_any {
+	i := this.class.constantPool[index].resolve(this.class).(*RuntimeConstantFieldrefInfo).field.index
+	return this.fields[this.class.instanceFieldsStart + i]
+}
+
+func (this *JavaObject) putField(caller *JavaClass, index uint16, value java_any) {
+	i := caller.constantPool[index].resolve(caller).(*RuntimeConstantFieldrefInfo).field.index
+	this.fields[i] = value
 }
 
 const (
@@ -155,7 +165,11 @@ type RuntimeConstantFieldrefInfo struct {
 
 func (this *RuntimeConstantFieldrefInfo) resolve(class *JavaClass) RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		//TODO
+		rcpClass := class.constantPool[this.classIndex].resolve(class).(*RuntimeConstantClassInfo)
+
+		nameAndType := class.constantPool[this.nameAndTypeIndex].(*RuntimeConstantNameAndTypeInfo)
+		this.field = rcpClass.class.findField(nameAndType.toString())
+		this.resolved = true
 	}
 	return this
 }
@@ -451,7 +465,11 @@ type JavaField struct {
 	accessFlags     uint16
 	name            string
 	descriptor      string
-	index           uint16  // index of instanceFields or staticFields
+	/**
+	index of instanceFields or staticFields
+	for instance fields, it is the global index considering superclass hierarchy
+	 */
+	index           uint16
 }
 
 func (this *JavaField)isStatic() bool {
@@ -470,6 +488,10 @@ type JavaMethod struct {
 	localVariables  []LocalVariable
 	parameterDescriptors   []string
 	returnDescriptor    string
+}
+
+func (this *JavaMethod)isStatic() bool {
+	return this.accessFlags & METHOD_ACC_STATIC > 0
 }
 
 type LocalVariable struct {
@@ -568,12 +590,18 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 				cp.nameAndTypeIndex,
 				false,
 				nil}
+		case *ConstantFieldrefInfo:
+			cp := cpInfo.(*ConstantFieldrefInfo)
+			this.constantPool[i] = &RuntimeConstantFieldrefInfo{
+				cp.classIndex,
+				cp.nameAndTypeIndex,
+				false,
+				nil}
 		case *ConstantClassInfo:
 			cp := cpInfo.(*ConstantClassInfo)
 			this.constantPool[i] = &RuntimeConstantClassInfo{
 				nameIndex: cp.nameIndex,
 				resolved: false}
-			//TODO
 		}
 	}
 	this.accessFlags = uint16(classfile.accessFlags)
@@ -592,9 +620,18 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 	this.staticFields = []java_any{}
 	maxInstanceFieldIndex := uint16(0)
 	maxStaticFieldIndex   := uint16(0)
+	if this.superClass == 0 { // java/lang/Object
+		this.instanceFieldsStart = 0
+	} else {
+		superClass := this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class
+		this.instanceFieldsStart = superClass.instanceFieldsStart + uint16(len(superClass.instanceFileds))
+	}
 	for i := 0; i < len(classfile.fields); i++ {
 		fieldInfo := classfile.fields[i]
-		javaFiled := &JavaField{class: this, name: classfile.cpUtf8(fieldInfo.nameIndex), descriptor: classfile.cpUtf8(fieldInfo.descriptorIndex)}
+		javaFiled := &JavaField{class: this,
+			accessFlags: uint16(fieldInfo.accessFlags),
+			name: classfile.cpUtf8(fieldInfo.nameIndex),
+			descriptor: classfile.cpUtf8(fieldInfo.descriptorIndex)}
 		this.fields[i] = javaFiled
 		this.fieldsMap[javaFiled.name + javaFiled.descriptor] = javaFiled
 		if javaFiled.isStatic() {
@@ -602,25 +639,22 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 			this.staticFields = append(this.staticFields, 0)
 			maxStaticFieldIndex++
 		} else {
-			javaFiled.index = maxInstanceFieldIndex
+			javaFiled.index = maxInstanceFieldIndex + this.instanceFieldsStart
 			this.instanceFileds = append(this.instanceFileds, javaFiled)
 			maxInstanceFieldIndex++
 		}
 	}
-	if this.superClass == 0 { // java/lang/Object
-		this.instanceFieldsStart = 0
-	} else {
-		superClass := this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class
-		this.instanceFieldsStart = superClass.instanceFieldsStart + uint16(len(superClass.instanceFileds))
-	}
+
 
 	this.methods = make([]*JavaMethod, len(classfile.methods))
 	this.methodsMap = make(map[string]*JavaMethod)
 	for i := 0; i < len(classfile.methods); i++ {
-		javaMethod := &JavaMethod{class: this}
 		methodInfo := &classfile.methods[i]
-		javaMethod.name = classfile.cpUtf8(methodInfo.nameIndex)
-		javaMethod.descriptor = classfile.cpUtf8(methodInfo.descriptorIndex)
+		javaMethod := &JavaMethod{class: this,
+			accessFlags: uint16(methodInfo.accessFlags),
+			name: classfile.cpUtf8(methodInfo.nameIndex),
+			descriptor: classfile.cpUtf8(methodInfo.descriptorIndex)}
+
 		javaMethod.parameterDescriptors, javaMethod.returnDescriptor = parametersAndReturn(javaMethod.descriptor)
 		for j := u2(0); j < methodInfo.attributeCount; j++ {
 			attributeInfo := methodInfo.attributes[j]
@@ -656,7 +690,19 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 	classCache[this.constantPool[this.thisClass].(*RuntimeConstantClassInfo).name] = this
 }
 
+func (this *JavaClass) findField(signature string) *JavaField {
+	field :=  this.fieldsMap[signature]
+	if field == nil {
+		field = this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class.findField(signature)
+	}
+	return field
+}
+
 
 func (this *JavaClass) findMethod(signature string) *JavaMethod {
-	return  this.methodsMap[signature]
+	method := this.methodsMap[signature]
+	if method == nil {
+		method = this.constantPool[this.superClass].resolve(this).(*RuntimeConstantClassInfo).class.findMethod(signature)
+	}
+	return method
 }
