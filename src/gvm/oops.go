@@ -11,8 +11,13 @@ type (
 	java_boolean       int32
 	java_float         float32
 	java_double        float64
-	java_reference     *JavaObject
+	java_object        *JavaObject
 	java_array         *JavaArray
+
+	java_int_array      []java_int
+	java_char_array     []java_char
+
+	java_string        *JavaObject
 )
 
 const (
@@ -134,7 +139,7 @@ func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
 			if this == this.hostClass.constantPool[this.hostClass.thisClass] {
 				clazz = this.hostClass
 			} else {
-				cr := NewClassReader(name + ".class")
+				cr := NewClassReader(name)
 				cf := cr.ReadAsClassFile()
 
 				clazz = &JavaClass{}
@@ -235,13 +240,56 @@ type RuntimeConstantStringInfo struct {
 	hostClass       *JavaClass
 	stringIndex     u2
 	resolved        bool
-	value           []java_char
+	//value           []java_char
+	value           java_string
 }
 
+func NewJavaString(chars java_char_array) java_string  {
+	stringClass := classCache["java/lang/String"]
+	if stringClass == nil {
+		classReader := NewClassReader("java/lang/String")
+		stringClass = &JavaClass{}
+		stringClass.Load(classReader.ReadAsClassFile())
+	}
+	object := stringClass.new()
+	object.fields[0] = chars
+	return java_string(object)
+}
+
+func JavaString2Utf8(jstring java_string) string {
+	runes := []rune{}
+	chars := jstring.fields[0].(java_char_array)
+	for i:=0; i < len(chars); i++ {
+		char := chars[i]
+		if char >= 0xD800 && char <= 0xDBFF {
+			h := char
+			if i+1 < len(chars) && chars[i+1] >= 0xDC00 && chars[i+1] <= 0xDFFF {
+				l := chars[i+1]
+				//1000016 + (H − D80016) × 40016 + (L − DC0016)
+				codepoint := 0x1000 + (h - 0xD800) * 0x400 + (l - 0xDC00)
+				runes = append(runes, rune(codepoint))
+			} else {
+				panic("Illegal UTF-16 string: only high surrogate")
+			}
+			i++
+		} else if char >= 0xDC00 && char <= 0xDFFF {
+			panic("Illegal UTF-16 string: only low surrogate")
+		} else {
+			runes = append(runes, rune(char))
+		}
+	}
+	return string(runes)
+}
 
 func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
-		this.value = string2JavaChars(this.hostClass.constantPool[this.stringIndex].resolve().(*RuntimeConstantUtf8Info).value)
+		utf8string := this.hostClass.constantPool[this.stringIndex].resolve().(*RuntimeConstantUtf8Info).value
+		jstring := stringTable[utf8string]
+		if jstring == nil {
+			jstring = NewJavaString(string2JavaChars(utf8string))
+			stringTable[utf8string] = jstring
+		}
+		this.value = jstring
 		this.resolved = true
 	}
 	return this
@@ -571,7 +619,7 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 	this.staticFields = []java_any{}
 	maxInstanceFieldIndex := uint16(0)
 	maxStaticFieldIndex   := uint16(0)
-	if this.superClass == 0 { // java/lang/Object
+	if this.superClass == 0 { // jdk/lang/Object
 		this.instanceFieldsStart = 0
 	} else {
 		superClass := this.constantPool[this.superClass].(*RuntimeConstantClassInfo).class
@@ -639,6 +687,12 @@ func (this *JavaClass) Load(classfile *ClassFile)  {
 	}
 
 	classCache[this.thisClassName] = this
+}
+
+func (this *JavaClass) new() java_object  {
+	return java_object(&JavaObject{
+		class: this,
+		fields: make([]java_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))})
 }
 
 func (this *JavaClass) findField(signature string) *JavaField {
