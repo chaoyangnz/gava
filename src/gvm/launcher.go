@@ -1,15 +1,12 @@
 package gvm
 
-import "io/ioutil"
-
 func Start(mainClassFile string)  {
-	bytes, _ := ioutil.ReadFile(mainClassFile)
-	cr := NewClassReader(bytes)
+	cr := NewClassReader(mainClassFile)
 	cf := cr.ReadAsClassFile()
 
-	cf.Print()
+	//cf.Print()
 
-	cm := NewClassMirror()
+	cm := &JavaClass{}
 	cm.Load(cf)
 
 	run(cm)

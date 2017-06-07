@@ -231,7 +231,8 @@ const (
 
 
 type Thread struct {
-	vmStack VMStack
+	name        string
+	vmStack     VMStack
 }
 
 
@@ -256,86 +257,6 @@ func NewStackFrame(method *JavaMethod) *StackFrame {
 	return stackFrame
 }
 
-//func (this *StackFrame) loadByteVar(index uint) java_byte  {
-//	return this.localVariables[index].(java_byte)
-//}
-//
-//func (this *StackFrame) storeByteVar(index uint, value java_byte)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadCharVar(index uint) java_char  {
-//	return this.localVariables[index].(java_char)
-//}
-//
-//func (this *StackFrame) storeCharVar(index uint, value java_char)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadShortVar(index uint) java_short  {
-//	return this.localVariables[index].(java_short)
-//}
-//
-//func (this *StackFrame) storeShortVar(index uint, value java_short)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadIntVar(index uint) java_int  {
-//	return this.localVariables[index].(java_int)
-//}
-//
-//func (this *StackFrame) storeIntVar(index uint, value java_int)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadLongVar(index uint) java_long  {
-//	return this.localVariables[index].(java_long)
-//}
-//
-//func (this *StackFrame) storeLongVar(index uint, value java_long)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadFloatVar(index uint) java_float  {
-//	return this.localVariables[index].(java_float)
-//}
-//
-//func (this *StackFrame) storeFloatVar(index uint, value java_float)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadDoubleVar(index uint) java_double  {
-//	return this.localVariables[index].(java_double)
-//}
-//
-//func (this *StackFrame) storeDoubleVar(index uint, value java_double)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadBooleanVar(index uint) java_boolean  {
-//	return this.localVariables[index].(java_boolean)
-//}
-//
-//func (this *StackFrame) storeBooleanVar(index uint, value java_boolean)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadReferenceVar(index uint) java_reference  {
-//	return this.localVariables[index].(java_reference)
-//}
-//
-//func (this *StackFrame) storeReferenceVar(index uint, value java_reference)  {
-//	this.localVariables[index] = java_any(value)
-//}
-//
-//func (this *StackFrame) loadArrayVar(index uint) java_array  {
-//	return this.localVariables[index].(java_array)
-//}
-//
-//func (this *StackFrame) storeArrayVar(index uint, value java_array)  {
-//	this.localVariables[index] = java_any(value)
-//}
-
 func (this *StackFrame) loadVar(index uint) java_any  {
 	return this.localVariables[index]
 }
@@ -357,18 +278,6 @@ func (this *StackFrame) passParameters(callee *StackFrame)  {
 	}
 	for i := start ;i >= end; i-- {
 		callee.storeVar(uint(i), this.pop())
-		//switch rune(method.parameterDescriptors[i][0]) {
-		//case 'B':callee.storeByteVar(uint(i), this.popByte())
-		//case 'C':callee.storeCharVar(uint(i), this.popChar())
-		//case 'D':callee.storeDoubleVar(uint(i), this.popDouble())
-		//case 'F':callee.storeFloatVar(uint(i), this.popFloat())
-		//case 'I':callee.storeIntVar(uint(i), this.popInt())
-		//case 'J':callee.storeLongVar(uint(i), this.popLong())
-		//case 'S':callee.storeShortVar(uint(i), this.popShort())
-		//case 'Z':callee.storeBooleanVar(uint(i), this.popBoolean())
-		//case 'L':callee.storeReferenceVar(uint(i), this.popReference())
-		//case '[':callee.storeArrayVar(uint(i), this.popArray())
-		//}
 	}
 	if !method.isStatic() {
 		callee.storeVar(0, this.pop()) // this reference for instance method
@@ -376,130 +285,8 @@ func (this *StackFrame) passParameters(callee *StackFrame)  {
 }
 
 func (this *StackFrame) passReturn(caller *StackFrame)  {
-	//method := this.method
-	//switch rune(method.returnDescriptor[0]) {
-	//case 'B':caller.pushByte(this.popByte())
-	//case 'C':caller.pushChar(this.popChar())
-	//case 'D':caller.pushDouble(this.popDouble())
-	//case 'F':caller.pushFloat(this.popFloat())
-	//case 'I':caller.pushInt(this.popInt())
-	//case 'J':caller.pushLong(this.popLong())
-	//case 'S':caller.pushShort(this.popShort())
-	//case 'Z':caller.pushBoolean(this.popBoolean())
-	//case 'L', '[':caller.pushReference(this.popReference())
-	//}
 	caller.push(this.pop())
 }
-
-//func (this *StackFrame) pushByte(value java_byte)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popByte() java_byte {
-//	jbyte := this.operandStack[this.operandStackSize-1].(java_byte)
-//	this.operandStackSize--
-//	return jbyte
-//}
-//
-//func (this *StackFrame) pushShort(value java_short) {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popShort() java_short {
-//	jshort := this.operandStack[this.operandStackSize-1].(java_short)
-//	this.operandStackSize--
-//	return jshort
-//}
-//
-//func (this *StackFrame) pushChar(value java_char)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popChar() java_char {
-//	jchar := this.operandStack[this.operandStackSize-1].(java_char)
-//	this.operandStackSize--
-//	return jchar
-//}
-//
-//func (this *StackFrame) pushInt(value java_int)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popInt() java_int {
-//	jint := this.operandStack[this.operandStackSize-1].(java_int)
-//	this.operandStackSize--
-//	return jint
-//}
-//
-//func (this *StackFrame) pushLong(value java_long)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popLong() java_long {
-//	jlong := this.operandStack[this.operandStackSize-1].(java_long)
-//	this.operandStackSize--
-//	return jlong
-//}
-//
-//func (this *StackFrame) pushFloat(value java_float)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popFloat() java_float {
-//	jfloat := this.operandStack[this.operandStackSize-1].(java_float)
-//	this.operandStackSize--
-//	return jfloat
-//}
-//
-//func (this *StackFrame) pushDouble(value java_double)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popDouble() java_double {
-//	jdouble := this.operandStack[this.operandStackSize-1].(java_double)
-//	this.operandStackSize--
-//	return jdouble
-//}
-//
-//func (this *StackFrame) pushBoolean(value java_boolean)  {
-//	this.operandStack[this.operandStackSize] = java_any(value)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popBoolean() java_boolean {
-//	jboolean := this.operandStack[this.operandStackSize-1].(java_boolean)
-//	this.operandStackSize--
-//	return jboolean
-//}
-//
-//func (this *StackFrame) pushReference(jreference java_reference)  {
-//	this.operandStack[this.operandStackSize] = java_any(jreference)
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popReference() java_reference {
-//	jreference := this.operandStack[this.operandStackSize-1].(java_reference)
-//	this.operandStackSize--
-//	return jreference
-//}
-//
-//func (this *StackFrame) pushArray(jreference java_array)  {
-//	this.operandStack[this.operandStackSize] = java_any(unsafe.Alignof(jreference))
-//	this.operandStackSize++
-//}
-//
-//func (this *StackFrame) popArray() java_array {
-//	jreference := this.operandStack[this.operandStackSize-1].(java_array)
-//	this.operandStackSize--
-//	return jreference
-//}
 
 func (this *StackFrame) push(jany java_any)  {
 	this.operandStack[this.operandStackSize] = jany

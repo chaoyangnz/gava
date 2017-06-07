@@ -217,7 +217,7 @@ cp_info {
 }
  */
 type ConstantPoolInfo interface {
-
+	runtime(class *JavaClass) RuntimeConstantPoolInfo
 }
 
 /*
@@ -229,6 +229,12 @@ CONSTANT_Class_info {
 type ConstantClassInfo struct {
 	tag       u1
 	nameIndex u2
+}
+
+func (this *ConstantClassInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantClassInfo{
+		hostClass: class,
+		nameIndex: this.nameIndex}
 }
 
 /*
@@ -244,6 +250,13 @@ type ConstantFieldrefInfo struct {
 	nameAndTypeIndex u2
 }
 
+func (this *ConstantFieldrefInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantFieldrefInfo{
+		hostClass: class,
+		classIndex: this.classIndex,
+		nameAndTypeIndex: this.nameAndTypeIndex}
+}
+
 /*
 CONSTANT_Methodref_info {
     u1 tag;
@@ -255,6 +268,13 @@ type ConstantMethodrefInfo struct {
 	tag              u1
 	classIndex       u2
 	nameAndTypeIndex u2
+}
+
+func (this *ConstantMethodrefInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantMethodrefInfo{
+		hostClass: class,
+		classIndex: this.classIndex,
+		nameAndTypeIndex: this.nameAndTypeIndex}
 }
 
 /*
@@ -270,6 +290,13 @@ type ConstantInterfaceMethodrefInfo struct {
 	nameAndTypeIndex u2
 }
 
+func (this *ConstantInterfaceMethodrefInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantInterfaceMethodrefInfo{
+		hostClass: class,
+		classIndex: this.classIndex,
+		nameAndTypeIndex: this.nameAndTypeIndex}
+}
+
 /*
 CONSTANT_String_info {
     u1 tag;
@@ -279,6 +306,12 @@ CONSTANT_String_info {
 type ConstantStringInfo struct {
 	tag         u1
 	stringIndex u2
+}
+
+func (this *ConstantStringInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantStringInfo{
+		hostClass: class,
+		stringIndex: this.stringIndex}
 }
 
 /*
@@ -292,6 +325,12 @@ type ConstantIntegerInfo struct {
 	bytes u4
 }
 
+func (this *ConstantIntegerInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantIntegerInfo{
+		hostClass: class,
+		bytes: this.bytes}
+}
+
 /*
 CONSTANT_Float_info {
     u1 tag;
@@ -301,6 +340,12 @@ CONSTANT_Float_info {
 type ConstantFloatInfo struct {
 	tag   u1
 	bytes u4
+}
+
+func (this *ConstantFloatInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantFloatInfo{
+		hostClass: class,
+		bytes: this.bytes}
 }
 
 /*
@@ -316,6 +361,13 @@ type ConstantLongInfo struct {
 	lowBytes  u4
 }
 
+func (this *ConstantLongInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantLongInfo{
+		hostClass: class,
+		highBytes: this.highBytes,
+		lowBytes: this.lowBytes}
+}
+
 /*
 CONSTANT_Double_info {
     u1 tag;
@@ -327,6 +379,13 @@ type ConstantDoubleInfo struct {
 	tag       u1
 	highBytes u4
 	lowBytes  u4
+}
+
+func (this *ConstantDoubleInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantDoubleInfo{
+		hostClass: class,
+		highBytes: this.highBytes,
+		lowBytes: this.lowBytes}
 }
 
 /*
@@ -342,6 +401,13 @@ type ConstantNameAndTypeInfo struct {
 	descriptorIndex u2
 }
 
+func (this *ConstantNameAndTypeInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantNameAndTypeInfo{
+		hostClass: class,
+		nameIndex: this.nameIndex,
+		descriptorIndex: this.descriptorIndex}
+}
+
 /*
 CONSTANT_Utf8_info {
     u1 tag;
@@ -353,6 +419,13 @@ type ConstantUtf8Info struct {
 	tag     u1
 	length  u2
 	bytes   []u1 //u2 length
+}
+
+func (this *ConstantUtf8Info) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantUtf8Info{
+		hostClass: class,
+		length: this.length,
+		bytes: this.bytes}
 }
 
 /*
@@ -368,6 +441,13 @@ type ConstantMethodHandleInfo struct {
 	referenceIndex u2
 }
 
+func (this *ConstantMethodHandleInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantMethodHandleInfo{
+		hostClass: class,
+		referenceKind: this.referenceKind,
+		referenceIndex: this.referenceIndex}
+}
+
 /*
 CONSTANT_MethodType_info {
     u1 tag;
@@ -377,6 +457,12 @@ CONSTANT_MethodType_info {
 type ConstantMethodTypeInfo struct {
 	tag             u1
 	descriptorIndex u2
+}
+
+func (this *ConstantMethodTypeInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantMethodTypeInfo{
+		hostClass: class,
+		descriptorIndex: this.descriptorIndex}
 }
 
 /*
@@ -392,7 +478,12 @@ type ConstantInvokeDynamicInfo struct {
 	nameAndTypeIndex         u2
 }
 
-
+func (this *ConstantInvokeDynamicInfo) runtime(class *JavaClass) RuntimeConstantPoolInfo {
+	return &RuntimeConstantInvokeDynamicInfo{
+		hostClass: class,
+		bootstrapMethodAttrIndex: this.bootstrapMethodAttrIndex,
+		nameAndTypeIndex: this.nameAndTypeIndex}
+}
 
 
 

@@ -6,12 +6,12 @@ import (
 	"strings"
 )
 
-var classpath []string
+
 
 func main()  {
-	var cp = flag.String("classpath", "/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/jre/lib/rt.jar", "Class path")
+	var cp = flag.String("classpath", "java:/Users/Charvis/Dropbox/Projects/gvm-java/out/production/gvm-java", "Class path")
 	flag.Parse()
-	classpath = strings.Split(*cp, ":")
+	gvm.Classpath = strings.Split(*cp, ":")
 
-	gvm.Start("java/Main.class")
+	gvm.Start("Main.class")
 }
