@@ -106,21 +106,26 @@ type JavaArray struct {
 	T_INT	10
 	T_LONG	11
 	*/
-	atype   uint8
-	aclass  *JavaClass
-	flags   uint32
-	locks   uint32
-	size    uint32
+	atype  uint8
+	aclass *JavaClass
+	flags  uint32
+	locks  uint32
+	length t_int
 	//fields
 	elements []t_any
 }
 
+func newArray(aclass *JavaClass, length t_int) t_array {
+	return &JavaArray{aclass: aclass, length: length, elements: make([]t_any, length)}
+}
+
 func newCharArray(chars []t_char) t_array {
 	elements := []t_any{}
-	for i := 0; i < len(chars); i++ {
+	length := len(chars)
+	for i := 0; i < length; i++ {
 		elements = append(elements, chars[i])
 	}
-	return &JavaArray{atype: T_CHAR, elements: elements}
+	return &JavaArray{atype: T_CHAR, length: t_int(length), elements: elements}
 }
 
 
