@@ -33,8 +33,12 @@ type JavaObject struct {
 }
 
 func (this *JavaObject) getField(caller *JavaClass, index uint16) t_any {
-	i := caller.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
-	return this.fields[i]
+	field := caller.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field
+	value := this.fields[field.index]
+	if value == nil {
+		value = defaultValue(field.descriptor)
+	}
+	return value
 }
 
 func (this *JavaObject) putField(caller *JavaClass, index uint16, value t_any) {
@@ -569,13 +573,66 @@ func (this *JavaMethod) localVariablesSize() uint {
 	return sum
 }
 
+func defaultValue(descriptor string) t_any {
+	ch := descriptor[:1]
+	var value t_any
+	switch ch {
+	case "B": value = t_byte(0) //byte
+	case "C": value = t_char(0) //char
+	case "D": value = t_double(0.0) //double
+	case "F": value = t_float(0.0) //float
+	case "I": value = t_int(0) //int
+	case "J": value = t_long(0) //long
+	case "S": value = t_short(0) //short
+	case "Z": value = t_boolean(java_false) //boolean
+	case "L": value = t_object(nil) //reference
+	case "[": value = t_array(nil) //array
+
+	}
+	return value
+}
+
+func testType(value t_any) {
+	t := ""
+	switch value.(type) {
+	case t_byte: t = "B" //byte
+	case t_char: t = "C" //char
+	case t_double: t = "D" //double
+	case t_float: t= "F" //float
+	case t_int: t= "I" //int
+	case t_long: t="J" //long
+	case t_short: t= "S" //short
+	case t_boolean: t = "Z" //boolean
+	case t_object: t = "L" //reference
+	case t_array: t = "[" //array
+	}
+
+	println(t)
+}
+
 /**
 create a java instance: return the vm representation
  */
 func (this *JavaClass) new() t_object {
+	fields := make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))
+
+	// initialize fields to default values
+	clazz := this
+	for ;; {
+		instanceFields := clazz.instanceFileds
+		for i := 0; i < len(instanceFields); i++ {
+			descriptor := instanceFields[i].descriptor
+			fields[instanceFields[i].index] = defaultValue(descriptor)
+		}
+		if clazz.superClass == 0 {
+			break
+		}
+		clazz = clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).class
+	}
+
 	return t_object(&JavaObject{
 		class: this,
-		fields: make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))})
+		fields: fields})
 }
 
 func (this *JavaClass) findField(signature string) *JavaField {

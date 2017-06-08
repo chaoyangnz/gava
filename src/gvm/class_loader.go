@@ -83,7 +83,7 @@ func loadClass(classpath []string, classname string) *JavaClass {
 		clazz.fieldsMap[javaFiled.name + javaFiled.descriptor] = javaFiled
 		if javaFiled.isStatic() {
 			javaFiled.index = maxStaticFieldIndex
-			clazz.staticFields = append(clazz.staticFields, 0)
+			clazz.staticFields = append(clazz.staticFields, defaultValue(javaFiled.descriptor)) // initialize static variables to default values
 			maxStaticFieldIndex++
 		} else {
 			javaFiled.index = maxInstanceFieldIndex + clazz.instanceFieldsStart

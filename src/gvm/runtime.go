@@ -1,6 +1,5 @@
 package gvm
 
-
 const DEFAULT_VM_STACK_SIZE  = 512
 
 type Thread struct {
