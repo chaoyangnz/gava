@@ -9,7 +9,7 @@ type ClassLoader interface {
 	load(classname string) *JavaClass
 }
 
-func load(classpath []string, classname string) *JavaClass {
+func loadClass(classpath []string, classname string) *JavaClass {
 	clazz := classCache[classname]
 	if clazz != nil {
 		return clazz
@@ -143,7 +143,7 @@ func load(classpath []string, classname string) *JavaClass {
 type BootstrapClassLoader struct {}
 
 func (this *BootstrapClassLoader) load(classname string) *JavaClass {
-	class := load(coreClassPath, classname)
+	class := loadClass(coreClassPath, classname)
 	class.classLoader = nil // nil for bootstrap loader
 	return class
 }
