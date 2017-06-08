@@ -1,6 +1,11 @@
 package gvm
 
+var coreClassPath = []string{"jdk", "/Users/Charvis/Dropbox/Projects/gvm-java/out/production/gvm-java"}
+var extClassPath  = []string{"ext"}
+var AppClasspath []string
 
-var Classpath []string
+var stringTable = make(map[string]jstring)
 
-var stringTable = make(map[string]java_string)
+var classCache = make(map[string] *JavaClass)
+
+var bootstrapClassLoader = &BootstrapClassLoader{}

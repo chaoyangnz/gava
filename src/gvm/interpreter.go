@@ -89,7 +89,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		methodRef := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo)
 		method := methodRef.method
 		if method.isNative() {
-			GVM_print(f.pop().(java_string))
+			GVM_print(f.pop().(jstring))
 			return true, 3
 		}
 		frame := NewStackFrame(method)
