@@ -13,11 +13,6 @@ type (
 	java_double        float64
 	java_object        *JavaObject
 	java_array         *JavaArray
-
-	java_int_array      []java_int
-	java_char_array     []java_char
-
-	java_string        *JavaObject
 )
 
 const (
@@ -83,6 +78,17 @@ const (
 	CLASS_ACC_ENUM	        = 0x4000
 )
 
+const (
+	T_BOOLEAN	    = 4
+	T_CHAR	        = 5
+	T_FLOAT	        = 6
+	T_DOUBLE	    = 7
+	T_BYTE	        = 8
+	T_SHORT	        = 9
+	T_INT	        = 10
+	T_LONG	        = 11
+)
+
 
 
 type JavaArray struct {
@@ -105,6 +111,14 @@ type JavaArray struct {
 	size    uint32
 	//fields
 	elements []java_any
+}
+
+func NewCharArray(chars []java_char) java_array  {
+	elements := []java_any{}
+	for i := 0; i < len(chars); i++ {
+		elements = append(elements, chars[i])
+	}
+	return &JavaArray{atype: T_CHAR, elements: elements}
 }
 
 
@@ -139,11 +153,7 @@ func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
 			if this == this.hostClass.constantPool[this.hostClass.thisClass] {
 				clazz = this.hostClass
 			} else {
-				cr := NewClassReader(name)
-				cf := cr.ReadAsClassFile()
-
-				clazz = &JavaClass{}
-				clazz.Load(cf)
+				clazz = bootstrapClassLoader.load(name)
 			}
 		}
 
@@ -241,55 +251,18 @@ type RuntimeConstantStringInfo struct {
 	stringIndex     u2
 	resolved        bool
 	//value           []java_char
-	value           java_string
-}
-
-func NewJavaString(chars java_char_array) java_string  {
-	stringClass := classCache["java/lang/String"]
-	if stringClass == nil {
-		classReader := NewClassReader("java/lang/String")
-		stringClass = &JavaClass{}
-		stringClass.Load(classReader.ReadAsClassFile())
-	}
-	object := stringClass.new()
-	object.fields[0] = chars
-	return java_string(object)
-}
-
-func JavaString2Utf8(jstring java_string) string {
-	runes := []rune{}
-	chars := jstring.fields[0].(java_char_array)
-	for i:=0; i < len(chars); i++ {
-		char := chars[i]
-		if char >= 0xD800 && char <= 0xDBFF {
-			h := char
-			if i+1 < len(chars) && chars[i+1] >= 0xDC00 && chars[i+1] <= 0xDFFF {
-				l := chars[i+1]
-				//1000016 + (H − D80016) × 40016 + (L − DC0016)
-				codepoint := 0x1000 + (h - 0xD800) * 0x400 + (l - 0xDC00)
-				runes = append(runes, rune(codepoint))
-			} else {
-				panic("Illegal UTF-16 string: only high surrogate")
-			}
-			i++
-		} else if char >= 0xDC00 && char <= 0xDFFF {
-			panic("Illegal UTF-16 string: only low surrogate")
-		} else {
-			runes = append(runes, rune(char))
-		}
-	}
-	return string(runes)
+	value           jstring
 }
 
 func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
 		utf8string := this.hostClass.constantPool[this.stringIndex].resolve().(*RuntimeConstantUtf8Info).value
-		jstring := stringTable[utf8string]
-		if jstring == nil {
-			jstring = NewJavaString(string2JavaChars(utf8string))
-			stringTable[utf8string] = jstring
+		javastring := stringTable[utf8string]
+		if javastring == nil {
+			javastring = NewJavaString(string2JavaChars(utf8string))
+			stringTable[utf8string] = javastring
 		}
-		this.value = jstring
+		this.value = javastring
 		this.resolved = true
 	}
 	return this
@@ -520,6 +493,10 @@ type JavaClass struct {
 	instanceFileds  []*JavaField
 	staticFields    []java_any
 	//attributes   []Attribute
+
+	// bridge java world
+	classLoader     ClassLoader
+	classObject     jclass   // pointer to heap: instance of java/lang/Class
 }
 
 type JavaField struct {
@@ -586,107 +563,6 @@ func (this *JavaMethod) localVariablesSize() uint {
 		}
 	}
 	return sum
-}
-
-var classCache = make(map[string] *JavaClass)
-
-func (this *JavaClass) Load(classfile *ClassFile)  {
-	this.constantPool = make([]RuntimeConstantPoolInfo, classfile.constantPoolCount)
-	for i := u2(1); i < classfile.constantPoolCount; i++ {
-		this.constantPool[i] = classfile.constantPool[i].runtime(this)
-	}
-	//for i := u2(1); i < classfile.constantPoolCount; i++ {
-	//	runtimeConstantPoolInfo := this.constantPool[i]
-	//	switch runtimeConstantPoolInfo.(type) {
-	//	case *RuntimeConstantIntegerInfo, *RuntimeConstantLongInfo, *RuntimeConstantFloatInfo, *RuntimeConstantDoubleInfo,
-	//		 *RuntimeConstantStringInfo, *RuntimeConstantUtf8Info, *RuntimeConstantNameAndTypeInfo, *RuntimeConstantMethodTypeInfo:
-	//		runtimeConstantPoolInfo.resolve()
-	//	}
-	//}
-	this.accessFlags = uint16(classfile.accessFlags)
-	// resolve this class
-	this.thisClass = uint16(classfile.thisClass)
-	this.thisClassName = classfile.cpUtf8(this.constantPool[this.thisClass].resolve().(*RuntimeConstantClassInfo).nameIndex)
-
-	// resolve super class
-	this.superClass = uint16(classfile.superClass)
-	if this.superClass != 0 {
-		this.superClassName = classfile.cpUtf8(this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).nameIndex)
-	}
-
-	this.fields = make([]*JavaField, len(classfile.fields))
-	this.fieldsMap = make(map[string]*JavaField)
-	this.staticFields = []java_any{}
-	maxInstanceFieldIndex := uint16(0)
-	maxStaticFieldIndex   := uint16(0)
-	if this.superClass == 0 { // jdk/lang/Object
-		this.instanceFieldsStart = 0
-	} else {
-		superClass := this.constantPool[this.superClass].(*RuntimeConstantClassInfo).class
-		this.instanceFieldsStart = superClass.instanceFieldsStart + uint16(len(superClass.instanceFileds))
-	}
-	for i := 0; i < len(classfile.fields); i++ {
-		fieldInfo := classfile.fields[i]
-		javaFiled := &JavaField{class: this,
-			accessFlags: uint16(fieldInfo.accessFlags),
-			name: classfile.cpUtf8(fieldInfo.nameIndex),
-			descriptor: classfile.cpUtf8(fieldInfo.descriptorIndex)}
-		this.fields[i] = javaFiled
-		this.fieldsMap[javaFiled.name + javaFiled.descriptor] = javaFiled
-		if javaFiled.isStatic() {
-			javaFiled.index = maxStaticFieldIndex
-			this.staticFields = append(this.staticFields, 0)
-			maxStaticFieldIndex++
-		} else {
-			javaFiled.index = maxInstanceFieldIndex + this.instanceFieldsStart
-			this.instanceFileds = append(this.instanceFileds, javaFiled)
-			maxInstanceFieldIndex++
-		}
-	}
-
-
-	this.methods = make([]*JavaMethod, len(classfile.methods))
-	this.methodsMap = make(map[string]*JavaMethod)
-	for i := 0; i < len(classfile.methods); i++ {
-		methodInfo := &classfile.methods[i]
-		javaMethod := &JavaMethod{class: this,
-			accessFlags: uint16(methodInfo.accessFlags),
-			name: classfile.cpUtf8(methodInfo.nameIndex),
-			descriptor: classfile.cpUtf8(methodInfo.descriptorIndex)}
-
-		javaMethod.parameterDescriptors, javaMethod.returnDescriptor = parametersAndReturn(javaMethod.descriptor)
-		for j := u2(0); j < methodInfo.attributeCount; j++ {
-			attributeInfo := methodInfo.attributes[j]
-			switch attributeInfo.(type) {
-			case *CodeAttribute:
-				codeAttribute := attributeInfo.(*CodeAttribute)
-				javaMethod.maxStack = uint16(codeAttribute.maxStack)
-				javaMethod.maxLocals = uint16(codeAttribute.maxLocals)
-				javaMethod.code = u2b(codeAttribute.code)
-				for k := u2(0); k < codeAttribute.attributesCount; k++ {
-					codeAttributeAttribute := codeAttribute.attributes[k]
-					switch codeAttributeAttribute.(type) {
-					case *LocalVariableTableAttribute:
-						localVariableTableAttribute := codeAttributeAttribute.(*LocalVariableTableAttribute)
-						javaMethod.localVariables = make([]LocalVariable, localVariableTableAttribute.localVariableTableLength)
-						for m := u2(0); m < localVariableTableAttribute.localVariableTableLength; m++ {
-							javaMethod.localVariables[m] = LocalVariable{
-								javaMethod,
-								uint16(localVariableTableAttribute.localVariableTable[m].startPc),
-								uint16(localVariableTableAttribute.localVariableTable[m].length),
-								uint16(localVariableTableAttribute.localVariableTable[m].index),
-								classfile.cpUtf8(localVariableTableAttribute.localVariableTable[m].nameIndex),
-								classfile.cpUtf8(localVariableTableAttribute.localVariableTable[m].descriptorIndex)}
-						}
-					}
-				}
-			}
-		}
-		this.methods[i] = javaMethod
-		this.methodsMap[javaMethod.name + javaMethod.descriptor] = javaMethod
-	}
-
-	classCache[this.thisClassName] = this
 }
 
 func (this *JavaClass) new() java_object  {
