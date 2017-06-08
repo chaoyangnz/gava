@@ -26,7 +26,7 @@ func (this *GNIEnv) GetObjectClass(object java_lang_object) java_lang_class {
 
 /*------------java_lang_string----------------------------------*/
 //func newJavaLangString(chars []t_char) java_lang_string {
-//	stringClass := bootstrapClassLoader.load("java/lang/String")
+//	stringClass := bootstrapClassLoader.loadClass("java/lang/String")
 //	object := stringClass.new()
 //	object.fields[0] = newCharArray(chars)
 //	return java_lang_string(object)
