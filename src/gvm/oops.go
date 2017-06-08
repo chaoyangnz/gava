@@ -1,23 +1,25 @@
 package gvm
 
 type (
-	java_any           interface{}
+	// these types are for vm internal use only
+	// basicaly they are mapped to 10 types mentioned in JVM specification
+	t_any       interface{}
 
-	java_byte          int8
-	java_char          uint16
-	java_short         int16
-	java_int           int32
-	java_long          int64
-	java_boolean       int32
-	java_float         float32
-	java_double        float64
-	java_object        *JavaObject
-	java_array         *JavaArray
+	t_byte      int8
+	t_char      uint16
+	t_short     int16
+	t_int       int32
+	t_long      int64
+	t_boolean   int32
+	t_float     float32
+	t_double    float64
+	t_object    *JavaObject
+	t_array     *JavaArray
 )
 
 const (
-	java_true           = java_boolean(0x1)
-	java_false          = java_boolean(0x0)
+	java_true           = t_boolean(0x1)
+	java_false          = t_boolean(0x0)
 	//java_null           = nil
 )
 
@@ -27,15 +29,15 @@ type JavaObject struct {
 	flags uint32
 	locks uint32
 	//fields
-	fields []java_any
+	fields []t_any
 }
 
-func (this *JavaObject) getField(caller *JavaClass, index uint16) java_any {
+func (this *JavaObject) getField(caller *JavaClass, index uint16) t_any {
 	i := caller.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
 	return this.fields[i]
 }
 
-func (this *JavaObject) putField(caller *JavaClass, index uint16, value java_any) {
+func (this *JavaObject) putField(caller *JavaClass, index uint16, value t_any) {
 	i := caller.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
 	this.fields[i] = value
 }
@@ -110,11 +112,11 @@ type JavaArray struct {
 	locks   uint32
 	size    uint32
 	//fields
-	elements []java_any
+	elements []t_any
 }
 
-func NewCharArray(chars []java_char) java_array  {
-	elements := []java_any{}
+func newCharArray(chars []t_char) t_array {
+	elements := []t_any{}
 	for i := 0; i < len(chars); i++ {
 		elements = append(elements, chars[i])
 	}
@@ -148,16 +150,13 @@ type RuntimeConstantClassInfo struct {
 func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
 		name := this.hostClass.constantPool[this.nameIndex].resolve().(*RuntimeConstantUtf8Info).value
-		clazz := classCache[name]
-		if clazz == nil {
-			if this == this.hostClass.constantPool[this.hostClass.thisClass] {
-				clazz = this.hostClass
-			} else {
-				clazz = bootstrapClassLoader.load(name)
-			}
+
+		if this == this.hostClass.constantPool[this.hostClass.thisClass] {
+			this.class = this.hostClass // current class
+		} else {
+			this.class = bootstrapClassLoader.load(name)
 		}
 
-		this.class = clazz
 		this.resolved = true
 	}
 	return this
@@ -250,8 +249,8 @@ type RuntimeConstantStringInfo struct {
 	hostClass       *JavaClass
 	stringIndex     u2
 	resolved        bool
-	//value           []java_char
-	value           jstring
+	//value           []t_char
+	value java_lang_string
 }
 
 func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
@@ -259,7 +258,7 @@ func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
 		utf8string := this.hostClass.constantPool[this.stringIndex].resolve().(*RuntimeConstantUtf8Info).value
 		javastring := stringTable[utf8string]
 		if javastring == nil {
-			javastring = NewJavaString(string2JavaChars(utf8string))
+			javastring = newJavaLangString(utf8string)
 			stringTable[utf8string] = javastring
 		}
 		this.value = javastring
@@ -275,16 +274,16 @@ CONSTANT_Integer_info {
 }
  */
 type RuntimeConstantIntegerInfo struct {
-	hostClass       *JavaClass
-	bytes           u4
-	resolved        bool
-	value           java_int
+	hostClass *JavaClass
+	bytes     u4
+	resolved  bool
+	value     t_int
 }
 
 
 func (this *RuntimeConstantIntegerInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = java_int(this.bytes)
+		this.value = t_int(this.bytes)
 		this.resolved = true
 	}
 	return this
@@ -297,15 +296,15 @@ CONSTANT_Float_info {
 }
  */
 type RuntimeConstantFloatInfo struct {
-	hostClass       *JavaClass
-	bytes           u4
-	resolved        bool
-	value           java_float
+	hostClass *JavaClass
+	bytes     u4
+	resolved  bool
+	value     t_float
 }
 
 func (this *RuntimeConstantFloatInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = java_float(this.bytes)
+		this.value = t_float(this.bytes)
 		this.resolved = true
 	}
 	return this
@@ -319,16 +318,16 @@ CONSTANT_Long_info {
 }
  */
 type RuntimeConstantLongInfo struct {
-	hostClass       *JavaClass
-	highBytes       u4
-	lowBytes        u4
-	resolved        bool
-	value           java_long
+	hostClass *JavaClass
+	highBytes u4
+	lowBytes  u4
+	resolved  bool
+	value     t_long
 }
 
 func (this *RuntimeConstantLongInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = java_long(this.highBytes << 8 | this.lowBytes)
+		this.value = t_long(this.highBytes << 8 | this.lowBytes)
 		this.resolved = true
 	}
 	return this
@@ -342,17 +341,17 @@ CONSTANT_Double_info {
 }
  */
 type RuntimeConstantDoubleInfo struct {
-	hostClass       *JavaClass
-	highBytes       u4
-	lowBytes        u4
-	resolved        bool
-	value           java_double
+	hostClass *JavaClass
+	highBytes u4
+	lowBytes  u4
+	resolved  bool
+	value     t_double
 }
 
 
 func (this *RuntimeConstantDoubleInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = java_double(this.highBytes << 8 | this.lowBytes)
+		this.value = t_double(this.highBytes << 8 | this.lowBytes)
 		this.resolved = true
 	}
 	return this
@@ -491,12 +490,12 @@ type JavaClass struct {
 	methodsMap      map[string]*JavaMethod
 	instanceFieldsStart uint16
 	instanceFileds  []*JavaField
-	staticFields    []java_any
+	staticFields    []t_any
 	//attributes   []Attribute
 
 	// bridge java world
-	classLoader     ClassLoader
-	classObject     jclass   // pointer to heap: instance of java/lang/Class
+	classLoader     java_lang_classloader
+	classObject java_lang_class // pointer to heap: instance of java/lang/Class
 }
 
 type JavaField struct {
@@ -565,10 +564,13 @@ func (this *JavaMethod) localVariablesSize() uint {
 	return sum
 }
 
-func (this *JavaClass) new() java_object  {
-	return java_object(&JavaObject{
+/**
+create a java instance: return the vm representation
+ */
+func (this *JavaClass) new() t_object {
+	return t_object(&JavaObject{
 		class: this,
-		fields: make([]java_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))})
+		fields: make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))})
 }
 
 func (this *JavaClass) findField(signature string) *JavaField {
