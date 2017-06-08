@@ -4,15 +4,15 @@ type GNIEnv struct {}
 
 type (
 	// these types are the vm bridge for java language types
-	jbyte                   t_byte
-	jshort                  t_short
-	jchar                   t_char
-	jint                    t_int
-	jlong                   t_long
-	jfloat                  t_float
-	jdouble                 t_double
-
-	jarray                  t_array
+	//jbyte                   t_byte
+	//jshort                  t_short
+	//jchar                   t_char
+	//jint                    t_int
+	//jlong                   t_long
+	//jfloat                  t_float
+	//jdouble                 t_double
+	//
+	//jarray                  t_array
 
 	java_lang_object        t_object
 	java_lang_string        t_object
