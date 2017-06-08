@@ -30,35 +30,7 @@ func bytes2uint32(bytes []uint8) uint32 {
 	return uint32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3])
 }
 
-/*
-H = (S - 10000) / 400 + D800
-L = (S - 10000) % 400 + DC00
- */
-func rune2utf16(codepoint rune) []java_char {
-	if codepoint <= 0xFFFF {
-		return []java_char{ java_char(codepoint)}
-	}
-	high_surrogate := (uint32(codepoint) - 0x10000) / 0x400 + 0xD800
-	low_surrogate := (uint32(codepoint) - 0x10000) % 0x400 + 0xDC00
-	return []java_char{java_char(high_surrogate), java_char(low_surrogate)}
-}
 
-func bytes2JavaChars(bytes []uint8) []java_char  {
-	return string2JavaChars(string(bytes))
-}
-
-func string2JavaChars(str string) []java_char  {
-	runes := []rune(str)
-
-	chars := []java_char{}
-	for i := 0; i < len(runes); i++ {
-		arr := rune2utf16(runes[i])
-		for k := 0; k < len(arr); k++ {
-			chars = append(chars, arr[k])
-		}
-	}
-	return chars
-}
 
 func parametersAndReturn(descriptor string) ([]string, string) {
 	arr := strings.Split(descriptor, ")")

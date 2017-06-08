@@ -241,9 +241,9 @@ type StackFrame struct {
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc uint32
-	localVariables []java_any
+	localVariables []t_any
 	// operand stack
-	operandStack []java_any
+	operandStack []t_any
 	operandStackSize uint
 }
 
@@ -251,17 +251,17 @@ func NewStackFrame(method *JavaMethod) *StackFrame {
 	stackFrame := &StackFrame{
 		method: method,
 		pc: 0,
-		localVariables: make([]java_any, method.maxLocals),
-		operandStack: make([]java_any, method.maxStack),
+		localVariables: make([]t_any, method.maxLocals),
+		operandStack: make([]t_any, method.maxStack),
 		operandStackSize: 0}
 	return stackFrame
 }
 
-func (this *StackFrame) loadVar(index uint) java_any  {
+func (this *StackFrame) loadVar(index uint) t_any {
 	return this.localVariables[index]
 }
 
-func (this *StackFrame) storeVar(index uint, value java_any)  {
+func (this *StackFrame) storeVar(index uint, value t_any)  {
 	this.localVariables[index] = value
 }
 
@@ -288,18 +288,18 @@ func (this *StackFrame) passReturn(caller *StackFrame)  {
 	caller.push(this.pop())
 }
 
-func (this *StackFrame) push(jany java_any)  {
+func (this *StackFrame) push(jany t_any)  {
 	this.operandStack[this.operandStackSize] = jany
 	this.operandStackSize++
 }
 
-func (this *StackFrame) pop() java_any {
+func (this *StackFrame) pop() t_any {
 	jany := this.operandStack[this.operandStackSize-1]
 	this.operandStackSize--
 	return jany
 }
 
-func (this *StackFrame) peek() java_any {
+func (this *StackFrame) peek() t_any {
 	jany := this.operandStack[this.operandStackSize-1]
 	return jany
 }

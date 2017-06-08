@@ -29,13 +29,13 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 	opcode := bytecode[f.pc]
 	switch opcode {
 	case ICONST_1:
-		f.push(java_int(1))
+		f.push(t_int(1))
 		return true, 1
 	case ICONST_2:
-		f.push(java_int(2))
+		f.push(t_int(2))
 		return true, 1
 	case ICONST_3:
-		f.push(java_int(3))
+		f.push(t_int(3))
 		return true, 1
 	case ISTORE_0:
 		f.storeVar(0, f.pop())
@@ -54,34 +54,34 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		f.storeVar(uint(index), f.pop())
 		return true, 2
 	case ILOAD_0:
-		f.push(f.loadVar(0).(java_int))
+		f.push(f.loadVar(0).(t_int))
 		return true, 1
 	case ILOAD_1:
-		f.push(f.loadVar(1).(java_int))
+		f.push(f.loadVar(1).(t_int))
 		return true, 1
 	case ILOAD_2:
-		f.push(f.loadVar(2).(java_int))
+		f.push(f.loadVar(2).(t_int))
 		return true, 1
 	case ILOAD_3:
-		f.push(f.loadVar(3).(java_int))
+		f.push(f.loadVar(3).(t_int))
 		return true, 1
 	case ILOAD:
 		index := bytecode[f.pc+1]
-		f.push(f.loadVar(uint(index)).(java_int))
+		f.push(f.loadVar(uint(index)).(t_int))
 		return true, 2
 	case IADD:
-		f.push(f.pop().(java_int) + f.pop().(java_int))
+		f.push(f.pop().(t_int) + f.pop().(t_int))
 		return true, 1
 	case ALOAD_0:
-		f.push(f.loadVar(0).(java_object))
+		f.push(f.loadVar(0).(t_object))
 		return true, 1
 	case ASTORE:
 		index := bytecode[f.pc+1]
-		f.storeVar(uint(index), f.pop().(java_object))
+		f.storeVar(uint(index), f.pop().(t_object))
 		return true, 2
 	case ALOAD:
 		index := bytecode[f.pc+1]
-		f.push(f.loadVar(uint(index)).(java_object))
+		f.push(f.loadVar(uint(index)).(t_object))
 		return true, 2
 	case INVOKESTATIC:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
@@ -89,7 +89,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		methodRef := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo)
 		method := methodRef.method
 		if method.isNative() {
-			GVM_print(f.pop().(jstring))
+			GVM_print(f.pop().(java_lang_string))
 			return true, 3
 		}
 		frame := NewStackFrame(method)
@@ -117,23 +117,23 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		return true, 3
 	case ANEWARRAY:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		count := f.pop().(java_int)
+		count := f.pop().(t_int)
 
 		classInfo := class.constantPool[index].resolve().(*RuntimeConstantClassInfo)
-		jreference := java_array(&JavaArray{aclass: classInfo.class, size: uint32(count)})
-		jreference.elements = make([]java_any, uint32(count))
+		jreference := t_array(&JavaArray{aclass: classInfo.class, size: uint32(count)})
+		jreference.elements = make([]t_any, uint32(count))
 		f.push(jreference)
 		return true, 3
 	case NEWARRAY:
 		atype := uint8(bytecode[f.pc+1])
-		count := f.pop().(java_int)
-		jreference := java_array(&JavaArray{atype: atype, size: uint32(count)})
-		jreference.elements = make([]java_any, uint32(count))
+		count := f.pop().(t_int)
+		jreference := t_array(&JavaArray{atype: atype, size: uint32(count)})
+		jreference.elements = make([]t_any, uint32(count))
 		f.push(jreference)
 		return true, 2
 	case GETFIELD:
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
-		jreference := f.pop().(java_object)
+		jreference := f.pop().(t_object)
 
 		f.push((*jreference).getField(class, index))
 		return true, 3
@@ -141,7 +141,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		index := bytes2uint16(bytecode[f.pc+1:f.pc+3])
 
 		value := f.pop()
-		jreference := f.pop().(java_object)
+		jreference := f.pop().(t_object)
 
 		(*jreference).putField(class, index, value)
 		return true, 3
@@ -161,7 +161,7 @@ func interpret(f *StackFrame, thread *Thread, method *JavaMethod, class *JavaCla
 		return false, 3
 	case BIPUSH:
 		byte := bytecode[f.pc+1]
-		f.push(java_int(byte))
+		f.push(t_int(byte))
 		return true, 2
 	case LDC:
 		index := bytecode[f.pc+1]

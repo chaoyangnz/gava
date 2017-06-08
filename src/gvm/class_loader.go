@@ -64,7 +64,7 @@ func load(classpath []string, classname string) *JavaClass {
 
 	clazz.fields = make([]*JavaField, len(classfile.fields))
 	clazz.fieldsMap = make(map[string]*JavaField)
-	clazz.staticFields = []java_any{}
+	clazz.staticFields = []t_any{}
 	maxInstanceFieldIndex := uint16(0)
 	maxStaticFieldIndex   := uint16(0)
 	if clazz.superClass == 0 { // jdk/lang/Object
@@ -134,7 +134,7 @@ func load(classpath []string, classname string) *JavaClass {
 		clazz.methodsMap[javaMethod.name + javaMethod.descriptor] = javaMethod
 	}
 
-	clazz.classObject = &JavaObject{class: bootstrapClassLoader.load("java/lang/Class")}
+	clazz.classObject = newJavaLangClass()
 
 	fmt.Printf("Finish loading class: %s\n", classname)
 	return clazz
@@ -144,6 +144,6 @@ type BootstrapClassLoader struct {}
 
 func (this *BootstrapClassLoader) load(classname string) *JavaClass {
 	class := load(coreClassPath, classname)
-	class.classLoader = this
+	class.classLoader = nil // nil for bootstrap loader
 	return class
 }
