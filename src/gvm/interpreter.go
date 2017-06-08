@@ -897,7 +897,7 @@ func POP(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (i
 
 /*88 (0X58)*/
 func POP2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*89 (0X59)*/
@@ -920,22 +920,22 @@ func DUP_X1(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 
 /*91 (0X5B)*/
 func DUP_X2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*92 (0X5C)*/
 func DUP2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*93 (0X5D)*/
 func DUP2_X1(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*94 (0X5E)*/
 func DUP2_X2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*95 (0X5F)*/
@@ -1254,98 +1254,98 @@ func I2L(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (i
 
 /*134 (0X86)*/
 func I2F(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*135 (0X87)*/
 func I2D(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*136 (0X88)*/
 func L2I(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*137 (0X89)*/
 func L2F(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*138 (0X8A)*/
 func L2D(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*139 (0X8B)*/
 func F2I(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*140 (0X8C)*/
 func F2L(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*141 (0X8D)*/
 func F2D(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*142 (0X8E)*/
 func D2I(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*143 (0X8F)*/
 func D2L(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*144 (0X90)*/
 func D2F(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*145 (0X91)*/
 func I2B(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*146 (0X92)*/
 func I2C(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*147 (0X93)*/
 func I2S(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 
 /*148 (0X94)*/
 func LCMP(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*149 (0X95)*/
 func FCMPL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*150 (0X96)*/
 func FCMPG(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*151 (0X97)*/
 func DCMPL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*152 (0X98)*/
 func DCMPG(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*153 (0X99)*/
@@ -1499,27 +1499,27 @@ func IF_ACMPNE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 
 /*167 (0XA7)*/
 func GOTO(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*168 (0XA8)*/
 func JSR(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*169 (0XA9)*/
 func RET(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*170 (0XAA)*/
 func TABLESWITCH(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*171 (0XAB)*/
 func LOOKUPSWITCH(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*172 (0XAC)*/
@@ -1571,20 +1571,28 @@ func RETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 
 /*178 (0XB2)*/
 func GETSTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+	field := c.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field
+	f.push(c.staticFields[field.index])
+	return 3, true
 }
 
 /*179 (0XB3)*/
 func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+	value := f.pop()
+	field := c.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field
+	c.staticFields[field.index] = value
+	return 3, true
 }
 
 /*180 (0XB4)*/
 func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	jreference := f.pop().(t_object)
+	objectref := f.pop().(t_object)
+	value := (*objectref).getField(c, index)
 
-	f.push((*jreference).getField(c, index))
+	f.push(value.(t_int))
 	return 3, true
 }
 
@@ -1601,12 +1609,32 @@ func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMetho
 
 /*182 (0XB6)*/
 func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
+
+	method := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
+	if method.isStatic() {
+		panic("Not an instance method")
+	}
+	parameterCount := len(method.parameterDescriptors)
+	params := make([]t_any, parameterCount+1)
+	for i := parameterCount; i >= 0; i-- {
+		params[i] = f.pop()
+	}
+	objectref := params[0].(t_object)
+	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
+	frame := NewStackFrame(overridenMethod)
+	// pass parameters
+	for j := 0; j < parameterCount+1; j++ {
+		frame.storeVar(uint(j), params[j])
+	}
+
+	t.vmStack.push(frame)
+	return parameterCount+1, false
 }
 
 /*183 (0XB7)*/
 func INVOKESPECIAL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
 
 	method := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
 	frame := NewStackFrame(method)
@@ -1619,7 +1647,7 @@ func INVOKESPECIAL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *Java
 
 /*184 (0XB8)*/
 func INVOKESTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
 
 	methodRef := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo)
 	method := methodRef.method
@@ -1637,12 +1665,12 @@ func INVOKESTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaM
 
 /*185 (0XB9)*/
 func INVOKEINTERFACE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*186 (0XBA)*/
 func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*187 (0XBB)*/
@@ -1683,74 +1711,74 @@ func ARRAYLENGTH(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMe
 
 /*191 (0XBF)*/
 func ATHROW(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*192 (0XC0)*/
 func CHECKCAST(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*193 (0XC1)*/
 func INSTANCEOF(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*194 (0XC2)*/
 func MONITORENTER(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*195 (0XC3)*/
 func MONITOREXIT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 
 /*196 (0XC4)*/
 func WIDE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*197 (0XC5)*/
 func MULTIANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*198 (0XC6)*/
 func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*199 (0XC7)*/
 func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*200 (0XC8)*/
 func GOTO_W(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*201 (0XC9)*/
 func JSR_W(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 
 /*202 (0XCA)*/
 func BREAKPOINT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*254 (0XFE)*/
 func IMPDEP1(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*255 (0XFF)*/
 func IMPDEP2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %s\n", opcode))
+	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 
