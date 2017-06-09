@@ -1,6 +1,9 @@
 package gvm
 
-import "strings"
+import (
+	"strings"
+	"fmt"
+)
 
 func u2b(u1s []u1) []uint8 {
 	bytes := make([]uint8, len(u1s))
@@ -29,7 +32,6 @@ func bytes2uint16(bytes []uint8) uint16 {
 func bytes2uint32(bytes []uint8) uint32 {
 	return uint32((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3])
 }
-
 
 
 func parametersAndReturn(descriptor string) ([]string, string) {
@@ -78,4 +80,62 @@ func parametersAndReturn(descriptor string) ([]string, string) {
 	}
 
 	return parametersSlice, returnStr
+}
+
+const (
+	ALL     = 0
+	TRACE   = 1
+	DEBUG	= 2
+	INFO    = 3
+	WARN    = 4
+	ERROR   = 5
+	FATAL   = 6
+)
+
+const logLevel = TRACE
+
+func log(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
+}
+
+func all(format string, args ...interface{})   {
+	if logLevel <= ALL {
+		log(format, args...)
+	}
+}
+
+func trace(format string, args ...interface{})   {
+	if logLevel <= TRACE {
+		log(format, args...)
+	}
+}
+
+func debug(format string, args ...interface{})   {
+	if logLevel <= DEBUG {
+		log(format, args...)
+	}
+}
+
+func info(format string, args ...interface{})   {
+	if logLevel <= INFO {
+		log(format, args...)
+	}
+}
+
+func warn(format string, args ...interface{})   {
+	if logLevel <= WARN {
+		log(format, args...)
+	}
+}
+
+func error(format string, args ...interface{})   {
+	if logLevel <= ERROR {
+		log(format, args...)
+	}
+}
+
+func fatal(format string, args ...interface{})   {
+	//if logLevel <= FATAL {
+		panic(fmt.Sprintf(format, args...))
+	//}
 }

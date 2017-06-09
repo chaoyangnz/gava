@@ -1,8 +1,6 @@
 package gvm
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type (
 	u1 uint8

@@ -2,7 +2,6 @@ package gvm
 
 import (
 	"io/ioutil"
-	"fmt"
 )
 
 type ClassLoader interface {
@@ -15,7 +14,7 @@ func loadClass(classpath []string, classname string) *JavaClass {
 		return clazz
 	}
 
-	fmt.Printf("Start loading class: %s\n", classname)
+	all("Start loading class: %s\n", classname)
 
 	// create classreader
 	var classreader *ClassReader
@@ -27,7 +26,7 @@ func loadClass(classpath []string, classname string) *JavaClass {
 		}
 	}
 	if classreader == nil {
-		panic(fmt.Sprintf("Cannot find class %s in class path: %s", classname, classpath))
+		fatal("Cannot find class %s in class path: %s", classname, classpath)
 	}
 
 	// read as binary representation of class file
@@ -136,7 +135,7 @@ func loadClass(classpath []string, classname string) *JavaClass {
 
 	clazz.classObject = newJavaLangClass()
 
-	fmt.Printf("Finish loading class: %s\n", classname)
+	all("Finish loading class: %s\n", classname)
 	return clazz
 }
 

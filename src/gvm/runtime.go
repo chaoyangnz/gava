@@ -1,7 +1,5 @@
 package gvm
 
-import "fmt"
-
 const DEFAULT_VM_STACK_SIZE  = 512
 
 type Thread struct {
@@ -53,7 +51,7 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
 	parameterCount := len(method.parameterDescriptors)
 	if method.isNative() {
-		fmt.Printf("invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
+		debug("invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
 		GVM_print(f.pop().(java_lang_string))
 		return
 	}
@@ -74,7 +72,7 @@ func (this *Thread) invokeVitrualMethod(index uint16) {
 	c := m.class
 	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
 	if method.isStatic() {
-		panic("Not an instance method")
+		fatal("Not an instance method")
 	}
 	parameterCount := len(method.parameterDescriptors)
 	params := make([]t_any, parameterCount+1)
@@ -168,7 +166,7 @@ func (this *StackFrame) peek() t_any {
 func (this *Thread) pushFrame(stackFrame *StackFrame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
-		panic("Stack Overflow")
+		fatal("Stack Overflow")
 	}
 	this.vmStack = this.vmStack[:size+1]
 	this.vmStack[size] = stackFrame
