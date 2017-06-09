@@ -4,7 +4,7 @@ var coreClassPath = []string{"jdk", "/Users/Charvis/Dropbox/Projects/gvm-java/ou
 var extClassPath  = []string{"ext"}
 var AppClasspath []string
 
-var stringTable = make(map[string]t_object/*java_lang_string*/)
+var stringTable = make(map[string]*java_lang_string)
 
 var classCache = make(map[string] *JavaClass)
 

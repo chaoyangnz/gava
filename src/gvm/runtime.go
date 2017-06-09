@@ -36,11 +36,10 @@ func NewStackFrame(method *JavaMethod) *StackFrame {
 
 func (this *StackFrame) loadVar(index uint) t_any {
 	value := this.localVariables[index]
-	return checkType(value)
+	return value
 }
 
 func (this *StackFrame) storeVar(index uint, value t_any)  {
-	checkType(value)
 	this.localVariables[index] = value
 }
 
@@ -52,14 +51,14 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 	parameterCount := len(method.parameterDescriptors)
 	if method.isNative() {
 		debug("😎 invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
-		GVM_print(f.pop().(t_object/*java_lang_string*/))
+		GVM_print(f.pop().(*java_lang_string))
 		return
 	}
 	frame := NewStackFrame(method)
 	// pass parameters
 
 	for i := parameterCount-1; i >= 0; i--  {
-		argument := checkType(f.pop())
+		argument := f.pop()
 		frame.storeVar(uint(i), argument)
 	}
 
@@ -80,7 +79,7 @@ func (this *Thread) invokeVitrualMethod(index uint16) {
 		params[i] = f.pop()
 	}
 	// get objectref
-	objectref := f.pop().(t_object)
+	objectref := f.pop().(*t_object)
 	params[0] = objectref
 	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
 	frame := NewStackFrame(overridenMethod)
@@ -101,10 +100,10 @@ func (this *Thread) invokeSpecialMethod(index uint16)  {
 	frame := NewStackFrame(method)
 	// pass parameters
 	for i := parameterCount; i >= 1; i--  {
-		argument := checkType(f.pop())
+		argument := f.pop()
 		frame.storeVar(uint(i), argument)
 	}
-	objectref := f.pop().(t_object)
+	objectref := f.pop().(*t_object)
 	frame.storeVar(0, objectref) // this objectref
 
 	this.pushFrame(frame)
@@ -133,20 +132,20 @@ func (this *StackFrame) passReturn(caller *StackFrame)  {
 	caller.push(this.pop())
 }
 
-func (this *StackFrame) getField(objectref t_object, index uint16) t_any {
+func (this *StackFrame) getField(objectref *t_object, index uint16) t_any {
 	i := this.method.class.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
-	return checkType(objectref.fields[i])
+	return objectref.fields[i]
 }
 
-func (this *StackFrame) putField(objectref t_object, index uint16, value t_any) {
+func (this *StackFrame) putField(objectref *t_object, index uint16, value t_any) {
 	i := this.method.class.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
-	objectref.fields[i] = checkType(value)
+	objectref.fields[i] = value
 }
 
 func (this *StackFrame) push(jany t_any)  {
 	operandStackSize := len(this.operandStack)
 	this.operandStack = this.operandStack[:operandStackSize+1]
-	this.operandStack[operandStackSize] = checkType(jany)
+	this.operandStack[operandStackSize] = jany
 }
 
 func (this *StackFrame) pop() t_any {
@@ -154,13 +153,13 @@ func (this *StackFrame) pop() t_any {
 	jany := this.operandStack[operandStackSize-1]
 	this.operandStack[operandStackSize-1] = nil
 	this.operandStack = this.operandStack[:operandStackSize-1]
-	return checkType(jany)
+	return jany
 }
 
 func (this *StackFrame) peek() t_any {
 	operandStackSize := len(this.operandStack)
 	jany := this.operandStack[operandStackSize-1]
-	return checkType(jany)
+	return jany
 }
 
 func (this *Thread) pushFrame(stackFrame *StackFrame)  {

@@ -206,7 +206,7 @@ var instructions = []Instruction{
 	/*184 (0xB8)*/ Instruction{"invokestatic", INVOKESTATIC, 3, true},
 	/*185 (0xB9)*/ Instruction{"invokeinterface", INVOKEINTERFACE, 5, true},
 	/*186 (0xBA)*/ Instruction{"invokedynamic", INVOKEDYNAMIC, 5, true},
-	/*187 (0xBB)*/ Instruction{"new", NEW, 3, false},
+	/*187 (0xBB)*/ Instruction{"newObject", NEW, 3, false},
 	/*188 (0xBC)*/ Instruction{"newarray", NEWARRAY, 2, false},
 	/*189 (0xBD)*/ Instruction{"anewarray", ANEWARRAY, 3, false},
 	/*190 (0xBE)*/ Instruction{"arraylength", ARRAYLENGTH, 1, false},

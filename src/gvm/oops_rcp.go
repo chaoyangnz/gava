@@ -126,7 +126,7 @@ type RuntimeConstantStringInfo struct {
 	stringIndex     u2
 	resolved        bool
 	//value           []t_char
-	value           t_object/*java_lang_string*/
+	value           *java_lang_string
 }
 
 func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {

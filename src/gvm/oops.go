@@ -50,49 +50,7 @@ const (
 	T_LONG	        = 11
 )
 
-type JavaObject struct {
-	//header part
-	class *JavaClass
-	flags uint32
-	locks uint32
-	//fields
-	fields []t_any
-}
 
-type JavaArray struct {
-	//header part
-	/*
-	Array Type	atype
-	T_BOOLEAN	4
-	T_CHAR	5
-	T_FLOAT	6
-	T_DOUBLE	7
-	T_BYTE	8
-	T_SHORT	9
-	T_INT	10
-	T_LONG	11
-	*/
-	atype  uint8
-	aclass *JavaClass
-	flags  uint32
-	locks  uint32
-	length t_int
-	//fields
-	elements []t_any
-}
-
-func newArray(aclass *JavaClass, length t_int) t_array {
-	return &JavaArray{aclass: aclass, length: length, elements: make([]t_any, length)}
-}
-
-func newCharArray(chars []t_char) t_array {
-	elements := []t_any{}
-	length := len(chars)
-	for i := 0; i < length; i++ {
-		elements = append(elements, chars[i])
-	}
-	return &JavaArray{atype: T_CHAR, length: t_int(length), elements: elements}
-}
 
 
 
@@ -116,9 +74,11 @@ type JavaClass struct {
 	//attributes   []Attribute
 
 	// bridge java world
-	classLoader     t_object/*java_lang_classloader*/
-	classObject     t_object/*java_lang_class*/ // pointer to heap: instance of java/lang/Class
+	classLoader     *java_lang_classloader
+	classObject     *java_lang_class // pointer to heap: instance of java/lang/Class
 }
+
+
 
 type JavaField struct {
 	class           *JavaClass
@@ -130,6 +90,26 @@ type JavaField struct {
 	for instance fields, it is the global index considering superclass hierarchy
 	 */
 	index           uint16
+}
+
+func (this *JavaField)defaultValue() t_any {
+	ch := this.descriptor[:1]
+	var value t_any
+	switch ch {
+	case "B": value = t_byte(0) //byte
+	case "C": value = t_char(0) //char
+	case "D": value = t_double(0.0) //double
+	case "F": value = t_float(0.0) //float
+	case "I": value = t_int(0) //int
+	case "J": value = t_long(0) //long
+	case "S": value = t_short(0) //short
+	case "Z": value = boolean_false //boolean
+	case "L": value = (*t_object)(nil) //reference
+	case "[": value = (*t_array)(nil) //array
+	default:
+		fatal("Not a valid vm type")
+	}
+	return value
 }
 
 func (this *JavaField)isStatic() bool {
@@ -167,29 +147,29 @@ type LocalVariable struct {
 	descriptor          string
 }
 
-func (this *JavaMethod) localVariablesSize() uint {
-	sum := uint(0)
-	for i := 0; i < len(this.localVariables); i++ {
-		switch this.localVariables[i].descriptor[:1] {
-		case "B": sum += 1 //byte
-		case "C": sum += 2 //char
-		case "D": sum += 8 //double
-		case "F": sum += 4 //float
-		case "I": sum += 4 //int
-		case "J": sum += 8 //long
-		case "S": sum += 2 //short
-		case "Z": sum += 4 //boolean
-		case "L": sum += 4 //reference
-		case "[": sum += 4 //array
-		}
-	}
-	return sum
-}
+//func (this *JavaMethod) localVariablesSize() uint {
+//	sum := uint(0)
+//	for i := 0; i < len(this.localVariables); i++ {
+//		switch this.localVariables[i].descriptor[:1] {
+//		case "B": sum += 1 //byte
+//		case "C": sum += 2 //char
+//		case "D": sum += 8 //double
+//		case "F": sum += 4 //float
+//		case "I": sum += 4 //int
+//		case "J": sum += 8 //long
+//		case "S": sum += 2 //short
+//		case "Z": sum += 4 //boolean
+//		case "L": sum += 4 //reference
+//		case "[": sum += 4 //array
+//		}
+//	}
+//	return sum
+//}
 
 /**
 create a java instance: return the vm representation
  */
-func (this *JavaClass) new() t_object {
+func (this *JavaClass) newObject() *t_object {
 	fields := make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))
 
 	// initialize fields to default values
@@ -197,8 +177,7 @@ func (this *JavaClass) new() t_object {
 	for ;; {
 		instanceFields := clazz.instanceFileds
 		for i := 0; i < len(instanceFields); i++ {
-			descriptor := instanceFields[i].descriptor
-			fields[instanceFields[i].index] = defaultValue(descriptor)
+			fields[instanceFields[i].index] = instanceFields[i].defaultValue()
 		}
 		if clazz.superClass == 0 {
 			break
@@ -206,9 +185,9 @@ func (this *JavaClass) new() t_object {
 		clazz = clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).class
 	}
 
-	return t_object(&JavaObject{
+	return &t_object{
 		class: this,
-		fields: fields})
+		fields: fields}
 }
 
 /*

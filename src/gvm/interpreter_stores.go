@@ -27,7 +27,7 @@ func DSTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*58 (0X3A)*/
 func ASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := m.code[f.pc+1]
-	f.storeVar(uint(index), f.pop().(t_object))
+	f.storeVar(uint(index), f.pop().(Reference))
 }
 
 /*59 (0X3B)*/
@@ -112,29 +112,29 @@ func DSTORE_3(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMetho
 
 /*75 (0X4B)*/
 func ASTORE_0(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.storeVar(0, f.pop().(t_object))
+	f.storeVar(0, f.pop().(Reference))
 }
 
 /*76 (0X4C)*/
 func ASTORE_1(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.storeVar(1, f.pop().(t_object))
+	f.storeVar(1, f.pop().(Reference))
 }
 
 /*77 (0X4D)*/
 func ASTORE_2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.storeVar(2, f.pop().(t_object))
+	f.storeVar(2, f.pop().(Reference))
 }
 
 /*78 (0X4E)*/
 func ASTORE_3(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.storeVar(3, f.pop().(t_object))
+	f.storeVar(3, f.pop().(Reference))
 }
 
 /*79 (0X4F)*/
 func IASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_int)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
@@ -143,7 +143,7 @@ func IASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 func LASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_long)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
@@ -152,7 +152,7 @@ func LASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 func FASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_float)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
@@ -161,16 +161,16 @@ func FASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 func DASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_double)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
 
 /*83 (0X53)*/
 func AASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	value := f.pop().(t_object)
+	value := f.pop().(*t_array)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = value
 	//TODO check component type, boundary and subtypes
 }
@@ -179,7 +179,7 @@ func AASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 func BASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_int)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = t_byte(value)
 	//TODO check component type and boundary
 }
@@ -188,7 +188,7 @@ func BASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 func CASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_int)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = t_char(value)
 	//TODO check component type and boundary
 }
@@ -197,7 +197,7 @@ func CASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 func SASTORE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value := f.pop().(t_int)
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	arrayref.elements[index] = t_short(value)
 	//TODO check component type and boundary
 }
