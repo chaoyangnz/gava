@@ -20,7 +20,7 @@ func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 /*180 (0XB4)*/
 func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	objectref := f.pop().(t_object)
+	objectref := f.pop().(*t_object)
 
 	f.push(f.getField(objectref, index))
 }
@@ -28,8 +28,8 @@ func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMetho
 /*181 (0XB5)*/
 func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	value := checkType(f.pop())
-	objectref := f.pop().(t_object)
+	value := f.pop()
+	objectref := f.pop().(*t_object)
 
 	f.putField(objectref, index, value)
 }
@@ -69,7 +69,7 @@ func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *Java
 func NEW(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
 	class := c.constantPool[index].resolve().(*RuntimeConstantClassInfo).class
-	objectreference := class.new()
+	objectreference := class.newObject()
 	f.push(objectreference)
 }
 
@@ -77,7 +77,7 @@ func NEW(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 func NEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	atype := uint8(m.code[f.pc+1])
 	count := f.pop().(t_int)
-	jreference := t_array(&JavaArray{atype: atype, length: count})
+	jreference := &t_array{atype: atype, length: count}
 	jreference.elements = make([]t_any, count)
 	f.push(jreference)
 }
@@ -94,7 +94,7 @@ func ANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 
 /*190 (0XBE)*/
 func ARRAYLENGTH(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.push(f.pop().(t_array).length)
+	f.push(f.pop().(*t_array).length)
 }
 
 /*191 (0XBF)*/

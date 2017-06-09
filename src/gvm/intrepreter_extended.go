@@ -21,7 +21,7 @@ func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	offset := m.code[f.pc+1] << 8 | m.code[f.pc+2]
 
-	value := f.pop().(t_object)
+	value := f.pop().(Reference)
 	if(value != nil) {
 		f.pc += uint32(offset)
 	}

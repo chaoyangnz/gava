@@ -27,7 +27,7 @@ func DLOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) 
 /*25 (0X19)*/
 func ALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := m.code[f.pc+1]
-	f.push(f.loadVar(uint(index)).(t_object))
+	f.push(f.loadVar(uint(index)).(t_reference))
 }
 
 /*26 (0X1A)*/
@@ -112,22 +112,22 @@ func DLOAD_3(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 
 /*42 (0X2A)*/
 func ALOAD_0(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.push(f.loadVar(0).(t_object))
+	f.push(f.loadVar(0).(Reference))
 }
 
 /*43 (0X2B)*/
 func ALOAD_1(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.push(f.loadVar(1).(t_object))
+	f.push(f.loadVar(1).(Reference))
 }
 
 /*44 (0X2C)*/
 func ALOAD_2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.push(f.loadVar(2).(t_object))
+	f.push(f.loadVar(2).(Reference))
 }
 
 /*45 (0X2D)*/
 func ALOAD_3(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.push(checkReference(f.loadVar(3)))
+	f.push(f.loadVar(3))
 }
 
 /*46 (0X2E)
@@ -139,7 +139,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 */
 func IALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_INT {
 		panic("Not an int array")
 	}
@@ -149,7 +149,7 @@ func IALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*47 (0X2F)*/
 func LALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_LONG {
 		panic("Not an long array")
 	}
@@ -159,7 +159,7 @@ func LALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*48 (0X30)*/
 func FALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_FLOAT {
 		panic("Not an long array")
 	}
@@ -169,7 +169,7 @@ func FALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*49 (0X31)*/
 func DALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_DOUBLE {
 		panic("Not an long array")
 	}
@@ -179,7 +179,7 @@ func DALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*50 (0X32)*/
 func AALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != 0 || arrayref.aclass == nil {
 		panic("Not an object array")
 	}
@@ -189,7 +189,7 @@ func AALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*51 (0X33)*/
 func BALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_BOOLEAN {
 		panic("Not an boolean array")
 	}
@@ -199,7 +199,7 @@ func BALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*52 (0X34)*/
 func CALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_CHAR {
 		panic("Not an char array")
 	}
@@ -209,7 +209,7 @@ func CALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 /*53 (0X35)*/
 func SALOAD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	index := f.pop().(t_int)
-	arrayref := f.pop().(t_array)
+	arrayref := f.pop().(*t_array)
 	if arrayref.atype != T_SHORT {
 		panic("Not an short array")
 	}

@@ -132,7 +132,7 @@ func LREM(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 func FREM(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 	value2 := f.pop().(t_float)
 	value1 := f.pop().(t_float)
-	f.push(math.Remainder(float64(value1), float64(value2)))
+	f.push(t_float(math.Remainder(float64(value1), float64(value2))))
 }
 
 /*115 (0X73)*/
