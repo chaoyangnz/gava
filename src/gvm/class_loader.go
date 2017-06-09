@@ -18,8 +18,8 @@ func __times(t int, str string) string {
 }
 
 func loadClass(classpath []string, classname string) *ClassType {
-	clazz := classCache[classname]
-	if clazz != nil {
+	clazz, found := classCache[classname]
+	if found {
 		return clazz
 	}
 	__indention++
@@ -80,7 +80,7 @@ func loadClass(classpath []string, classname string) *ClassType {
 	if clazz.superClass == 0 { // jdk/lang/Object
 		clazz.instanceFieldsStart = 0
 	} else {
-		superClass := clazz.constantPool[clazz.superClass].(*RuntimeConstantClassInfo).class
+		superClass := clazz.constantPool[clazz.superClass].(*RuntimeConstantClassInfo).referenceType.(*ClassType)
 		clazz.instanceFieldsStart = superClass.instanceFieldsStart + uint16(len(superClass.instanceFileds))
 	}
 	for i := 0; i < len(classfile.fields); i++ {

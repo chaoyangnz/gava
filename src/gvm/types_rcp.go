@@ -17,10 +17,28 @@ CONSTANT_Class_info {
 }
  */
 type RuntimeConstantClassInfo struct {
-	hostClass       *ClassType
-	nameIndex       u2
-	resolved        bool
-	class           *ClassType
+	hostClass     *ClassType
+	nameIndex     u2
+	resolved      bool
+	referenceType ReferenceType
+}
+
+func resolveArrayType(name string) *ArrayType  {
+	componentTypeName := name[1:]
+	var componentType Type
+	switch componentTypeName[0] {
+	case 'B': componentType = BYTE_TYPE
+	case 'S': componentType = SHORT_TYPE
+	case 'C': componentType = CHAR_TYPE
+	case 'I': componentType = INT_TYPE
+	case 'J': componentType = LONG_TYPE
+	case 'F': componentType = FLOAT_TYPE
+	case 'D': componentType = DOUBLE_TYPE
+	case 'Z': componentType = BOOLEAN_TYPE
+	case 'L': componentType = bootstrapClassLoader.load(componentTypeName[1:len(componentTypeName)-1]) // Ljava/lang/String; there's a ; in the tail
+	case '[': componentType = resolveArrayType(componentTypeName)
+	}
+	return &ArrayType{componentType}
 }
 
 func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
@@ -28,9 +46,13 @@ func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
 		name := this.hostClass.constantPool[this.nameIndex].resolve().(*RuntimeConstantUtf8Info).value
 
 		if this == this.hostClass.constantPool[this.hostClass.thisClass] {
-			this.class = this.hostClass // current class
+			this.referenceType = this.hostClass // current referenceType
 		} else {
-			this.class = bootstrapClassLoader.load(name)
+			if name[0] == '[' { // arrray
+				this.referenceType = resolveArrayType(name)
+			} else {
+				this.referenceType = bootstrapClassLoader.load(name)
+			}
 		}
 
 		this.resolved = true
@@ -58,7 +80,7 @@ func (this *RuntimeConstantFieldrefInfo) resolve() RuntimeConstantPoolInfo  {
 		rcpClass := this.hostClass.constantPool[this.classIndex].resolve().(*RuntimeConstantClassInfo)
 
 		nameAndType := this.hostClass.constantPool[this.nameAndTypeIndex].resolve().(*RuntimeConstantNameAndTypeInfo)
-		this.field = rcpClass.class.findField(nameAndType.toString())
+		this.field = rcpClass.referenceType.(*ClassType).findField(nameAndType.toString())
 		this.resolved = true
 	}
 	return this
@@ -84,7 +106,7 @@ func (this *RuntimeConstantMethodrefInfo) resolve() RuntimeConstantPoolInfo  {
 		rcpClass := this.hostClass.constantPool[this.classIndex].resolve().(*RuntimeConstantClassInfo)
 
 		nameAndType := this.hostClass.constantPool[this.nameAndTypeIndex].resolve().(*RuntimeConstantNameAndTypeInfo)
-		this.method = rcpClass.class.findMethod(nameAndType.toString())
+		this.method = rcpClass.referenceType.(*ClassType).findMethod(nameAndType.toString())
 		this.resolved = true
 	}
 	return this

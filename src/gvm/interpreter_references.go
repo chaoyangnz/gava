@@ -68,7 +68,7 @@ func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Meth
 /*187 (0XBB)*/
 func NEW(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	class := c.constantPool[index].resolve().(*RuntimeConstantClassInfo).class
+	class := c.constantPool[index].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType)
 	objectreference := class.newObject()
 	f.push(objectreference)
 }
@@ -88,7 +88,7 @@ const (
 /*188 (0XBC)*/
 func NEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	atype := uint8(m.code[f.pc+1])
-	var componentType ComponentType
+	var componentType Type
 	switch atype {
 	case T_CHAR: componentType = CHAR_TYPE
 	case T_BYTE: componentType = BYTE_TYPE
@@ -115,7 +115,7 @@ func ANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) 
 	var reference Reference
 	cpInfo := c.constantPool[index].resolve()
 	switch cpInfo.(type) {
-	case *RuntimeConstantClassInfo: reference = newArray(cpInfo.(*RuntimeConstantClassInfo).class, count)
+	case *RuntimeConstantClassInfo: reference = newArray(cpInfo.(*RuntimeConstantClassInfo).referenceType, count)
 		//TODO component type can be: interface an array
 	}
 

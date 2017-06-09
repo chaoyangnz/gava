@@ -42,15 +42,15 @@ const (
 VM internal types:
 
 Type (interface)
-	|- ComponentType (interface)
-		|- *IntType
-		|- *ByteType
-		|- *ShortType
-		|- *LongType
-		|- *CharType
-		|- *FloatType
-		|- *DoubleType
-		|- *BooleanType
+	|- *ByteType
+	|- *ShortType
+	|- *CharType
+	|- *IntType
+	|- *LongType
+	|- *FloatType
+	|- *DoubleType
+	|- *BooleanType
+	|- Reference (interface)
 		|- *ClassType
 		|- *ArrayType
 
@@ -59,17 +59,19 @@ Type (interface)
 type Type interface {
 	isReferenceType() bool
 	descriptor()  string
+	isElementType() bool // as final component
 }
 
-type ComponentType interface {
+type ReferenceType interface {
 	isReferenceType() bool
 	descriptor()  string
-
 	isElementType() bool
+
+	isArrayType() bool
 }
 
 type ArrayType struct {
-	componentType ComponentType
+	componentType Type
 }
 
 func (this *ArrayType) isElementType() bool {
@@ -81,7 +83,11 @@ func (this *ArrayType) descriptor() string {
 }
 
 func (this *ArrayType) isReferenceType() bool {
-	return false
+	return true
+}
+
+func (this *ArrayType) isArrayType() bool {
+	return true
 }
 
 type (
@@ -237,6 +243,10 @@ func (this *ClassType) isReferenceType() bool {
 	return false
 }
 
+func (this *ClassType) isArrayType() bool {
+	return false
+}
+
 type Field struct {
 	class           *ClassType
 	accessFlags     uint16
@@ -339,7 +349,7 @@ func (this *ClassType) newObject() *t_object {
 		if clazz.superClass == 0 {
 			break
 		}
-		clazz = clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).class
+		clazz = clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType)
 	}
 
 	return &t_object{
@@ -353,7 +363,7 @@ All fields: static, instance, if not found, find its superclass and upper
 func (this *ClassType) findField(signature string) *Field {
 	field, found :=  this.fieldsMap[signature]
 	if !found {
-		field = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).class.findField(signature)
+		field = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType).findField(signature)
 	}
 	return field
 }
@@ -362,7 +372,7 @@ func (this *ClassType) findField(signature string) *Field {
 func (this *ClassType) findMethod(signature string) *Method {
 	method, found := this.methodsMap[signature]
 	if !found {
-		method = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).class.findMethod(signature)
+		method = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType).findMethod(signature)
 	}
 	return method
 }

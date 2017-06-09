@@ -23,7 +23,7 @@ t_any (interface)
             |- *java_lang_thread
             |- ....
 
-All the pointer type starting with java_** is the equivalent to jdk class for convenient operations
+All the pointer type starting with java_** is the equivalent to jdk referenceType for convenient operations
  */
 
 type (
@@ -53,7 +53,7 @@ type (
 	}
 	t_array         struct {
 					//header part
-					atype  ComponentType
+					atype  Type
 					flags  uint32
 					locks  uint32
 					length t_int
@@ -174,8 +174,17 @@ func (this *t_array)isArray() bool  {
 	return true
 }
 
-func newArray(aclass *ClassType, length t_int) *t_array {
-	return &t_array{atype: aclass, length: length, elements: make([]t_any, length)}
+func newArray(componentType ReferenceType, length t_int) *t_array {
+	elements := make([]t_any, length)
+	for i, _ := range elements {
+		switch componentType.(type) {
+		case *ClassType: elements[i] = object_default
+		case *ArrayType: elements[i] = array_default
+		default:
+			fatal("Not a reference type")
+		}
+	}
+	return &t_array{atype: componentType, length: length, elements: elements}
 }
 
 func newByteArray(length t_int) *t_array {
