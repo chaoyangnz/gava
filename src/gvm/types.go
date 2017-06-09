@@ -33,16 +33,16 @@ const (
 func checkType(value t_any) t_any {
 	t := ""
 	switch value.(type) {
-	case t_byte:    t = "B" //byte
-	case t_char:    t = "C" //char
-	case t_double:  t = "D" //double
-	case t_float:   t= "F" //float
-	case t_int:     t= "I" //int
-	case t_long:    t="J" //long
-	case t_short:   t= "S" //short
-	case t_boolean: t = "Z" //boolean
-	case t_object:  t = "L" //reference
-	case t_array:   t = "[" //array
+	case t_byte:    t   = "B" //byte
+	case t_char:    t   = "C" //char
+	case t_double:  t   = "D" //double
+	case t_float:   t   = "F" //float
+	case t_int:     t   = "I" //int
+	case t_long:    t   = "J" //long
+	case t_short:   t   = "S" //short
+	case t_boolean: t   = "Z" //boolean
+	case t_object:  t   = "L" //reference
+	case t_array:   t   = "[" //array
 	default:
 		if value == nil {
 			t = "nil"
