@@ -5,7 +5,7 @@ import (
 )
 
 type ClassLoader interface {
-	load(classname string) *JavaClass
+	load(classname string) *ClassType
 }
 
 var __indention = 0
@@ -17,7 +17,7 @@ func __times(t int, str string) string {
 	return ret
 }
 
-func loadClass(classpath []string, classname string) *JavaClass {
+func loadClass(classpath []string, classname string) *ClassType {
 	clazz := classCache[classname]
 	if clazz != nil {
 		return clazz
@@ -44,7 +44,7 @@ func loadClass(classpath []string, classname string) *JavaClass {
 	classfile := classreader.Read()
 
 	// create java class
-	clazz = &JavaClass{}
+	clazz = &ClassType{}
 	// start loading
 	clazz.constantPool = make([]RuntimeConstantPoolInfo, classfile.constantPoolCount)
 	for i := u2(1); i < classfile.constantPoolCount; i++ {
@@ -72,8 +72,8 @@ func loadClass(classpath []string, classname string) *JavaClass {
 		clazz.constantPool[clazz.superClass].resolve()
 	}
 
-	clazz.fields = make([]*JavaField, len(classfile.fields))
-	clazz.fieldsMap = make(map[string]*JavaField)
+	clazz.fields = make([]*Field, len(classfile.fields))
+	clazz.fieldsMap = make(map[string]*Field)
 	clazz.staticFields = []t_any{}
 	maxInstanceFieldIndex := uint16(0)
 	maxStaticFieldIndex   := uint16(0)
@@ -85,10 +85,10 @@ func loadClass(classpath []string, classname string) *JavaClass {
 	}
 	for i := 0; i < len(classfile.fields); i++ {
 		fieldInfo := classfile.fields[i]
-		javaFiled := &JavaField{class: clazz,
-			accessFlags: uint16(fieldInfo.accessFlags),
-			name: classfile.cpUtf8(fieldInfo.nameIndex),
-			descriptor: classfile.cpUtf8(fieldInfo.descriptorIndex)}
+		javaFiled := &Field{class: clazz,
+			accessFlags:           uint16(fieldInfo.accessFlags),
+			name:                  classfile.cpUtf8(fieldInfo.nameIndex),
+			descriptor:            classfile.cpUtf8(fieldInfo.descriptorIndex)}
 		clazz.fields[i] = javaFiled
 		clazz.fieldsMap[javaFiled.name + javaFiled.descriptor] = javaFiled
 		if javaFiled.isStatic() {
@@ -103,14 +103,14 @@ func loadClass(classpath []string, classname string) *JavaClass {
 	}
 
 
-	clazz.methods = make([]*JavaMethod, len(classfile.methods))
-	clazz.methodsMap = make(map[string]*JavaMethod)
+	clazz.methods = make([]*Method, len(classfile.methods))
+	clazz.methodsMap = make(map[string]*Method)
 	for i := 0; i < len(classfile.methods); i++ {
 		methodInfo := &classfile.methods[i]
-		javaMethod := &JavaMethod{class: clazz,
-			accessFlags: uint16(methodInfo.accessFlags),
-			name: classfile.cpUtf8(methodInfo.nameIndex),
-			descriptor: classfile.cpUtf8(methodInfo.descriptorIndex)}
+		javaMethod := &Method{class: clazz,
+			accessFlags:             uint16(methodInfo.accessFlags),
+			name:                    classfile.cpUtf8(methodInfo.nameIndex),
+			descriptor:              classfile.cpUtf8(methodInfo.descriptorIndex)}
 
 		javaMethod.parameterDescriptors, javaMethod.returnDescriptor = parametersAndReturn(javaMethod.descriptor)
 		for j := u2(0); j < methodInfo.attributeCount; j++ {
@@ -155,7 +155,7 @@ func loadClass(classpath []string, classname string) *JavaClass {
 
 type BootstrapClassLoader struct {}
 
-func (this *BootstrapClassLoader) load(classname string) *JavaClass {
+func (this *BootstrapClassLoader) load(classname string) *ClassType {
 	class := loadClass(coreClassPath, classname)
 	class.classLoader = nil // nil for bootstrap loader
 	return class

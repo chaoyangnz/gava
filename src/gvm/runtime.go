@@ -16,7 +16,7 @@ func newThread(name string) *Thread  {
 
 
 type StackFrame struct {
-	method *JavaMethod
+	method *Method
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc uint32
@@ -25,7 +25,7 @@ type StackFrame struct {
 	operandStack        []t_any
 }
 
-func NewStackFrame(method *JavaMethod) *StackFrame {
+func NewStackFrame(method *Method) *StackFrame {
 	stackFrame := &StackFrame{
 		method: method,
 		pc: 0,

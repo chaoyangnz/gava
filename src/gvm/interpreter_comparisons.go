@@ -3,32 +3,32 @@ package gvm
 import "fmt"
 
 /*148 (0X94)*/
-func LCMP(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func LCMP(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*149 (0X95)*/
-func FCMPL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func FCMPL(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*150 (0X96)*/
-func FCMPG(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func FCMPG(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*151 (0X97)*/
-func DCMPL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func DCMPL(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*152 (0X98)*/
-func DCMPG(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func DCMPG(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*153 (0X99)*/
-func IFEQ(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IFEQ(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(t_int)
 	if value  == 0 {
@@ -37,7 +37,7 @@ func IFEQ(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 }
 
 /*154 (0X9A)*/
-func IFNE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IFNE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(t_int)
 	if value != 0 {
@@ -46,7 +46,7 @@ func IFNE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 }
 
 /*155 (0X9B)*/
-func IFLT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IFLT(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(t_int)
 	if value < 0 {
@@ -55,7 +55,7 @@ func IFLT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 }
 
 /*156 (0X9C)*/
-func IFGE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IFGE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(t_int)
 	if value >= 0 {
@@ -64,7 +64,7 @@ func IFGE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 }
 
 /*157 (0X9D)*/
-func IFGT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IFGT(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(t_int)
 	if value > 0 {
@@ -73,7 +73,7 @@ func IFGT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 }
 
 /*158 (0X9E)*/
-func IFLE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IFLE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(t_int)
 	if value <= 0 {
@@ -82,7 +82,7 @@ func IFLE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 }
 
 /*159 (0X9F)*/
-func IF_ICMPEQ(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ICMPEQ(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(t_int)
 	value1 := f.pop().(t_int)
@@ -92,7 +92,7 @@ func IF_ICMPEQ(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*160 (0XA0)*/
-func IF_ICMPNE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ICMPNE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(t_int)
 	value1 := f.pop().(t_int)
@@ -102,7 +102,7 @@ func IF_ICMPNE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*161 (0XA1)*/
-func IF_ICMPLT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ICMPLT(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(t_int)
 	value1 := f.pop().(t_int)
@@ -112,7 +112,7 @@ func IF_ICMPLT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*162 (0XA2)*/
-func IF_ICMPGE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ICMPGE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(t_int)
 	value1 := f.pop().(t_int)
@@ -122,7 +122,7 @@ func IF_ICMPGE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*163 (0XA3)*/
-func IF_ICMPGT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ICMPGT(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(t_int)
 	value1 := f.pop().(t_int)
@@ -132,7 +132,7 @@ func IF_ICMPGT(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*164 (0XA4)*/
-func IF_ICMPLE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ICMPLE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(t_int)
 	value1 := f.pop().(t_int)
@@ -142,7 +142,7 @@ func IF_ICMPLE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*165 (0XA5)*/
-func IF_ACMPEQ(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ACMPEQ(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(*t_object)
 	value1 := f.pop().(*t_object)
@@ -152,7 +152,7 @@ func IF_ACMPEQ(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 }
 
 /*166 (0XA6)*/
-func IF_ACMPNE(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
+func IF_ACMPNE(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value2 := f.pop().(*t_object)
 	value1 := f.pop().(*t_object)

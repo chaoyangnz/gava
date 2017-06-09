@@ -1,240 +1,368 @@
 package gvm
 
-
-/*
-Type hierarchy:
-
-t_any (interface)
-   |- t_byte
-   |- t_char
-   |- t_short
-   |- t_int
-   |- t_long
-   |- t_float
-   |- t_double
-   |- t_boolean
-   |- t_reference (interface)
-        |- *t_array
-        |- *t_object
-            |- *java_lang_object
-            |- *java_lang_string
-            |- *java_lang_class
-            |- *java_lang_classloader
-            |- *java_lang_thread
-            |- ....
-
-All the pointer type starting with java_** is the equivalent to jdk class for convenient operations
- */
-
-type (
-	// these types are for vm internal use only
-	// basically they are mapped to 10 types mentioned in JVM specification
-	t_any interface {
-		isReference()   bool
-		defaultValue()  t_any
-	}
-
-	t_byte          int8
-	t_char          uint16
-	t_short         int16
-	t_int           int32
-	t_long          int64
-	t_boolean       int32
-	t_float         float32
-	t_double        float64
-	t_reference Reference
-	t_object        struct {
-					//header part
-					class *JavaClass
-					flags uint32
-					locks uint32
-					//fields
-					fields []t_any
-	}
-	t_array         struct {
-					//header part
-					atype  uint8
-					aclass *JavaClass
-					flags  uint32
-					locks  uint32
-					length t_int
-					//fields
-					elements []t_any
-	}
+const (
+	METHOD_ACC_PUBLIC	    = 0x0001
+	METHOD_ACC_PRIVATE	    = 0x0002
+	METHOD_ACC_PROTECTED	= 0x0004
+	METHOD_ACC_STATIC	    = 0x0008
+	METHOD_ACC_FINAL	    = 0x0010
+	METHOD_ACC_SYNCHRONIZED	= 0x0020
+	METHOD_ACC_BRIDGE	    = 0x0040
+	METHOD_ACC_VARARGS	    = 0x0080
+	METHOD_ACC_NATIVE	    = 0x0100
+	METHOD_ACC_ABSTRACT 	= 0x0400
+	METHOD_ACC_STRICT	    = 0x0800
+	METHOD_ACC_SYNTHETIC	= 0x1000
 )
-
 
 const (
-	boolean_true  = t_boolean(0x1)
-	boolean_false = t_boolean(0x0)
+	FIELD_ACC_PUBLIC	    = 0x0001
+	FIELD_ACC_PRIVATE	    = 0x0002
+	FIELD_ACC_PROTECTED	    = 0x0004
+	FIELD_ACC_STATIC	    = 0x0008
+	FIELD_ACC_FINAL	        = 0x0010
+	FIELD_ACC_VOLATILE	    = 0x0040
+	FIELD_ACC_TRANSIENT	    = 0x0080
+	FIELD_ACC_SYNTHETIC	    = 0x1000
+	FIELD_ACC_ENUM	        = 0x4000
 )
 
-func (this t_byte) isReference() bool  {
+const (
+	CLASS_ACC_PUBLIC	    = 0x0001
+	CLASS_ACC_FINAL	        = 0x0010
+	CLASS_ACC_SUPER	        = 0x0020
+	CLASS_ACC_INTERFACE	    = 0x0200
+	CLASS_ACC_ABSTRACT	    = 0x0400
+	CLASS_ACC_SYNTHETIC	    = 0x1000
+	CLASS_ACC_ANNOTATION	= 0x2000
+	CLASS_ACC_ENUM	        = 0x4000
+)
+
+/**
+VM internal types:
+
+Type (interface)
+	|- ComponentType (interface)
+		|- *IntType
+		|- *ByteType
+		|- *ShortType
+		|- *LongType
+		|- *CharType
+		|- *FloatType
+		|- *DoubleType
+		|- *BooleanType
+		|- *ClassType
+		|- *ArrayType
+
+ */
+
+type Type interface {
+	isReferenceType() bool
+	descriptor()  string
+}
+
+type ComponentType interface {
+	isReferenceType() bool
+	descriptor()  string
+
+	isElementType() bool
+}
+
+type ArrayType struct {
+	componentType ComponentType
+}
+
+func (this *ArrayType) isElementType() bool {
 	return false
 }
 
-func (this t_byte) defaultValue() t_any  {
-	return t_byte(0)
+func (this *ArrayType) descriptor() string {
+	return "[" + this.componentType.descriptor()
 }
 
-func (this t_short) isReference() bool  {
+func (this *ArrayType) isReferenceType() bool {
 	return false
 }
 
-func (this t_short) defaultValue() t_any  {
-	return t_short(0)
-}
-
-func (this t_char) isReference() bool  {
-	return false
-}
-
-func (this t_char) defaultValue() t_any  {
-	return t_char(0)
-}
-
-func (this t_int) isReference() bool  {
-	return false
-}
-
-func (this t_int) defaultValue() t_any  {
-	return t_int(0)
-}
-
-func (this t_long) isReference() bool  {
-	return false
-}
-
-func (this t_long) defaultValue() t_any  {
-	return t_long(0)
-}
-
-func (this t_float) isReference() bool  {
-	return false
-}
-
-func (this t_float) defaultValue() t_any  {
-	return t_float(0)
-}
-
-func (this t_double) isReference() bool  {
-	return false
-}
-
-func (this t_double) defaultValue() t_any  {
-	return t_double(0)
-}
-
-func (this t_boolean) isReference() bool  {
-	return false
-}
-
-func (this t_boolean) defaultValue() t_any  {
-	return boolean_false
-}
-
-type Reference interface {
-	isReference() bool
-	defaultValue() t_any
-	isArray() bool
-}
-
-func (this *t_object)isReference() bool  {
-	return true
-}
-
-func (this *t_object) defaultValue() t_any {
-	return (*t_object)(nil)
-}
-
-func (this *t_object)isArray() bool  {
-	return false
-}
-
-func (this *t_array)isReference() bool  {
-	return true
-}
-
-func (this *t_array) defaultValue() t_any {
-	return (*t_array)(nil)
-}
-
-func (this *t_array)isArray() bool  {
-	return true
-}
-
-func newArray(aclass *JavaClass, length t_int) *t_array {
-	return &t_array{aclass: aclass, length: length, elements: make([]t_any, length)}
-}
-
-func newCharArray(chars []t_char) *t_array {
-	elements := make([]t_any, len(chars))
-	for i, ch:= range chars {
-		elements[i] = ch
-	}
-	return &t_array{atype: T_CHAR, length: t_int(len(chars)), elements: elements}
-}
-
-
-/*--------------------Extend JDK Class here--------------------------*/
-// there objects are actually raw t_object, here provide some utility methods
 type (
-	java_lang_object struct {*t_object}
-	java_lang_string struct {*t_object}
-	java_lang_class struct {*t_object}
-	java_lang_classloader struct {*t_object}
-	java_lang_thread struct {*t_object}
+	ByteType struct {}
+	ShortType struct {}
+	CharType struct {}
+	IntType struct {}
+	LongType struct {}
+	FloatType struct {}
+	DoubleType struct {}
+	BooleanType struct {}
 )
 
-func newJavaLangString(str string) *java_lang_string {
-	java_lang_string_Class := bootstrapClassLoader.load("java/lang/String")
-	object := java_lang_string_Class.newObject()
-	// convert a utf8 string to utf-16 using as Java String
-	chars := []t_char{}
-	for _, codepoint := range str {
-		if codepoint <= 0xFFFF {
-			chars = append(chars, t_char(codepoint))
-		} else {
-			/*
-				H = (S - 10000) / 400 + D800
-				L = (S - 10000) % 400 + DC00
-			 */
-			high_surrogate := t_char((uint32(codepoint) - 0x10000) / 0x400 + 0xD800)
-			low_surrogate := t_char((uint32(codepoint) - 0x10000) % 0x400 + 0xDC00)
-			chars = append(chars, high_surrogate, low_surrogate)
-		}
-	}
+// Singleton types
+var (
+	BYTE_TYPE = &ByteType{}
+	SHORT_TYPE = &ShortType{}
+	INT_TYPE = &IntType{}
+	CHAR_TYPE = &CharType{}
+	LONG_TYPE = &LongType{}
+	FLOAT_TYPE = &FloatType{}
+	DOUBLE_TYPE = &DoubleType{}
+	BOOLEAN_TYPE = &BooleanType{}
+)
 
-	object.fields[0] = newCharArray(chars)
-	return &java_lang_string{object}
+func (this *ByteType) isElementType() bool {
+	return true
 }
 
-func (this *java_lang_string) toString() string  {
-	runes := []rune{}
-	chars := this.fields[0].(*t_array).elements
-	for i:=0; i < len(chars); i++ {
-		char := chars[i].(t_char)
-		if char >= 0xD800 && char <= 0xDBFF {
-			h := char
-			if i+1 < len(chars) && chars[i+1].(t_char) >= 0xDC00 && chars[i+1].(t_char) <= 0xDFFF {
-				l := chars[i+1].(t_char)
-				//1000016 + (H − D80016) × 40016 + (L − DC0016)
-				codepoint := 0x1000 + (h - 0xD800) * 0x400 + (l - 0xDC00)
-				runes = append(runes, rune(codepoint))
-			} else {
-				panic("Illegal UTF-16 string: only high surrogate")
-			}
-			i++
-		} else if char >= 0xDC00 && char <= 0xDFFF {
-			panic("Illegal UTF-16 string: only low surrogate")
-		} else {
-			runes = append(runes, rune(char))
-		}
-	}
-	return string(runes)
+func (this *ByteType) descriptor() string {
+	return "B"
 }
 
-func newJavaLangClass() *java_lang_class {
-	java_lang_class_Class := bootstrapClassLoader.load("java/lang/Class")
-	return &java_lang_class{java_lang_class_Class.newObject()}
+func (this *ByteType) isReferenceType() bool {
+	return false
+}
+
+func (this *ShortType) isElementType() bool {
+	return true
+}
+
+func (this *ShortType) descriptor() string {
+	return "S"
+}
+
+func (this *ShortType) isReferenceType() bool {
+	return false
+}
+
+func (this *CharType) isElementType() bool {
+	return true
+}
+
+func (this *CharType) descriptor() string {
+	return "C"
+}
+
+func (this *CharType) isReferenceType() bool {
+	return false
+}
+
+func (this *IntType) isElementType() bool {
+	return true
+}
+
+func (this *IntType) descriptor() string {
+	return "I"
+}
+
+func (this *IntType) isReferenceType() bool {
+	return false
+}
+
+func (this *LongType) isElementType() bool {
+	return true
+}
+
+func (this *LongType) descriptor() string {
+	return "J"
+}
+
+func (this *LongType) isReferenceType() bool {
+	return false
+}
+
+func (this *FloatType) isElementType() bool {
+	return true
+}
+
+func (this *FloatType) descriptor() string {
+	return "F"
+}
+
+func (this *FloatType) isReferenceType() bool {
+	return false
+}
+
+func (this *DoubleType) isElementType() bool {
+	return true
+}
+
+func (this *DoubleType) descriptor() string {
+	return "D"
+}
+
+func (this *DoubleType) isReferenceType() bool {
+	return false
+}
+
+func (this *BooleanType) isElementType() bool {
+	return true
+}
+
+func (this *BooleanType) descriptor() string {
+	return "Z"
+}
+
+func (this *BooleanType) isReferenceType() bool {
+	return false
+}
+
+type ClassType struct {
+	constantPool    []RuntimeConstantPoolInfo
+	accessFlags     uint16
+	thisClass       uint16
+	thisClassName   string
+	superClass      uint16
+	superClassName  string
+	interfaces      []string
+	fields          []*Field
+	methods         []*Method
+	fieldsMap       map[string]*Field
+	methodsMap      map[string]*Method
+	instanceFieldsStart uint16
+	instanceFileds  []*Field
+	staticFields    []t_any
+	//attributes   []Attribute
+
+	// bridge java world
+	classLoader     *java_lang_classloader
+	classObject     *java_lang_class // pointer to heap: instance of java/lang/Class
+}
+
+func (this *ClassType) isElementType() bool {
+	return true
+}
+
+func (this *ClassType) descriptor() string {
+	return this.thisClassName
+}
+
+func (this *ClassType) isReferenceType() bool {
+	return false
+}
+
+type Field struct {
+	class           *ClassType
+	accessFlags     uint16
+	name            string
+	descriptor      string
+	/**
+	index of instanceFields or staticFields
+	for instance fields, it is the global index considering superclass hierarchy
+	 */
+	index           uint16
+}
+
+func (this *Field)defaultValue() t_any {
+	ch := this.descriptor[:1]
+	var value t_any
+	switch ch {
+	case "B": value = t_byte(0) //byte
+	case "C": value = t_char(0) //char
+	case "D": value = t_double(0.0) //double
+	case "F": value = t_float(0.0) //float
+	case "I": value = t_int(0) //int
+	case "J": value = t_long(0) //long
+	case "S": value = t_short(0) //short
+	case "Z": value = boolean_false //boolean
+	case "L": value = (*t_object)(nil) //reference
+	case "[": value = (*t_array)(nil) //array
+	default:
+		fatal("Not a valid vm type")
+	}
+	return value
+}
+
+func (this *Field)isStatic() bool {
+	return this.accessFlags & FIELD_ACC_STATIC > 0
+}
+
+type Method struct {
+	class           *ClassType
+	accessFlags     uint16
+	name            string
+	descriptor      string
+	maxStack        uint16
+	maxLocals       uint16
+	code            []uint8               //u4 code_length
+	exceptions      []ExceptionTableEntry //u2 exception_table_length
+	localVariables  []LocalVariable
+	parameterDescriptors   []string
+	returnDescriptor    string
+}
+
+func (this *Method) isStatic() bool {
+	return this.accessFlags & METHOD_ACC_STATIC > 0
+}
+
+func (this *Method) isNative() bool {
+	return this.accessFlags & METHOD_ACC_NATIVE > 0
+}
+
+type LocalVariable struct {
+	method              *Method
+	startPc             uint16
+	length              uint16
+	index               uint16
+	name                string
+	descriptor          string
+}
+
+//func (this *Method) localVariablesSize() uint {
+//	sum := uint(0)
+//	for i := 0; i < len(this.localVariables); i++ {
+//		switch this.localVariables[i].descriptor[:1] {
+//		case "B": sum += 1 //byte
+//		case "C": sum += 2 //char
+//		case "D": sum += 8 //double
+//		case "F": sum += 4 //float
+//		case "I": sum += 4 //int
+//		case "J": sum += 8 //long
+//		case "S": sum += 2 //short
+//		case "Z": sum += 4 //boolean
+//		case "L": sum += 4 //reference
+//		case "[": sum += 4 //array
+//		}
+//	}
+//	return sum
+//}
+
+/**
+create a java instance: return the vm representation
+ */
+func (this *ClassType) newObject() *t_object {
+	fields := make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))
+
+	// initialize fields to default values
+	clazz := this
+	for ;; {
+		instanceFields := clazz.instanceFileds
+		for i := 0; i < len(instanceFields); i++ {
+			fields[instanceFields[i].index] = instanceFields[i].defaultValue()
+		}
+		if clazz.superClass == 0 {
+			break
+		}
+		clazz = clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).class
+	}
+
+	return &t_object{
+		class: this,
+		fields: fields}
+}
+
+/*
+All fields: static, instance, if not found, find its superclass and upper
+ */
+func (this *ClassType) findField(signature string) *Field {
+	field, found :=  this.fieldsMap[signature]
+	if !found {
+		field = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).class.findField(signature)
+	}
+	return field
+}
+
+
+func (this *ClassType) findMethod(signature string) *Method {
+	method, found := this.methodsMap[signature]
+	if !found {
+		method = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).class.findMethod(signature)
+	}
+	return method
 }

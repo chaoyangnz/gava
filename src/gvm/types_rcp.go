@@ -17,10 +17,10 @@ CONSTANT_Class_info {
 }
  */
 type RuntimeConstantClassInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	nameIndex       u2
 	resolved        bool
-	class           *JavaClass
+	class           *ClassType
 }
 
 func (this *RuntimeConstantClassInfo) resolve() RuntimeConstantPoolInfo {
@@ -46,11 +46,11 @@ CONSTANT_Fieldref_info {
 }
  */
 type RuntimeConstantFieldrefInfo struct {
-	hostClass           *JavaClass
+	hostClass           *ClassType
 	classIndex          u2
 	nameAndTypeIndex    u2
 	resolved            bool
-	field               *JavaField
+	field               *Field
 }
 
 func (this *RuntimeConstantFieldrefInfo) resolve() RuntimeConstantPoolInfo  {
@@ -72,11 +72,11 @@ CONSTANT_Methodref_info {
 }
  */
 type RuntimeConstantMethodrefInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
-	method           *JavaMethod
+	method           *Method
 }
 
 func (this *RuntimeConstantMethodrefInfo) resolve() RuntimeConstantPoolInfo  {
@@ -99,11 +99,11 @@ CONSTANT_InterfaceMethodref_info {
 }
  */
 type RuntimeConstantInterfaceMethodrefInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	classIndex       u2
 	nameAndTypeIndex u2
 	resolved         bool
-	method           *JavaMethod
+	method           *Method
 }
 
 func (this *RuntimeConstantInterfaceMethodrefInfo) resolve() RuntimeConstantPoolInfo  {
@@ -122,7 +122,7 @@ CONSTANT_String_info {
 }
  */
 type RuntimeConstantStringInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	stringIndex     u2
 	resolved        bool
 	//value           []t_char
@@ -150,7 +150,7 @@ CONSTANT_Integer_info {
 }
  */
 type RuntimeConstantIntegerInfo struct {
-	hostClass *JavaClass
+	hostClass *ClassType
 	bytes     u4
 	resolved  bool
 	value     t_int
@@ -172,7 +172,7 @@ CONSTANT_Float_info {
 }
  */
 type RuntimeConstantFloatInfo struct {
-	hostClass *JavaClass
+	hostClass *ClassType
 	bytes     u4
 	resolved  bool
 	value     t_float
@@ -194,7 +194,7 @@ CONSTANT_Long_info {
 }
  */
 type RuntimeConstantLongInfo struct {
-	hostClass *JavaClass
+	hostClass *ClassType
 	highBytes u4
 	lowBytes  u4
 	resolved  bool
@@ -217,7 +217,7 @@ CONSTANT_Double_info {
 }
  */
 type RuntimeConstantDoubleInfo struct {
-	hostClass *JavaClass
+	hostClass *ClassType
 	highBytes u4
 	lowBytes  u4
 	resolved  bool
@@ -241,7 +241,7 @@ CONSTANT_NameAndType_info {
 }
  */
 type RuntimeConstantNameAndTypeInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	nameIndex       u2
 	descriptorIndex u2
 	resolved        bool
@@ -270,7 +270,7 @@ CONSTANT_Utf8_info {
 }
  */
 type RuntimeConstantUtf8Info struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	length          u2
 	bytes           []u1
 	resolved        bool
@@ -293,7 +293,7 @@ CONSTANT_MethodHandle_info {
 }
  */
 type RuntimeConstantMethodHandleInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	referenceKind   u1
 	referenceIndex  u2
 	resolved        bool
@@ -314,7 +314,7 @@ CONSTANT_MethodType_info {
 }
  */
 type RuntimeConstantMethodTypeInfo struct {
-	hostClass       *JavaClass
+	hostClass       *ClassType
 	descriptorIndex u2
 	resolved        bool
 	descriptor      string
@@ -336,7 +336,7 @@ CONSTANT_InvokeDynamic_info {
 }
  */
 type RuntimeConstantInvokeDynamicInfo struct {
-	hostClass                *JavaClass
+	hostClass                *ClassType
 	bootstrapMethodAttrIndex u2
 	nameAndTypeIndex         u2
 	resolved                 bool

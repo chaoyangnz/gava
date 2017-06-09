@@ -2,23 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8be8319a-006b-4ef5-88bd-c255a19bbe69" name="Default" comment="">
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/gvm/oops.go" afterPath="$PROJECT_DIR$/src/gvm/types.go" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/gvm/oops_rcp.go" afterPath="$PROJECT_DIR$/src/gvm/types_rcp.go" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/gvm/types.go" afterPath="$PROJECT_DIR$/src/gvm/oops.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" afterPath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_file.go" afterPath="$PROJECT_DIR$/src/gvm/class_file.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_loader.go" afterPath="$PROJECT_DIR$/src/gvm/class_loader.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/gni.go" afterPath="$PROJECT_DIR$/src/gvm/gni.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_comparisons.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_comparisons.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_constants.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_constants.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_control.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_control.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_conversions.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_conversions.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_loads.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_loads.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_math.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_math.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_references.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_references.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_reserved.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_reserved.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_stack.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_stack.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter_stores.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter_stores.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/intrepreter_extended.go" afterPath="$PROJECT_DIR$/src/gvm/intrepreter_extended.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/oops.go" afterPath="$PROJECT_DIR$/src/gvm/oops.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/oops_rcp.go" afterPath="$PROJECT_DIR$/src/gvm/oops_rcp.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/runtime.go" afterPath="$PROJECT_DIR$/src/gvm/runtime.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/types.go" afterPath="$PROJECT_DIR$/src/gvm/types.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/universe.go" afterPath="$PROJECT_DIR$/src/gvm/universe.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/utils.go" afterPath="$PROJECT_DIR$/src/gvm/utils.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -30,7 +34,7 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="gni.go" pinned="false" current-in-tab="true">
+      <file leaf-file-name="gni.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gvm/gni.go">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="30">
@@ -40,11 +44,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="types.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
+      <file leaf-file-name="oops.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gvm/oops.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="38">
-              <caret line="189" column="21" lean-forward="false" selection-start-line="189" selection-start-column="21" selection-end-line="189" selection-end-column="21" />
+            <state relative-caret-position="90">
+              <caret line="6" column="17" lean-forward="true" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="interpreter_references.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_references.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="329">
+              <caret line="119" column="5" lean-forward="true" selection-start-line="119" selection-start-column="5" selection-end-line="119" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -53,7 +67,7 @@
       <file leaf-file-name="utils.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gvm/utils.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="346">
+            <state relative-caret-position="2115">
               <caret line="141" column="1" lean-forward="true" selection-start-line="141" selection-start-column="1" selection-end-line="141" selection-end-column="1" />
               <folding>
                 <element signature="e#13#41#0" expanded="true" />
@@ -62,11 +76,31 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="types_rcp.go" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/gvm/types_rcp.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="174">
+              <caret line="128" column="21" lean-forward="false" selection-start-line="128" selection-start-column="21" selection-end-line="128" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="types.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="284">
+              <caret line="41" column="17" lean-forward="false" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="interpreter_loads.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_loads.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="166">
-              <caret line="129" column="24" lean-forward="true" selection-start-line="129" selection-start-column="24" selection-end-line="129" selection-end-column="24" />
+            <state relative-caret-position="214">
+              <caret line="182" column="31" lean-forward="false" selection-start-line="182" selection-start-column="31" selection-end-line="182" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -95,7 +129,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>87</find>
       <find>18</find>
       <find>ireturn</find>
       <find>ishl</find>
@@ -125,6 +158,7 @@
       <find>istore</find>
       <find>184</find>
       <find>IFNONNULL</find>
+      <find>new</find>
     </findStrings>
     <replaceStrings>
       <replace>this *ClassReader</replace>
@@ -189,14 +223,14 @@
         <option value="$PROJECT_DIR$/src/gvm/interpreter_math.go" />
         <option value="$PROJECT_DIR$/src/gvm/intrepreter_extended.go" />
         <option value="$PROJECT_DIR$/src/gvm/oops_rcp.go" />
-        <option value="$PROJECT_DIR$/src/gvm/interpreter_references.go" />
         <option value="$PROJECT_DIR$/src/gvm/runtime.go" />
-        <option value="$PROJECT_DIR$/src/gvm/interpreter_loads.go" />
         <option value="$PROJECT_DIR$/src/gvm/class_loader.go" />
         <option value="$PROJECT_DIR$/src/gvm/utils.go" />
+        <option value="$PROJECT_DIR$/src/gvm/gni.go" />
+        <option value="$PROJECT_DIR$/src/gvm/interpreter_loads.go" />
+        <option value="$PROJECT_DIR$/src/gvm/interpreter_references.go" />
         <option value="$PROJECT_DIR$/src/gvm/oops.go" />
         <option value="$PROJECT_DIR$/src/gvm/types.go" />
-        <option value="$PROJECT_DIR$/src/gvm/gni.go" />
       </list>
     </option>
   </component>
@@ -390,16 +424,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="819" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2067239" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32599726" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36176065" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36313617" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17593329" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21530758" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2338377" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40844062" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" x="20" y="510" width="2518" height="382" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -671,14 +704,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/oops_rcp.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="128" column="21" lean-forward="false" selection-start-line="128" selection-start-column="21" selection-end-line="128" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -695,26 +720,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_references.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="31" column="11" lean-forward="true" selection-start-line="31" selection-start-column="11" selection-end-line="31" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="145">
           <caret line="53" column="14" lean-forward="false" selection-start-line="53" selection-start-column="14" selection-end-line="53" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_loads.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="166">
-          <caret line="129" column="24" lean-forward="true" selection-start-line="129" selection-start-column="24" selection-end-line="129" selection-end-column="24" />
           <folding />
         </state>
       </provider>
@@ -737,9 +746,25 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/gni.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="21" lean-forward="false" selection-start-line="2" selection-start-column="21" selection-end-line="2" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_references.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="329">
+          <caret line="119" column="5" lean-forward="true" selection-start-line="119" selection-start-column="5" selection-end-line="119" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/utils.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="346">
+        <state relative-caret-position="2115">
           <caret line="141" column="1" lean-forward="true" selection-start-line="141" selection-start-column="1" selection-end-line="141" selection-end-column="1" />
           <folding>
             <element signature="e#13#41#0" expanded="true" />
@@ -747,26 +772,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_loads.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="214">
+          <caret line="182" column="31" lean-forward="false" selection-start-line="182" selection-start-column="31" selection-end-line="182" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/oops.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="205">
-          <caret line="175" column="17" lean-forward="true" selection-start-line="175" selection-start-column="17" selection-end-line="175" selection-end-column="17" />
+        <state relative-caret-position="90">
+          <caret line="6" column="17" lean-forward="true" selection-start-line="6" selection-start-column="17" selection-end-line="6" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="189" column="21" lean-forward="false" selection-start-line="189" selection-start-column="21" selection-end-line="189" selection-end-column="21" />
+        <state relative-caret-position="284">
+          <caret line="41" column="17" lean-forward="false" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/gni.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/types_rcp.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="21" lean-forward="false" selection-start-line="2" selection-start-column="21" selection-end-line="2" selection-end-column="21" />
+        <state relative-caret-position="174">
+          <caret line="128" column="21" lean-forward="false" selection-start-line="128" selection-start-column="21" selection-end-line="128" selection-end-column="21" />
           <folding />
         </state>
       </provider>

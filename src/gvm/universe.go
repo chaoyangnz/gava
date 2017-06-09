@@ -6,7 +6,7 @@ var AppClasspath []string
 
 var stringTable = make(map[string]*java_lang_string)
 
-var classCache = make(map[string] *JavaClass)
+var classCache = make(map[string] *ClassType)
 
 var bootstrapClassLoader = &BootstrapClassLoader{}
 
