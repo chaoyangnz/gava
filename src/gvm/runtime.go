@@ -1,17 +1,19 @@
 package gvm
 
+import "fmt"
+
 const DEFAULT_VM_STACK_SIZE  = 512
 
 type Thread struct {
 	id          uint
 	name        string
-	vmStack     VMStack
+	vmStack     []*StackFrame
 }
 
 func newThread(name string) *Thread  {
 	return &Thread{
 		name: name,
-		vmStack: VMStack{stackFrames: make([]*StackFrame, DEFAULT_VM_STACK_SIZE), size:0, capacity: DEFAULT_VM_STACK_SIZE}}
+		vmStack: make([]*StackFrame, 0, DEFAULT_VM_STACK_SIZE)}
 }
 
 
@@ -23,25 +25,91 @@ type StackFrame struct {
 	localVariables      []t_any
 	// operand stack
 	operandStack        []t_any
-	operandStackSize    uint
 }
 
 func NewStackFrame(method *JavaMethod) *StackFrame {
 	stackFrame := &StackFrame{
 		method: method,
 		pc: 0,
-		localVariables: make([]t_any, method.maxLocals),
-		operandStack: make([]t_any, method.maxStack),
-		operandStackSize: 0}
+		localVariables: make([]t_any, method.maxLocals), // local variables have no initial values
+		operandStack: make([]t_any, 0, method.maxStack)}
 	return stackFrame
 }
 
 func (this *StackFrame) loadVar(index uint) t_any {
-	return this.localVariables[index]
+	value := this.localVariables[index]
+	return checkType(value)
 }
 
 func (this *StackFrame) storeVar(index uint, value t_any)  {
+	checkType(value)
 	this.localVariables[index] = value
+}
+
+func (this *Thread) invokeStaticMethod(index uint16) {
+	f := this.peekFrame()
+	m := f.method
+	c := m.class
+	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
+	parameterCount := len(method.parameterDescriptors)
+	if method.isNative() {
+		fmt.Printf("invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
+		GVM_print(f.pop().(java_lang_string))
+		return
+	}
+	frame := NewStackFrame(method)
+	// pass parameters
+
+	for i := parameterCount-1; i >= 0; i--  {
+		argument := checkType(f.pop())
+		frame.storeVar(uint(i), argument)
+	}
+
+	this.pushFrame(frame)
+}
+
+func (this *Thread) invokeVitrualMethod(index uint16) {
+	f := this.peekFrame()
+	m := f.method
+	c := m.class
+	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
+	if method.isStatic() {
+		panic("Not an instance method")
+	}
+	parameterCount := len(method.parameterDescriptors)
+	params := make([]t_any, parameterCount+1)
+	for i := parameterCount; i >= 1; i-- {
+		params[i] = f.pop()
+	}
+	// get objectref
+	objectref := f.pop().(t_object)
+	params[0] = objectref
+	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
+	frame := NewStackFrame(overridenMethod)
+	// pass parameters
+	for j := 0; j < parameterCount+1; j++ {
+		frame.storeVar(uint(j), params[j])
+	}
+
+	this.pushFrame(frame)
+}
+
+func (this *Thread) invokeSpecialMethod(index uint16)  {
+	f := this.peekFrame()
+	m := f.method
+	c := m.class
+	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
+	parameterCount := len(method.parameterDescriptors)
+	frame := NewStackFrame(method)
+	// pass parameters
+	for i := parameterCount; i >= 1; i--  {
+		argument := checkType(f.pop())
+		frame.storeVar(uint(i), argument)
+	}
+	objectref := f.pop().(t_object)
+	frame.storeVar(0, objectref) // this objectref
+
+	this.pushFrame(frame)
 }
 
 /*
@@ -67,44 +135,54 @@ func (this *StackFrame) passReturn(caller *StackFrame)  {
 	caller.push(this.pop())
 }
 
+func (this *StackFrame) getField(objectref t_object, index uint16) t_any {
+	i := this.method.class.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
+	return checkType(objectref.fields[i])
+}
+
+func (this *StackFrame) putField(objectref t_object, index uint16, value t_any) {
+	i := this.method.class.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
+	objectref.fields[i] = checkType(value)
+}
+
 func (this *StackFrame) push(jany t_any)  {
-	this.operandStack[this.operandStackSize] = jany
-	this.operandStackSize++
+	operandStackSize := len(this.operandStack)
+	this.operandStack = this.operandStack[:operandStackSize+1]
+	this.operandStack[operandStackSize] = checkType(jany)
 }
 
 func (this *StackFrame) pop() t_any {
-	jany := this.operandStack[this.operandStackSize-1]
-	this.operandStack[this.operandStackSize-1] = nil
-	this.operandStackSize--
-	return jany
+	operandStackSize := len(this.operandStack)
+	jany := this.operandStack[operandStackSize-1]
+	this.operandStack[operandStackSize-1] = nil
+	this.operandStack = this.operandStack[:operandStackSize-1]
+	return checkType(jany)
 }
 
 func (this *StackFrame) peek() t_any {
-	jany := this.operandStack[this.operandStackSize-1]
-	return jany
+	operandStackSize := len(this.operandStack)
+	jany := this.operandStack[operandStackSize-1]
+	return checkType(jany)
 }
 
-
-
-type VMStack struct {
-	stackFrames []*StackFrame
-	size uint
-	capacity uint
+func (this *Thread) pushFrame(stackFrame *StackFrame)  {
+	size := len(this.vmStack)
+	if size == DEFAULT_VM_STACK_SIZE {
+		panic("Stack Overflow")
+	}
+	this.vmStack = this.vmStack[:size+1]
+	this.vmStack[size] = stackFrame
 }
 
-func (this *VMStack) push(stackFrame *StackFrame)  {
-	this.stackFrames[this.size] = stackFrame
-	this.size++
-}
-
-func (this *VMStack) pop()  {
-	if this.size == 0 {
+func (this *Thread) popFrame()  {
+	size := len(this.vmStack)
+	if size == 0 {
 		return
 	}
-	this.stackFrames[this.size-1] = nil
-	this.size--
+	this.vmStack = this.vmStack[:size-1]
 }
 
-func (this *VMStack) peek() *StackFrame  {
-	return this.stackFrames[this.size-1]
+func (this *Thread) peekFrame() *StackFrame  {
+	size := len(this.vmStack)
+	return this.vmStack[size-1]
 }

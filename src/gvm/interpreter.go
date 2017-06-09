@@ -229,9 +229,9 @@ var opcodes = []func(uint8, *StackFrame, *Thread, *JavaClass, *JavaMethod) (int,
 func run(mainClass *JavaClass)  {
 	mainMethod := mainClass.findMethod(MAIN_METHOD)
 	thread := newThread("main")
-	thread.vmStack.push(NewStackFrame(mainMethod))
-	for thread.vmStack.size != 0 { // per stack frame
-		f := thread.vmStack.peek()
+	thread.pushFrame(NewStackFrame(mainMethod))
+	for len(thread.vmStack) != 0 { // per stack frame
+		f := thread.peekFrame()
 		bytecode := f.method.code
 		for f.pc < uint32(len(f.method.code)) {
 				opcode := bytecode[f.pc]
@@ -1524,47 +1524,47 @@ func LOOKUPSWITCH(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaM
 
 /*172 (0XAC)*/
 func IRETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	t.vmStack.pop()
+	t.popFrame()
 	// return value
-	f.passReturn(t.vmStack.peek())
+	f.passReturn(t.peekFrame())
 	return 1, false
 }
 
 /*173 (0XAD)*/
 func LRETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	t.vmStack.pop()
+	t.popFrame()
 	// return value
-	f.passReturn(t.vmStack.peek())
+	f.passReturn(t.peekFrame())
 	return 1, false
 }
 
 /*174 (0XAE)*/
 func FRETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	t.vmStack.pop()
+	t.popFrame()
 	// return value
-	f.passReturn(t.vmStack.peek())
+	f.passReturn(t.peekFrame())
 	return 1, false
 }
 
 /*175 (0XAF)*/
 func DRETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	t.vmStack.pop()
+	t.popFrame()
 	// return value
-	f.passReturn(t.vmStack.peek())
+	f.passReturn(t.peekFrame())
 	return 1, false
 }
 
 /*176 (0XB0)*/
 func ARETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	t.vmStack.pop()
+	t.popFrame()
 	// return value
-	f.passReturn(t.vmStack.peek())
+	f.passReturn(t.peekFrame())
 	return 1, false
 }
 
 /*177 (0XB1)*/
 func RETURN(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
-	t.vmStack.pop()
+	t.popFrame()
 	return 1, false
 }
 
@@ -1590,20 +1590,18 @@ func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMeth
 func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
 	objectref := f.pop().(t_object)
-	value := (*objectref).getField(c, index)
 
-	f.push(value.(t_int))
+	f.push(f.getField(objectref, index))
 	return 3, true
 }
 
 /*181 (0XB5)*/
 func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	value := checkType(f.pop())
+	objectref := f.pop().(t_object)
 
-	value := f.pop()
-	jreference := f.pop().(t_object)
-
-	(*jreference).putField(c, index, value)
+	f.putField(objectref, index, value)
 	return 3, true
 }
 
@@ -1611,37 +1609,15 @@ func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMetho
 func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
 
-	method := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
-	if method.isStatic() {
-		panic("Not an instance method")
-	}
-	parameterCount := len(method.parameterDescriptors)
-	params := make([]t_any, parameterCount+1)
-	for i := parameterCount; i >= 0; i-- {
-		params[i] = f.pop()
-	}
-	objectref := params[0].(t_object)
-	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
-	frame := NewStackFrame(overridenMethod)
-	// pass parameters
-	for j := 0; j < parameterCount+1; j++ {
-		frame.storeVar(uint(j), params[j])
-	}
-
-	t.vmStack.push(frame)
-	return parameterCount+1, false
+	t.invokeVitrualMethod(index)
+	return 3, false
 }
 
 /*183 (0XB7)*/
 func INVOKESPECIAL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
 
-	method := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
-	frame := NewStackFrame(method)
-	// pass parameters
-	f.passParameters(frame)
-
-	t.vmStack.push(frame)
+	t.invokeSpecialMethod(index)
 	return 3, false
 }
 
@@ -1649,17 +1625,7 @@ func INVOKESPECIAL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *Java
 func INVOKESTATIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
 
-	methodRef := f.method.class.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo)
-	method := methodRef.method
-	if method.isNative() {
-		GVM_print(f.pop().(java_lang_string))
-		return 3, true
-	}
-	frame := NewStackFrame(method)
-	// pass parameters
-	f.passParameters(frame)
-
-	t.vmStack.push(frame)
+	t.invokeStaticMethod(index)
 	return 3, false
 }
 
@@ -1677,8 +1643,8 @@ func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *Java
 func NEW(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) (int, bool) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
 	class := c.constantPool[index].resolve().(*RuntimeConstantClassInfo).class
-	jreference := class.new()
-	f.push(jreference)
+	objectreference := class.new()
+	f.push(objectreference)
 	return 3, true
 }
 
