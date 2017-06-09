@@ -3,8 +3,9 @@
 A simple Java interpreter written with Go language. This project is to learn JVM specification in depth and try to understand the
 under-the-water mechanism when a Java program runs.
 
-Basically, I just refer to "Java Virtual Machine Specification" and many implementations are naive and simplified so as to
-validate the idea.
+Basically, I only refer to "Java Virtual Machine Specification" and then compose how we should design one. 
+I have to say many implementation details are naive and I make it as simplified as possible so as to
+demonstrate the idea. For the educational purpose, it is enough.
 
 # Roadmap
 
