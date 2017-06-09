@@ -2,7 +2,6 @@ package gvm
 
 import (
 	"reflect"
-	"fmt"
 )
 
 type (
@@ -50,12 +49,12 @@ func checkType(value t_any) t_any {
 		} else {
 			t = reflect.TypeOf(value).String()
 			if t[:8] != "gvm.java" {
-				panic("Not a valid vm type")
+				fatal("Not a valid vm type")
 			}
 		}
 	}
 
-	fmt.Printf("Check vm type: %s\n", t)
+	all("Check vm type: %s\n", t)
 	return value
 }
 
@@ -74,7 +73,7 @@ func defaultValue(descriptor string) t_any {
 	case "L": value = t_object(nil) //reference
 	case "[": value = t_array(nil) //array
 	default:
-		panic("Not a valid vm type")
+		fatal("Not a valid vm type")
 	}
 	return value
 }
