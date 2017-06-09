@@ -127,7 +127,7 @@ func ALOAD_2(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod
 
 /*45 (0X2D)*/
 func ALOAD_3(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	f.push(f.loadVar(3).(t_object))
+	f.push(checkReference(f.loadVar(3)))
 }
 
 /*46 (0X2E)

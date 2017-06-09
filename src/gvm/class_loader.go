@@ -8,13 +8,24 @@ type ClassLoader interface {
 	load(classname string) *JavaClass
 }
 
+var __indention = 0
+func __times(t int, str string) string {
+	ret := ""
+	for i := 0; i < t; i++ {
+		ret += str
+	}
+	return ret
+}
+
 func loadClass(classpath []string, classname string) *JavaClass {
 	clazz := classCache[classname]
 	if clazz != nil {
 		return clazz
 	}
-
-	all("Start loading class: %s\n", classname)
+	__indention++
+	trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
+	//pushTrace(ClassLoadTrace{'S', classname})
+	trace(__times(__indention, "  ") + "⤈ %s", classname)
 
 	// create classreader
 	var classreader *ClassReader
@@ -135,7 +146,10 @@ func loadClass(classpath []string, classname string) *JavaClass {
 
 	clazz.classObject = newJavaLangClass()
 
-	all("Finish loading class: %s\n", classname)
+	trace(__times(__indention, "  ") + "⤉ %s", classname)
+	trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
+	__indention--
+
 	return clazz
 }
 

@@ -51,8 +51,8 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
 	parameterCount := len(method.parameterDescriptors)
 	if method.isNative() {
-		debug("invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
-		GVM_print(f.pop().(java_lang_string))
+		debug("😎 invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
+		GVM_print(f.pop().(t_object/*java_lang_string*/))
 		return
 	}
 	frame := NewStackFrame(method)

@@ -126,14 +126,14 @@ type RuntimeConstantStringInfo struct {
 	stringIndex     u2
 	resolved        bool
 	//value           []t_char
-	value java_lang_string
+	value           t_object/*java_lang_string*/
 }
 
 func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
 	if !this.resolved {
 		utf8string := this.hostClass.constantPool[this.stringIndex].resolve().(*RuntimeConstantUtf8Info).value
-		javastring := stringTable[utf8string]
-		if javastring == nil {
+		javastring, found := stringTable[utf8string]
+		if !found {
 			javastring = newJavaLangString(utf8string)
 			stringTable[utf8string] = javastring
 		}

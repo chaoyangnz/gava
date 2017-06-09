@@ -14,15 +14,15 @@ type (
 	//
 	//jarray                  t_array
 
-	java_lang_object        t_object
-	java_lang_string        t_object
-	java_lang_class         t_object
-	java_lang_classloader   t_object
+	//java_lang_object        t_object
+	//java_lang_string        t_object
+	//java_lang_class         t_object
+	//java_lang_classloader   t_object
 )
 
-func (this *GNIEnv) GetObjectClass(object java_lang_object) java_lang_class {
-	return object.class.classObject
-}
+//func (this *GNIEnv) GetObjectClass(object java_lang_object) java_lang_class {
+//	return object.class.classObject
+//}
 
 /*------------java_lang_string----------------------------------*/
 //func newJavaLangString(chars []t_char) java_lang_string {
@@ -32,12 +32,12 @@ func (this *GNIEnv) GetObjectClass(object java_lang_object) java_lang_class {
 //	return java_lang_string(object)
 //}
 
-func newJavaLangString(str string) java_lang_string {
+func newJavaLangString(str string) t_object/*java_lang_string*/ {
 	chars := _string2jchars(str)
 	stringClass := bootstrapClassLoader.load("java/lang/String")
 	object := stringClass.new()
 	object.fields[0] = newCharArray(chars)
-	return java_lang_string(object)
+	return object
 }
 
 /*
@@ -66,7 +66,7 @@ func _string2jchars(str string) []t_char {
 	return chars
 }
 
-func javaLangString2string(jstring java_lang_string) string  {
+func javaLangString2string(jstring t_object/*java_lang_string*/) string  {
 	runes := []rune{}
 	chars := jstring.fields[0].(t_array).elements
 	for i:=0; i < len(chars); i++ {
@@ -93,13 +93,13 @@ func javaLangString2string(jstring java_lang_string) string  {
 
 /* -----------java_lang_class ----------------*/
 
-func newJavaLangClass() java_lang_class {
+func newJavaLangClass() t_object/*java_lang_string*/ {
 	class := bootstrapClassLoader.load("java/lang/Class")
-	return java_lang_class(class.new())
+	return class.new()
 }
 
 /* ---------- JDK Native methods implementation ---*/
-func GVM_print(s java_lang_string) {
+func GVM_print(s t_object/*java_lang_string*/) {
 	println(javaLangString2string(s))
 }
 

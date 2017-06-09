@@ -1,7 +1,7 @@
 package gvm
 
 import (
-	"reflect"
+	//"reflect"
 )
 
 type (
@@ -33,28 +33,59 @@ const (
 func checkType(value t_any) t_any {
 	t := ""
 	switch value.(type) {
-	case t_byte:    t   = "B" //byte
-	case t_char:    t   = "C" //char
-	case t_double:  t   = "D" //double
-	case t_float:   t   = "F" //float
-	case t_int:     t   = "I" //int
-	case t_long:    t   = "J" //long
-	case t_short:   t   = "S" //short
-	case t_boolean: t   = "Z" //boolean
-	case t_object:  t   = "L" //reference
-	case t_array:   t   = "[" //array
+	case t_byte:    t = "B" //byte
+	case t_char:    t = "C" //char
+	case t_double:  t = "D" //double
+	case t_float:   t = "F" //float
+	case t_int:     t = "I" //int
+	case t_long:    t = "J" //long
+	case t_short:   t = "S" //short
+	case t_boolean: t = "Z" //boolean
+	case t_object:  t = "L" //boolean
+	case t_array:   t = "[" //boolean
 	default:
-		if value == nil {
-			t = "nil"
-		} else {
-			t = reflect.TypeOf(value).String()
-			if t[:8] != "gvm.java" {
-				fatal("Not a valid vm type")
-			}
-		}
+		fatal("Not a valid vm type")
+	}
+	if t != "" {
+		all("Check vm type: %s\n", t)
 	}
 
-	all("Check vm type: %s\n", t)
+	return value
+}
+
+func checkPrimitive(value t_any) t_any {
+	t := ""
+	switch value.(type) {
+	case t_byte:    t = "B" //byte
+	case t_char:    t = "C" //char
+	case t_double:  t = "D" //double
+	case t_float:   t = "F" //float
+	case t_int:     t = "I" //int
+	case t_long:    t = "J" //long
+	case t_short:   t = "S" //short
+	case t_boolean: t = "Z" //boolean
+	default:
+		fatal("Not a valid vm primitive type")
+	}
+	if t != "" {
+		all("Check vm primitive type: %s", t)
+	}
+
+	return value
+}
+
+func checkReference(value t_any) t_any  {
+	t := ""
+	switch value.(type) {
+	case t_object:   t = "L" //boolean
+	case t_array:    t = "[" //boolean
+	default:
+		fatal("Not a valid vm reference type")
+	}
+	if t != "" {
+		all("Check vm reference type: %s", t)
+	}
+
 	return value
 }
 

@@ -235,12 +235,12 @@ func run(mainClass *JavaClass)  {
 	for len(thread.vmStack) != 0 { // per stack frame
 		f := thread.peekFrame()
 		bytecode := f.method.code
-		trace("⤮ %s.%s%s \n", f.method.class.thisClassName, f.method.name, f.method.descriptor)
+		trace("⤮ %s.%s%s", f.method.class.thisClassName, f.method.name, f.method.descriptor)
 		for f.pc < uint32(len(f.method.code)) {
 			pc := f.pc
 			opcode := bytecode[pc]
 			instruction := instructions[opcode]
-			trace("%04d ➢ %s \n", int(pc), instruction.mnemonic)
+			trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
 			instruction.interpreter(opcode, f, thread, f.method.class, f.method)
 			// jump instruction can operate pc
 			// some instruction also have variable length: tableswitch...

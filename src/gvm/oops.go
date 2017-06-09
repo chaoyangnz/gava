@@ -116,8 +116,8 @@ type JavaClass struct {
 	//attributes   []Attribute
 
 	// bridge java world
-	classLoader     java_lang_classloader
-	classObject java_lang_class // pointer to heap: instance of java/lang/Class
+	classLoader     t_object/*java_lang_classloader*/
+	classObject     t_object/*java_lang_class*/ // pointer to heap: instance of java/lang/Class
 }
 
 type JavaField struct {
