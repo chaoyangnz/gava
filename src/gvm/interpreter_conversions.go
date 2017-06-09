@@ -15,7 +15,8 @@ func I2F(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
 
 /*135 (0X87)*/
 func I2D(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value := f.pop().(t_int)
+	f.push(t_double(value))
 }
 
 /*136 (0X88)*/

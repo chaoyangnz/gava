@@ -19,7 +19,12 @@ func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod)
 
 /*199 (0XC7)*/
 func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *JavaClass, m *JavaMethod) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	offset := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+
+	value := f.pop().(t_object)
+	if(value != nil) {
+		f.pc += uint32(offset)
+	}
 }
 
 /*200 (0XC8)*/
