@@ -4,7 +4,7 @@ const MAIN_METHOD = "main([Ljava/lang/String;)V"
 
 type Instruction struct {
 	mnemonic        string
-	interpreter     func(uint8, *StackFrame, *Thread, *JavaClass, *JavaMethod)
+	interpreter     func(uint8, *StackFrame, *Thread, *ClassType, *Method)
 	length          int
 	switchFrame     bool
 }
@@ -228,7 +228,7 @@ var instructions = []Instruction{
 	///*255 (0xFF)*/    Instruction{"impdep2", IMPDEP2, 1, false},
 }
 
-func run(mainClass *JavaClass)  {
+func run(mainClass *ClassType)  {
 	mainMethod := mainClass.findMethod(MAIN_METHOD)
 	thread := newThread("main")
 	thread.pushFrame(NewStackFrame(mainMethod))
