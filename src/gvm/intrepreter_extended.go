@@ -14,15 +14,15 @@ func MULTIANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Met
 
 	arrayType := c.constantPool[index].resolve().(*RuntimeConstantClassInfo).referenceType.(*ArrayType)
 	componentType := arrayType.componentType.(ReferenceType)
-	counts := make([]t_int, dimensions)
-	for i := t_int(dimensions-1); i >= 0; i-- {
-		counts[i] = f.pop().(t_int)
+	counts := make([]j_int, dimensions)
+	for i := j_int(dimensions-1); i >= 0; i-- {
+		counts[i] = f.pop().(j_int)
 	}
-	var array *t_array
+	var array *j_array
 	componentArray := newArray(componentType, counts[0])
 	for j := uint8(1); j < dimensions-1; j++ {
 		array = newArray(componentType, counts[j])
-		for k := t_int(0); k < counts[j]; k++ {
+		for k := j_int(0); k < counts[j]; k++ {
 			array.elements[k] = componentArray
 		}
 		componentArray = array
@@ -39,7 +39,7 @@ func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	offset := m.code[f.pc+1] << 8 | m.code[f.pc+2]
 
-	value := f.pop().(Reference)
+	value := f.pop().(j_reference)
 	if(value != nil) {
 		f.pc += uint32(offset)
 	}

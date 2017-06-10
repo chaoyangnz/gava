@@ -50,7 +50,7 @@ Type (interface)
 	|- *FloatType
 	|- *DoubleType
 	|- *BooleanType
-	|- Reference (interface)
+	|- j_reference (interface)
 		|- *ClassType
 		|- *ArrayType
 
@@ -227,8 +227,8 @@ type ClassType struct {
 	//attributes   []Attribute
 
 	// bridge java world
-	classLoader     *java_lang_classloader
-	classObject     *java_lang_class // pointer to heap: instance of java/lang/Class
+	classLoader     java_lang_classloader
+	classObject     java_lang_class // pointer to heap: instance of java/lang/Class
 }
 
 func (this *ClassType) isElementType() bool {
@@ -263,16 +263,16 @@ func (this *Field)defaultValue() t_any {
 	ch := this.descriptor[:1]
 	var value t_any
 	switch ch {
-	case "B": value = t_byte(0) //byte
-	case "C": value = t_char(0) //char
-	case "D": value = t_double(0.0) //double
-	case "F": value = t_float(0.0) //float
-	case "I": value = t_int(0) //int
-	case "J": value = t_long(0) //long
-	case "S": value = t_short(0) //short
+	case "B": value = j_byte(0) //byte
+	case "C": value = j_char(0) //char
+	case "D": value = j_double(0.0) //double
+	case "F": value = j_float(0.0) //float
+	case "I": value = j_int(0) //int
+	case "J": value = j_long(0) //long
+	case "S": value = j_short(0) //short
 	case "Z": value = boolean_false //boolean
-	case "L": value = (*t_object)(nil) //reference
-	case "[": value = (*t_array)(nil) //array
+	case "L": value = (*j_object)(nil) //reference
+	case "[": value = (*j_array)(nil) //array
 	default:
 		fatal("Not a valid vm type")
 	}
@@ -336,7 +336,7 @@ type LocalVariable struct {
 /**
 create a java instance: return the vm representation
  */
-func (this *ClassType) newObject() *t_object {
+func (this *ClassType) newObject() *j_object {
 	fields := make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))
 
 	// initialize fields to default values
@@ -352,7 +352,7 @@ func (this *ClassType) newObject() *t_object {
 		clazz = clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType)
 	}
 
-	return &t_object{
+	return &j_object{
 		class: this,
 		fields: fields}
 }

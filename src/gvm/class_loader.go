@@ -157,6 +157,6 @@ type BootstrapClassLoader struct {}
 
 func (this *BootstrapClassLoader) load(classname string) *ClassType {
 	class := loadClass(coreClassPath, classname)
-	class.classLoader = nil // nil for bootstrap loader
+	class.classLoader = java_lang_classloader{object_null} // nil for bootstrap loader
 	return class
 }
