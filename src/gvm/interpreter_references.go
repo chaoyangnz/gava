@@ -103,7 +103,7 @@ func NEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	}
 	count := f.pop().(j_int)
 	jreference := &j_array{atype: componentType, length: count}
-	jreference.elements = make([]t_any, count)
+	jreference.elements = make([]j_any, count)
 	f.push(jreference)
 }
 
