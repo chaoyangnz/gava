@@ -20,7 +20,7 @@ func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) 
 /*180 (0XB4)*/
 func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	objectref := f.pop().(*t_object)
+	objectref := f.pop().(*j_object)
 
 	f.push(f.getField(objectref, index))
 }
@@ -29,7 +29,7 @@ func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
 	value := f.pop()
-	objectref := f.pop().(*t_object)
+	objectref := f.pop().(*j_object)
 
 	f.putField(objectref, index, value)
 }
@@ -101,8 +101,8 @@ func NEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	default:
 		fatal("Invalid atype value")
 	}
-	count := f.pop().(t_int)
-	jreference := &t_array{atype: componentType, length: count}
+	count := f.pop().(j_int)
+	jreference := &j_array{atype: componentType, length: count}
 	jreference.elements = make([]t_any, count)
 	f.push(jreference)
 }
@@ -110,9 +110,9 @@ func NEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 /*189 (0XBD)*/
 func ANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	count := f.pop().(t_int)
+	count := f.pop().(j_int)
 
-	var reference Reference
+	var reference j_reference
 	cpInfo := c.constantPool[index].resolve()
 	switch cpInfo.(type) {
 	case *RuntimeConstantClassInfo: reference = newArray(cpInfo.(*RuntimeConstantClassInfo).referenceType, count)
@@ -124,7 +124,7 @@ func ANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) 
 
 /*190 (0XBE)*/
 func ARRAYLENGTH(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
-	f.push(f.pop().(*t_array).length)
+	f.push(f.pop().(*j_array).length)
 }
 
 /*191 (0XBF)*/

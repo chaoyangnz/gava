@@ -4,8 +4,8 @@ import "fmt"
 
 /*133 (0X85)*/
 func I2L(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
-	value := f.pop().(t_int)
-	f.push(t_long(value))
+	value := f.pop().(j_int)
+	f.push(j_long(value))
 }
 
 /*134 (0X86)*/
@@ -15,8 +15,8 @@ func I2F(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 
 /*135 (0X87)*/
 func I2D(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
-	value := f.pop().(t_int)
-	f.push(t_double(value))
+	value := f.pop().(j_int)
+	f.push(j_double(value))
 }
 
 /*136 (0X88)*/

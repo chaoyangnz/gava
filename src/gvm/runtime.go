@@ -51,7 +51,7 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 	parameterCount := len(method.parameterDescriptors)
 	if method.isNative() {
 		debug("😎 invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
-		GVM_print(f.pop().(*java_lang_string))
+		GVM_print(f.pop().(java_lang_string))
 		return
 	}
 	frame := NewStackFrame(method)
@@ -79,7 +79,7 @@ func (this *Thread) invokeVitrualMethod(index uint16) {
 		params[i] = f.pop()
 	}
 	// get objectref
-	objectref := f.pop().(*t_object)
+	objectref := f.pop().(*j_object)
 	params[0] = objectref
 	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
 	frame := NewStackFrame(overridenMethod)
@@ -103,7 +103,7 @@ func (this *Thread) invokeSpecialMethod(index uint16)  {
 		argument := f.pop()
 		frame.storeVar(uint(i), argument)
 	}
-	objectref := f.pop().(*t_object)
+	objectref := f.pop().(*j_object)
 	frame.storeVar(0, objectref) // this objectref
 
 	this.pushFrame(frame)
@@ -132,12 +132,12 @@ func (this *StackFrame) passReturn(caller *StackFrame)  {
 	caller.push(this.pop())
 }
 
-func (this *StackFrame) getField(objectref *t_object, index uint16) t_any {
+func (this *StackFrame) getField(objectref *j_object, index uint16) t_any {
 	i := this.method.class.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
 	return objectref.fields[i]
 }
 
-func (this *StackFrame) putField(objectref *t_object, index uint16, value t_any) {
+func (this *StackFrame) putField(objectref *j_object, index uint16, value t_any) {
 	i := this.method.class.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field.index
 	objectref.fields[i] = value
 }

@@ -147,8 +147,8 @@ type RuntimeConstantStringInfo struct {
 	hostClass       *ClassType
 	stringIndex     u2
 	resolved        bool
-	//value           []t_char
-	value           *java_lang_string
+	//value           []j_char
+	value           java_lang_string
 }
 
 func (this *RuntimeConstantStringInfo) resolve() RuntimeConstantPoolInfo {
@@ -175,13 +175,13 @@ type RuntimeConstantIntegerInfo struct {
 	hostClass *ClassType
 	bytes     u4
 	resolved  bool
-	value     t_int
+	value     j_int
 }
 
 
 func (this *RuntimeConstantIntegerInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = t_int(this.bytes)
+		this.value = j_int(this.bytes)
 		this.resolved = true
 	}
 	return this
@@ -197,12 +197,12 @@ type RuntimeConstantFloatInfo struct {
 	hostClass *ClassType
 	bytes     u4
 	resolved  bool
-	value     t_float
+	value     j_float
 }
 
 func (this *RuntimeConstantFloatInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = t_float(this.bytes)
+		this.value = j_float(this.bytes)
 		this.resolved = true
 	}
 	return this
@@ -220,12 +220,12 @@ type RuntimeConstantLongInfo struct {
 	highBytes u4
 	lowBytes  u4
 	resolved  bool
-	value     t_long
+	value     j_long
 }
 
 func (this *RuntimeConstantLongInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = t_long(this.highBytes << 8 | this.lowBytes)
+		this.value = j_long(this.highBytes << 8 | this.lowBytes)
 		this.resolved = true
 	}
 	return this
@@ -243,13 +243,13 @@ type RuntimeConstantDoubleInfo struct {
 	highBytes u4
 	lowBytes  u4
 	resolved  bool
-	value     t_double
+	value     j_double
 }
 
 
 func (this *RuntimeConstantDoubleInfo) resolve() RuntimeConstantPoolInfo  {
 	if !this.resolved {
-		this.value = t_double(this.highBytes << 8 | this.lowBytes)
+		this.value = j_double(this.highBytes << 8 | this.lowBytes)
 		this.resolved = true
 	}
 	return this
