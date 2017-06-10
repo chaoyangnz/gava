@@ -74,7 +74,7 @@ func loadClass(classpath []string, classname string) *ClassType {
 
 	clazz.fields = make([]*Field, len(classfile.fields))
 	clazz.fieldsMap = make(map[string]*Field)
-	clazz.staticFields = []t_any{}
+	clazz.staticFields = []j_any{}
 	maxInstanceFieldIndex := uint16(0)
 	maxStaticFieldIndex   := uint16(0)
 	if clazz.superClass == 0 { // jdk/lang/Object

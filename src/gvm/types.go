@@ -223,7 +223,7 @@ type ClassType struct {
 	methodsMap      map[string]*Method
 	instanceFieldsStart uint16
 	instanceFileds  []*Field
-	staticFields    []t_any
+	staticFields    []j_any
 	//attributes   []Attribute
 
 	// bridge java world
@@ -259,9 +259,9 @@ type Field struct {
 	index           uint16
 }
 
-func (this *Field)defaultValue() t_any {
+func (this *Field)defaultValue() j_any {
 	ch := this.descriptor[:1]
-	var value t_any
+	var value j_any
 	switch ch {
 	case "B": value = j_byte(0) //byte
 	case "C": value = j_char(0) //char
@@ -337,7 +337,7 @@ type LocalVariable struct {
 create a java instance: return the vm representation
  */
 func (this *ClassType) newObject() *j_object {
-	fields := make([]t_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))
+	fields := make([]j_any, this.instanceFieldsStart + uint16(len(this.instanceFileds)))
 
 	// initialize fields to default values
 	clazz := this

@@ -4,7 +4,7 @@ package gvm
 /*
 Java object VM representation type hierarchy:
 
-t_any (interface)
+j_any (interface)
    |- j_byte
    |- j_char
    |- j_short
@@ -30,9 +30,9 @@ All the pointer type starting with java_** is the equivalent to jdk referenceTyp
 type (
 	// these types are for vm internal use only
 	// basically they are mapped to 10 types mentioned in JVM specification
-	t_any           interface {
+	j_any interface {
 					isReference()   bool
-					defaultValue()  t_any
+					defaultValue()  j_any
 	}
 
 	j_byte          int8
@@ -46,7 +46,7 @@ type (
 
 	j_reference     interface {
 					isReference() bool
-					defaultValue() t_any
+					defaultValue() j_any
 					isArray() bool
 	}
 	j_object        struct {
@@ -55,7 +55,7 @@ type (
 					flags uint32
 					locks uint32
 					//fields
-					fields []t_any
+					fields []j_any
 	}
 	j_array         struct {
 					//header part
@@ -64,7 +64,7 @@ type (
 					locks  uint32
 					length j_int
 					//fields
-					elements []t_any
+					elements []j_any
 	}
 )
 
@@ -95,7 +95,7 @@ func (this j_byte) isReference() bool  {
 	return false
 }
 
-func (this j_byte) defaultValue() t_any  {
+func (this j_byte) defaultValue() j_any {
 	return byte_default
 }
 
@@ -103,7 +103,7 @@ func (this j_short) isReference() bool  {
 	return false
 }
 
-func (this j_short) defaultValue() t_any  {
+func (this j_short) defaultValue() j_any {
 	return short_default
 }
 
@@ -111,7 +111,7 @@ func (this j_char) isReference() bool  {
 	return false
 }
 
-func (this j_char) defaultValue() t_any  {
+func (this j_char) defaultValue() j_any {
 	return char_default
 }
 
@@ -119,7 +119,7 @@ func (this j_int) isReference() bool  {
 	return false
 }
 
-func (this j_int) defaultValue() t_any  {
+func (this j_int) defaultValue() j_any {
 	return int_default
 }
 
@@ -127,7 +127,7 @@ func (this j_long) isReference() bool  {
 	return false
 }
 
-func (this j_long) defaultValue() t_any  {
+func (this j_long) defaultValue() j_any {
 	return long_default
 }
 
@@ -135,7 +135,7 @@ func (this j_float) isReference() bool  {
 	return false
 }
 
-func (this j_float) defaultValue() t_any  {
+func (this j_float) defaultValue() j_any {
 	return float_default
 }
 
@@ -143,7 +143,7 @@ func (this j_double) isReference() bool  {
 	return false
 }
 
-func (this j_double) defaultValue() t_any  {
+func (this j_double) defaultValue() j_any {
 	return double_default
 }
 
@@ -151,7 +151,7 @@ func (this j_boolean) isReference() bool  {
 	return false
 }
 
-func (this j_boolean) defaultValue() t_any  {
+func (this j_boolean) defaultValue() j_any {
 	return boolean_default
 }
 
@@ -161,7 +161,7 @@ func (this *j_object)isReference() bool  {
 	return true
 }
 
-func (this *j_object) defaultValue() t_any {
+func (this *j_object) defaultValue() j_any {
 	return (*j_object)(nil)
 }
 
@@ -173,7 +173,7 @@ func (this *j_array)isReference() bool  {
 	return true
 }
 
-func (this *j_array) defaultValue() t_any {
+func (this *j_array) defaultValue() j_any {
 	return (*j_array)(nil)
 }
 
@@ -182,7 +182,7 @@ func (this *j_array)isArray() bool  {
 }
 
 func newArray(componentType ReferenceType, length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _ := range elements {
 		switch componentType.(type) {
 		case *ClassType: elements[i] = object_default
@@ -195,7 +195,7 @@ func newArray(componentType ReferenceType, length j_int) *j_array {
 }
 
 func newByteArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = byte_default
 	}
@@ -203,7 +203,7 @@ func newByteArray(length j_int) *j_array {
 }
 
 func newShortArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = short_default
 	}
@@ -211,7 +211,7 @@ func newShortArray(length j_int) *j_array {
 }
 
 func newCharArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = char_default
 	}
@@ -219,7 +219,7 @@ func newCharArray(length j_int) *j_array {
 }
 
 func newIntArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = int_default
 	}
@@ -227,7 +227,7 @@ func newIntArray(length j_int) *j_array {
 }
 
 func newLongArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = long_default
 	}
@@ -235,7 +235,7 @@ func newLongArray(length j_int) *j_array {
 }
 
 func newFloatArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = float_default
 	}
@@ -243,7 +243,7 @@ func newFloatArray(length j_int) *j_array {
 }
 
 func newDoubleArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = double_default
 	}
@@ -251,7 +251,7 @@ func newDoubleArray(length j_int) *j_array {
 }
 
 func newBooleanArray(length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = boolean_default
 	}
@@ -259,7 +259,7 @@ func newBooleanArray(length j_int) *j_array {
 }
 
 func newObjectArray(componentClass *ClassType, length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = object_default
 	}
@@ -267,7 +267,7 @@ func newObjectArray(componentClass *ClassType, length j_int) *j_array {
 }
 
 func newArrayArray(arrayComponentType *ArrayType, length j_int) *j_array {
-	elements := make([]t_any, length)
+	elements := make([]j_any, length)
 	for i, _:= range elements {
 		elements[i] = object_default
 	}

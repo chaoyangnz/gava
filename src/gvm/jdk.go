@@ -19,5 +19,6 @@ func register(name string, fn interface{}) (err interface{})  {
 }
 
 var NativeFunctions = map[string]reflect.Value {
-	"Java_GVM_print": reflect.ValueOf(Java_GVM_print),
+	"Java_GVM_println": reflect.ValueOf(Java_GVM_println),
+	"Java_GVM_toUpper": reflect.ValueOf(Java_GVM_toUpper),
 }
