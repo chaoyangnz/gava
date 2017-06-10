@@ -11,11 +11,6 @@ package gvm
 import "C"
 import "unsafe"
 
-/* ---------- JDK Native methods implementation ---*/
-func GVM_print(s java_lang_string) {
-	println(s.toString())
-}
-
 
 //jint(*GetVersion)(JNIEnv *env);
 //export GNI_GetVersion

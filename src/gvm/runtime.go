@@ -1,5 +1,11 @@
 package gvm
 
+import (
+	"strings"
+	"reflect"
+	"errors"
+)
+
 const DEFAULT_VM_STACK_SIZE  = 512
 
 type Thread struct {
@@ -47,22 +53,27 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 	f := this.peekFrame()
 	m := f.method
 	c := m.class
+
 	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
 	parameterCount := len(method.parameterDescriptors)
+	params := make([]t_any, parameterCount+1)
+	// read parameters
+	for i := parameterCount-1; i >= 0; i-- {
+		params[i] = f.pop()
+	}
+
 	if method.isNative() {
-		debug("😎 invoke native method %s#%s%s \n", method.class.thisClassName, method.name, method.descriptor)
-		GVM_print(f.pop().(java_lang_string))
-		return
-	}
-	frame := NewStackFrame(method)
-	// pass parameters
+		this.invokeNativeMethod(method, params...)
+	} else {
+		frame := NewStackFrame(method)
+		// pass parameters
+		for j := parameterCount-1; j >= 0; j--  {
+			frame.storeVar(uint(j), params[j])
+		}
 
-	for i := parameterCount-1; i >= 0; i--  {
-		argument := f.pop()
-		frame.storeVar(uint(i), argument)
+		this.pushFrame(frame)
 	}
 
-	this.pushFrame(frame)
 }
 
 func (this *Thread) invokeVitrualMethod(index uint16) {
@@ -73,40 +84,77 @@ func (this *Thread) invokeVitrualMethod(index uint16) {
 	if method.isStatic() {
 		fatal("Not an instance method")
 	}
-	parameterCount := len(method.parameterDescriptors)
-	params := make([]t_any, parameterCount+1)
-	for i := parameterCount; i >= 1; i-- {
+	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
+	params := make([]t_any, parameterCount)
+	for i := parameterCount-1; i >= 0; i-- {
 		params[i] = f.pop()
 	}
-	// get objectref
-	objectref := f.pop().(*j_object)
-	params[0] = objectref
+	// get objectref and target method
+	objectref := params[0].(*j_object)
 	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
-	frame := NewStackFrame(overridenMethod)
-	// pass parameters
-	for j := 0; j < parameterCount+1; j++ {
-		frame.storeVar(uint(j), params[j])
-	}
 
-	this.pushFrame(frame)
+
+	if method.isNative() {
+		this.invokeNativeMethod(overridenMethod, params...)
+	} else {
+		frame := NewStackFrame(overridenMethod)
+		// pass parameters
+		for j := 0; j < parameterCount; j++ {
+			frame.storeVar(uint(j), params[j])
+		}
+
+		this.pushFrame(frame)
+	}
 }
 
+// like invokevirtual with objectref, but don't find along the inheritance
 func (this *Thread) invokeSpecialMethod(index uint16)  {
 	f := this.peekFrame()
 	m := f.method
 	c := m.class
 	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
-	parameterCount := len(method.parameterDescriptors)
-	frame := NewStackFrame(method)
-	// pass parameters
-	for i := parameterCount; i >= 1; i--  {
-		argument := f.pop()
-		frame.storeVar(uint(i), argument)
+	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
+	params := make([]t_any, parameterCount)
+	for i := parameterCount-1; i >= 0; i-- {
+		params[i] = f.pop()
 	}
-	objectref := f.pop().(*j_object)
-	frame.storeVar(0, objectref) // this objectref
 
-	this.pushFrame(frame)
+	if method.isNative() {
+		this.invokeNativeMethod(method, params...)
+	} else {
+		frame := NewStackFrame(method)
+		// pass parameters
+		for j := 0; j < parameterCount; j++ {
+			frame.storeVar(uint(j), params[j])
+		}
+
+		this.pushFrame(frame)
+	}
+}
+
+func (this *Thread) invokeNativeMethod(method *Method, params ... t_any) (result []reflect.Value, err interface{}) {
+	if !method.isNative() {
+		fatal("Not a native method")
+	}
+	debug("🍺invoke native method %s#%s%s 😎\n", method.class.thisClassName, method.name, method.descriptor)
+	name := "Java_" + strings.Replace(method.class.thisClassName + "_" + method.name, "/", "_", -1)
+	funcs := NativeFunctions
+	if _, ok := funcs[name]; !ok {
+		err = errors.New(name + " does not exist.")
+		fatal( "%s does not exist.", name)
+		return
+	}
+	if len(params) != funcs[name].Type().NumIn() {
+		err = errors.New("The number of params is not adapted.")
+		fatal( "The number of params is not adapted.")
+		return
+	}
+	in := make([]reflect.Value, len(params))
+	for k, param := range params {
+		in[k] = reflect.ValueOf(param)
+	}
+	result = funcs[name].Call(in)
+	return
 }
 
 /*

@@ -1,6 +1,6 @@
 package gvm
 
-var coreClassPath = []string{"jdk", "/Users/Charvis/Dropbox/Projects/gvm-java/out/production/gvm-java"}
+var coreClassPath = []string{"jdk/classes", "/Users/Charvis/Dropbox/Projects/gvm-java/out/production/gvm-java"}
 var extClassPath  = []string{"ext"}
 var AppClasspath []string
 
