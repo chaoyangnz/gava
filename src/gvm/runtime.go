@@ -53,8 +53,8 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 	m := f.method
 	c := m.class
 
-	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
-	parameterCount := len(method.parameterDescriptors)
+	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method.resolve()
+	parameterCount := len(method.Type.parameterTypes)
 	params := make([]j_any, parameterCount)
 	// read parameters
 	for i := parameterCount-1; i >= 0; i-- {
@@ -63,7 +63,7 @@ func (this *Thread) invokeStaticMethod(index uint16) {
 
 	if method.isNative() {
 		result := this.invokeNativeMethod(method, params...)
-		if method.returnDescriptor != "V" {
+		if method.Type.returnType != VOID_TYPE {
 			f.push(result)
 		}
 	} else {
@@ -82,23 +82,22 @@ func (this *Thread) invokeVitrualMethod(index uint16) {
 	f := this.peekFrame()
 	m := f.method
 	c := m.class
-	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
+	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method.resolve()
 	if method.isStatic() {
 		fatal("Not an instance method")
 	}
-	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
+	parameterCount := len(method.Type.parameterTypes) + 1 // with an extra objectref: this
 	params := make([]j_any, parameterCount)
 	for i := parameterCount-1; i >= 0; i-- {
 		params[i] = f.pop()
 	}
 	// get objectref and target method
 	objectref := params[0].(*j_object)
-	overridenMethod := objectref.class.findMethod(method.name + method.descriptor)
-
+	overridenMethod := objectref.class.findMethod(method.name + method.descriptor).resolve()
 
 	if method.isNative() {
 		result := this.invokeNativeMethod(overridenMethod, params...)
-		if overridenMethod.returnDescriptor != "V" {
+		if overridenMethod.Type.returnType != VOID_TYPE {
 			f.push(result)
 		}
 	} else {
@@ -117,8 +116,8 @@ func (this *Thread) invokeSpecialMethod(index uint16)  {
 	f := this.peekFrame()
 	m := f.method
 	c := m.class
-	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method
-	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
+	method := c.constantPool[index].resolve().(*RuntimeConstantMethodrefInfo).method.resolve()
+	parameterCount := len(method.Type.parameterTypes) + 1 // with an extra objectref: this
 	params := make([]j_any, parameterCount)
 	for i := parameterCount-1; i >= 0; i-- {
 		params[i] = f.pop()
@@ -126,7 +125,7 @@ func (this *Thread) invokeSpecialMethod(index uint16)  {
 
 	if method.isNative() {
 		result := this.invokeNativeMethod(method, params...)
-		if method.returnDescriptor != "V" {
+		if method.Type.returnType != VOID_TYPE {
 			f.push(result)
 		}
 	} else {
@@ -168,8 +167,8 @@ func (this *Thread) invokeNativeMethod(method *Method, params ... j_any) j_any {
 Parameters are passed in a reversed order from operand stack in JVM
  */
 func (this *StackFrame) passParameters(callee *StackFrame)  {
-	method := callee.method
-	start := len(method.parameterDescriptors) - 1
+	method := callee.method.resolve()
+	start := len(method.Type.parameterTypes) - 1
 	end := 0
 	if !method.isStatic() {
 		start += 1

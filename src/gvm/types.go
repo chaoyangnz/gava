@@ -18,6 +18,7 @@ Type (interface)
 		|- *ClassType
 		|- *ArrayType
 	|- *VoidType
+	|- *FunctionType
  */
 
 // Singleton types
@@ -118,8 +119,8 @@ func ofType(signature string) Type {
 					break Arr
 				case JVM_SIGNATURE_CLASS:
 					for k := j+1; j < len(parametersSignature); k++ {
-						switch rune(parametersSignature[k]) {
-						case ';':
+						switch string(parametersSignature[k]) {
+						case JVM_SIGNATURE_ENDCLASS:
 							parametersSignatures = append(parametersSignatures, string(parametersSignature[i:k+1]))
 							i = k+1
 							break Arr
@@ -433,6 +434,15 @@ type Field struct {
 	for instance fields, it is the global index considering superclass hierarchy
 	 */
 	index           uint16
+	resolved        bool
+	Type            Type
+}
+
+func (this *Field) resolve() *Field {
+	if !this.resolved {
+		this.Type = ofType(this.descriptor)
+	}
+	return this
 }
 
 func (this *Field)defaultValue() j_any {
@@ -460,17 +470,25 @@ func (this *Field)isStatic() bool {
 }
 
 type Method struct {
-	class           *ClassType
-	accessFlags     uint16
-	name            string
-	descriptor      string
-	maxStack        uint16
-	maxLocals       uint16
-	code            []uint8               //u4 code_length
-	exceptions      []ExceptionTableEntry //u2 exception_table_length
-	localVariables  []LocalVariable
-	parameterDescriptors   []string
-	returnDescriptor    string
+	class            *ClassType
+	accessFlags      uint16
+	name             string
+	descriptor       string
+	maxStack         uint16
+	maxLocals        uint16
+	code             []uint8               //u4 code_length
+	exceptions       []ExceptionTableEntry //u2 exception_table_length
+	localVariables   []LocalVariable
+
+	resolved         bool
+	Type             *FunctionType
+}
+
+func (this *Method) resolve() *Method  {
+	if !this.resolved {
+		this.Type = ofType(this.descriptor).(*FunctionType)
+	}
+	return this
 }
 
 func (this *Method) isStatic() bool {
