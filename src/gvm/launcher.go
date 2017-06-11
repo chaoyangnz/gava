@@ -2,5 +2,6 @@ package gvm
 
 func Start(mainClassFile string)  {
 
-	run(bootstrapClassLoader.load(mainClassFile))
+	run(ofClassType(mainClassFile))
+	print(typeCache)
 }

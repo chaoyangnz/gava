@@ -160,8 +160,8 @@ func (this *ClassFile) cpUtf8(index u2) string  {
 //// FieldRef, MethodRef, InterfaceMethodRef
 //func (this *ClassFile) cpMemberRef(index u2) (string, string, string)  {
 //	memberRefInfo := this.constantPool[index].(*ConstantFieldrefInfo)
-//	name, descriptor := this.cpNameAndType(memberRefInfo.nameAndTypeIndex)
-//	return this.cpClass(memberRefInfo.classIndex), name, descriptor
+//	name, signature := this.cpNameAndType(memberRefInfo.nameAndTypeIndex)
+//	return this.cpClass(memberRefInfo.classIndex), name, signature
 //}
 //
 //
