@@ -31,8 +31,7 @@ type (
 	// these types are for vm internal use only
 	// basically they are mapped to 10 types mentioned in JVM specification
 	j_any interface {
-					isReference()   bool
-					defaultValue()  j_any
+					typeOf()        Type
 	}
 
 	j_byte          int8
@@ -45,9 +44,8 @@ type (
 	j_double        float64
 
 	j_reference     interface {
-					isReference() bool
-					defaultValue() j_any
-					isArray() bool
+					typeOf()         Type
+					isArray()        bool
 	}
 	j_object        struct {
 					//header part
@@ -68,113 +66,49 @@ type (
 	}
 )
 
-
-const (
-	boolean_true  = j_boolean(0x1)
-	boolean_false = j_boolean(0x0)
-
-	byte_default = j_byte(0)
-	short_default = j_short(0)
-	char_default = j_char(0)
-	int_default = j_int(0)
-	long_default = j_long(0)
-	float_default = j_float(0.0)
-	double_default = j_double(0.0)
-	boolean_default = boolean_false
-)
-var (
-	object_null = (*j_object)(nil)
-	array_null = (*j_array)(nil)
-
-	reference_default j_reference = nil
-	object_default    *j_object   = object_null
-	array_default     *j_array    = array_null
-)
-
-func (this j_byte) isReference() bool  {
-	return false
+func (this j_byte) typeOf() Type  {
+	return BYTE_TYPE
 }
 
-func (this j_byte) defaultValue() j_any {
-	return byte_default
+func (this j_short) typeOf() Type  {
+	return SHORT_TYPE
 }
 
-func (this j_short) isReference() bool  {
-	return false
+func (this j_char) typeOf() Type  {
+	return CHAR_TYPE
 }
 
-func (this j_short) defaultValue() j_any {
-	return short_default
+func (this j_int) typeOf() Type  {
+	return INT_TYPE
 }
 
-func (this j_char) isReference() bool  {
-	return false
+func (this j_long) typeOf() Type  {
+	return LONG_TYPE
 }
 
-func (this j_char) defaultValue() j_any {
-	return char_default
+func (this j_float) typeOf() Type  {
+	return FLOAT_TYPE
 }
 
-func (this j_int) isReference() bool  {
-	return false
+func (this j_double) typeOf() Type  {
+	return DOUBLE_TYPE
 }
 
-func (this j_int) defaultValue() j_any {
-	return int_default
-}
-
-func (this j_long) isReference() bool  {
-	return false
-}
-
-func (this j_long) defaultValue() j_any {
-	return long_default
-}
-
-func (this j_float) isReference() bool  {
-	return false
-}
-
-func (this j_float) defaultValue() j_any {
-	return float_default
-}
-
-func (this j_double) isReference() bool  {
-	return false
-}
-
-func (this j_double) defaultValue() j_any {
-	return double_default
-}
-
-func (this j_boolean) isReference() bool  {
-	return false
-}
-
-func (this j_boolean) defaultValue() j_any {
-	return boolean_default
+func (this j_boolean) typeOf() Type  {
+	return BOOLEAN_TYPE
 }
 
 
-
-func (this *j_object)isReference() bool  {
-	return true
-}
-
-func (this *j_object) defaultValue() j_any {
-	return (*j_object)(nil)
+func (this *j_object) typeOf() Type  {
+	return this.class
 }
 
 func (this *j_object)isArray() bool  {
 	return false
 }
 
-func (this *j_array)isReference() bool  {
-	return true
-}
-
-func (this *j_array) defaultValue() j_any {
-	return (*j_array)(nil)
+func (this *j_array) typeOf() Type  {
+	return &ArrayType{this.atype}
 }
 
 func (this *j_array)isArray() bool  {
@@ -292,7 +226,7 @@ type (
 )
 
 func newJavaLangString(str string) java_lang_string {
-	java_lang_string_Class := bootstrapClassLoader.load("java/lang/String")
+	java_lang_string_Class := ofClassType("java/lang/String")
 	object := java_lang_string_Class.newObject()
 	// convert a utf8 string to utf-16 using as Java String
 	chars := []j_char{}
@@ -343,6 +277,6 @@ func (this java_lang_string) toString() string  {
 }
 
 func newJavaLangClass() java_lang_class {
-	java_lang_class_Class := bootstrapClassLoader.load("java/lang/Class")
+	java_lang_class_Class := ofClassType("java/lang/Class")
 	return java_lang_class{java_lang_class_Class.newObject()}
 }

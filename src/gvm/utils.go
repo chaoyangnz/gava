@@ -1,8 +1,8 @@
 package gvm
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 )
 
 func u2b(u1s []u1) []uint8 {

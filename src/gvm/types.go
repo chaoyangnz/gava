@@ -1,42 +1,6 @@
 package gvm
 
-const (
-	METHOD_ACC_PUBLIC	    = 0x0001
-	METHOD_ACC_PRIVATE	    = 0x0002
-	METHOD_ACC_PROTECTED	= 0x0004
-	METHOD_ACC_STATIC	    = 0x0008
-	METHOD_ACC_FINAL	    = 0x0010
-	METHOD_ACC_SYNCHRONIZED	= 0x0020
-	METHOD_ACC_BRIDGE	    = 0x0040
-	METHOD_ACC_VARARGS	    = 0x0080
-	METHOD_ACC_NATIVE	    = 0x0100
-	METHOD_ACC_ABSTRACT 	= 0x0400
-	METHOD_ACC_STRICT	    = 0x0800
-	METHOD_ACC_SYNTHETIC	= 0x1000
-)
-
-const (
-	FIELD_ACC_PUBLIC	    = 0x0001
-	FIELD_ACC_PRIVATE	    = 0x0002
-	FIELD_ACC_PROTECTED	    = 0x0004
-	FIELD_ACC_STATIC	    = 0x0008
-	FIELD_ACC_FINAL	        = 0x0010
-	FIELD_ACC_VOLATILE	    = 0x0040
-	FIELD_ACC_TRANSIENT	    = 0x0080
-	FIELD_ACC_SYNTHETIC	    = 0x1000
-	FIELD_ACC_ENUM	        = 0x4000
-)
-
-const (
-	CLASS_ACC_PUBLIC	    = 0x0001
-	CLASS_ACC_FINAL	        = 0x0010
-	CLASS_ACC_SUPER	        = 0x0020
-	CLASS_ACC_INTERFACE	    = 0x0200
-	CLASS_ACC_ABSTRACT	    = 0x0400
-	CLASS_ACC_SYNTHETIC	    = 0x1000
-	CLASS_ACC_ANNOTATION	= 0x2000
-	CLASS_ACC_ENUM	        = 0x4000
-)
+import "strings"
 
 /**
 VM internal types:
@@ -50,22 +14,160 @@ Type (interface)
 	|- *FloatType
 	|- *DoubleType
 	|- *BooleanType
-	|- j_reference (interface)
+	|- ReferenceType (interface)
 		|- *ClassType
 		|- *ArrayType
-
+	|- *VoidType
  */
+
+// Singleton types
+var (
+	BYTE_TYPE = &ByteType{}
+	SHORT_TYPE = &ShortType{}
+	INT_TYPE = &IntType{}
+	CHAR_TYPE = &CharType{}
+	LONG_TYPE = &LongType{}
+	FLOAT_TYPE = &FloatType{}
+	DOUBLE_TYPE = &DoubleType{}
+	BOOLEAN_TYPE = &BooleanType{}
+
+	VOID_TYPE = &VoidType{}
+)
+
+const (
+	boolean_true  = j_boolean(0x1)
+	boolean_false = j_boolean(0x0)
+
+	byte_default = j_byte(0)
+	short_default = j_short(0)
+	char_default = j_char(0)
+	int_default = j_int(0)
+	long_default = j_long(0)
+	float_default = j_float(0.0)
+	double_default = j_double(0.0)
+	boolean_default = boolean_false
+)
+var (
+	object_null = (*j_object)(nil)
+	array_null = (*j_array)(nil)
+
+	reference_default j_reference = nil
+	object_default    *j_object   = object_null
+	array_default     *j_array    = array_null
+)
 
 type Type interface {
 	isReferenceType() bool
-	descriptor()  string
-	isElementType() bool // as final component
+	defaultValue()    j_any
+	signature()  string
+	isElementType() bool // as final component in array
+}
+
+func ofType(signature string) Type {
+	t, found := typeCache[signature]
+	if found {
+		return t
+	}
+	switch string(signature[0]) {
+	case JVM_SIGNATURE_BYTE:    t = BYTE_TYPE //byte
+	case JVM_SIGNATURE_CHAR:    t = CHAR_TYPE //char
+	case JVM_SIGNATURE_DOUBLE:  t = DOUBLE_TYPE //double
+	case JVM_SIGNATURE_FLOAT:   t = FLOAT_TYPE //float
+	case JVM_SIGNATURE_INT:     t = INT_TYPE //int
+	case JVM_SIGNATURE_LONG:    t = LONG_TYPE //long
+	case JVM_SIGNATURE_SHORT:   t = SHORT_TYPE //short
+	case JVM_SIGNATURE_BOOLEAN: t = BOOLEAN_TYPE //boolean
+
+	case JVM_SIGNATURE_VOID:    t = VOID_TYPE // void
+
+	case JVM_SIGNATURE_CLASS:   t = bootstrapClassLoader.load(signatureToClassName(signature)) //class
+	case JVM_SIGNATURE_ARRAY:   t = &ArrayType{ofType(signature[1:])} //array
+
+	case JVM_SIGNATURE_FUNC:    {
+		arr := strings.Split(signature[1:], JVM_SIGNATURE_ENDFUNC)
+		parametersSignature := arr[0]
+		returnSignature := arr[1]
+
+		var parametersSignatures []string
+
+		for i := 0; i < len(parametersSignature); {
+			ch := string(parametersSignature[i])
+			switch ch {
+			case JVM_SIGNATURE_BYTE, JVM_SIGNATURE_CHAR,  JVM_SIGNATURE_SHORT, JVM_SIGNATURE_INT,
+				 JVM_SIGNATURE_LONG, JVM_SIGNATURE_FLOAT, JVM_SIGNATURE_DOUBLE, JVM_SIGNATURE_BOOLEAN:
+				parametersSignatures = append(parametersSignatures, string(ch))
+				i++
+			case JVM_SIGNATURE_CLASS:
+			Ref: for j := i+1; j < len(parametersSignature); j++ {
+				switch string(parametersSignature[j]) {
+				case JVM_SIGNATURE_ENDCLASS:
+					parametersSignatures = append(parametersSignatures, string(parametersSignature[i:j+1]))
+					i = j+1
+					break Ref
+				}
+			}
+			case JVM_SIGNATURE_ARRAY:
+			Arr: for j := i+1; j < len(parametersSignature); j++ {
+				switch string(parametersSignature[j]) {
+				case JVM_SIGNATURE_ARRAY:
+					continue
+				case JVM_SIGNATURE_BYTE, JVM_SIGNATURE_CHAR,  JVM_SIGNATURE_SHORT, JVM_SIGNATURE_INT,
+					 JVM_SIGNATURE_LONG, JVM_SIGNATURE_FLOAT, JVM_SIGNATURE_DOUBLE, JVM_SIGNATURE_BOOLEAN:
+					parametersSignatures = append(parametersSignatures, string(parametersSignature[i:j+1]))
+					i = j+1
+					break Arr
+				case JVM_SIGNATURE_CLASS:
+					for k := j+1; j < len(parametersSignature); k++ {
+						switch rune(parametersSignature[k]) {
+						case ';':
+							parametersSignatures = append(parametersSignatures, string(parametersSignature[i:k+1]))
+							i = k+1
+							break Arr
+						}
+					}
+				}
+			}
+			}
+		}
+
+		parameterTypes := make([]Type, len(parametersSignatures))
+		for i, parameterSignature := range parametersSignatures {
+			parameterTypes[i] = ofType(parameterSignature)
+		}
+		returnType := ofType(returnSignature)
+		t = &FunctionType{parameterTypes, returnType}
+	}
+	default:
+		fatal("Not a valid vm type signature")
+	}
+	typeCache[signature] = t
+	return t
+}
+
+func ofClassType(className string) *ClassType {
+	return ofType(classNameToSignature(className)).(*ClassType)
+}
+
+func ofArrayType(signature string) *ArrayType  {
+	return ofType(signature).(*ArrayType)
+}
+
+func classNameToSignature(className string) string {
+	return JVM_SIGNATURE_CLASS + className + JVM_SIGNATURE_ENDCLASS;
+}
+
+func signatureToClassName(signature string) string  {
+	if string(signature[0]) != JVM_SIGNATURE_CLASS || string(signature[len(signature)-1]) != JVM_SIGNATURE_ENDCLASS {
+		fatal("Not a class signature")
+	}
+	return signature[1:len(signature)-1]
 }
 
 type ReferenceType interface {
 	isReferenceType() bool
-	descriptor()  string
+	signature()  string
 	isElementType() bool
+	defaultValue()    j_any
 
 	isArrayType() bool
 }
@@ -78,8 +180,8 @@ func (this *ArrayType) isElementType() bool {
 	return false
 }
 
-func (this *ArrayType) descriptor() string {
-	return "[" + this.componentType.descriptor()
+func (this *ArrayType) signature() string {
+	return JVM_SIGNATURE_ARRAY + this.componentType.signature()
 }
 
 func (this *ArrayType) isReferenceType() bool {
@@ -88,6 +190,10 @@ func (this *ArrayType) isReferenceType() bool {
 
 func (this *ArrayType) isArrayType() bool {
 	return true
+}
+
+func (this *ArrayType) defaultValue() j_any {
+	return array_default
 }
 
 type (
@@ -99,115 +205,181 @@ type (
 	FloatType struct {}
 	DoubleType struct {}
 	BooleanType struct {}
-)
 
-// Singleton types
-var (
-	BYTE_TYPE = &ByteType{}
-	SHORT_TYPE = &ShortType{}
-	INT_TYPE = &IntType{}
-	CHAR_TYPE = &CharType{}
-	LONG_TYPE = &LongType{}
-	FLOAT_TYPE = &FloatType{}
-	DOUBLE_TYPE = &DoubleType{}
-	BOOLEAN_TYPE = &BooleanType{}
+	VoidType struct {}
 )
 
 func (this *ByteType) isElementType() bool {
 	return true
 }
 
-func (this *ByteType) descriptor() string {
-	return "B"
+func (this *ByteType) signature() string {
+	return JVM_SIGNATURE_BYTE
 }
 
 func (this *ByteType) isReferenceType() bool {
 	return false
 }
 
+func (this *ByteType) defaultValue() j_any {
+	return byte_default
+}
+
 func (this *ShortType) isElementType() bool {
 	return true
 }
 
-func (this *ShortType) descriptor() string {
-	return "S"
+func (this *ShortType) signature() string {
+	return JVM_SIGNATURE_SHORT
 }
 
 func (this *ShortType) isReferenceType() bool {
 	return false
 }
 
+func (this *ShortType) defaultValue() j_any {
+	return short_default
+}
+
 func (this *CharType) isElementType() bool {
 	return true
 }
 
-func (this *CharType) descriptor() string {
-	return "C"
+func (this *CharType) signature() string {
+	return JVM_SIGNATURE_CHAR
 }
 
 func (this *CharType) isReferenceType() bool {
 	return false
 }
 
+func (this *CharType) defaultValue() j_any {
+	return char_default
+}
+
 func (this *IntType) isElementType() bool {
 	return true
 }
 
-func (this *IntType) descriptor() string {
-	return "I"
+func (this *IntType) signature() string {
+	return JVM_SIGNATURE_INT
 }
 
 func (this *IntType) isReferenceType() bool {
 	return false
 }
 
+func (this *IntType) defaultValue() j_any {
+	return int_default
+}
+
 func (this *LongType) isElementType() bool {
 	return true
 }
 
-func (this *LongType) descriptor() string {
-	return "J"
+func (this *LongType) signature() string {
+	return JVM_SIGNATURE_LONG
 }
 
 func (this *LongType) isReferenceType() bool {
 	return false
 }
 
+func (this *LongType) defaultValue() j_any {
+	return long_default
+}
+
 func (this *FloatType) isElementType() bool {
 	return true
 }
 
-func (this *FloatType) descriptor() string {
-	return "F"
+func (this *FloatType) signature() string {
+	return JVM_SIGNATURE_FLOAT
 }
 
 func (this *FloatType) isReferenceType() bool {
 	return false
 }
 
+func (this *FloatType) defaultValue() j_any {
+	return float_default
+}
+
 func (this *DoubleType) isElementType() bool {
 	return true
 }
 
-func (this *DoubleType) descriptor() string {
-	return "D"
+func (this *DoubleType) signature() string {
+	return JVM_SIGNATURE_DOUBLE
 }
 
 func (this *DoubleType) isReferenceType() bool {
 	return false
 }
 
+func (this *DoubleType) defaultValue() j_any {
+	return double_default
+}
+
 func (this *BooleanType) isElementType() bool {
 	return true
 }
 
-func (this *BooleanType) descriptor() string {
-	return "Z"
+func (this *BooleanType) signature() string {
+	return JVM_SIGNATURE_BOOLEAN
 }
 
 func (this *BooleanType) isReferenceType() bool {
 	return false
 }
+
+func (this *BooleanType) defaultValue() j_any {
+	return boolean_default
+}
+
+func (this *VoidType) isElementType() bool {
+	return false
+}
+
+func (this *VoidType) signature() string {
+	return JVM_SIGNATURE_VOID
+}
+
+func (this *VoidType) isReferenceType() bool {
+	return false
+}
+
+func (this *VoidType) defaultValue() j_any {
+	fatal("Void type has no default value")
+	return nil
+}
+
+type FunctionType struct {
+	parameterTypes  []Type
+	returnType      Type
+}
+
+func (this *FunctionType) isElementType() bool {
+	return false
+}
+
+func (this *FunctionType) signature() string {
+	parameterSignatures := make([]string, len(this.parameterTypes))
+	for i, parameterType := range this.parameterTypes {
+		parameterSignatures[i] = parameterType.signature()
+	}
+	return JVM_SIGNATURE_FUNC + strings.Join(parameterSignatures, ",") + JVM_SIGNATURE_ENDFUNC
+}
+
+func (this *FunctionType) isReferenceType() bool {
+	return false
+}
+
+func (this *FunctionType) defaultValue() j_any {
+	fatal("Void type has no default value")
+	return nil
+}
+
 
 type ClassType struct {
 	constantPool    []RuntimeConstantPoolInfo
@@ -235,8 +407,8 @@ func (this *ClassType) isElementType() bool {
 	return true
 }
 
-func (this *ClassType) descriptor() string {
-	return this.thisClassName
+func (this *ClassType) signature() string {
+	return classNameToSignature(this.thisClassName)
 }
 
 func (this *ClassType) isReferenceType() bool {
@@ -245,6 +417,10 @@ func (this *ClassType) isReferenceType() bool {
 
 func (this *ClassType) isArrayType() bool {
 	return false
+}
+
+func (this *ClassType) defaultValue() j_any {
+	return object_default
 }
 
 type Field struct {
@@ -317,7 +493,7 @@ type LocalVariable struct {
 //func (this *Method) localVariablesSize() uint {
 //	sum := uint(0)
 //	for i := 0; i < len(this.localVariables); i++ {
-//		switch this.localVariables[i].descriptor[:1] {
+//		switch this.localVariables[i].signature[:1] {
 //		case "B": sum += 1 //byte
 //		case "C": sum += 2 //char
 //		case "D": sum += 8 //double

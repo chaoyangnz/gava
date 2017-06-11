@@ -2,10 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0f2845ad-adb0-4387-a406-e2ef1b23a59d" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/gvm/classfile_constants.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" afterPath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/GVM.go" afterPath="$PROJECT_DIR$/src/gvm/GVM.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/jdk.go" afterPath="$PROJECT_DIR$/src/gvm/jdk.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/runtime.go" afterPath="$PROJECT_DIR$/src/gvm/runtime.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_file.go" afterPath="$PROJECT_DIR$/src/gvm/class_file.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_loader.go" afterPath="$PROJECT_DIR$/src/gvm/class_loader.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/interpreter.go" afterPath="$PROJECT_DIR$/src/gvm/interpreter.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/launcher.go" afterPath="$PROJECT_DIR$/src/gvm/launcher.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/oops.go" afterPath="$PROJECT_DIR$/src/gvm/oops.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/types.go" afterPath="$PROJECT_DIR$/src/gvm/types.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/types_rcp.go" afterPath="$PROJECT_DIR$/src/gvm/types_rcp.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/universe.go" afterPath="$PROJECT_DIR$/src/gvm/universe.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -17,23 +24,11 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="jdk.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go">
+      <file leaf-file-name="types.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="22" column="23" lean-forward="false" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
-              <folding>
-                <element signature="e#13#44#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GVM.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/gvm/GVM.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="12" column="1" lean-forward="true" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+            <state relative-caret-position="417">
+              <caret line="130" column="9" lean-forward="false" selection-start-line="130" selection-start-column="9" selection-end-line="130" selection-end-column="9" />
               <folding>
                 <element signature="e#13#29#0" expanded="true" />
               </folding>
@@ -41,23 +36,49 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="runtime.go" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
+      <file leaf-file-name="utils.go" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/gvm/utils.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="402">
-              <caret line="57" column="37" lean-forward="true" selection-start-line="57" selection-start-column="37" selection-end-line="57" selection-end-column="37" />
+            <state relative-caret-position="147">
+              <caret line="82" column="3" lean-forward="true" selection-start-line="36" selection-start-column="2" selection-end-line="82" selection-end-column="3" />
               <folding>
-                <element signature="e#13#45#0" expanded="true" />
+                <marker date="1497150630000" expanded="false" signature="660:1853" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="834:1809" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="883:1804" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="933:1001" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1015:1241" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1067:1241" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="1104:1235" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="1120:1228" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1255:1798" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1307:1798" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="1344:1792" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="1360:1375" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1425:1533" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1548:1785" ph="..." />
+                <marker date="1497150630000" expanded="true" signature="1597:1785" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="1636:1777" ph="{...}" />
+                <marker date="1497150630000" expanded="true" signature="1654:1768" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="value.go" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/reflect/value.go">
+      <file leaf-file-name="universe.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gvm/universe.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-107">
-              <caret line="54" column="65" lean-forward="true" selection-start-line="54" selection-start-column="65" selection-end-line="54" selection-end-column="65" />
+            <state relative-caret-position="255">
+              <caret line="17" column="19" lean-forward="false" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="classfile_constants.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/gvm/classfile_constants.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2190">
+              <caret line="146" column="33" lean-forward="false" selection-start-line="146" selection-start-column="33" selection-end-line="146" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -76,7 +97,22 @@
     <findStrings>
       <find>invoke</find>
       <find>native</find>
+      <find>\</find>
+      <find>resolveArray</find>
+      <find>(\d),</find>
+      <find>, \d,</find>
+      <find>cache</find>
+      <find>resolve</find>
+      <find>java/lang</find>
+      <find>descriptor()</find>
+      <find>'</find>
     </findStrings>
+    <replaceStrings>
+      <replace>$1</replace>
+      <replace>,</replace>
+      <replace>signature()</replace>
+      <replace>&quot;</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -89,10 +125,18 @@
         <option value="$PROJECT_DIR$/src/gvm/gni.go" />
         <option value="$PROJECT_DIR$/src/jdk/native/GVM.go" />
         <option value="$PROJECT_DIR$/src/jdk/jdk.go" />
-        <option value="$PROJECT_DIR$/src/gvm/universe.go" />
-        <option value="$PROJECT_DIR$/src/gvm/GVM.go" />
         <option value="$PROJECT_DIR$/src/gvm/jdk.go" />
         <option value="$PROJECT_DIR$/src/gvm/runtime.go" />
+        <option value="$PROJECT_DIR$/src/gvm/GVM.go" />
+        <option value="$PROJECT_DIR$/src/gvm/interpreter.go" />
+        <option value="$PROJECT_DIR$/src/gvm/types_rcp.go" />
+        <option value="$PROJECT_DIR$/src/gvm/oops.go" />
+        <option value="$PROJECT_DIR$/src/gvm/launcher.go" />
+        <option value="$PROJECT_DIR$/src/gvm/class_loader.go" />
+        <option value="$PROJECT_DIR$/src/gvm/classfile_constants.go" />
+        <option value="$PROJECT_DIR$/src/gvm/universe.go" />
+        <option value="$PROJECT_DIR$/src/gvm/types.go" />
+        <option value="$PROJECT_DIR$/src/gvm/utils.go" />
       </list>
     </option>
   </component>
@@ -117,8 +161,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -165,6 +207,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -268,23 +312,24 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="819" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25679544" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2639485" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21320495" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.54332876" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35350758" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.328594" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -295,36 +340,79 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/gvm/runtime.go</url>
-          <line>143</line>
-          <properties />
-          <option name="timeStamp" value="1" />
+          <url>file://$PROJECT_DIR$/src/gvm/launcher.go</url>
+          <line>6</line>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/gvm/runtime.go</url>
-          <line>153</line>
-          <properties />
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/gvm/runtime.go</url>
-          <line>64</line>
-          <properties />
-          <option name="timeStamp" value="3" />
+          <url>file://$PROJECT_DIR$/src/gvm/types_rcp.go</url>
+          <line>37</line>
+          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="4" />
+      <option name="time" value="15" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13#44#0" expanded="true" />
+            <element signature="e#13#29#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/universe.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="19" lean-forward="false" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/classfile_constants.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2190">
+          <caret line="146" column="33" lean-forward="false" selection-start-line="146" selection-start-column="33" selection-end-line="146" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="915">
+          <caret line="61" column="0" lean-forward="false" selection-start-line="61" selection-start-column="0" selection-end-line="63" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3195">
+          <caret line="213" column="33" lean-forward="false" selection-start-line="213" selection-start-column="33" selection-end-line="213" selection-end-column="33" />
+          <folding>
+            <element signature="e#13#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="885">
+          <caret line="59" column="64" lean-forward="false" selection-start-line="59" selection-start-column="64" selection-end-line="59" selection-end-column="64" />
+          <folding>
+            <element signature="e#13#29#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -332,9 +420,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="53" lean-forward="false" selection-start-line="2" selection-start-column="53" selection-end-line="2" selection-end-column="53" />
-          <folding>
-            <element signature="e#13#29#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -352,6 +437,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="e#14#50#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -373,6 +461,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="17" column="0" lean-forward="false" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding>
+            <element signature="e#14#50#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -383,18 +474,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="204" column="54" lean-forward="false" selection-start-line="204" selection-start-column="54" selection-end-line="204" selection-end-column="54" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_references.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="155">
           <caret line="47" column="19" lean-forward="false" selection-start-line="47" selection-start-column="19" selection-end-line="47" selection-end-column="19" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -402,36 +486,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="689" column="5" lean-forward="false" selection-start-line="689" selection-start-column="5" selection-end-line="689" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/utils.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="310">
-          <caret line="139" column="0" lean-forward="false" selection-start-line="139" selection-start-column="0" selection-end-line="139" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/class_loader.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="555">
-          <caret line="39" column="0" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/universe.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="30" lean-forward="false" selection-start-line="2" selection-start-column="30" selection-end-line="2" selection-end-column="30" />
         </state>
       </provider>
     </entry>
@@ -439,7 +493,20 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3735">
           <caret line="249" column="5" lean-forward="false" selection-start-line="249" selection-start-column="5" selection-end-line="249" selection-end-column="5" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/reflect/value.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-107">
+          <caret line="54" column="65" lean-forward="true" selection-start-line="54" selection-start-column="65" selection-end-line="54" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="1" lean-forward="true" selection-start-line="23" selection-start-column="1" selection-end-line="23" selection-end-column="1" />
         </state>
       </provider>
     </entry>
@@ -451,48 +518,133 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/reflect/value.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/GVM.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-107">
-          <caret line="54" column="65" lean-forward="true" selection-start-line="54" selection-start-column="65" selection-end-line="54" selection-end-column="65" />
+        <state relative-caret-position="180">
+          <caret line="12" column="1" lean-forward="true" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2358">
+          <caret line="10" column="33" lean-forward="false" selection-start-line="10" selection-start-column="33" selection-end-line="10" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/oops.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="172">
+          <caret line="228" column="61" lean-forward="false" selection-start-line="228" selection-start-column="61" selection-end-line="228" selection-end-column="61" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="143" column="0" lean-forward="false" selection-start-line="143" selection-start-column="0" selection-end-line="143" selection-end-column="0" />
+          <folding>
+            <element signature="e#13#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/launcher.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="0" lean-forward="true" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-236">
+          <caret line="61" column="0" lean-forward="false" selection-start-line="61" selection-start-column="0" selection-end-line="63" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/runtime/panic.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="567" column="0" lean-forward="false" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/types_rcp.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="4" lean-forward="false" selection-start-line="9" selection-start-column="4" selection-end-line="9" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/fmt/print.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="193" column="0" lean-forward="false" selection-start-line="193" selection-start-column="0" selection-end-line="193" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_loader.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="287">
+          <caret line="80" column="49" lean-forward="true" selection-start-line="80" selection-start-column="49" selection-end-line="80" selection-end-column="49" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/classfile_constants.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2190">
+          <caret line="146" column="33" lean-forward="false" selection-start-line="146" selection-start-column="33" selection-end-line="146" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/universe.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="19" lean-forward="false" selection-start-line="17" selection-start-column="19" selection-end-line="17" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="296" column="4" lean-forward="false" selection-start-line="296" selection-start-column="4" selection-end-line="296" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/GVM.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="1" lean-forward="true" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+        <state relative-caret-position="417">
+          <caret line="130" column="9" lean-forward="false" selection-start-line="130" selection-start-column="9" selection-end-line="130" selection-end-column="9" />
           <folding>
             <element signature="e#13#29#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/utils.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="22" column="23" lean-forward="false" selection-start-line="22" selection-start-column="23" selection-end-line="22" selection-end-column="23" />
+        <state relative-caret-position="147">
+          <caret line="82" column="3" lean-forward="true" selection-start-line="36" selection-start-column="2" selection-end-line="82" selection-end-column="3" />
           <folding>
-            <element signature="e#13#44#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="57" column="37" lean-forward="true" selection-start-line="57" selection-start-column="37" selection-end-line="57" selection-end-column="37" />
-          <folding>
-            <element signature="e#13#45#0" expanded="true" />
+            <marker date="1497150630000" expanded="false" signature="660:1853" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="834:1809" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="883:1804" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="933:1001" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1015:1241" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1067:1241" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="1104:1235" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="1120:1228" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1255:1798" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1307:1798" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="1344:1792" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="1360:1375" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1425:1533" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1548:1785" ph="..." />
+            <marker date="1497150630000" expanded="true" signature="1597:1785" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="1636:1777" ph="{...}" />
+            <marker date="1497150630000" expanded="true" signature="1654:1768" ph="..." />
           </folding>
         </state>
       </provider>

@@ -18,10 +18,11 @@ func __times(t int, str string) string {
 }
 
 func loadClass(classpath []string, classname string) *ClassType {
-	clazz, found := classCache[classname]
-	if found {
-		return clazz
-	}
+	//signature := classNameToSignature(classname)
+	//classType, found := typeCache[signature]
+	//if found {
+	//	return classType.(*ClassType)
+	//}
 	__indention++
 	trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
 	//pushTrace(ClassLoadTrace{'S', classname})
@@ -44,7 +45,7 @@ func loadClass(classpath []string, classname string) *ClassType {
 	classfile := classreader.Read()
 
 	// create java class
-	clazz = &ClassType{}
+	clazz := &ClassType{}
 	// start loading
 	clazz.constantPool = make([]RuntimeConstantPoolInfo, classfile.constantPoolCount)
 	for i := u2(1); i < classfile.constantPoolCount; i++ {
@@ -62,7 +63,7 @@ func loadClass(classpath []string, classname string) *ClassType {
 	// resolve this class
 	clazz.thisClass = uint16(classfile.thisClass)
 	clazz.thisClassName = classfile.cpUtf8(classfile.constantPool[classfile.thisClass].(*ConstantClassInfo).nameIndex)
-	classCache[clazz.thisClassName] = clazz // immediately put into class cache to prevent forever loop
+	typeCache[clazz.signature()] = clazz // immediately put into class cache to prevent forever loop
 	clazz.constantPool[clazz.thisClass].resolve()
 
 	// resolve super class
@@ -80,24 +81,24 @@ func loadClass(classpath []string, classname string) *ClassType {
 	if clazz.superClass == 0 { // jdk/lang/Object
 		clazz.instanceFieldsStart = 0
 	} else {
-		superClass := clazz.constantPool[clazz.superClass].(*RuntimeConstantClassInfo).referenceType.(*ClassType)
+		superClass := clazz.constantPool[clazz.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType)
 		clazz.instanceFieldsStart = superClass.instanceFieldsStart + uint16(len(superClass.instanceFileds))
 	}
 	for i := 0; i < len(classfile.fields); i++ {
 		fieldInfo := classfile.fields[i]
-		javaFiled := &Field{class: clazz,
+		javaField := &Field{class: clazz,
 			accessFlags:           uint16(fieldInfo.accessFlags),
 			name:                  classfile.cpUtf8(fieldInfo.nameIndex),
 			descriptor:            classfile.cpUtf8(fieldInfo.descriptorIndex)}
-		clazz.fields[i] = javaFiled
-		clazz.fieldsMap[javaFiled.name + javaFiled.descriptor] = javaFiled
-		if javaFiled.isStatic() {
-			javaFiled.index = maxStaticFieldIndex
-			clazz.staticFields = append(clazz.staticFields, javaFiled.defaultValue()) // initialize static variables to default values
+		clazz.fields[i] = javaField
+		clazz.fieldsMap[javaField.name + javaField.descriptor] = javaField
+		if javaField.isStatic() {
+			javaField.index = maxStaticFieldIndex
+			clazz.staticFields = append(clazz.staticFields, javaField.defaultValue()) // initialize static variables to default values
 			maxStaticFieldIndex++
 		} else {
-			javaFiled.index = maxInstanceFieldIndex + clazz.instanceFieldsStart
-			clazz.instanceFileds = append(clazz.instanceFileds, javaFiled)
+			javaField.index = maxInstanceFieldIndex + clazz.instanceFieldsStart
+			clazz.instanceFileds = append(clazz.instanceFileds, javaField)
 			maxInstanceFieldIndex++
 		}
 	}
@@ -155,6 +156,9 @@ func loadClass(classpath []string, classname string) *ClassType {
 
 type BootstrapClassLoader struct {}
 
+/**
+this method should only be called by ofClassType(className)
+ */
 func (this *BootstrapClassLoader) load(classname string) *ClassType {
 	class := loadClass(coreClassPath, classname)
 	class.classLoader = java_lang_classloader{object_null} // nil for bootstrap loader
