@@ -113,7 +113,7 @@ func loadClass(classpath []string, classname string) *ClassType {
 			name:                    classfile.cpUtf8(methodInfo.nameIndex),
 			descriptor:              classfile.cpUtf8(methodInfo.descriptorIndex)}
 
-		javaMethod.parameterDescriptors, javaMethod.returnDescriptor = parametersAndReturn(javaMethod.descriptor)
+		//javaMethod.parameterTypes, javaMethod.returnDescriptor = parametersAndReturn(javaMethod.descriptor)
 		for j := u2(0); j < methodInfo.attributeCount; j++ {
 			attributeInfo := methodInfo.attributes[j]
 			switch attributeInfo.(type) {
