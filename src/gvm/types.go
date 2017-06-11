@@ -555,18 +555,35 @@ func (this *ClassType) newObject() *j_object {
 All fields: static, instance, if not found, find its superclass and upper
  */
 func (this *ClassType) findField(signature string) *Field {
-	field, found :=  this.fieldsMap[signature]
-	if !found {
-		field = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType).findField(signature)
+	class := this
+	for ;; {
+		field, found := class.fieldsMap[signature]
+		if found {
+			return field
+		} else if class.superClass == 0 {
+			fatal("Cannot find a field %s in %s", signature, this.thisClassName)
+			break
+		} else {
+			class = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType)
+		}
 	}
-	return field
+	return nil
 }
 
 
 func (this *ClassType) findMethod(signature string) *Method {
-	method, found := this.methodsMap[signature]
-	if !found {
-		method = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType).findMethod(signature)
+	class := this
+	for ;; {
+		method, found := class.methodsMap[signature]
+		if found {
+			return method
+		} else if class.superClass == 0 {
+			fatal("Cannot find a method %s in %s", signature, this.thisClassName)
+			break
+		} else {
+			class = this.constantPool[this.superClass].resolve().(*RuntimeConstantClassInfo).referenceType.(*ClassType)
+		}
 	}
-	return method
+
+	return nil
 }

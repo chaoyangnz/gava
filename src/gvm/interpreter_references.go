@@ -6,7 +6,7 @@ import "fmt"
 func GETSTATIC(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) {
 	index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
 	field := c.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field
-	f.push(c.staticFields[field.index])
+	f.push(field.class.staticFields[field.index])
 }
 
 /*179 (0XB3)*/
@@ -14,7 +14,7 @@ func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *ClassType, m *Method) 
 	index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
 	value := f.pop()
 	field := c.constantPool[index].resolve().(*RuntimeConstantFieldrefInfo).field
-	c.staticFields[field.index] = value
+	field.class.staticFields[field.index] = value
 }
 
 /*180 (0XB4)*/

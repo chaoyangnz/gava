@@ -93,6 +93,9 @@ func (this *Thread) invokeVitrualMethod(index uint16) {
 	}
 	// get objectref and target method
 	objectref := params[0].(*j_object)
+	if objectref == object_null {
+		fatal("NullPointerException")
+	}
 	overridenMethod := objectref.class.findMethod(method.name + method.descriptor).resolve()
 
 	if method.isNative() {
