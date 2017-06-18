@@ -163,15 +163,15 @@ func (this *Class) Initialize() []*Method {
 		return methods
 	}
 
-	class := this
-	for class != nil {
-		clinit := class.GetMethod("<clinit>", "()V")
-		if clinit != nil {
-			methods = append(methods, clinit)
-		}
-		class.initialized = true
+	clinit := this.GetMethod("<clinit>", "()V")
+	if clinit != nil {
+		methods = append(methods, clinit)
+	}
 
-		class = class.superClass
+	this.initialized = true
+
+	if this.superClass != nil {
+		methods = append(methods, this.superClass.Initialize()...)
 	}
 
 	return methods
@@ -183,9 +183,20 @@ func (this *Class) NewObject() jobject {
 	object := &Object{class: this}
 	object.instanceVars = make([]Value, this.maxInstanceVars)
 	// Initialize instance variables
-	for _, field := range this.fields {
-		if !field.isStatic() {
-			object.instanceVars[field.index] = field.defaultValue()
+	class := this
+	for class != nil {
+		for _, field := range class.fields {
+			if !field.isStatic() {
+				object.instanceVars[field.index] = field.defaultValue()
+			}
+		}
+		class = class.superClass
+	}
+
+	// verify initialization
+	for _, instanceVar := range object.instanceVars {
+		if instanceVar == nil {
+			Fatal("Something wrong, unfinished instance variable initialization")
 		}
 	}
 
@@ -255,7 +266,7 @@ func (this *ArrayClass) NewArray(length jint) jarray {
 		case *Long:       elements[i] = jlong(0)
 		case *Float:      elements[i] = jfloat(0.0)
 		case *Double:     elements[i] = jlong(0.0)
-		case *Boolean:    elements[i] = jboolean(0)
+		case *Boolean:    elements[i] = FALSE
 		case *Class:      elements[i] = NULL_OBJECT
 		case *ArrayClass: elements[i] = NULL_ARRAY
 		default:
@@ -300,7 +311,7 @@ func  (this *Field) defaultValue() Value {
 	case JVM_SIGNATURE_LONG: t = jlong(0)
 	case JVM_SIGNATURE_FLOAT: t = jfloat(0.0)
 	case JVM_SIGNATURE_DOUBLE: t = jdouble(0.0)
-	case JVM_SIGNATURE_BOOLEAN: t = jboolean(0)
+	case JVM_SIGNATURE_BOOLEAN: t = FALSE
 	case JVM_SIGNATURE_CLASS: t = NULL_OBJECT
 	case JVM_SIGNATURE_ARRAY: t = NULL_ARRAY
 	default:

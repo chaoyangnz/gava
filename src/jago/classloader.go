@@ -60,8 +60,10 @@ func (this *ClassLoader) createArrayClass(className string) *ArrayClass {
 	this.classCache[className] = arrayClass
 
 	arrayClass.accessFlags = 0
-	arrayClass.superClass = BOOTSTRAP_CLASSLOADER.loadClass("java/lang/Object")
-	arrayClass.interfaces = []*Class{BOOTSTRAP_CLASSLOADER.loadClass("java/io/Serializable"), BOOTSTRAP_CLASSLOADER.loadClass("java/lang/Cloneable")}
+	arrayClass.superClass = BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Object").(*Class)
+	arrayClass.interfaces = []*Class{
+		BOOTSTRAP_CLASSLOADER.CreateClass("java/io/Serializable").(*Class),
+		BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Cloneable").(*Class)}
 
 	componentDescriptor := string(className[1])
 	switch componentDescriptor {
@@ -107,12 +109,12 @@ func (this *ClassLoader) createArrayClass(className string) *ArrayClass {
 		}
 	case JVM_SIGNATURE_CLASS:
 		{
-			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.loadClass(className[2:len(className)-1])
+			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[2:len(className)-1])
 			arrayClass.elementType = arrayClass.componentType
 		}
 	case JVM_SIGNATURE_ARRAY:
 		{
-			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.loadClass(className[1:])
+			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[1:])
 			arrayClass.elementType = arrayClass.componentType.(*ArrayClass).elementType
 		}
 	}

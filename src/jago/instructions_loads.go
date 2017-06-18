@@ -140,7 +140,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 func IALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != INT_TYPE {
@@ -153,7 +153,7 @@ func IALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func LALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != LONG_TYPE {
@@ -166,7 +166,7 @@ func LALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func FALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != FLOAT_TYPE {
@@ -179,7 +179,7 @@ func FALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func DALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != DOUBLE_TYPE {
@@ -192,7 +192,7 @@ func DALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func AALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	_, ok := arrayref.class.componentType.(ClassType)
@@ -206,7 +206,7 @@ func AALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func BALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != BOOLEAN_TYPE {
@@ -219,7 +219,7 @@ func BALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func CALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != CHAR_TYPE {
@@ -232,7 +232,7 @@ func CALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func SALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.pop().(jint)
 	arrayref := f.pop().(jarray)
-	if arrayref.isNull() {
+	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != SHORT_TYPE {

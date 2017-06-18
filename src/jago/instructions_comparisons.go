@@ -1,6 +1,9 @@
 package jago
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 /*148 (0X94)*/
 func LCMP(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
@@ -9,13 +12,34 @@ func LCMP(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*149 (0X95)*/
 func FCMPL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value2 := f.pop().(jfloat)
+	value1 := f.pop().(jfloat)
+
+	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
+		f.push(jint(-1))
+		return
+	}
+
+	if value1 > value2 {
+		f.push(jint(1))
+	}
+	if value1 == value2 {
+		f.push(jint(0))
+	}
+	if value1 < value2 {
+		f.push(jint(-1))
+	}
 }
 
 /*150 (0X96)*/
 func FCMPG(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jfloat)
 	value1 := f.pop().(jfloat)
+
+	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
+		f.push(jint(1))
+		return
+	}
 
 	if value1 > value2 {
 		f.push(jint(1))

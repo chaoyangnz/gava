@@ -39,9 +39,6 @@ func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 /*182 (0XB6)*/
 func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.index16()
-	if m.name == "desiredAssertionStatus" {
-		Trace("d")
-	}
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 
 	if method.isStatic() {
@@ -54,7 +51,7 @@ func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 	}
 	// get objectref and target method
 	objectref := params[0].(jobject)
-	if objectref.isNull() {
+	if objectref.IsNull() {
 		Fatal("NullPointerException")
 	}
 	overridenMethod := objectref.class.FindMethod(method.name, method.descriptor)
@@ -154,6 +151,9 @@ func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 func NEW(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.index16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass().(*Class)
+	if class.name == "java/lang/AssertionError" {
+		Trace("dfd")
+	}
 	objectref := class.NewObject()
 	f.push(objectref)
 }
