@@ -112,29 +112,29 @@ func DSTORE_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*75 (0X4B)*/
 func ASTORE_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(0, f.pop().(*Object))
+	f.storeVar(0, f.pop().(jobject))
 }
 
 /*76 (0X4C)*/
 func ASTORE_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(1, f.pop().(*Object))
+	f.storeVar(1, f.pop().(jobject))
 }
 
 /*77 (0X4D)*/
 func ASTORE_2(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(2, f.pop().(*Object))
+	f.storeVar(2, f.pop().(jobject))
 }
 
 /*78 (0X4E)*/
 func ASTORE_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(3, f.pop().(*Object))
+	f.storeVar(3, f.pop().(jobject))
 }
 
 /*79 (0X4F)*/
 func IASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jint)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
@@ -143,7 +143,7 @@ func IASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func LASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jlong)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
@@ -152,7 +152,7 @@ func LASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func FASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jfloat)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
@@ -161,16 +161,16 @@ func FASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func DASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jdouble)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = value
 	//TODO check component type and boundary
 }
 
 /*83 (0X53)*/
 func AASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	value := f.pop().(*Array)
+	value := f.pop().(jarray)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = value
 	//TODO check component type, boundary and subtypes
 }
@@ -179,7 +179,7 @@ func AASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func BASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jint)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = jbyte(value)
 	//TODO check component type and boundary
 }
@@ -188,7 +188,7 @@ func BASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func CASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jint)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = jchar(value)
 	//TODO check component type and boundary
 }
@@ -197,7 +197,7 @@ func CASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func SASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jint)
 	index := f.pop().(jint)
-	arrayref := f.pop().(*Array)
+	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = jshort(value)
 	//TODO check component type and boundary
 }

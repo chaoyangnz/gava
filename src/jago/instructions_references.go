@@ -22,7 +22,7 @@ func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 /*180 (0XB4)*/
 func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
-	objectref := f.pop().(*Object)
+	objectref := f.pop().(jobject)
 
 	f.push(f.getField(objectref, index))
 }
@@ -31,7 +31,7 @@ func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
 	value := f.pop()
-	objectref := f.pop().(*Object)
+	objectref := f.pop().(jobject)
 
 	f.putField(objectref, index, value)
 }
@@ -50,8 +50,8 @@ func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 		params[i] = f.pop()
 	}
 	// get objectref and target method
-	objectref := params[0].(*Object)
-	if objectref == nil {
+	objectref := params[0].(jobject)
+	if objectref.isNull() {
 		Fatal("NullPointerException")
 	}
 	overridenMethod := objectref.class.FindMethod(method.name, method.descriptor)
@@ -210,7 +210,7 @@ func ANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*190 (0XBE)*/
 func ARRAYLENGTH(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(f.pop().(*Array).length)
+	f.push(f.pop().(jarray).length)
 }
 
 /*191 (0XBF)*/
