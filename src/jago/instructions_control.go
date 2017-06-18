@@ -4,7 +4,9 @@ import "fmt"
 
 /*167 (0XA7)*/
 func GOTO(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	offset := f.offset16()
+
+	f.pc += int(offset)
 }
 
 /*168 (0XA8)*/

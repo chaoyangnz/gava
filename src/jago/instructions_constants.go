@@ -87,7 +87,7 @@ func BIPUSH(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*17 (0X11)*/
 func SIPUSH(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	s := jshort((m.code[f.pc+1] << 8) | m.code[f.pc+2])
+	s := jshort(f.offset16())
 	f.push(jint(s))
 }
 
