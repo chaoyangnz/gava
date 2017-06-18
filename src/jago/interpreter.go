@@ -228,9 +228,13 @@ var instructions = [JVM_OPC_MAX+1]Instruction{
 }
 
 func Execute(initialClass *Class)  {
-	mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
 	thread := THREAD_MANAGER.CurrentThread()
+	mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
 	thread.pushFrame(NewStackFrame(mainMethod))
+
+	initialClass.Link()
+	initialClass.Initialize(thread)
+
 	for len(thread.vmStack) != 0 { // per stack frame
 		f := thread.peekFrame()
 		bytecode := f.method.code

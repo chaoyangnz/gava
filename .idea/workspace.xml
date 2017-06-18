@@ -1,38 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0f2845ad-adb0-4387-a406-e2ef1b23a59d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/classfile.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/classfile_constants.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/classloader.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/classpath.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/classreader.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/constant_pool.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_comparisons.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_constants.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_control.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_conversions.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_loads.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_math.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_references.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_reserved.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_stack.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/interpreter_stores.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/intrepreter_extended.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/log.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/stack.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/startup.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/types.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/universe.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/jago/values.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" afterPath="$PROJECT_DIR$/pkg/darwin_amd64/gvm.a" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.go" afterPath="$PROJECT_DIR$/main.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/class_loader.go" afterPath="$PROJECT_DIR$/src/gvm/class_loader.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/types_rcp.go" afterPath="$PROJECT_DIR$/src/gvm/types_rcp.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/gvm/universe.go" afterPath="$PROJECT_DIR$/src/gvm/universe.go" />
-    </list>
+    <list default="true" id="0f2845ad-adb0-4387-a406-e2ef1b23a59d" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -43,77 +12,88 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="values.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/jago/values.go">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../jago/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="-138">
+                <caret line="0" column="6" lean-forward="false" selection-start-line="0" selection-start-column="6" selection-end-line="0" selection-end-column="6" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="universe.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../jago/src/jago/universe.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="570">
-              <caret line="43" column="21" lean-forward="true" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
+            <state relative-caret-position="52">
+              <caret line="4" column="13" lean-forward="true" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="interpreter_references.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/jago/interpreter_references.go">
+      <file leaf-file-name="main.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../jago/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="148">
-              <caret line="221" column="14" lean-forward="false" selection-start-line="221" selection-start-column="14" selection-end-line="221" selection-end-column="14" />
-              <folding>
-                <element signature="e#14#26#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="interpreter.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/jago/interpreter.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="97" column="44" lean-forward="true" selection-start-line="97" selection-start-column="44" selection-end-line="97" selection-end-column="44" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="interpreter_loads.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/jago/interpreter_loads.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="202">
-              <caret line="30" column="1" lean-forward="true" selection-start-line="30" selection-start-column="1" selection-end-line="30" selection-end-column="1" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="interpreter_stores.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/jago/interpreter_stores.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="172" column="32" lean-forward="true" selection-start-line="172" selection-start-column="32" selection-end-line="172" selection-end-column="32" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="types.go" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/jago/types.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="20" column="19" lean-forward="false" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+            <state relative-caret-position="105">
+              <caret line="11" column="44" lean-forward="true" selection-start-line="11" selection-start-column="44" selection-end-line="11" selection-end-column="44" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="classloader.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/jago/classloader.go">
+        <entry file="file://$PROJECT_DIR$/../jago/src/jago/classloader.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="157">
-              <caret line="69" column="0" lean-forward="false" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
+            <state relative-caret-position="227">
+              <caret line="149" column="0" lean-forward="false" selection-start-line="149" selection-start-column="0" selection-end-line="149" selection-end-column="0" />
               <folding>
                 <element signature="e#14#45#0" expanded="true" />
                 <element signature="e#9600#10809#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="panic.go" pinned="false" current-in-tab="true">
+        <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/runtime/panic.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="147">
+              <caret line="567" column="0" lean-forward="false" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="startup.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../jago/src/jago/startup.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="60">
+              <caret line="4" column="8" lean-forward="true" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="interpreter.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="258">
+              <caret line="236" column="0" lean-forward="false" selection-start-line="236" selection-start-column="0" selection-end-line="236" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="classfile.go" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../jago/src/jago/classfile.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="124">
+              <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -179,8 +159,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/jago/heap/primitivees.go" />
-        <option value="$PROJECT_DIR$/src/jago/classpath/ClassPath.go" />
         <option value="$PROJECT_DIR$/src/gvm/utils.go" />
         <option value="$PROJECT_DIR$/src/jago/shared/log.go" />
         <option value="$PROJECT_DIR$/src/jago/classpath/classpath.go" />
@@ -230,6 +208,8 @@
         <option value="$PROJECT_DIR$/src/jago/interpreter_loads.go" />
         <option value="$PROJECT_DIR$/src/jago/values.go" />
         <option value="$PROJECT_DIR$/src/jago/types.go" />
+        <option value="$PROJECT_DIR$/../jago/README.md" />
+        <option value="$PROJECT_DIR$/../jago/src/jago/interpreter.go" />
       </list>
     </option>
   </component>
@@ -260,26 +240,8 @@
         <subPane>
           <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="gvm" />
+              <option name="myItemId" value="jago" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gvm" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gvm" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="gvm" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="jago" />
@@ -288,15 +250,19 @@
           </PATH>
           <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="gvm" />
+              <option name="myItemId" value="jago" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="gvm" />
+              <option name="myItemId" value="jago" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="jago" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -315,17 +281,17 @@
     <property name="DefaultGoTemplateProperty" value="Go File" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/jago" />
+      <recent name="$PROJECT_DIR$/src/jago/method_area" />
+      <recent name="$PROJECT_DIR$/src/jago/classfile" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/jago" />
       <recent name="$PROJECT_DIR$/src/jago/method_area" />
       <recent name="$PROJECT_DIR$/src/jago/classfile" />
       <recent name="$PROJECT_DIR$/src/jago/shared" />
-      <recent name="$PROJECT_DIR$" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/jago" />
-      <recent name="$PROJECT_DIR$/src/jago/method_area" />
-      <recent name="$PROJECT_DIR$/src/jago/classfile" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -343,13 +309,10 @@
   </component>
   <component name="RunManager" selected="Go Application.Build main.go and run">
     <configuration default="false" name="Build main.go and run" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true">
-      <module name="gvm" />
+      <module name="jago" />
       <working_directory value="$PROJECT_DIR$/" />
-      <go_parameters value="-i " />
-      <envs>
-        <env name="GOPATH" value="/Users/Charvis/GoglandProjects/gvm" />
-      </envs>
-      <filePath value="$PROJECT_DIR$/main.go" />
+      <go_parameters value="-i" />
+      <filePath value="$PROJECT_DIR$/../jago/main.go" />
       <kind value="FILE" />
       <method />
     </configuration>
@@ -409,25 +372,36 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="819" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26752505" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32737276" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29298487" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29298487" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.48418158" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29298487" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26752505" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32737276" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.48418158" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -461,42 +435,42 @@
           <option name="timeStamp" value="32" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/jago/classloader.go</url>
+          <url>file://$PROJECT_DIR$/../jago/src/jago/classloader.go</url>
           <line>169</line>
-          <properties />
           <option name="timeStamp" value="40" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/jago/startup.go</url>
+          <url>file://$PROJECT_DIR$/../jago/src/jago/startup.go</url>
           <line>5</line>
-          <properties />
           <option name="timeStamp" value="41" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/jago/values.go</url>
+          <url>file://$PROJECT_DIR$/../jago/src/jago/values.go</url>
           <line>127</line>
-          <properties />
           <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/jago/types.go</url>
+          <url>file://$PROJECT_DIR$/../jago/src/jago/types.go</url>
           <line>288</line>
-          <properties />
           <option name="timeStamp" value="46" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/src/jago/classloader.go</url>
+          <url>file://$PROJECT_DIR$/../jago/src/jago/classloader.go</url>
           <line>114</line>
-          <properties />
           <option name="timeStamp" value="95" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/../jago/src/jago/classloader.go</url>
+          <line>149</line>
+          <properties />
+          <option name="timeStamp" value="100" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="99" />
+      <option name="time" value="101" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/jago/method_area/field.go" />
     <entry file="file://$PROJECT_DIR$/src/jago/method_area/cp_symref.go" />
     <entry file="file://$PROJECT_DIR$/src/jago/method_area/method.go" />
     <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/io/ioutil/ioutil.go">
@@ -506,151 +480,70 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/class_reader.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="67">
-          <caret line="136" column="51" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="326" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/heap.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/variables.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="0" lean-forward="true" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_reader.go" />
+    <entry file="file://$PROJECT_DIR$/src/jago/heap.go" />
+    <entry file="file://$PROJECT_DIR$/src/jago/variables.go" />
     <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/builtin/builtin.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="233">
           <caret line="70" column="5" lean-forward="false" selection-start-line="70" selection-start-column="5" selection-end-line="70" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_comparisons.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_comparisons.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="226">
           <caret line="140" column="5" lean-forward="true" selection-start-line="140" selection-start-column="5" selection-end-line="140" selection-end-column="5" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_control.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_control.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="975">
           <caret line="65" column="64" lean-forward="false" selection-start-line="65" selection-start-column="64" selection-end-line="65" selection-end-column="64" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_conversions.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_conversions.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_stack.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_stack.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="466">
           <caret line="51" column="62" lean-forward="false" selection-start-line="51" selection-start-column="62" selection-end-line="51" selection-end-column="62" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/intrepreter_extended.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/intrepreter_extended.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="450">
           <caret line="30" column="65" lean-forward="false" selection-start-line="30" selection-start-column="65" selection-end-line="30" selection-end-column="65" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/launcher.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="5" lean-forward="false" selection-start-line="2" selection-start-column="5" selection-end-line="2" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/classpath.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/launcher.go" />
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/classpath.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="439">
           <caret line="101" column="16" lean-forward="false" selection-start-line="101" selection-start-column="16" selection-end-line="101" selection-end-column="16" />
-          <folding>
-            <element signature="e#14#104#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_reserved.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_reserved.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="225">
           <caret line="15" column="65" lean-forward="false" selection-start-line="15" selection-start-column="65" selection-end-line="15" selection-end-column="65" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/classfile_constants.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-27">
-          <caret line="14" column="0" lean-forward="false" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="211">
-          <caret line="421" column="67" lean-forward="false" selection-start-line="421" selection-start-column="67" selection-end-line="421" selection-end-column="67" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/types_rcp.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="404">
-          <caret line="287" column="23" lean-forward="false" selection-start-line="287" selection-start-column="23" selection-end-line="287" selection-end-column="23" />
-          <folding>
-            <marker date="1497247706000" expanded="true" signature="811:818" ph="{...}" />
-            <marker date="1497247706000" expanded="true" signature="866:959" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="1575:1669" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="2275:2378" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="2714:2778" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="3374:3432" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="3720:3776" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="4063:4141" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="4463:4543" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="4875:4967" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="5616:5694" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="6019:6115" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="6393:6465" ph="/*...*/" />
-            <marker date="1497247706000" expanded="true" signature="6862:6976" ph="/*...*/" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/universe.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/classfile_constants.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_file.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/types_rcp.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/universe.go" />
     <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/runtime/asm_amd64.s">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="142">
@@ -667,25 +560,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="13" lean-forward="false" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
-          <folding>
-            <element signature="e#14#51#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/startup.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="5" lean-forward="false" selection-start-line="2" selection-start-column="5" selection-end-line="2" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/classreader.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/classreader.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1065">
           <caret line="74" column="37" lean-forward="false" selection-start-line="74" selection-start-column="37" selection-end-line="74" selection-end-column="37" />
@@ -693,61 +568,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/classfile.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="124">
-          <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/utils.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="37" column="4" lean-forward="true" selection-start-line="37" selection-start-column="4" selection-end-line="79" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/types.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7125">
-          <caret line="475" column="11" lean-forward="false" selection-start-line="475" selection-start-column="11" selection-end-line="475" selection-end-column="11" />
-          <folding>
-            <element signature="e#13#29#0" expanded="true" />
-            <marker date="1497172299000" expanded="true" signature="10823:10825" ph="{...}" />
-            <marker date="1497172299000" expanded="true" signature="11342:11851" ph="/.../" />
-            <marker date="1497172299000" expanded="true" signature="11853:11913" ph="/*...*/" />
-            <marker date="1497172299000" expanded="true" signature="12486:12566" ph="/*...*/" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/runtime/panic.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="567" column="0" lean-forward="false" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/class_loader.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="293">
-          <caret line="152" column="0" lean-forward="true" selection-start-line="152" selection-start-column="0" selection-end-line="152" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_math.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/utils.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/types.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/class_loader.go" />
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_math.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/classfile_constants.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/classfile_constants.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="341">
           <caret line="558" column="2" lean-forward="false" selection-start-line="558" selection-start-column="2" selection-end-line="558" selection-end-column="2" />
@@ -755,24 +586,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="491">
-          <caret line="255" column="1" lean-forward="true" selection-start-line="255" selection-start-column="1" selection-end-line="255" selection-end-column="1" />
-          <folding>
-            <marker date="1497158510000" expanded="true" signature="12395:12545" ph="/.../" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_references.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1578">
-          <caret line="8" column="49" lean-forward="false" selection-start-line="8" selection-start-column="49" selection-end-line="8" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/interpreter_references.go" />
     <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/reflect/value.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="173">
@@ -781,31 +596,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="285">
-          <caret line="22" column="50" lean-forward="true" selection-start-line="22" selection-start-column="50" selection-end-line="22" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/GVM.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="50" lean-forward="true" selection-start-line="11" selection-start-column="50" selection-end-line="11" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/oops.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="253" column="0" lean-forward="true" selection-start-line="253" selection-start-column="0" selection-end-line="276" selection-end-column="1" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/log.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/jdk.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/GVM.go" />
+    <entry file="file://$PROJECT_DIR$/src/gvm/oops.go" />
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/log.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="173">
           <caret line="62" column="0" lean-forward="false" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
@@ -815,49 +609,15 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="150" column="25" lean-forward="true" selection-start-line="150" selection-start-column="25" selection-end-line="150" selection-end-column="25" />
-          <folding>
-            <element signature="e#13#45#0" expanded="true" />
-            <marker date="1497171242000" expanded="true" signature="1093:1181" ph="{...}" />
-            <marker date="1497171242000" expanded="true" signature="1093:1289" ph="{...}" />
-            <marker date="1497171242000" expanded="true" signature="4556:4799" ph="{...}" />
-            <marker date="1497171242000" expanded="true" signature="5260:5301" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/universe.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="23" column="98" lean-forward="false" selection-start-line="23" selection-start-column="98" selection-end-line="23" selection-end-column="98" />
-          <folding>
-            <element signature="e#14#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/stack.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="194">
-          <caret line="73" column="0" lean-forward="false" selection-start-line="73" selection-start-column="0" selection-end-line="73" selection-end-column="0" />
-          <folding>
-            <element signature="e#14#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_constants.go">
+    <entry file="file://$PROJECT_DIR$/src/gvm/runtime.go" />
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_constants.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="233">
           <caret line="103" column="51" lean-forward="true" selection-start-line="103" selection-start-column="51" selection-end-line="103" selection-end-column="51" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/constant_pool.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/constant_pool.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="218">
           <caret line="110" column="31" lean-forward="true" selection-start-line="110" selection-start-column="31" selection-end-line="110" selection-end-column="31" />
@@ -865,18 +625,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/classloader.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="157">
-          <caret line="69" column="0" lean-forward="false" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
-          <folding>
-            <element signature="e#14#45#0" expanded="true" />
-            <element signature="e#9600#10809#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_references.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_references.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="148">
           <caret line="221" column="14" lean-forward="false" selection-start-line="221" selection-start-column="14" selection-end-line="221" selection-end-column="14" />
@@ -886,7 +635,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_loads.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_loads.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="202">
           <caret line="30" column="1" lean-forward="true" selection-start-line="30" selection-start-column="1" selection-end-line="30" selection-end-column="1" />
@@ -894,23 +643,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="97" column="44" lean-forward="true" selection-start-line="97" selection-start-column="44" selection-end-line="97" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/interpreter_stores.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter_stores.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="212">
           <caret line="172" column="32" lean-forward="true" selection-start-line="172" selection-start-column="32" selection-end-line="172" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/values.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/values.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
           <caret line="43" column="21" lean-forward="true" selection-start-line="43" selection-start-column="21" selection-end-line="43" selection-end-column="21" />
@@ -918,10 +658,90 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/jago/types.go">
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/types.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
           <caret line="20" column="19" lean-forward="false" selection-start-line="20" selection-start-column="19" selection-end-line="20" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="-138">
+            <caret line="0" column="6" lean-forward="false" selection-start-line="0" selection-start-column="6" selection-end-line="0" selection-end-column="6" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/stack.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="11" column="27" lean-forward="false" selection-start-line="11" selection-start-column="27" selection-end-line="11" selection-end-column="27" />
+          <folding>
+            <element signature="e#14#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/startup.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="8" lean-forward="true" selection-start-line="4" selection-start-column="8" selection-end-line="4" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/interpreter.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="258">
+          <caret line="236" column="0" lean-forward="false" selection-start-line="236" selection-start-column="0" selection-end-line="236" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/classfile.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="148" column="0" lean-forward="false" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/universe.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="52">
+          <caret line="4" column="13" lean-forward="true" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/main.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="11" column="44" lean-forward="true" selection-start-line="11" selection-start-column="44" selection-end-line="11" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../jago/src/jago/classloader.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="227">
+          <caret line="149" column="0" lean-forward="false" selection-start-line="149" selection-start-column="0" selection-end-line="149" selection-end-column="0" />
+          <folding>
+            <element signature="e#14#45#0" expanded="true" />
+            <element signature="e#9600#10809#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/Cellar/go/1.8.3/libexec/src/runtime/panic.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="147">
+          <caret line="567" column="0" lean-forward="false" selection-start-line="567" selection-start-column="0" selection-end-line="567" selection-end-column="0" />
           <folding />
         </state>
       </provider>
