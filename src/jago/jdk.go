@@ -4,7 +4,7 @@ import "strings"
 
 /* ---------- JDK Native methods implementation ---*/
 
-func Java_GVM_println(o *Object, s JavaLangString) {
+func Java_GVM_println(o jobject, s JavaLangString) {
 	println(s.toString())
 }
 

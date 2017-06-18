@@ -4,7 +4,7 @@ import (
 	"reflect"
 )
 
-var SYS_CLASS_PATH = "jdk/classes:/Users/Charvis/Dropbox/Projects/gvm-java/out/production/gvm-java"
+var SYS_CLASS_PATH = "jdk/classes:/Users/Chao/Dropbox/Projects/gvm-java/out/production/gvm-java"
 var EXT_CLASS_PATH = []string{"ext"}
 var APP_CLASS_PATH []string
 

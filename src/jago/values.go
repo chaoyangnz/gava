@@ -1,5 +1,16 @@
 package jago
 
+
+/*
+Value system:
+
+Value
+  |- jbyte
+  |- jshort
+  |- jchar
+
+
+ */
 type Value interface {
 	Type() Type
 }
@@ -59,14 +70,25 @@ func (this *Array) Class() ClassType {
 }
 
 type (
+	jreference struct {Reference}
+	jobject struct {*Object}
+	jarray  struct {*Array}
 	JavaLangClass struct {*Object}
 	JavaLangObject struct {*Object}
 	JavaLangString struct {*Object}
 )
 
+func (this jobject) isNull() bool {return this.Object == nil}
+func (this jarray) isNull() bool {return this.Array == nil}
+
+var (
+	NULL_OBJECT = jobject{nil}
+	NULL_ARRAY  = jarray{nil}
+)
+
 func (this JavaLangString) toString() string  {
 	runes := []rune{}
-	chars := this.instanceVars[0].(*Array).elements
+	chars := this.instanceVars[0].(jarray).elements
 	for i:=0; i < len(chars); i++ {
 		char := chars[i].(jchar)
 		if char >= 0xD800 && char <= 0xDBFF {
@@ -93,7 +115,7 @@ func NewJavaLangClass() JavaLangClass {
 	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Class").(*Class)
 	object := class.NewObject()
 
-	return JavaLangClass{object}
+	return JavaLangClass{object.Object}
 }
 
 func NewJavaLangString(str string) JavaLangString {
@@ -130,5 +152,5 @@ func NewJavaLangString(str string) JavaLangString {
 	// create hashing field?
 	// TODO
 
-	return JavaLangString{object}
+	return JavaLangString{object.Object}
 }

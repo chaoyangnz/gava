@@ -144,8 +144,8 @@ func IF_ICMPLE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 /*165 (0XA5)*/
 func IF_ACMPEQ(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
-	value2 := f.pop().(*Object)
-	value1 := f.pop().(*Object)
+	value2 := f.pop().(jobject)
+	value1 := f.pop().(jobject)
 	if value1 == value2 {
 		f.pc += uint32(offset)
 	}
@@ -154,8 +154,8 @@ func IF_ACMPEQ(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 /*166 (0XA6)*/
 func IF_ACMPNE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
-	value2 := f.pop().(*Object)
-	value1 := f.pop().(*Object)
+	value2 := f.pop().(jobject)
+	value1 := f.pop().(jobject)
 	if value1 != value2 {
 		f.pc += uint32(offset)
 	}

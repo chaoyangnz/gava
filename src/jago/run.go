@@ -129,12 +129,12 @@ func (this *StackFrame) passReturn(caller *StackFrame)  {
 	caller.push(this.pop())
 }
 
-func (this *StackFrame) getField(objectref *Object, index uint16) Value {
+func (this *StackFrame) getField(objectref jobject, index uint16) Value {
 	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
 	return objectref.instanceVars[i]
 }
 
-func (this *StackFrame) putField(objectref *Object, index uint16, value Value) {
+func (this *StackFrame) putField(objectref jobject, index uint16, value Value) {
 	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
 	objectref.instanceVars[i] = value
 }

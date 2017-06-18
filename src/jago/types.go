@@ -155,7 +155,7 @@ func (this *Class) Initialize(thread *Thread)  {
 	}
 }
 
-func (this *Class) NewObject() *Object {
+func (this *Class) NewObject() jobject {
 	this.Link()
 
 	object := &Object{class: this}
@@ -167,7 +167,7 @@ func (this *Class) NewObject() *Object {
 		}
 	}
 
-	return object
+	return jobject{object}
 }
 
 /**
@@ -222,30 +222,26 @@ type ArrayClass struct {
 	dimensions    int
 }
 
-func (this *ArrayClass) NewArray(length jint) *Array {
+func (this *ArrayClass) NewArray(length jint) jarray {
 	elements := make([]Value, length)
-	switch this.componentType.(type) {
-	case *Byte:
-		for i, _ := range elements { elements[i] = jbyte(0) }
-	case *Short:
-		for i, _ := range elements { elements[i] = jshort(0) }
-	case *Char:
-		for i, _ := range elements { elements[i] = jchar(0) }
-	case *Int:
-		for i, _ := range elements { elements[i] = jint(0) }
-	case *Long:
-		for i, _ := range elements { elements[i] = jlong(0) }
-	case *Float:
-		for i, _ := range elements { elements[i] = jfloat(0.0) }
-	case *Double:
-		for i, _ := range elements { elements[i] = jlong(0.0) }
-	case *Boolean:
-		for i, _ := range elements { elements[i] = jboolean(0) }
-	case ClassType:
-		for i, _ := range elements { elements[i] = nil }
+	for i, _ := range elements {
+		switch this.componentType.(type) {
+		case *Byte:       elements[i] = jbyte(0)
+		case *Short:      elements[i] = jshort(0)
+		case *Char:       elements[i] = jchar(0)
+		case *Int:        elements[i] = jint(0)
+		case *Long:       elements[i] = jlong(0)
+		case *Float:      elements[i] = jfloat(0.0)
+		case *Double:     elements[i] = jlong(0.0)
+		case *Boolean:    elements[i] = jboolean(0)
+		case *Class:      elements[i] = NULL_OBJECT
+		case *ArrayClass: elements[i] = NULL_ARRAY
+		default:
+			Fatal("Not a valid component type")
+		}
 	}
 
-	return &Array{this, length, elements}
+	return jarray{&Array{this, length, elements}}
 }
 
 type Interface struct {
@@ -283,8 +279,8 @@ func  (this *Field) defaultValue() Value {
 	case JVM_SIGNATURE_FLOAT: t = jfloat(0.0)
 	case JVM_SIGNATURE_DOUBLE: t = jdouble(0.0)
 	case JVM_SIGNATURE_BOOLEAN: t = jboolean(0)
-	case JVM_SIGNATURE_CLASS: t = nil
-	case JVM_SIGNATURE_ARRAY: t = nil
+	case JVM_SIGNATURE_CLASS: t = jobject{nil}
+	case JVM_SIGNATURE_ARRAY: t = Reference(nil)
 	default:
 		Fatal("Not a valid descriptor to get a default value")
 	}
