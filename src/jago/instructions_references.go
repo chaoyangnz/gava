@@ -151,9 +151,6 @@ func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 func NEW(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	index := f.index16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass().(*Class)
-	if class.name == "java/lang/AssertionError" {
-		Trace("dfd")
-	}
 	objectref := class.NewObject()
 	f.push(objectref)
 }

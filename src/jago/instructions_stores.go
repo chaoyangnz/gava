@@ -112,22 +112,22 @@ func DSTORE_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*75 (0X4B)*/
 func ASTORE_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(0, f.pop().(jobject))
+	f.storeVar(0, f.pop().(Reference))
 }
 
 /*76 (0X4C)*/
 func ASTORE_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(1, f.pop().(jobject))
+	f.storeVar(1, f.pop().(Reference))
 }
 
 /*77 (0X4D)*/
 func ASTORE_2(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(2, f.pop().(jobject))
+	f.storeVar(2, f.pop().(Reference))
 }
 
 /*78 (0X4E)*/
 func ASTORE_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.storeVar(3, f.pop().(jobject))
+	f.storeVar(3, f.pop().(Reference))
 }
 
 /*79 (0X4F)*/
@@ -188,6 +188,8 @@ func BASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 func CASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value := f.pop().(jint)
 	index := f.pop().(jint)
+
+
 	arrayref := f.pop().(jarray)
 	arrayref.elements[index] = jchar(value)
 	//TODO check component type and boundary

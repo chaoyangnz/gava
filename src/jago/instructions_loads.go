@@ -112,22 +112,22 @@ func DLOAD_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*42 (0X2A)*/
 func ALOAD_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(f.loadVar(0).(jobject))
+	f.push(f.loadVar(0).(Reference))
 }
 
 /*43 (0X2B)*/
 func ALOAD_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(f.loadVar(1).(jobject))
+	f.push(f.loadVar(1).(Reference))
 }
 
 /*44 (0X2C)*/
 func ALOAD_2(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(f.loadVar(2).(jobject))
+	f.push(f.loadVar(2).(Reference))
 }
 
 /*45 (0X2D)*/
 func ALOAD_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(f.loadVar(3))
+	f.push(f.loadVar(3).(Reference))
 }
 
 /*46 (0X2E)
@@ -225,7 +225,9 @@ func CALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	if arrayref.class.componentType != CHAR_TYPE {
 		Fatal("Not a char array")
 	}
-	f.push(arrayref.elements[index])
+	//zero-extended to an int value
+	value := jint(arrayref.elements[index].(jchar))
+	f.push(value)
 }
 
 /*53 (0X35)*/
