@@ -10,7 +10,7 @@ var APP_CLASS_PATH []string
 
 
 
-var STRING_TABLE = map[string]JavaLangString {}
+var STRING_TABLE = map[string]jobject {}
 
 
 var BOOTSTRAP_CLASSLOADER = NewClassLoader(SYS_CLASS_PATH, nil)
@@ -21,6 +21,8 @@ var NATIVE_FUNCTIONS = map[string]reflect.Value {
 	"Java_GVM_println": reflect.ValueOf(Java_GVM_println),
 	"Java_GVM_toUpper": reflect.ValueOf(Java_GVM_toUpper),
 	"Java_java_lang_Object_registerNatives": reflect.ValueOf(Java_java_lang_Object_registerNatives),
+	"Java_java_lang_System_registerNatives": reflect.ValueOf(Java_java_lang_System_registerNatives),
+	"Java_java_lang_Class_registerNatives": reflect.ValueOf(Java_java_lang_System_registerNatives),
 }
 
 

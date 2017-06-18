@@ -6,7 +6,7 @@ func NOP(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*01 (0X01)*/
 func ACONST_NULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(nil)
+	f.push(NULL_OBJECT)
 }
 
 /*02 (0X02)*/
@@ -93,7 +93,7 @@ func SIPUSH(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*18 (0X12)*/
 func LDC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	cpInfo := c.constantPool[index]
 	switch cpInfo.(type) {
 	case *IntegerConstant:
@@ -102,14 +102,18 @@ func LDC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 		f.push(cpInfo.(*FloatConstant).value)
 	case *StringConstant:
 		f.push(cpInfo.(*StringConstant).ResolvedString())
+	case *ClassRef:
+		f.push(cpInfo.(*ClassRef).ResolvedClass().ClassObject())
+	case *MethodTypeConstant, *MethodHandleConstant:
+		// TODO
 	default:
-		panic("Not int, float or string in constant pool")
+		panic("Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
 }
 
 /*19 (0X13)*/
 func LDC_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
+	index := f.index16()
 	cpInfo := c.constantPool[index]
 	switch cpInfo.(type) {
 	case *IntegerConstant:
@@ -125,7 +129,8 @@ func LDC_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*20 (0X14)*/
 func LDC2_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
+	index := f.index16()
+
 	cpInfo := c.constantPool[index]
 	switch cpInfo.(type) {
 	case *LongConstant:

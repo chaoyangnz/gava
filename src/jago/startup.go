@@ -2,12 +2,24 @@ package jago
 
 func Startup(initialClassName string)  {
 	thread := THREAD_MANAGER.NewThread("main")
+	systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System").(*Class)
+	systemClass.Link()
+	systemClassClinits := systemClass.Initialize()
+	for _, clinit := range systemClassClinits { thread.enqueueFrame(NewStackFrame(clinit))}
+
+	initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
+	thread.enqueueFrame(NewStackFrame(initializeSystemClassMethod))
+
+
+
 	initialClass := BOOTSTRAP_CLASSLOADER.CreateClass(initialClassName).(*Class)
-	mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
-	thread.pushFrame(NewStackFrame(mainMethod))
 	// As per jvm specification, initial main method needs to initialize initial class
 	initialClass.Link()
-	initialClass.Initialize(thread)
+	initialClassClinits := initialClass.Initialize()
+	for _, clinit := range initialClassClinits { thread.enqueueFrame(NewStackFrame(clinit))}
+
+	mainMethod := initialClass.GetMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
+	thread.enqueueFrame(NewStackFrame(mainMethod))
 
 	thread.Run()
 }

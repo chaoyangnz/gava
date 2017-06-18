@@ -8,8 +8,18 @@ Value
   |- jbyte
   |- jshort
   |- jchar
+  |- jint
+  |- jlong
+  |- jfloat
+  |- jdouble
+  |- jboolean
+  |- jreference
+        |- jobject
+        |- jarray
 
 
+jobject and jarray are only reference value holding a pointer to real heap object <Object> or <Array>.
+The reference itself will be never null, but its containing pointer can be null.
  */
 type Value interface {
 	Type() Type
@@ -73,9 +83,9 @@ type (
 	jreference struct {Reference}
 	jobject struct {*Object}
 	jarray  struct {*Array}
-	JavaLangClass struct {*Object}
-	JavaLangObject struct {*Object}
-	JavaLangString struct {*Object}
+	//JavaLangClass struct {jobject}
+	//JavaLangObject struct {jobject}
+	//JavaLangString struct {jobject}
 )
 
 func (this jobject) isNull() bool {return this.Object == nil}
@@ -86,7 +96,7 @@ var (
 	NULL_ARRAY  = jarray{nil}
 )
 
-func (this JavaLangString) toString() string  {
+func (this jobject) toString() string  {
 	runes := []rune{}
 	chars := this.instanceVars[0].(jarray).elements
 	for i:=0; i < len(chars); i++ {
@@ -111,14 +121,14 @@ func (this JavaLangString) toString() string  {
 	return string(runes)
 }
 
-func NewJavaLangClass() JavaLangClass {
+func NewJavaLangClass() jobject {
 	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Class").(*Class)
 	object := class.NewObject()
 
-	return JavaLangClass{object.Object}
+	return object
 }
 
-func NewJavaLangString(str string) JavaLangString {
+func NewJavaLangString(str string) jobject {
 	// check string table
 	if strObj, found := STRING_TABLE[str]; found {
 		return strObj
@@ -152,5 +162,5 @@ func NewJavaLangString(str string) JavaLangString {
 	// create hashing field?
 	// TODO
 
-	return JavaLangString{object.Object}
+	return object
 }

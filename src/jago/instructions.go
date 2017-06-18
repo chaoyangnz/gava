@@ -205,7 +205,7 @@ var instructions = [JVM_OPC_MAX+1]Instruction{
 	/*184 (0xB8)*/ Instruction{"invokestatic", INVOKESTATIC},
 	/*185 (0xB9)*/ Instruction{"invokeinterface", INVOKEINTERFACE},
 	/*186 (0xBA)*/ Instruction{"invokedynamic", INVOKEDYNAMIC},
-	/*187 (0xBB)*/ Instruction{"newObject", NEW},
+	/*187 (0xBB)*/ Instruction{"new", NEW},
 	/*188 (0xBC)*/ Instruction{"newarray", NEWARRAY},
 	/*189 (0xBD)*/ Instruction{"anewarray", ANEWARRAY},
 	/*190 (0xBE)*/ Instruction{"arraylength", ARRAYLENGTH},

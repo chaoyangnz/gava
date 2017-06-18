@@ -128,6 +128,10 @@ func (this *ClassLoader) createArrayClass(className string) *ArrayClass {
 		}
 	}
 	arrayClass.dimensions = dimensions
+
+	// set classloader
+	class.classLoader = this
+	class.classObject = NewJavaLangClass()
 	return arrayClass
 }
 
@@ -175,13 +179,13 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	}
 	//class.interfaces = ??
 
-	constantPool := make([]IConstant, classfile.constantPoolCount+1)
+	constantPool := make([]Constant, classfile.constantPoolCount+1)
 	class.constantPool = constantPool
 
 	// start loading
 	for i, _ := range classfile.constantPool {
 		constInfo := classfile.constantPool[i]
-		var constant IConstant
+		var constant Constant
 		switch constInfo.(type) {
 		case *ConstantClassInfo:
 			constantClassInfo := constInfo.(*ConstantClassInfo)
@@ -236,7 +240,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constant = &UTF8Constant{class,u2s(constantUtf8Info.bytes)}
 		case *ConstantStringInfo:
 			constantStringInfo := constInfo.(*ConstantStringInfo)
-			constant = &StringConstant{class,classfile.cpUtf8(constantStringInfo.stringIndex), JavaLangString{nil}}
+			constant = &StringConstant{class,classfile.cpUtf8(constantStringInfo.stringIndex), NULL_OBJECT}
 		case *ConstantIntegerInfo:
 			constantIntegerInfo := constInfo.(*ConstantIntegerInfo)
 			constant = &IntegerConstant{class,jint(constantIntegerInfo.bytes)}

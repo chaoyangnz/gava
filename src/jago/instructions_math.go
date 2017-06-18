@@ -255,7 +255,7 @@ func LXOR(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*132 (0X84)*/
 func IINC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	const_value := m.code[f.pc+1]
 	value := f.loadVar(uint(index)).(jint)
 	f.storeVar(uint(index), value + jint(const_value))

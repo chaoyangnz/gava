@@ -28,7 +28,7 @@ func (this *Thread) Run()  {
 		f := this.peekFrame()
 		bytecode := f.method.code
 		Trace("⤮ %s.%s%s", f.method.class.name, f.method.name, f.method.descriptor)
-		for f.pc < uint32(len(f.method.code)) {
+		for f.pc < len(f.method.code) {
 			pc := f.pc
 			opcode := bytecode[pc]
 			instruction := instructions[opcode]
@@ -39,7 +39,7 @@ func (this *Thread) Run()  {
 			// these instructions will control pc themselves
 			instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
 			if f.pc == pc && instruction_length > 0 {
-				f.pc += uint32(instruction_length)
+				f.pc += instruction_length
 			}
 
 			if f.pc == 88888888 { // means stay
@@ -58,7 +58,7 @@ type StackFrame struct {
 	method *Method
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
-	pc uint32
+	pc int
 	localVariables      []Value
 	// operand stack
 	operandStack        []Value
@@ -80,6 +80,14 @@ func (this *StackFrame) loadVar(index uint) Value {
 
 func (this *StackFrame) storeVar(index uint, value Value)  {
 	this.localVariables[index] = value
+}
+
+func (this *StackFrame) index8() uint8 {
+	return uint8(this.method.code[this.pc+1])
+}
+
+func (this *StackFrame) index16() uint16 {
+	return (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
 }
 
 func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
@@ -179,4 +187,31 @@ func (this *Thread) popFrame()  {
 func (this *Thread) peekFrame() *StackFrame  {
 	size := len(this.vmStack)
 	return this.vmStack[size-1]
+}
+
+func (this *Thread) pushFrames(stackFrames ...*StackFrame)  {
+	for _, stackFrame := range stackFrames {
+		this.pushFrame(stackFrame)
+	}
+}
+
+/**
+	Always add to tail: this can be used when system initialization
+ */
+func (this *Thread) enqueueFrame(stackFrame *StackFrame)  {
+	size := len(this.vmStack)
+	if size == DEFAULT_VM_STACK_SIZE {
+		Fatal("Stack Overflow")
+	}
+	this.vmStack = this.vmStack[:size+1]
+	for i := size; i >= 1; i-- {
+		this.vmStack[i] = this.vmStack[i-1]
+	}
+	this.vmStack[0] = stackFrame
+}
+
+func (this *Thread) enqueueFrames(stackFrames ...*StackFrame)  {
+	for _, stackFrame := range stackFrames {
+		this.enqueueFrame(stackFrame)
+	}
 }

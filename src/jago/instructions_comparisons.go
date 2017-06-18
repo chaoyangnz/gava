@@ -14,7 +14,18 @@ func FCMPL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*150 (0X96)*/
 func FCMPG(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value2 := f.pop().(jfloat)
+	value1 := f.pop().(jfloat)
+
+	if value1 > value2 {
+		f.push(jint(1))
+	}
+	if value1 == value2 {
+		f.push(jint(0))
+	}
+	if value1 < value2 {
+		f.push(jint(-1))
+	}
 }
 
 /*151 (0X97)*/
@@ -32,7 +43,7 @@ func IFEQ(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(jint)
 	if value  == 0 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -41,7 +52,7 @@ func IFNE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(jint)
 	if value != 0 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -50,7 +61,7 @@ func IFLT(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(jint)
 	if value < 0 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -59,7 +70,7 @@ func IFGE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(jint)
 	if value >= 0 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -68,7 +79,7 @@ func IFGT(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(jint)
 	if value > 0 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -77,7 +88,7 @@ func IFLE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	offset := (m.code[f.pc+1] << 8) | m.code[f.pc+2]
 	value := f.pop().(jint)
 	if value <= 0 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -87,7 +98,7 @@ func IF_ICMPEQ(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jint)
 	value1 := f.pop().(jint)
 	if value1 == value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -97,7 +108,7 @@ func IF_ICMPNE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jint)
 	value1 := f.pop().(jint)
 	if value1 != value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -107,7 +118,7 @@ func IF_ICMPLT(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jint)
 	value1 := f.pop().(jint)
 	if value1 < value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -117,7 +128,7 @@ func IF_ICMPGE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jint)
 	value1 := f.pop().(jint)
 	if value1 >= value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -127,7 +138,7 @@ func IF_ICMPGT(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jint)
 	value1 := f.pop().(jint)
 	if value1 > value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -137,7 +148,7 @@ func IF_ICMPLE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jint)
 	value1 := f.pop().(jint)
 	if value1 <= value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -147,7 +158,7 @@ func IF_ACMPEQ(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jobject)
 	value1 := f.pop().(jobject)
 	if value1 == value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
@@ -157,6 +168,6 @@ func IF_ACMPNE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 	value2 := f.pop().(jobject)
 	value1 := f.pop().(jobject)
 	if value1 != value2 {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }

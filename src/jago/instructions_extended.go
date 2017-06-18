@@ -9,7 +9,7 @@ func WIDE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*197 (0XC5)*/
 func MULTIANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	//index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+	//index := f.index16()
 	//dimensions := m.code[f.pc+3]
 	//
 	//arrayType := c.constantPool[index].(*ClassRef).class.(*ArrayClass)
@@ -42,7 +42,7 @@ func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 	value := f.pop()
 	if(value != nil) {
-		f.pc += uint32(offset)
+		f.pc += int(offset)
 	}
 }
 
