@@ -9,13 +9,10 @@ type ThreadManager struct {
 	currentThread *Thread
 }
 
-func (this *ThreadManager) CurrentThread() *Thread {
-	if this.currentThread == nil {
-		this.currentThread = &Thread{
-			name: "main",
+func (this *ThreadManager) NewThread(name string) *Thread {
+	return &Thread{
+			name: name,
 			vmStack: make([]*StackFrame, 0, DEFAULT_VM_STACK_SIZE)}
-	}
-	return this.currentThread
 }
 
 const DEFAULT_VM_STACK_SIZE  = 512
@@ -24,6 +21,37 @@ type Thread struct {
 	id          uint
 	name        string
 	vmStack     []*StackFrame
+}
+
+func (this *Thread) Run()  {
+	for len(this.vmStack) != 0 { // per stack frame
+		f := this.peekFrame()
+		bytecode := f.method.code
+		Trace("⤮ %s.%s%s", f.method.class.name, f.method.name, f.method.descriptor)
+		for f.pc < uint32(len(f.method.code)) {
+			pc := f.pc
+			opcode := bytecode[pc]
+			instruction := instructions[opcode]
+			Trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
+			instruction.interprete(opcode, f, this, f.method.class, f.method)
+			// jump instruction can operate pc
+			// some instruction also have variable length: tableswitch...
+			// these instructions will control pc themselves
+			instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
+			if f.pc == pc && instruction_length > 0 {
+				f.pc += uint32(instruction_length)
+			}
+
+			if f.pc == 88888888 { // means stay
+				f.pc = pc
+			}
+
+			// if instruction operates the stack, we follow it
+			if len(this.vmStack) == 0 || f != this.peekFrame() {
+				break
+			}
+		}
+	}
 }
 
 type StackFrame struct {
