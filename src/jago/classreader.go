@@ -1,7 +1,8 @@
-package gvm
+package jago
 
 import (
 	"encoding/binary"
+	"unsafe"
 )
 
 var bigEndian = binary.BigEndian
@@ -9,6 +10,10 @@ var bigEndian = binary.BigEndian
 type ClassReader struct {
 	bytecode []uint8
 	classfile *ClassFile
+}
+
+func NewClassReader(bytecode []byte) *ClassReader {
+	return &ClassReader{bytecode: bytecode}
 }
 
 func (this *ClassReader) readU4() u4 {
@@ -30,7 +35,7 @@ func (this *ClassReader) readU1() u1 {
 func (this *ClassReader) readU1s(length uint32) []u1 {
 	bytes := this.bytecode[:length]
 	this.bytecode = this.bytecode[length:]
-	return b2u(bytes)
+	return *(*[]u1)(unsafe.Pointer(&bytes))
 }
 
 func (this *ClassReader) length() int {

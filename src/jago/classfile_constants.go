@@ -1,4 +1,4 @@
-package gvm
+package jago
 
 /* Classfile version number for this information */
 const (
@@ -80,7 +80,7 @@ JVM_T_INT     = 10
 JVM_T_LONG    = 11
 )
 
-/* Constant Pool Entries */
+/* IConstant Pool Entries */
 
 const (
 JVM_CONSTANT_Utf8                   = 1
@@ -352,7 +352,8 @@ JVM_OPC_ifnull              = 198
 JVM_OPC_ifnonnull           = 199
 JVM_OPC_goto_w              = 200
 JVM_OPC_jsr_w               = 201
-JVM_OPC_MAX                 = 201
+JVM_OPC_breakpoint          = 202
+JVM_OPC_MAX                 = 202
 )
 
 /* Opcode length initializer use with something like:
