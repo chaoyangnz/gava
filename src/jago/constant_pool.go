@@ -102,7 +102,7 @@ type StringConstant struct {
 }
 
 func (this *StringConstant) ResolvedString() jobject  {
-	if this.jstring.isNull() {
+	if this.jstring.IsNull() {
 		this.resolve()
 	}
 	return this.jstring

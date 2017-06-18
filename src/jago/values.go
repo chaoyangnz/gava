@@ -33,7 +33,12 @@ type (
     jlong int64
     jfloat float32
     jdouble float64
-	jboolean int16
+	//jboolean jint
+)
+
+var (
+	TRUE = jint(1)
+	FALSE = jint(0)
 )
 
 func (this jbyte) Type() Type { return BYTE_TYPE }
@@ -43,14 +48,7 @@ func (this jint) Type() Type { return INT_TYPE }
 func (this jlong) Type() Type { return LONG_TYPE }
 func (this jfloat) Type() Type { return FLOAT_TYPE }
 func (this jdouble) Type() Type { return DOUBLE_TYPE }
-func (this jboolean) Type() Type { return BOOLEAN_TYPE }
-
-
-
-type Reference interface {
-	Value
-	Class() ClassType
-}
+//func (this jboolean) Type() Type { return BOOLEAN_TYPE }
 
 type Object struct {
 	class        *Class
@@ -80,7 +78,11 @@ func (this *Array) Class() ClassType {
 }
 
 type (
-	jreference struct {Reference}
+	Reference interface {
+		Value
+		IsNull() bool
+		Class() ClassType
+	}
 	jobject struct {*Object}
 	jarray  struct {*Array}
 	//JavaLangClass struct {jobject}
@@ -88,8 +90,8 @@ type (
 	//JavaLangString struct {jobject}
 )
 
-func (this jobject) isNull() bool {return this.Object == nil}
-func (this jarray) isNull() bool {return this.Array == nil}
+func (this jobject) IsNull() bool {return this.Object == nil}
+func (this jarray) IsNull() bool  {return this.Array == nil}
 
 var (
 	NULL_OBJECT = jobject{nil}

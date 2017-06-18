@@ -10,7 +10,8 @@ func I2L(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*134 (0X86)*/
 func I2F(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value := f.pop().(jint)
+	f.push(jfloat(value))
 }
 
 /*135 (0X87)*/

@@ -90,6 +90,10 @@ func (this *StackFrame) index16() uint16 {
 	return (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
 }
 
+func (this *StackFrame) offset16() int16 {
+	return (int16(this.method.code[this.pc+1]) << 8) | int16(this.method.code[this.pc+2])
+}
+
 func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
 	if !method.isNative() {
 		Fatal("Not a native method")

@@ -22,7 +22,11 @@ var NATIVE_FUNCTIONS = map[string]reflect.Value {
 	"Java_GVM_toUpper": reflect.ValueOf(Java_GVM_toUpper),
 	"Java_java_lang_Object_registerNatives": reflect.ValueOf(Java_java_lang_Object_registerNatives),
 	"Java_java_lang_System_registerNatives": reflect.ValueOf(Java_java_lang_System_registerNatives),
-	"Java_java_lang_Class_registerNatives": reflect.ValueOf(Java_java_lang_System_registerNatives),
+	"Java_java_lang_Class_registerNatives": reflect.ValueOf(Java_java_lang_Class_registerNatives),
+	"Java_java_lang_Class_getPrimitiveClass": reflect.ValueOf(Java_java_lang_Class_getPrimitiveClass),
+	"Java_java_lang_Class_desiredAssertionStatus0": reflect.ValueOf(Java_java_lang_Class_desiredAssertionStatus0),
+	"Java_java_lang_Float_floatToRawIntBits": reflect.ValueOf(Java_java_lang_Float_floatToRawIntBits),
+	"Java_java_lang_Double_doubleToRawLongBits": reflect.ValueOf(Java_java_lang_Double_doubleToRawLongBits),
 }
 
 

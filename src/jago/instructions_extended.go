@@ -33,15 +33,20 @@ func MULTIANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method)
 
 /*198 (0XC6)*/
 func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	offset := f.offset16()
+
+	value := f.pop().(Reference)
+	if value.IsNull() {
+		f.pc += int(offset)
+	}
 }
 
 /*199 (0XC7)*/
 func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	offset := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+	offset := f.offset16()
 
-	value := f.pop()
-	if(value != nil) {
+	value := f.pop().(Reference)
+	if !value.IsNull() {
 		f.pc += int(offset)
 	}
 }
