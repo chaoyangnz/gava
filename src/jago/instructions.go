@@ -227,47 +227,7 @@ var instructions = [JVM_OPC_MAX+1]Instruction{
 	///*255 (0xFF)*/    Instruction{"impdep2", IMPDEP2},
 }
 
-func Execute(initialClass *Class)  {
-	thread := THREAD_MANAGER.CurrentThread()
-	mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
-	thread.pushFrame(NewStackFrame(mainMethod))
 
-	initialClass.Link()
-	initialClass.Initialize(thread)
-
-	for len(thread.vmStack) != 0 { // per stack frame
-		f := thread.peekFrame()
-		bytecode := f.method.code
-		Trace("⤮ %s.%s%s", f.method.class.name, f.method.name, f.method.descriptor)
-		for f.pc < uint32(len(f.method.code)) {
-			pc := f.pc
-			opcode := bytecode[pc]
-			instruction := instructions[opcode]
-			Trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
-			instruction.interprete(opcode, f, thread, f.method.class, f.method)
-			// jump instruction can operate pc
-			// some instruction also have variable length: tableswitch...
-			// these instructions will control pc themselves
-			instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
-			if f.pc == pc && instruction_length > 0 {
-				f.pc += uint32(instruction_length)
-			}
-
-			if f.pc == 88888888 { // means stay
-				f.pc = pc
-			}
-
-			// if instruction operates the stack, we follow it
-			if len(thread.vmStack) == 0 || f != thread.peekFrame() {
-				break
-			}
-		}
-	}
-}
-
-type FlowControl struct {
-	pc_auto bool
-}
 
 
 
