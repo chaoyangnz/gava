@@ -2,31 +2,31 @@ package jago
 
 /*21 (0X15)*/
 func ILOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.push(f.loadVar(uint(index)).(jint))
 }
 
 /*22 (0X16)*/
 func LLOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.push(f.loadVar(uint(index)).(jlong))
 }
 
 /*23 (0X17)*/
 func FLOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.push(f.loadVar(uint(index)).(jfloat))
 }
 
 /*24 (0X18)*/
 func DLOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.push(f.loadVar(uint(index)).(jdouble))
 }
 
 /*25 (0X19)*/
 func ALOAD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Reference))
 }
 

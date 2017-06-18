@@ -1,8 +1,9 @@
 package jago
 
-type IConstant interface {}
+type Constant interface {}
 
-type ISymbolRef interface {
+type SymbolRef interface {
+	Constant
 	resolve()
 }
 
@@ -97,11 +98,11 @@ func (this *InterfaceMethodRef) resolve() {
 type StringConstant struct {
 	hostClass   *Class
 	value       string
-	jstring     JavaLangString
+	jstring     jobject
 }
 
-func (this *StringConstant) ResolvedString() JavaLangString  {
-	if this.jstring.Object == nil {
+func (this *StringConstant) ResolvedString() jobject  {
+	if this.jstring.isNull() {
 		this.resolve()
 	}
 	return this.jstring

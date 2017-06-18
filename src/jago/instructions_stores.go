@@ -2,31 +2,31 @@ package jago
 
 /*54 (0X36)*/
 func ISTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.storeVar(uint(index), f.pop().(jint))
 }
 
 /*55 (0X37)*/
 func LSTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.storeVar(uint(index), f.pop().(jlong))
 }
 
 /*56 (0X38)*/
 func FSTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.storeVar(uint(index), f.pop().(jfloat))
 }
 
 /*57 (0X39)*/
 func DSTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.storeVar(uint(index), f.pop().(jdouble))
 }
 
 /*58 (0X3A)*/
 func ASTORE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1]
+	index := f.index8()
 	f.storeVar(uint(index), f.pop().(Reference))
 }
 

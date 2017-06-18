@@ -373,7 +373,7 @@ type ConstantMethodHandleInfo struct {
 	referenceIndex u2
 }
 
-func (this *ConstantMethodHandleInfo) runtime(class *Class, classfile *ClassFile) IConstant {
+func (this *ConstantMethodHandleInfo) runtime(class *Class, classfile *ClassFile) Constant {
 	return &MethodHandleConstant{
 		referenceKind: this.referenceKind,
 		referenceIndex: this.referenceIndex}

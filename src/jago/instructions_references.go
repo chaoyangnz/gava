@@ -4,14 +4,14 @@ import "fmt"
 
 /*178 (0XB2)*/
 func GETSTATIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+	index := f.index16()
 	field := c.constantPool[index].(*FieldRef).ResolvedField()
 	f.push(field.class.staticVars[field.index])
 }
 
 /*179 (0XB3)*/
 func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := m.code[f.pc+1] << 8 | m.code[f.pc+2]
+	index := f.index16()
 	value := f.pop()
 	fieldref := c.constantPool[index].(*FieldRef)
 	class := fieldref.ResolvedClass()
@@ -21,7 +21,7 @@ func PUTSTATIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*180 (0XB4)*/
 func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	index := f.index16()
 	objectref := f.pop().(jobject)
 
 	f.push(f.getField(objectref, index))
@@ -29,7 +29,7 @@ func GETFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*181 (0XB5)*/
 func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	index := f.index16()
 	value := f.pop()
 	objectref := f.pop().(jobject)
 
@@ -38,9 +38,12 @@ func PUTFIELD(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*182 (0XB6)*/
 func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
-
+	index := f.index16()
+	if m.name == "desiredAssertionStatus" {
+		Trace("d")
+	}
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
+
 	if method.isStatic() {
 		Fatal("Not an instance method")
 	}
@@ -74,7 +77,7 @@ func INVOKEVIRTUAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 // like invokevirtual with objectref, but don't find along the inheritance
 /*183 (0XB7)*/
 func INVOKESPECIAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
+	index := f.index16()
 
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
@@ -101,13 +104,14 @@ func INVOKESPECIAL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 
 /*184 (0XB8)*/
 func INVOKESTATIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := uint16((m.code[f.pc+1] << 8) | m.code[f.pc+2])
+	index := f.index16()
 
 	methodref := c.constantPool[index].(*MethodRef)
 	class := methodref.ResolvedClass()
 	// do class initialization if any
-	class.Initialize(t)
-	if f != t.peekFrame() {
+	clinits := class.Initialize()
+	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
+	if len(clinits) > 0 {
 		f.pc = 88888888 // revert this instruction so as to execute again
 		return
 	}
@@ -148,7 +152,7 @@ func INVOKEDYNAMIC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) 
 
 /*187 (0XBB)*/
 func NEW(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	index := f.index16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass().(*Class)
 	objectref := class.NewObject()
 	f.push(objectref)
@@ -190,7 +194,7 @@ func NEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 
 /*189 (0XBD)*/
 func ANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	index := bytes2uint16(m.code[f.pc+1:f.pc+3])
+	index := f.index16()
 	count := f.pop().(jint)
 
 	var arrayClass *ArrayClass

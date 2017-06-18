@@ -80,7 +80,7 @@ JVM_T_INT     = 10
 JVM_T_LONG    = 11
 )
 
-/* IConstant Pool Entries */
+/* Constant Pool Entries */
 
 const (
 JVM_CONSTANT_Utf8                   = 1
@@ -359,7 +359,7 @@ JVM_OPC_MAX                 = 202
 /* Opcode length initializer use with something like:
  *   unsigned char opcode_length[JVM_OPC_MAX+1] = JVM_OPCODE_LENGTH_INITIALIZER;
  */
-var JVM_OPCODE_LENGTH_INITIALIZER = [JVM_OPC_MAX+1]uint{
+var JVM_OPCODE_LENGTH_INITIALIZER = [JVM_OPC_MAX+1]int{
 1  /* nop */ ,
 1  /* aconst_null */ ,
 1  /* iconst_m1 */ ,

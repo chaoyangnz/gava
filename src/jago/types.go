@@ -1,5 +1,24 @@
 package jago
 
+/*
+Type system:
+
+Type
+  |- PrimitiveType
+        |- *Byte
+        |- *Short
+        |- *Char
+        |- *Int
+        |- *Long
+        |- *Float
+        |- *Double
+        |- *Boolean
+  |- ClassType
+        |- *Class
+        |- *ArrayClass
+        |- *Interface
+ */
+
 type Type interface {
 	Name() string
 }
@@ -42,7 +61,7 @@ func (this *Boolean) Name() string  {return JVM_SIGNATURE_BOOLEAN}
 
 type ClassType interface {
 	Type
-	SuperClassName() string
+	ClassObject() jobject
 }
 
 type class_type_shared struct {
@@ -52,30 +71,30 @@ type class_type_shared struct {
 	interfaceNames      []string
 	superClass          *Class
 	interfaces          []*Class
+
+	// shared
+	classObject         jobject
+	classLoader         *ClassLoader
 }
 
 func (this *class_type_shared) Name() string {
 	return this.name
 }
 
-func (this *class_type_shared) SuperClassName() string {
-	return this.superClassName
+func (this *class_type_shared) ClassObject() jobject {
+	return this.classObject
 }
 
 type Class struct {
 	class_type_shared
 	// these fields are only for non-array class
-	constantPool        []IConstant
+	constantPool        []Constant
 	fields              []*Field
 	methods             []*Method
 
 	maxInstanceVars     int
 	maxStaticVars       int
 	staticVars          []Value
-
-	// shared
-	classObject         JavaLangClass
-	classLoader         *ClassLoader
 
 	// support link and initialization
 	linked      bool
@@ -94,8 +113,8 @@ func (this *Class) Link()  {
 	// So SymbolRef all implements a method PremitiveType resolve()
 	//for _, constant := range this.constantPool {
 	//	switch constant.(type) {
-	//	case ISymbolRef:
-	//		constant.(ISymbolRef).resolve()
+	//	case SymbolRef:
+	//		constant.(SymbolRef).resolve()
 	//	}
 	//}
 	//this.resolve(class)
@@ -138,21 +157,24 @@ func (this *Class) prepare()  {
 }
 
 // invoke <clinit> to execute initialization code
-func (this *Class) Initialize(thread *Thread)  {
+func (this *Class) Initialize() []*Method {
+	methods := []*Method{}
 	if this.initialized {
-		return
+		return methods
 	}
 
 	class := this
 	for class != nil {
 		clinit := class.GetMethod("<clinit>", "()V")
 		if clinit != nil {
-			thread.pushFrame(NewStackFrame(clinit))
+			methods = append(methods, clinit)
 		}
 		class.initialized = true
 
 		class = class.superClass
 	}
+
+	return methods
 }
 
 func (this *Class) NewObject() jobject {
@@ -279,8 +301,8 @@ func  (this *Field) defaultValue() Value {
 	case JVM_SIGNATURE_FLOAT: t = jfloat(0.0)
 	case JVM_SIGNATURE_DOUBLE: t = jdouble(0.0)
 	case JVM_SIGNATURE_BOOLEAN: t = jboolean(0)
-	case JVM_SIGNATURE_CLASS: t = jobject{nil}
-	case JVM_SIGNATURE_ARRAY: t = Reference(nil)
+	case JVM_SIGNATURE_CLASS: t = NULL_OBJECT
+	case JVM_SIGNATURE_ARRAY: t = NULL_ARRAY
 	default:
 		Fatal("Not a valid descriptor to get a default value")
 	}
