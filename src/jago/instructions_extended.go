@@ -3,12 +3,12 @@ package jago
 import "fmt"
 
 /*196 (0XC4)*/
-func WIDE(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func WIDE(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*197 (0XC5)*/
-func MULTIANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func MULTIANEWARRAY(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	//index := f.index16()
 	//dimensions := m.code[f.pc+3]
 	//
@@ -32,7 +32,7 @@ func MULTIANEWARRAY(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method)
 }
 
 /*198 (0XC6)*/
-func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func IFNULL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	offset := f.offset16()
 
 	value := f.pop().(Reference)
@@ -42,7 +42,7 @@ func IFNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 }
 
 /*199 (0XC7)*/
-func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func IFNONNULL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	offset := f.offset16()
 
 	value := f.pop().(Reference)
@@ -52,11 +52,11 @@ func IFNONNULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 }
 
 /*200 (0XC8)*/
-func GOTO_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func GOTO_W(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*201 (0XC9)*/
-func JSR_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func JSR_W(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }

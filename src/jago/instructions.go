@@ -5,7 +5,7 @@ const MAIN_METHOD_DESCRIPTOR = "([Ljava/lang/String;)V"
 
 type Instruction struct {
 	mnemonic   string
-	interprete func(uint8, *StackFrame, *Thread, *Class, *Method)
+	interprete func(uint8, *Frame, *Thread, *Class, *Method)
 }
 
 var instructions = [JVM_OPC_MAX+1]Instruction{

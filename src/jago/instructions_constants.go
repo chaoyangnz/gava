@@ -1,98 +1,98 @@
 package jago
 
 /*00 (0X00)*/
-func NOP(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func NOP(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*01 (0X01)*/
-func ACONST_NULL(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func ACONST_NULL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	f.push(NULL_OBJECT)
 }
 
 /*02 (0X02)*/
-func ICONST_M1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(-1))
+func ICONST_M1(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(-1))
 }
 
 /*03 (0X03)*/
-func ICONST_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(0))
+func ICONST_0(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(0))
 }
 
 /*04 (0X04)*/
-func ICONST_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(1))
+func ICONST_1(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(1))
 }
 
 /*05 (0X05)*/
-func ICONST_2(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(2))
+func ICONST_2(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(2))
 }
 
 /*06 (0X06)*/
-func ICONST_3(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(3))
+func ICONST_3(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(3))
 }
 
 /*07 (0X07)*/
-func ICONST_4(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(4))
+func ICONST_4(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(4))
 }
 
 /*08 (0X08)*/
-func ICONST_5(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jint(5))
+func ICONST_5(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Int(5))
 }
 
 /*09 (0X09)*/
-func LCONST_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jlong(0))
+func LCONST_0(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Long(0))
 }
 
 /*10 (0X0A)*/
-func LCONST_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jlong(1))
+func LCONST_1(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Long(1))
 }
 
 /*11 (0X0B)*/
-func FCONST_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jfloat(0.0))
+func FCONST_0(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Float(0.0))
 }
 
 /*12 (0X0C)*/
-func FCONST_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jfloat(1.0))
+func FCONST_1(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Float(1.0))
 }
 
 /*13 (0X0D)*/
-func FCONST_2(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jfloat(2.0))
+func FCONST_2(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Float(2.0))
 }
 
 /*14 (0X0E)*/
-func DCONST_0(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jdouble(0.0))
+func DCONST_0(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Double(0.0))
 }
 
 /*15 (0X0F)*/
-func DCONST_1(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	f.push(jdouble(1.0))
+func DCONST_1(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	f.push(Double(1.0))
 }
 
 /*16 (0X10)*/
-func BIPUSH(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	b := jbyte(m.code[f.pc+1])
-	f.push(jint(b))
+func BIPUSH(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	b := Byte(m.code[f.pc+1])
+	f.push(Int(b))
 }
 
 /*17 (0X11)*/
-func SIPUSH(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
-	s := jshort(f.offset16())
-	f.push(jint(s))
+func SIPUSH(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+	s := Short(f.offset16())
+	f.push(Int(s))
 }
 
 /*18 (0X12)*/
-func LDC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func LDC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	index := f.index8()
 	cpInfo := c.constantPool[index]
 	switch cpInfo.(type) {
@@ -112,7 +112,7 @@ func LDC(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 }
 
 /*19 (0X13)*/
-func LDC_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func LDC_W(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	index := f.index16()
 	cpInfo := c.constantPool[index]
 	switch cpInfo.(type) {
@@ -128,7 +128,7 @@ func LDC_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
 }
 
 /*20 (0X14)*/
-func LDC2_W(opcode uint8, f *StackFrame, t *Thread, c *Class, m *Method) {
+func LDC2_W(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	index := f.index16()
 
 	cpInfo := c.constantPool[index]
