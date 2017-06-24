@@ -5,63 +5,77 @@ Type system:
 
 Type
   |- PrimitiveType
-        |- *Byte
-        |- *Short
-        |- *Char
-        |- *Int
-        |- *Long
-        |- *Float
-        |- *Double
-        |- *Boolean
+        |- *ByteType
+        |- *ShortType
+        |- *CharType
+        |- *IntType
+        |- *LongType
+        |- *FloatType
+        |- *DoubleType
+        |- *BooleanType
   |- ClassType
         |- *Class
         |- *ArrayClass
-        |- *Interface
  */
 
 type Type interface {
 	Name() string
+	Descriptor() string
 }
 
-type PremitiveType interface {
+type PrimitiveType interface {
 	Type
 }
 
 type (
-	Byte struct {}
-	Short struct {}
-	Char struct {}
-	Int struct {}
-	Long struct {}
-	Float struct {}
-	Double struct {}
-	Boolean struct {}
+	ByteType struct {}
+	ShortType struct {}
+	CharType struct {}
+	IntType struct {}
+	LongType struct {}
+	FloatType struct {}
+	DoubleType struct {}
+	BooleanType struct {}
+
+	ReturnAddressType struct {}
 )
 // their singletons
 var (
-	BYTE_TYPE = &Byte{}
-	CHAR_TYPE = &Char{}
-	SHORT_TYPE = &Short{}
-	INT_TYPE = &Int{}
-	LONG_TYPE = &Long{}
-	FLOAT_TYPE = &Float{}
-	DOUBLE_TYPE = &Double{}
-	BOOLEAN_TYPE = &Boolean{}
+	BYTE_TYPE = &ByteType{}
+	CHAR_TYPE = &CharType{}
+	SHORT_TYPE = &ShortType{}
+	INT_TYPE = &IntType{}
+	LONG_TYPE = &LongType{}
+	FLOAT_TYPE = &FloatType{}
+	DOUBLE_TYPE = &DoubleType{}
+	BOOLEAN_TYPE = &BooleanType{}
+
+	RETURN_ADDRESS_TYPE = &ReturnAddressType{}
 )
 
-func (this *Byte) Name() string  {return JVM_SIGNATURE_BYTE}
-func (this *Short) Name() string  {return JVM_SIGNATURE_SHORT}
-func (this *Char) Name() string  {return JVM_SIGNATURE_CHAR}
-func (this *Int) Name() string  {return JVM_SIGNATURE_INT}
-func (this *Long) Name() string  {return JVM_SIGNATURE_LONG}
-func (this *Float) Name() string  {return JVM_SIGNATURE_FLOAT}
-func (this *Double) Name() string  {return JVM_SIGNATURE_DOUBLE}
-func (this *Boolean) Name() string  {return JVM_SIGNATURE_BOOLEAN}
-
+func (this *ByteType) Name() string    {return JVM_SIGNATURE_BYTE}
+func (this *ShortType) Name() string   {return JVM_SIGNATURE_SHORT}
+func (this *CharType) Name() string    {return JVM_SIGNATURE_CHAR}
+func (this *IntType) Name() string     {return JVM_SIGNATURE_INT}
+func (this *LongType) Name() string    {return JVM_SIGNATURE_LONG}
+func (this *FloatType) Name() string   {return JVM_SIGNATURE_FLOAT}
+func (this *DoubleType) Name() string  {return JVM_SIGNATURE_DOUBLE}
+func (this *BooleanType) Name() string {return JVM_SIGNATURE_BOOLEAN}
+func (this *ReturnAddressType) Name() string {return "->"}
+func (this *ByteType) Descriptor() string    {return JVM_SIGNATURE_BYTE}
+func (this *ShortType) Descriptor() string   {return JVM_SIGNATURE_SHORT}
+func (this *CharType) Descriptor() string    {return JVM_SIGNATURE_CHAR}
+func (this *IntType) Descriptor() string     {return JVM_SIGNATURE_INT}
+func (this *LongType) Descriptor() string    {return JVM_SIGNATURE_LONG}
+func (this *FloatType) Descriptor() string   {return JVM_SIGNATURE_FLOAT}
+func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
+func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
+func (this *ReturnAddressType) Descriptor() string {return "->"}
 
 type ClassType interface {
 	Type
-	ClassObject() jobject
+	ClassObject() ObjectRef
+	IsAssignableFrom(ClassType) bool
 }
 
 type class_type_shared struct {
@@ -73,15 +87,15 @@ type class_type_shared struct {
 	interfaces          []*Class
 
 	// shared
-	classObject         jobject
-	classLoader         *ClassLoader
+	classObject ObjectRef
+	classLoader *ClassLoader
 }
 
 func (this *class_type_shared) Name() string {
 	return this.name
 }
 
-func (this *class_type_shared) ClassObject() jobject {
+func (this *class_type_shared) ClassObject() ObjectRef {
 	return this.classObject
 }
 
@@ -101,6 +115,10 @@ type Class struct {
 	initialized bool
 }
 
+func (this *Class) Descriptor() string  {
+	return JVM_SIGNATURE_CLASS + this.Name() + JVM_SIGNATURE_ENDCLASS
+}
+
 func (this *Class) Link()  {
 	if this.linked {
 		return
@@ -110,7 +128,7 @@ func (this *Class) Link()  {
 
 	this.linked = true
 	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
-	// So SymbolRef all implements a method PremitiveType resolve()
+	// So SymbolRef all implements a method PrimitiveType resolve()
 	//for _, constant := range this.constantPool {
 	//	switch constant.(type) {
 	//	case SymbolRef:
@@ -177,7 +195,48 @@ func (this *Class) Initialize() []*Method {
 	return methods
 }
 
-func (this *Class) NewObject() jobject {
+func (this *Class) IsInterface() bool  {
+	return this.accessFlags & JVM_ACC_INTERFACE > 0
+}
+
+func (this *Class) IsAssignableFrom(class ClassType) bool  {
+	// this is interface
+	if this.IsInterface() {
+		var interfaces []*Class
+		switch class.(type) {
+		case *Class:      interfaces = class.(*Class).interfaces
+		case *ArrayClass: interfaces = class.(*ArrayClass).interfaces
+		}
+		for _, interface0 := range interfaces {
+			if interface0 == this {
+				return true
+			}
+			interfaces = append(interfaces, interface0.interfaces...)
+		}
+	} else { // non-interface class
+		clazz := class.(*Class)
+		switch class.(type) {
+		case *Class:
+			if clazz.IsInterface() {// interface disallow
+				return false
+			}
+			for clazz != nil {
+				if clazz == this {
+					return true
+				}
+				clazz = clazz.superClass
+			}
+		case *ArrayClass:
+			if this.name == "java/lang/Object" {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (this *Class) NewObject() ObjectRef {
 	this.Link()
 
 	object := &Object{class: this}
@@ -200,7 +259,7 @@ func (this *Class) NewObject() jobject {
 		}
 	}
 
-	return jobject{object}
+	return ObjectRef{object}
 }
 
 /**
@@ -255,18 +314,22 @@ type ArrayClass struct {
 	dimensions    int
 }
 
-func (this *ArrayClass) NewArray(length jint) jarray {
+func (this *ArrayClass) Descriptor() string  {
+	return this.Name()
+}
+
+func (this *ArrayClass) NewArray(length Int) ArrayRef {
 	elements := make([]Value, length)
 	for i, _ := range elements {
 		switch this.componentType.(type) {
-		case *Byte:       elements[i] = jbyte(0)
-		case *Short:      elements[i] = jshort(0)
-		case *Char:       elements[i] = jchar(0)
-		case *Int:        elements[i] = jint(0)
-		case *Long:       elements[i] = jlong(0)
-		case *Float:      elements[i] = jfloat(0.0)
-		case *Double:     elements[i] = jlong(0.0)
-		case *Boolean:    elements[i] = FALSE
+		case *ByteType:       elements[i] = Byte(0)
+		case *ShortType:      elements[i] = Short(0)
+		case *CharType:       elements[i] = Char(0)
+		case *IntType:        elements[i] = Int(0)
+		case *LongType:       elements[i] = Long(0)
+		case *FloatType:      elements[i] = Float(0.0)
+		case *DoubleType:     elements[i] = Long(0.0)
+		case *BooleanType:    elements[i] = FALSE
 		case *Class:      elements[i] = NULL_OBJECT
 		case *ArrayClass: elements[i] = NULL_ARRAY
 		default:
@@ -274,12 +337,43 @@ func (this *ArrayClass) NewArray(length jint) jarray {
 		}
 	}
 
-	return jarray{&Array{this, length, elements}}
+	return ArrayRef{&Array{this, length, elements}}
 }
 
-type Interface struct {
-	class_type_shared
+func (this *ArrayClass) IsAssignableFrom(class ClassType) bool  {
+	switch class.(type) {
+	case *ArrayClass:
+		clazz := class.(*ArrayClass)
+		switch this.componentType.(type) {
+		case ClassType:
+			switch clazz.componentType.(type) {
+			case ClassType:
+				return this.componentType.(ClassType).IsAssignableFrom(clazz.componentType.(ClassType))
+			}
+		}
+	}
+	return false
 }
+
+//type Interface struct {
+//	class_type_shared
+//}
+//
+//func (this *Interface) IsAssignableFrom(class ClassType) bool  {
+//	var interfaces []*Interface
+//	switch class.(type) {
+//	case *Class:      interfaces = class.(*Class).interfaces
+//	case *ArrayClass: interfaces = class.(*ArrayClass).interfaces
+//	case *Interface:  interfaces = class.(*Interface).interfaces
+//	}
+//	for _, interface0 := range interfaces {
+//		if interface0 == this {
+//			return true
+//		}
+//		interfaces = append(interfaces, interface0.interfaces...)
+//	}
+//	return false
+//}
 
 type class_member_shared struct {
 	accessFlags        uint16
@@ -304,13 +398,13 @@ func (this *Field) isStatic() bool {
 func  (this *Field) defaultValue() Value {
 	var t Value
 	switch string(this.descriptor[0]) {
-	case JVM_SIGNATURE_BYTE: t = jbyte(0)
-	case JVM_SIGNATURE_SHORT: t = jshort(0)
-	case JVM_SIGNATURE_CHAR: t = jchar(0)
-	case JVM_SIGNATURE_INT: t = jint(0)
-	case JVM_SIGNATURE_LONG: t = jlong(0)
-	case JVM_SIGNATURE_FLOAT: t = jfloat(0.0)
-	case JVM_SIGNATURE_DOUBLE: t = jdouble(0.0)
+	case JVM_SIGNATURE_BYTE: t = Byte(0)
+	case JVM_SIGNATURE_SHORT: t = Short(0)
+	case JVM_SIGNATURE_CHAR: t = Char(0)
+	case JVM_SIGNATURE_INT: t = Int(0)
+	case JVM_SIGNATURE_LONG: t = Long(0)
+	case JVM_SIGNATURE_FLOAT: t = Float(0.0)
+	case JVM_SIGNATURE_DOUBLE: t = Double(0.0)
 	case JVM_SIGNATURE_BOOLEAN: t = FALSE
 	case JVM_SIGNATURE_CLASS: t = NULL_OBJECT
 	case JVM_SIGNATURE_ARRAY: t = NULL_ARRAY

@@ -96,12 +96,12 @@ func (this *InterfaceMethodRef) resolve() {
 }
 
 type StringConstant struct {
-	hostClass   *Class
-	value       string
-	jstring     jobject
+	hostClass *Class
+	value     string
+	jstring   ObjectRef
 }
 
-func (this *StringConstant) ResolvedString() jobject  {
+func (this *StringConstant) ResolvedString() ObjectRef {
 	if this.jstring.IsNull() {
 		this.resolve()
 	}
@@ -119,23 +119,23 @@ type UTF8Constant struct {
 }
 
 type IntegerConstant struct {
-	hostClass   *Class
-	value jint
+	hostClass *Class
+	value     Int
 }
 
 type LongConstant struct {
-	hostClass   *Class
-	value jlong
+	hostClass *Class
+	value     Long
 }
 
 type FloatConstant struct {
-	hostClass   *Class
-	value jfloat
+	hostClass *Class
+	value     Float
 }
 
 type DoubleConstant struct {
-	hostClass   *Class
-	value jdouble
+	hostClass *Class
+	value     Double
 }
 
 type NameAndTypeConstant struct {

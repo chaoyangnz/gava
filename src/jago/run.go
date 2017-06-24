@@ -12,15 +12,16 @@ type ThreadManager struct {
 func (this *ThreadManager) NewThread(name string) *Thread {
 	return &Thread{
 			name: name,
-			vmStack: make([]*StackFrame, 0, DEFAULT_VM_STACK_SIZE)}
+			vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE)}
 }
 
+// We choose fix-sized stack size
 const DEFAULT_VM_STACK_SIZE  = 512
 
 type Thread struct {
 	id          uint
 	name        string
-	vmStack     []*StackFrame
+	vmStack     []*Frame
 }
 
 func (this *Thread) Run()  {
@@ -54,18 +55,21 @@ func (this *Thread) Run()  {
 	}
 }
 
-type StackFrame struct {
+type Frame struct {
 	method *Method
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc int
+	// long and double will occupy two variable indexes
 	localVariables      []Value
 	// operand stack
+	// a value of type `long` or `double` contributes two units to the depth and a value of any other type contributes one unit
+	// but here we use long and double only use one unit. There is not any violation
 	operandStack        []Value
 }
 
-func NewStackFrame(method *Method) *StackFrame {
-	stackFrame := &StackFrame{
+func NewStackFrame(method *Method) *Frame {
+	stackFrame := &Frame{
 		method: method,
 		pc: 0,
 		localVariables: make([]Value, method.maxLocals), // local variables have no initial values
@@ -73,24 +77,24 @@ func NewStackFrame(method *Method) *StackFrame {
 	return stackFrame
 }
 
-func (this *StackFrame) loadVar(index uint) Value {
+func (this *Frame) loadVar(index uint) Value {
 	value := this.localVariables[index]
 	return value
 }
 
-func (this *StackFrame) storeVar(index uint, value Value)  {
+func (this *Frame) storeVar(index uint, value Value)  {
 	this.localVariables[index] = value
 }
 
-func (this *StackFrame) index8() uint8 {
+func (this *Frame) index8() uint8 {
 	return uint8(this.method.code[this.pc+1])
 }
 
-func (this *StackFrame) index16() uint16 {
+func (this *Frame) index16() uint16 {
 	return (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
 }
 
-func (this *StackFrame) offset16() int16 {
+func (this *Frame) offset16() int16 {
 	return (int16(this.method.code[this.pc+1]) << 8) | int16(this.method.code[this.pc+2])
 }
 
@@ -121,7 +125,7 @@ func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
 /*
 Parameters are passed in a reversed order from operand stack in JVM
  */
-func (this *StackFrame) passParameters(callee *StackFrame)  {
+func (this *Frame) passParameters(callee *Frame)  {
 	method := callee.method
 	start := len(method.parameterDescriptors) - 1
 	end := 0
@@ -137,27 +141,27 @@ func (this *StackFrame) passParameters(callee *StackFrame)  {
 	}
 }
 
-func (this *StackFrame) passReturn(caller *StackFrame)  {
+func (this *Frame) passReturn(caller *Frame)  {
 	caller.push(this.pop())
 }
 
-func (this *StackFrame) getField(objectref jobject, index uint16) Value {
+func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
 	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
 	return objectref.instanceVars[i]
 }
 
-func (this *StackFrame) putField(objectref jobject, index uint16, value Value) {
+func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
 	objectref.instanceVars[i] = value
 }
 
-func (this *StackFrame) push(Value Value)  {
+func (this *Frame) push(Value Value)  {
 	operandStackSize := len(this.operandStack)
 	this.operandStack = this.operandStack[:operandStackSize+1]
 	this.operandStack[operandStackSize] = Value
 }
 
-func (this *StackFrame) pop() Value {
+func (this *Frame) pop() Value {
 	operandStackSize := len(this.operandStack)
 	Value := this.operandStack[operandStackSize-1]
 	this.operandStack[operandStackSize-1] = nil
@@ -165,16 +169,16 @@ func (this *StackFrame) pop() Value {
 	return Value
 }
 
-func (this *StackFrame) peek() Value {
+func (this *Frame) peek() Value {
 	operandStackSize := len(this.operandStack)
 	Value := this.operandStack[operandStackSize-1]
 	return Value
 }
 
-func (this *Thread) pushFrame(stackFrame *StackFrame)  {
+func (this *Thread) pushFrame(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
-		Fatal("Stack Overflow")
+		Throw("java.lang.StackOverflowError", "Exceed the maximum stack size")
 	}
 	this.vmStack = this.vmStack[:size+1]
 	this.vmStack[size] = stackFrame
@@ -188,12 +192,12 @@ func (this *Thread) popFrame()  {
 	this.vmStack = this.vmStack[:size-1]
 }
 
-func (this *Thread) peekFrame() *StackFrame  {
+func (this *Thread) peekFrame() *Frame {
 	size := len(this.vmStack)
 	return this.vmStack[size-1]
 }
 
-func (this *Thread) pushFrames(stackFrames ...*StackFrame)  {
+func (this *Thread) pushFrames(stackFrames ...*Frame)  {
 	for _, stackFrame := range stackFrames {
 		this.pushFrame(stackFrame)
 	}
@@ -202,7 +206,7 @@ func (this *Thread) pushFrames(stackFrames ...*StackFrame)  {
 /**
 	Always add to tail: this can be used when system initialization
  */
-func (this *Thread) enqueueFrame(stackFrame *StackFrame)  {
+func (this *Thread) enqueueFrame(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
 		Fatal("Stack Overflow")
@@ -214,7 +218,7 @@ func (this *Thread) enqueueFrame(stackFrame *StackFrame)  {
 	this.vmStack[0] = stackFrame
 }
 
-func (this *Thread) enqueueFrames(stackFrames ...*StackFrame)  {
+func (this *Thread) enqueueFrames(stackFrames ...*Frame)  {
 	for _, stackFrame := range stackFrames {
 		this.enqueueFrame(stackFrame)
 	}

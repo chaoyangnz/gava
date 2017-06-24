@@ -245,16 +245,16 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constant = &StringConstant{class,classfile.cpUtf8(constantStringInfo.stringIndex), NULL_OBJECT}
 		case *ConstantIntegerInfo:
 			constantIntegerInfo := constInfo.(*ConstantIntegerInfo)
-			constant = &IntegerConstant{class,jint(constantIntegerInfo.bytes)}
+			constant = &IntegerConstant{class, Int(constantIntegerInfo.bytes)}
 		case *ConstantFloatInfo:
 			constantFloatInfo := constInfo.(*ConstantFloatInfo)
-			constant = &FloatConstant{class,jfloat(constantFloatInfo.bytes)}
+			constant = &FloatConstant{class, Float(constantFloatInfo.bytes)}
 		case *ConstantLongInfo:
 			constantLongInfo := constInfo.(*ConstantLongInfo)
-			constant = &LongConstant{class,jlong(constantLongInfo.highBytes << 32 | constantLongInfo.lowBytes)}
+			constant = &LongConstant{class, Long(constantLongInfo.highBytes << 32 | constantLongInfo.lowBytes)}
 		case *ConstantDoubleInfo:
 			constantDoubleInfo := constInfo.(*ConstantDoubleInfo)
-			constant = &DoubleConstant{class,jdouble(constantDoubleInfo.highBytes << 32 | constantDoubleInfo.lowBytes)}
+			constant = &DoubleConstant{class, Double(constantDoubleInfo.highBytes << 32 | constantDoubleInfo.lowBytes)}
 		case *ConstantNameAndTypeInfo:
 			constantNameAndTypeInfo := constInfo.(*ConstantNameAndTypeInfo)
 			constant = &NameAndTypeConstant{class,classfile.cpUtf8(constantNameAndTypeInfo.nameIndex),classfile.cpUtf8(constantNameAndTypeInfo.descriptorIndex)}

@@ -10,7 +10,7 @@ var APP_CLASS_PATH []string
 
 
 
-var STRING_TABLE = map[string]jobject {}
+var STRING_TABLE = map[string]ObjectRef{}
 
 
 var BOOTSTRAP_CLASSLOADER = NewClassLoader(SYS_CLASS_PATH, nil)
