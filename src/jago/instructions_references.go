@@ -3,14 +3,14 @@ package jago
 import "fmt"
 
 /*178 (0XB2)*/
-func GETSTATIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	field := c.constantPool[index].(*FieldRef).ResolvedField()
 	f.push(field.class.staticVars[field.index])
 }
 
 /*179 (0XB3)*/
-func PUTSTATIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	value := f.pop()
 	fieldref := c.constantPool[index].(*FieldRef)
@@ -20,7 +20,7 @@ func PUTSTATIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*180 (0XB4)*/
-func GETFIELD(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	objectref := f.pop().(ObjectRef)
 
@@ -28,7 +28,7 @@ func GETFIELD(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*181 (0XB5)*/
-func PUTFIELD(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	value := f.pop()
 	objectref := f.pop().(ObjectRef)
@@ -37,7 +37,7 @@ func PUTFIELD(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*182 (0XB6)*/
-func INVOKEVIRTUAL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 
@@ -73,7 +73,7 @@ func INVOKEVIRTUAL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 
 // like invokevirtual with objectref, but don't find along the inheritance
 /*183 (0XB7)*/
-func INVOKESPECIAL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func INVOKESPECIAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
@@ -100,7 +100,7 @@ func INVOKESPECIAL(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*184 (0XB8)*/
-func INVOKESTATIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 
 	methodref := c.constantPool[index].(*MethodRef)
@@ -109,7 +109,7 @@ func INVOKESTATIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 	clinits := class.Initialize()
 	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
 	if len(clinits) > 0 {
-		f.pc = 88888888 // revert this instruction so as to execute again
+		*jumped = true // stay this instruction so as to execute again
 		return
 	}
 
@@ -138,17 +138,17 @@ func INVOKESTATIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*185 (0XB9)*/
-func INVOKEINTERFACE(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func INVOKEINTERFACE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*186 (0XBA)*/
-func INVOKEDYNAMIC(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func INVOKEDYNAMIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*187 (0XBB)*/
-func NEW(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func NEW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass().(*Class)
 	objectref := class.NewObject()
@@ -168,7 +168,7 @@ const (
 )
 
 /*188 (0XBC)*/
-func NEWARRAY(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	atype := uint8(m.code[f.pc+1])
 	var componentDescriptor string
 	switch atype {
@@ -190,7 +190,7 @@ func NEWARRAY(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*189 (0XBD)*/
-func ANEWARRAY(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	count := f.pop().(Int)
 
@@ -210,31 +210,31 @@ func ANEWARRAY(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
 }
 
 /*190 (0XBE)*/
-func ARRAYLENGTH(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func ARRAYLENGTH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.pop().(ArrayRef).length)
 }
 
 /*191 (0XBF)*/
-func ATHROW(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*192 (0XC0)*/
-func CHECKCAST(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func CHECKCAST(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*193 (0XC1)*/
-func INSTANCEOF(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*194 (0XC2)*/
-func MONITORENTER(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*195 (0XC3)*/
-func MONITOREXIT(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func MONITOREXIT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }

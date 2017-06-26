@@ -14,7 +14,7 @@ func Startup(initialClassName string)  {
 
 	initialClass := BOOTSTRAP_CLASSLOADER.CreateClass(initialClassName).(*Class)
 	// As per jvm specification, initial main method needs to initialize initial class
-	initialClass.Link()
+	//initialClass.Link0()
 	initialClassClinits := initialClass.Initialize()
 	for _, clinit := range initialClassClinits { thread.enqueueFrame(NewStackFrame(clinit))}
 

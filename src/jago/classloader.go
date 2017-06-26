@@ -25,16 +25,23 @@ func (this *ClassLoader) CreateClass(className string) ClassType {
 
 	__indention++
 	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
-	Trace(__times(__indention, "  ") + "⤈ %s", className)
+	Trace(__times(__indention, "  ") + "↳ %s", className)
 
 	var class ClassType
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
 		class = this.createArrayClass(className)
 	} else {
-		class = this.loadClass(className)
+		clazz := this.loadClass(className)
+		// eager linkage
+		this.link(clazz)
+
+		// attach a java.lang.Class object
+		clazz.classObject = NewJavaLangClass()
+
+		class = clazz
 	}
 
-	Trace(__times(__indention, "  ") + "⤉ %s", className)
+	Trace(__times(__indention, "  ") + "↱ %s", className)
 	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
 	__indention--
 	return class
@@ -382,16 +389,67 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 		class.superClass = this.CreateClass(class.superClassName).(*Class)
 	}
 
+	// calculate static variables and instance variable count
+	// must be immediately after resolving super class
+	maxInstanceVars := 0  // include all the ancestry
+	maxStaticVars := 0
+
+	if class.superClass != nil {
+		maxInstanceVars = class.superClass.maxInstanceVars
+	}
+	for _, field := range class.fields {
+		if field.isStatic() {
+			field.index = maxStaticVars
+			maxStaticVars++
+		} else {
+			field.index = maxInstanceVars
+			maxInstanceVars++
+		}
+	}
+	class.maxInstanceVars = maxInstanceVars
+	class.maxStaticVars = maxStaticVars
+
 	// resolve interfaces
 	class.interfaces = make([]*Class, len(class.interfaceNames))
 	for i, interfaceName := range class.interfaceNames {
 		class.interfaces[i] = this.CreateClass(interfaceName).(*Class)
 	}
 
-	// attach a java.lang.Class object
-	class.classObject = NewJavaLangClass()
-
 	return class
+}
+
+func (this *ClassLoader) link(class *Class)  {
+	if class.linked {
+		return
+	}
+	this.verify(class)
+	this.prepare(class)
+
+	class.linked = true
+	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
+	// So SymbolRef all implements a method PrimitiveType resolve()
+	//for _, constant := range this.constantPool {
+	//	switch constant.(type) {
+	//	case SymbolRef:
+	//		constant.(SymbolRef).resolve()
+	//	}
+	//}
+	//this.resolve(class)
+}
+
+func (this *ClassLoader) verify(class *Class) {
+	//TODO
+}
+
+// initialize static variables to default values: no need to execute code
+func (this *ClassLoader) prepare(class *Class)  {
+	// Initialize static variables
+	class.staticVars = make([]Value, class.maxStaticVars)
+	for _, field := range class.fields {
+		if field.isStatic() {
+			class.staticVars[field.index] = field.defaultValue()
+		}
+	}
 }
 
 

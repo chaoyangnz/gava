@@ -28,23 +28,20 @@ func (this *Thread) Run()  {
 	for len(this.vmStack) != 0 { // per stack frame
 		f := this.peekFrame()
 		bytecode := f.method.code
-		Trace("⤮ %s.%s%s", f.method.class.name, f.method.name, f.method.descriptor)
+		Trace("🍷 %s.%s%s", f.method.class.name, f.method.name, f.method.descriptor)
 		for f.pc < len(f.method.code) {
 			pc := f.pc
 			opcode := bytecode[pc]
 			instruction := instructions[opcode]
 			Trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
-			instruction.interprete(opcode, f, this, f.method.class, f.method)
+			jumped := false
+			instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
 			// jump instruction can operate pc
 			// some instruction also have variable length: tableswitch...
 			// these instructions will control pc themselves
 			instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
-			if f.pc == pc && instruction_length > 0 {
+			if !jumped {
 				f.pc += instruction_length
-			}
-
-			if f.pc == 88888888 { // means stay
-				f.pc = pc
 			}
 
 			// if instruction operates the stack, we follow it

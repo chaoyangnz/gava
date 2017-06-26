@@ -42,7 +42,7 @@ func (this *MemberRef) ResolvedClass() *Class {
 
 func (this *MemberRef) resolve() {
 	this.class = BOOTSTRAP_CLASSLOADER.CreateClass(this.className).(*Class)
-	this.class.Link()
+	//this.class.Link()
 }
 
 type FieldRef struct {
