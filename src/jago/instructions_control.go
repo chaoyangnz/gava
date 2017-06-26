@@ -3,68 +3,69 @@ package jago
 import "fmt"
 
 /*167 (0XA7)*/
-func GOTO(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func GOTO(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 
 	f.pc += int(offset)
+	*jumped = true
 }
 
 /*168 (0XA8)*/
-func JSR(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func JSR(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*169 (0XA9)*/
-func RET(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func RET(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*170 (0XAA)*/
-func TABLESWITCH(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func TABLESWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*171 (0XAB)*/
-func LOOKUPSWITCH(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func LOOKUPSWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
 /*172 (0XAC)*/
-func IRETURN(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func IRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
 }
 
 /*173 (0XAD)*/
-func LRETURN(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func LRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
 }
 
 /*174 (0XAE)*/
-func FRETURN(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func FRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
 }
 
 /*175 (0XAF)*/
-func DRETURN(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func DRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
 }
 
 /*176 (0XB0)*/
-func ARETURN(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func ARETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
 }
 
 /*177 (0XB1)*/
-func RETURN(opcode uint8, f *Frame, t *Thread, c *Class, m *Method) {
+func RETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	t.popFrame()
 }

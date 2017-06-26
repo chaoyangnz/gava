@@ -119,60 +119,60 @@ func (this *Class) Descriptor() string  {
 	return JVM_SIGNATURE_CLASS + this.Name() + JVM_SIGNATURE_ENDCLASS
 }
 
-func (this *Class) Link()  {
-	if this.linked {
-		return
-	}
-	this.verify()
-	this.prepare()
-
-	this.linked = true
-	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
-	// So SymbolRef all implements a method PrimitiveType resolve()
-	//for _, constant := range this.constantPool {
-	//	switch constant.(type) {
-	//	case SymbolRef:
-	//		constant.(SymbolRef).resolve()
-	//	}
-	//}
-	//this.resolve(class)
-}
-
-func (this *Class) verify() {
-	//TODO
-}
-
-// initialize static variables to default values: no need to execute code
-func (this *Class) prepare()  {
-	maxInstanceVars := 0  // include all the ancestry
-	maxStaticVars := 0
-
-	if this.superClass != nil {
-		this.superClass.Link()
-		maxInstanceVars = this.superClass.maxInstanceVars
-	}
-
-	// calculate static variables and instance variable count
-	for _, field := range this.fields {
-		if field.isStatic() {
-			field.index = maxStaticVars
-			maxStaticVars++
-		} else {
-			field.index = maxInstanceVars
-			maxInstanceVars++
-		}
-	}
-	this.maxInstanceVars = maxInstanceVars
-	this.maxStaticVars = maxStaticVars
-
-	// Initialize static variables
-	this.staticVars = make([]Value, this.maxStaticVars)
-	for _, field := range this.fields {
-		if field.isStatic() {
-			this.staticVars[field.index] = field.defaultValue()
-		}
-	}
-}
+//func (this *Class) Link()  {
+//	if this.linked {
+//		return
+//	}
+//	this.verify()
+//	this.prepare()
+//
+//	this.linked = true
+//	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
+//	// So SymbolRef all implements a method PrimitiveType resolve()
+//	//for _, constant := range this.constantPool {
+//	//	switch constant.(type) {
+//	//	case SymbolRef:
+//	//		constant.(SymbolRef).resolve()
+//	//	}
+//	//}
+//	//this.resolve(class)
+//}
+//
+//func (this *Class) verify() {
+//	//TODO
+//}
+//
+//// initialize static variables to default values: no need to execute code
+//func (this *Class) prepare()  {
+//	maxInstanceVars := 0  // include all the ancestry
+//	maxStaticVars := 0
+//
+//	if this.superClass != nil {
+//		this.superClass.Link()
+//		maxInstanceVars = this.superClass.maxInstanceVars
+//	}
+//
+//	// calculate static variables and instance variable count
+//	for _, field := range this.fields {
+//		if field.isStatic() {
+//			field.index = maxStaticVars
+//			maxStaticVars++
+//		} else {
+//			field.index = maxInstanceVars
+//			maxInstanceVars++
+//		}
+//	}
+//	this.maxInstanceVars = maxInstanceVars
+//	this.maxStaticVars = maxStaticVars
+//
+//	// Initialize static variables
+//	this.staticVars = make([]Value, this.maxStaticVars)
+//	for _, field := range this.fields {
+//		if field.isStatic() {
+//			this.staticVars[field.index] = field.defaultValue()
+//		}
+//	}
+//}
 
 // invoke <clinit> to execute initialization code
 func (this *Class) Initialize() []*Method {
@@ -237,7 +237,7 @@ func (this *Class) IsAssignableFrom(class ClassType) bool  {
 }
 
 func (this *Class) NewObject() ObjectRef {
-	this.Link()
+	//this.Link()
 
 	object := &Object{class: this}
 	object.instanceVars = make([]Value, this.maxInstanceVars)
