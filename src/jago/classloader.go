@@ -148,10 +148,7 @@ func (this *ClassLoader) createArrayClass(className string) *Class {
 }
 
 func (this *ClassLoader) loadClass(className string) *Class  {
-	bytecode := this.readClass(className)
-
-	//If L creates C directly, we say that L defines C
-	class := this.defineClass(bytecode)
+	class := this.findClass(className)
 
 	// TODO delegation
 
@@ -160,12 +157,14 @@ func (this *ClassLoader) loadClass(className string) *Class  {
 	return class
 }
 
-func (this *ClassLoader) readClass(className string) []byte  {
+func (this *ClassLoader) findClass(className string) *Class  {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {
 		Throw("java.lang.ClassNotFoundException", className)
 	}
-	return bytecode
+	//If L creates C directly, we say that L defines C
+	class := this.defineClass(bytecode)
+	return class
 }
 
 func (this *ClassLoader) defineClass(bytecode []byte) *Class  {

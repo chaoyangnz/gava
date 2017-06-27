@@ -16,9 +16,13 @@ demonstrate the idea. For the educational purpose, it is enough.
 - NO JIT
 - NO multi-thread support
 
+# JDK solution
+
+![](Jago-jdk.png)
+
 # Details
 
-## trace classload and bytecode execution
+## example tracing classloading and bytecode execution
 
 ```
 GOROOT=/usr/local/Cellar/go/1.8.3/libexec
