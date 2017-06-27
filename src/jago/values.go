@@ -4,19 +4,20 @@ package jago
 /*
 Value system:
 
-Value
-  |- Byte
-  |- Short
-  |- Char
-  |- Int
-  |- Long
-  |- Float
-  |- Double
-  |- Boolean
-  |- Reference ( -> *Object / *Array)
-        |- ObjectRef
-        |- ArrayRef
-
+<Value>
+	|- Byte
+	|- Short
+	|- Char
+	|- Int
+	|- Long
+	|- Float
+	|- Double
+	|- Boolean
+	|- <ObjectRef>                      \
+	    |- <JavaLangString>              \
+	    |- <JavaLangClass>                Reference ( -> *Object)
+	    |- <JavaLangClassLoader>         /
+	|- <ArrayRef>                       /
 
 ObjectRef and ArrayRef are only reference value holding a pointer to real heap object <Object> or <Array>.
 The reference itself will be never nil, but its containing pointer can be nil, which means the reference is `null` in Java.
@@ -61,99 +62,148 @@ func (this Boolean) IsFalse() bool {
 	return this == FALSE
 }
 
+type ObjectHeader struct {}
+
 type Object struct {
+	header       ObjectHeader
 	class        *Class
-	instanceVars []Value
+	values      []Value
 }
 
-func (this *Object) getInstanceVariable(name string, descriptor string) Value {
-	field := this.class.FindField(name, descriptor)
+type ObjectRef interface {
+	Value
+	IsNull() bool
+	IsEqual(reference Reference) bool
+	Class() *Class
+
+	GetInstanceVariable(index Int) Value
+	SetInstanceVariable(index Int, value Value)
+	GetInstanceVariableByName(name string, descriptor string) Value
+	SetInstanceVariableByName(name string, descriptor string, value Value)
+}
+
+type ArrayRef interface {
+	Value
+	IsNull() bool
+	IsEqual(reference Reference) bool
+	Class() *Class
+
+	Elements() []Value
+	Length() Int
+	GetElement(index Int) Value
+	SetElement(index Int, value Value)
+}
+
+type Reference struct {
+	oop *Object
+}
+
+func (this Reference) Type() Type       {
+	return this.Class()
+}
+func (this Reference) IsNull() bool {return this.oop == nil}
+func (this Reference) IsEqual(reference Reference) bool {
+	if this.IsNull() && reference.IsNull() {
+		return true
+	}
+	if !this.IsNull() && !reference.IsNull() {
+		return this.oop == reference.oop
+	}
+	return false
+}
+
+
+func (this Reference) assertObject()  {
+	if this.IsNull() {
+		Throw("NullPointerException", "")
+	}
+	if this.Class().IsArray() {
+		Bug("It is not an ObjectRef")
+	}
+}
+func (this Reference) Class() *Class {
+	return this.oop.class
+}
+func (this Reference) GetInstanceVariable(index Int) Value {
+	return this.oop.values[index]
+}
+func (this Reference) SetInstanceVariable(index Int, value Value) {
+	this.assertObject()
+	this.oop.values[index] = value
+}
+func (this Reference) GetInstanceVariableByName(name string, descriptor string) Value {
+	this.assertObject()
+
+	objectref := this.oop
+	field := objectref.class.FindField(name, descriptor)
 	if field.isStatic() {
 		Fatal("not a instance variable")
 	}
-	return this.instanceVars[field.index]
+	return objectref.values[field.index]
 }
+func (this Reference) SetInstanceVariableByName(name string, descriptor string, value Value) {
+	this.assertObject()
 
-func (this *Object) setInstanceVariable(name string, descriptor string, value Value) {
-	field := this.class.FindField(name, descriptor)
+	objectref := this.oop
+	field := objectref.class.FindField(name, descriptor)
 	if field.isStatic() {
 		Fatal("not a instance variable")
 	}
-	this.instanceVars[field.index] = value
+	objectref.values[field.index] = value
 }
 
-type Array struct {
-	class    *ArrayClass
-	length   Int
-	elements []Value
-}
-
-type (
-	 Reference interface {
-		 Value // implement Value
-		 IsNull() bool
-		 IsEqual(Reference) bool
-		 Class() ClassType
+func (this Reference) assertArray()  {
+	if this.IsNull() {
+		Throw("NullPointerException", "")
 	}
-	ObjectRef struct {*Object}
-	ArrayRef struct {*Array}
-	//JavaLangClass struct {ObjectRef}
-	//JavaLangObject struct {ObjectRef}
-	//JavaLangString struct {ObjectRef}
-	NullRef struct {}
-)
-
-func (this ObjectRef) Type() Type       { return this.Class() }
-func (this ObjectRef) Class() ClassType { return this.class }
-func (this ArrayRef) Type() Type        { return this.Class() }
-func (this ArrayRef) Class() ClassType  { return this.class }
-func (this ObjectRef) IsNull() bool     {return this.Object == nil}
-func (this ArrayRef) IsNull() bool      {return this.Array == nil}
-func (this ObjectRef) IsEqual(reference Reference) bool {
-	switch reference.(type) {
-	case ObjectRef:
-		ref := reference.(ObjectRef)
-		return this.Object == ref.Object
+	if !this.Class().IsArray() {
+		Bug("It is not an ArrayRef")
 	}
-	return false
 }
-func (this ArrayRef) IsEqual(reference Reference) bool {
-	switch reference.(type) {
-	case ObjectRef:
-		ref := reference.(ArrayRef)
-		return this.Array == ref.Array
+func (this Reference) Elements() []Value  {
+	this.assertArray()
+	return this.oop.values
+}
+func (this Reference) Length() Int  {
+	this.assertArray()
+	return Int(len(this.oop.values))
+}
+func (this Reference) GetElement(index Int) Value {
+	this.assertArray()
+	return this.oop.values[index]
+}
+func (this Reference) SetElement(index Int, value Value) {
+	this.assertArray()
+	this.oop.values[index] = value
+}
+
+func (this Reference) AsObjectRef() ObjectRef {
+	return this
+}
+func (this Reference) AsArrayRef() ArrayRef {
+	return this
+}
+
+var null = Reference{nil}
+
+
+type JavaLangString interface {
+	ObjectRef
+	toString() string
+}
+type JavaLangClass interface {ObjectRef}
+
+func (this Reference) toString() string  {
+	if this.IsNull() {
+		Throw("NullPointerException", "")
 	}
-	return false
-}
-
-func (this NullRef) Type() Type       { return nil }
-func (this NullRef) Class() ClassType { return nil }
-func (this NullRef) IsNull() bool     {return true}
-func (this NullRef) IsEqual(reference Reference) bool {
-	switch reference.(type) {
-	case NullRef: return true
-	case ObjectRef: return reference.(ObjectRef).Object == nil
-	case ArrayRef: return reference.(ArrayRef).Array == nil
+	this.assertObject()
+	if this.AsObjectRef().Class().name != "java/lang/String" {
+		Bug("It is not a java/lang/String")
 	}
-	return false
-}
-func (this NullRef) AsObjectRef() ObjectRef {
-	return ObjectRef{nil}
-}
-func (this NullRef) AsArrayRef() ArrayRef {
-	return ArrayRef{nil}
-}
 
-var null = NullRef{}
-
-//var (
-//	NULL_OBJECT = ObjectRef{nil}
-//	NULL_ARRAY  = ArrayRef{nil}
-//)
-
-func (this ObjectRef) toString() string  {
 	runes := []rune{}
-	chars := this.instanceVars[0].(ArrayRef).elements
+	chars := this.GetInstanceVariableByName("value", "[C").(ArrayRef).Elements()
 	for i:=0; i < len(chars); i++ {
 		char := chars[i].(Char)
 		if char >= 0xD800 && char <= 0xDBFF {
@@ -176,19 +226,19 @@ func (this ObjectRef) toString() string  {
 	return string(runes)
 }
 
-func NewJavaLangClass() ObjectRef {
-	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Class").(*Class)
+func NewJavaLangClass() JavaLangClass {
+	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Class")
 	object := class.NewObject()
 
 	return object
 }
 
-func NewJavaLangString(str string) ObjectRef {
+func NewJavaLangString(str string) JavaLangString {
 	// check string table
 	if strObj, found := STRING_TABLE[str]; found {
 		return strObj
 	}
-	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/String").(*Class)
+	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/String")
 	object := class.NewObject()
 
 	// convert rune (int32) to Java char (UTF-16 with surrogate)
@@ -207,17 +257,17 @@ func NewJavaLangString(str string) ObjectRef {
 		}
 	}
 	// create value field
-	charArrayClass := BOOTSTRAP_CLASSLOADER.CreateClass("[C").(*ArrayClass)
+	charArrayClass := BOOTSTRAP_CLASSLOADER.CreateClass("[C")
 	values := charArrayClass.NewArray(Int(len(chars)))
-	for i, _ := range values.elements {
-		values.elements[i] = chars[i]
+	for i, _ := range values.Elements() {
+		values.SetElement(Int(i), chars[i])
 	}
-	object.instanceVars[0] = values
+	object.SetInstanceVariableByName("value", "[C", values)
 
 	// create hashing field?
 	// TODO
 
-	return object
+	return object.(Reference)
 }
 
 /////////////////////// Type Conversion //////////////////////////////////

@@ -7,18 +7,18 @@ import (
 
 type ClassLoader struct {
 	classPath     *ClassPath
-	classCache    map[string]ClassType
+	classCache    map[string]*Class
 	parent        *ClassLoader
 }
 
 func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
 	return &ClassLoader{
 		NewClassPath(str),
-		make(map[string]ClassType),
+		make(map[string]*Class),
 		parent}
 }
 
-func (this *ClassLoader) CreateClass(className string) ClassType {
+func (this *ClassLoader) CreateClass(className string) *Class {
 	if class, found := this.classCache[className]; found {
 		return class
 	}
@@ -27,7 +27,7 @@ func (this *ClassLoader) CreateClass(className string) ClassType {
 	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
 	Trace(__times(__indention, "  ") + "↳ %s", className)
 
-	var class ClassType
+	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
 		class = this.createArrayClass(className)
 	} else {
@@ -56,21 +56,20 @@ func __times(t int, str string) string {
 	return ret
 }
 
-func (this *ClassLoader) createArrayClass(className string) *ArrayClass {
+func (this *ClassLoader) createArrayClass(className string) *Class {
 
-	arrayClass := &ArrayClass{
-		class_type_shared: class_type_shared{
+	arrayClass := &Class{
 			name: className,
 			superClassName: "java/lang/Object",
-			interfaceNames: []string{"java/io/Serializable", "java/lang/Cloneable"}, }}
+			interfaceNames: []string{"java/io/Serializable", "java/lang/Cloneable"}}
 
 	this.classCache[className] = arrayClass
 
 	arrayClass.accessFlags = 0
-	arrayClass.superClass = BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Object").(*Class)
+	arrayClass.superClass = BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Object")
 	arrayClass.interfaces = []*Class{
-		BOOTSTRAP_CLASSLOADER.CreateClass("java/io/Serializable").(*Class),
-		BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Cloneable").(*Class)}
+		BOOTSTRAP_CLASSLOADER.CreateClass("java/io/Serializable"),
+		BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Cloneable")}
 
 	componentDescriptor := string(className[1])
 	switch componentDescriptor {
@@ -122,13 +121,13 @@ func (this *ClassLoader) createArrayClass(className string) *ArrayClass {
 	case JVM_SIGNATURE_ARRAY:
 		{
 			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[1:])
-			arrayClass.elementType = arrayClass.componentType.(*ArrayClass).elementType
+			arrayClass.elementType = arrayClass.componentType.(*Class).elementType
 		}
 	}
 	dimensions := 1
 	class := arrayClass
 	for ;; {
-		componentType, ok := class.componentType.(*ArrayClass)
+		componentType, ok := class.componentType.(*Class)
 		if ok {
 			class = componentType
 			dimensions++
@@ -249,7 +248,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constant = &UTF8Constant{class,u2s(constantUtf8Info.bytes)}
 		case *ConstantStringInfo:
 			constantStringInfo := constInfo.(*ConstantStringInfo)
-			constant = &StringConstant{class, classfile.cpUtf8(constantStringInfo.stringIndex), null.AsObjectRef()}
+			constant = &StringConstant{class, classfile.cpUtf8(constantStringInfo.stringIndex), null}
 		case *ConstantIntegerInfo:
 			constantIntegerInfo := constInfo.(*ConstantIntegerInfo)
 			constant = &IntegerConstant{class, Int(constantIntegerInfo.bytes)}
@@ -386,7 +385,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 
 	// resolve super class
 	if class.superClassName != "" {
-		class.superClass = this.CreateClass(class.superClassName).(*Class)
+		class.superClass = this.CreateClass(class.superClassName)
 	}
 
 	// calculate static variables and instance variable count
@@ -412,7 +411,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	// resolve interfaces
 	class.interfaces = make([]*Class, len(class.interfaceNames))
 	for i, interfaceName := range class.interfaceNames {
-		class.interfaces[i] = this.CreateClass(interfaceName).(*Class)
+		class.interfaces[i] = this.CreateClass(interfaceName)
 	}
 
 	return class

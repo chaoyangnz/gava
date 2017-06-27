@@ -12,7 +12,7 @@ func Startup(initialClassName string)  {
 
 
 
-	initialClass := BOOTSTRAP_CLASSLOADER.CreateClass(initialClassName).(*Class)
+	initialClass := BOOTSTRAP_CLASSLOADER.CreateClass(initialClassName)
 	// As per jvm specification, initial main method needs to initialize initial class
 	//initialClass.Link0()
 	initialClassClinits := initialClass.Initialize()

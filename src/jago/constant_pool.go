@@ -10,10 +10,10 @@ type SymbolRef interface {
 type ClassRef struct {
 	hostClass *Class
 	className string
-	class     ClassType // a class ref may be non-array class, array class or an interface
+	class     *Class // a class ref may be non-array class, array class or an interface
 }
 
-func (this *ClassRef) ResolvedClass() ClassType {
+func (this *ClassRef) ResolvedClass() *Class {
 	if this.class == nil {
 		this.resolve()
 	}
@@ -41,7 +41,7 @@ func (this *MemberRef) ResolvedClass() *Class {
 }
 
 func (this *MemberRef) resolve() {
-	this.class = BOOTSTRAP_CLASSLOADER.CreateClass(this.className).(*Class)
+	this.class = BOOTSTRAP_CLASSLOADER.CreateClass(this.className)
 	//this.class.Link()
 }
 
@@ -98,7 +98,7 @@ func (this *InterfaceMethodRef) resolve() {
 type StringConstant struct {
 	hostClass *Class
 	value     string
-	jstring   ObjectRef
+	jstring   JavaLangString
 }
 
 func (this *StringConstant) ResolvedString() ObjectRef {

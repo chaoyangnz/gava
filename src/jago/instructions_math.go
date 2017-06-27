@@ -257,7 +257,7 @@ func LXOR(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) 
 func IINC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index8()
 	const_value := int8(m.code[f.pc+2])
-	Trace("sfd: %d", const_value)
+
 	value := f.loadVar(uint(index)).(Int)
 	f.storeVar(uint(index), value + Int(const_value))
 }

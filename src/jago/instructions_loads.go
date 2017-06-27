@@ -527,13 +527,13 @@ func IALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != INT_TYPE {
+	if arrayref.Class().componentType != INT_TYPE {
 		Bug("Not an int array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	f.push(arrayref.elements[index].(Int))
+	f.push(arrayref.GetElement(index).(Int))
 }
 
 /*
@@ -577,13 +577,13 @@ func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != LONG_TYPE {
+	if arrayref.Class().componentType != LONG_TYPE {
 		Bug("Not a long array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	f.push(arrayref.elements[index].(Long))
+	f.push(arrayref.GetElement(index).(Long))
 }
 
 /*
@@ -627,13 +627,13 @@ func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != FLOAT_TYPE {
+	if arrayref.Class().componentType != FLOAT_TYPE {
 		Bug("Not an float array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	f.push(arrayref.elements[index].(Float))
+	f.push(arrayref.GetElement(index).(Float))
 }
 
 /*
@@ -679,15 +679,49 @@ func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != DOUBLE_TYPE {
+	if arrayref.Class().componentType != DOUBLE_TYPE {
 		Bug("Not an double array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	f.push(arrayref.elements[index].(Double))
+	f.push(arrayref.GetElement(index).(Double))
 }
 
+/*
+aaload
+
+== Operation
+
+Load reference from array
+
+== Format
+
+aaload
+
+== Forms
+
+aaload = 50 (0x32)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type reference.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The reference value in the component of the array at index is retrieved and pushed onto the operand stack.
+
+== Run-time Exceptions
+
+If arrayref is null, aaload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the aaload instruction throws an
+ArrayIndexOutOfBoundsException.
+ */
 /*50 (0x32)*/
 func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
@@ -695,14 +729,14 @@ func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	_, ok := arrayref.class.componentType.(ClassType)
+	_, ok := arrayref.Class().componentType.(*Class)
 	if !ok {
 		Bug("Not an reference array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	f.push(arrayref.elements[index].(Reference))
+	f.push(arrayref.GetElement(index).(Reference))
 }
 
 /*
@@ -753,19 +787,19 @@ func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != BYTE_TYPE && arrayref.class.componentType != BOOLEAN_TYPE {
+	if arrayref.Class().componentType != BYTE_TYPE && arrayref.Class().componentType != BOOLEAN_TYPE {
 		Bug("Not a byte or boolean array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
 
-	if arrayref.class.componentType == BYTE_TYPE {
-		b := arrayref.elements[index].(Byte)
+	if arrayref.Class().componentType == BYTE_TYPE {
+		b := arrayref.GetElement(index).(Byte)
 		f.push(Int(b)) // sign-extended
 	}
-	if arrayref.class.componentType == BOOLEAN_TYPE {
-		b := arrayref.elements[index].(Boolean)
+	if arrayref.Class().componentType == BOOLEAN_TYPE {
+		b := arrayref.GetElement(index).(Boolean)
 		f.push(Int(b)) // sign-extended
 	}
 }
@@ -812,13 +846,13 @@ func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != CHAR_TYPE {
+	if arrayref.Class().componentType != CHAR_TYPE {
 		Bug("Not a char array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	ch := arrayref.elements[index].(Char)
+	ch := arrayref.GetElement(index).(Char)
 	f.push(Int(ch)) //zero-extended to an int value
 }
 
@@ -863,12 +897,12 @@ func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != SHORT_TYPE {
+	if arrayref.Class().componentType != SHORT_TYPE {
 		Bug("Not a short array")
 	}
-	if index < 0 || index >= Int(len(arrayref.elements)) {
+	if index < 0 || index >= arrayref.Length() {
 		Throw("ArrayIndexOutOfBoundsException", "")
 	}
-	s := arrayref.elements[index].(Short)
+	s := arrayref.GetElement(index).(Short)
 	f.push(Int(s)) // sign-extended to an int value
 }
