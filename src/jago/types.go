@@ -1,5 +1,7 @@
 package jago
 
+import "strings"
+
 /*
 Type system:
 
@@ -13,9 +15,8 @@ Type
         |- *FloatType
         |- *DoubleType
         |- *BooleanType
-  |- ClassType
-        |- *Class
-        |- *ArrayClass
+  |- *ReturnAddressType
+  |- *Class
  */
 
 type Type interface {
@@ -72,13 +73,15 @@ func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
 func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
 func (this *ReturnAddressType) Descriptor() string {return "->"}
 
-type ClassType interface {
-	Type
-	ClassObject() ObjectRef
-	IsAssignableFrom(ClassType) bool
-}
+//type ClassType interface {
+//	Type
+//	ClassObject() JavaLangClass
+//	IsAssignableFrom(ClassType) bool
+//	FindMethod(name string, descriptor string) *Method
+//}
 
-type class_type_shared struct {
+type Class struct {
+	// shared
 	name   string
 	accessFlags         uint16
 	superClassName      string
@@ -86,22 +89,10 @@ type class_type_shared struct {
 	superClass          *Class
 	interfaces          []*Class
 
-	// shared
-	classObject ObjectRef
-	classLoader *ClassLoader
-}
+	classObject         JavaLangClass
+	classLoader         *ClassLoader
 
-func (this *class_type_shared) Name() string {
-	return this.name
-}
-
-func (this *class_type_shared) ClassObject() ObjectRef {
-	return this.classObject
-}
-
-type Class struct {
-	class_type_shared
-	// these fields are only for non-array class
+	// ---- these fields are only for non-array class ----
 	constantPool        []Constant
 	fields              []*Field
 	methods             []*Method
@@ -113,6 +104,19 @@ type Class struct {
 	// support link and initialization
 	linked      bool
 	initialized bool
+
+	// ---- these fields are nly for array class -------
+	componentType Type // any type
+	elementType   Type // must be not array type
+	dimensions    int
+}
+
+func (this *Class) Name() string {
+	return this.name
+}
+
+func (this *Class) ClassObject() JavaLangClass {
+	return this.classObject
 }
 
 func (this *Class) Descriptor() string  {
@@ -199,24 +203,35 @@ func (this *Class) IsInterface() bool  {
 	return this.accessFlags & JVM_ACC_INTERFACE > 0
 }
 
-func (this *Class) IsAssignableFrom(class ClassType) bool  {
+func (this *Class) IsArray() bool  {
+	return string(this.name[0]) == JVM_SIGNATURE_ARRAY
+}
+
+func (this *Class) IsAssignableFrom(class *Class) bool  {
 	// this is interface
-	if this.IsInterface() {
-		var interfaces []*Class
-		switch class.(type) {
-		case *Class:      interfaces = class.(*Class).interfaces
-		case *ArrayClass: interfaces = class.(*ArrayClass).interfaces
-		}
+	if this.IsInterface() { // check whether this is within class's interfaces list
+		interfaces := class.interfaces
 		for _, interface0 := range interfaces {
 			if interface0 == this {
 				return true
 			}
 			interfaces = append(interfaces, interface0.interfaces...)
 		}
-	} else { // non-interface class
-		clazz := class.(*Class)
-		switch class.(type) {
-		case *Class:
+	} else if this.IsArray() {
+		if class.IsArray() {
+			thisComponentType, ok1 := this.componentType.(*Class)
+			classComponentType, ok2 := class.componentType.(*Class)
+			if ok1 && ok2 { // covariant
+				return thisComponentType.IsAssignableFrom(classComponentType)
+			}
+		}
+	} else { // non-array class
+		if class.IsArray() {
+			if class.superClass == this {
+				return true
+			}
+		} else {
+			clazz := class
 			if clazz.IsInterface() {// interface disallow
 				return false
 			}
@@ -225,10 +240,6 @@ func (this *Class) IsAssignableFrom(class ClassType) bool  {
 					return true
 				}
 				clazz = clazz.superClass
-			}
-		case *ArrayClass:
-			if this.name == "java/lang/Object" {
-				return true
 			}
 		}
 	}
@@ -240,26 +251,47 @@ func (this *Class) NewObject() ObjectRef {
 	//this.Link()
 
 	object := &Object{class: this}
-	object.instanceVars = make([]Value, this.maxInstanceVars)
+	object.values = make([]Value, this.maxInstanceVars)
 	// Initialize instance variables
 	class := this
 	for class != nil {
 		for _, field := range class.fields {
 			if !field.isStatic() {
-				object.instanceVars[field.index] = field.defaultValue()
+				object.values[field.index] = field.defaultValue()
 			}
 		}
 		class = class.superClass
 	}
 
 	// verify initialization
-	for _, instanceVar := range object.instanceVars {
+	for _, instanceVar := range object.values {
 		if instanceVar == nil {
 			Fatal("Something wrong, unfinished instance variable initialization")
 		}
 	}
 
-	return ObjectRef{object}
+	return Reference{object}
+}
+
+func (this *Class) NewArray(length Int) ArrayRef {
+	elements := make([]Value, length)
+	for i, _ := range elements {
+		switch this.componentType.(type) {
+		case *ByteType:       elements[i] = Byte(0)
+		case *ShortType:      elements[i] = Short(0)
+		case *CharType:       elements[i] = Char(0)
+		case *IntType:        elements[i] = Int(0)
+		case *LongType:       elements[i] = Long(0)
+		case *FloatType:      elements[i] = Float(0.0)
+		case *DoubleType:     elements[i] = Long(0.0)
+		case *BooleanType:    elements[i] = FALSE
+		case *Class:          elements[i] = null
+		default:
+			Fatal("Not a valid component type")
+		}
+	}
+
+	return Reference{&Object{ObjectHeader{}, this, elements}}
 }
 
 /**
@@ -306,54 +338,21 @@ func (this *Class) FindMethod(name string, descriptor string) *Method {
 	return nil
 }
 
-type ArrayClass struct {
-	class_type_shared
-	// these fields are nly for array class
-	componentType Type // any type
-	elementType   Type // must be not array type
-	dimensions    int
-}
 
-func (this *ArrayClass) Descriptor() string  {
-	return this.Name()
-}
-
-func (this *ArrayClass) NewArray(length Int) ArrayRef {
-	elements := make([]Value, length)
-	for i, _ := range elements {
-		switch this.componentType.(type) {
-		case *ByteType:       elements[i] = Byte(0)
-		case *ShortType:      elements[i] = Short(0)
-		case *CharType:       elements[i] = Char(0)
-		case *IntType:        elements[i] = Int(0)
-		case *LongType:       elements[i] = Long(0)
-		case *FloatType:      elements[i] = Float(0.0)
-		case *DoubleType:     elements[i] = Long(0.0)
-		case *BooleanType:    elements[i] = FALSE
-		case *Class:      elements[i] = null.AsObjectRef()
-		case *ArrayClass: elements[i] = null.AsArrayRef()
-		default:
-			Fatal("Not a valid component type")
-		}
-	}
-
-	return ArrayRef{&Array{this, length, elements}}
-}
-
-func (this *ArrayClass) IsAssignableFrom(class ClassType) bool  {
-	switch class.(type) {
-	case *ArrayClass:
-		clazz := class.(*ArrayClass)
-		switch this.componentType.(type) {
-		case ClassType:
-			switch clazz.componentType.(type) {
-			case ClassType:
-				return this.componentType.(ClassType).IsAssignableFrom(clazz.componentType.(ClassType))
-			}
-		}
-	}
-	return false
-}
+//func (this *ArrayClass) IsAssignableFrom(class ClassType) bool  {
+//	switch class.(type) {
+//	case *ArrayClass:
+//		clazz := class.(*ArrayClass)
+//		switch this.componentType.(type) {
+//		case ClassType:
+//			switch clazz.componentType.(type) {
+//			case ClassType:
+//				return this.componentType.(ClassType).IsAssignableFrom(clazz.componentType.(ClassType))
+//			}
+//		}
+//	}
+//	return false
+//}
 
 //type Interface struct {
 //	class_type_shared
@@ -434,6 +433,10 @@ func (this *Method) isStatic() bool {
 
 func (this *Method) isNative() bool {
 	return (this.accessFlags & JVM_ACC_NATIVE) > 0
+}
+
+func (this *Method) Signature() string  {
+	return this.class.name + "." + this.name + JVM_SIGNATURE_FUNC + strings.Join(this.parameterDescriptors, "") + JVM_SIGNATURE_ENDFUNC + this.returnDescriptor
 }
 
 type LocalVariable struct {

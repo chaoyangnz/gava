@@ -17,14 +17,17 @@ var NATIVE_FUNCTIONS = map[string]reflect.Value {
 	"Java_java_lang_Double_doubleToRawLongBits": reflect.ValueOf(Java_java_lang_Double_doubleToRawLongBits),
 	"Java_java_lang_Double_longBitsToDouble": reflect.ValueOf(Java_java_lang_Double_longBitsToDouble),
 	"Java_java_lang_System_arraycopy": reflect.ValueOf(Java_java_lang_System_arraycopy),
+	"Java_java_lang_Object_getClass": reflect.ValueOf(Java_java_lang_Object_getClass),
+	"Java_java_lang_Class_getName0": reflect.ValueOf(Java_java_lang_Class_getName0),
+	"Java_java_lang_Object_hashCode": reflect.ValueOf(Java_java_lang_Object_hashCode),
 }
 /* ---------- JDK Native methods implementation ---*/
 
-func Java_GVM_println(o ObjectRef, s ObjectRef) {
+func Java_GVM_println(o ObjectRef, s JavaLangString) {
 	println(s.toString())
 }
 
-func Java_GVM_toUpper(s ObjectRef) ObjectRef {
+func Java_GVM_toUpper(s JavaLangString) JavaLangString {
 	return NewJavaLangString(strings.ToUpper(s.toString()))
 }
 
@@ -61,5 +64,35 @@ func Java_java_lang_Double_longBitsToDouble(l Long) Double  {
 }
 
 func Java_java_lang_System_arraycopy(src ObjectRef, srcPos Int, dest ObjectRef, destPos Int, length Int) {
-	
+	srcObjectref := src.(Reference)
+	dstObjectref := dest.(Reference)
+	if !srcObjectref.Class().IsArray() || !dstObjectref.Class().IsArray() {
+		Throw("ArrayStoreException", "")
+	}
+	srcArrayRef := srcObjectref.AsArrayRef()
+	dstArrayRef := dstObjectref.AsArrayRef()
+
+	if srcPos + length > srcArrayRef.Length() || destPos + length > dstArrayRef.Length() {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	for i := Int(0); i < length; i++ {
+		dstArrayRef.SetElement(destPos + i, srcArrayRef.GetElement(srcPos + i))
+	}
+}
+
+func Java_java_lang_Object_getClass(this Reference) JavaLangClass  {
+	return this.Class().classObject
+}
+
+func Java_java_lang_Class_getName0(this JavaLangClass) JavaLangString  {
+	for k, v := range BOOTSTRAP_CLASSLOADER.classCache {
+		if v.ClassObject() == this {
+			return NewJavaLangString(k)
+		}
+	}
+	return NewJavaLangString("")
+}
+
+func Java_java_lang_Object_hashCode(this Reference) Int  {
+	return 1
 }

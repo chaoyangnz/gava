@@ -12,8 +12,8 @@ func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 
 	// do class initialization if any
 	clinits := class.Initialize()
-	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
 	if len(clinits) > 0 {
+		for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
 		*jumped = true // stay this instruction so as to execute again
 		return
 	}
@@ -70,11 +70,13 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 		params[i] = f.pop()
 	}
 	// get objectref and target method
-	objectref := params[0].(ObjectRef)
+	objectref := params[0].(Reference)
 	if objectref.IsNull() {
 		Fatal("NullPointerException")
 	}
-	overridenMethod := objectref.class.FindMethod(method.name, method.descriptor)
+
+	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
+
 	if method.isNative() {
 		result := t.invokeNativeMethod(overridenMethod, params...)
 		if overridenMethod.returnDescriptor != JVM_SIGNATURE_VOID {
@@ -170,7 +172,7 @@ func INVOKEDYNAMIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 /*187 (0xBB)*/
 func NEW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
-	class := c.constantPool[index].(*ClassRef).ResolvedClass().(*Class)
+	class := c.constantPool[index].(*ClassRef).ResolvedClass()
 	objectref := class.NewObject()
 	f.push(objectref)
 }
@@ -204,7 +206,7 @@ func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 		Fatal("Invalid atype value")
 	}
 	count := f.pop().(Int)
-	arrayClass := BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor).(*ArrayClass)
+	arrayClass := BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor)
 	arrayref := arrayClass.NewArray(count)
 	f.push(arrayref)
 }
@@ -214,16 +216,14 @@ func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	index := f.index16()
 	count := f.pop().(Int)
 
-	var arrayClass *ArrayClass
+	var arrayClass *Class
 	componentType := c.constantPool[index].(*ClassRef).ResolvedClass()
-	switch componentType.(type) {
-	case *Class:
-		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS).(*ArrayClass)
-	case *ArrayClass:
-		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name()).(*ArrayClass)
-	default:
-		Fatal("Not a class or array class")
+	if !componentType.IsArray() {
+		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS)
+	} else {
+		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name())
 	}
+
 	arrayref := arrayClass.NewArray(count)
 
 	f.push(arrayref)
@@ -231,7 +231,7 @@ func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 
 /*190 (0xBE)*/
 func ARRAYLENGTH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.pop().(ArrayRef).length)
+	f.push(f.pop().(ArrayRef).Length())
 }
 
 /*191 (0xBF)*/

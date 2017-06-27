@@ -33,8 +33,9 @@ func (this *Thread) Run()  {
 			pc := f.pc
 			opcode := bytecode[pc]
 			instruction := instructions[opcode]
-			Trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
 			jumped := false
+			Trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
+			intercept(f)
 			instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
 			// jump instruction can operate pc
 			// some instruction also have variable length: tableswitch...
@@ -50,6 +51,12 @@ func (this *Thread) Run()  {
 			}
 		}
 	}
+}
+
+func intercept(f *Frame)  {
+	//if f.method.Signature() == "java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;" && f.pc == 13 {
+	//	print("breakpoint")
+	//}
 }
 
 type Frame struct {
@@ -144,12 +151,12 @@ func (this *Frame) passReturn(caller *Frame)  {
 
 func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
 	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
-	return objectref.instanceVars[i]
+	return objectref.GetInstanceVariable(Int(i))
 }
 
 func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
-	objectref.instanceVars[i] = value
+	objectref.SetInstanceVariable(Int(i), value)
 }
 
 func (this *Frame) push(Value Value)  {
