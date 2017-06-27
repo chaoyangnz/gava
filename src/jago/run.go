@@ -91,27 +91,35 @@ func (this *Frame) storeVar(index uint, value Value)  {
 	this.localVariables[index] = value
 }
 
+func (this *Frame) const8(pos int) int8 {
+	constant := int8(this.method.code[this.pc + pos])
+	Trace("\t%d", constant)
+	return constant
+}
+
 func (this *Frame) index8() uint8 {
 	index := uint8(this.method.code[this.pc+1])
-	Trace(" #%d", index)
+	Trace("\t#%d", index)
 	return index
 }
 
 func (this *Frame) index16() uint16 {
 	index := (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
-	Trace(" #%d", index)
+	Trace("\t#%d", index)
 	return index
 }
 
 func (this *Frame) offset16() int16 {
-	return int16((uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2]))
+	offset := int16((uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2]))
+	Trace("\t⤋%d", this.pc + int(offset))
+	return offset
 }
 
 func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
 	if !method.isNative() {
 		Fatal("Not a native method")
 	}
-	Debug("\n🍺invoke native method %s 😎\n", method.Qualifier())
+	Debug("\n🍺 invoke native method %s", method.Qualifier())
 	name := "Java_" + strings.Replace(method.class.name + "_" + method.name, "/", "_", -1)
 	funcs := NATIVE_FUNCTIONS
 	if _, ok := funcs[name]; !ok {
