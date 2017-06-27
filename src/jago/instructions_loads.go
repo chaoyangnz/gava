@@ -1,155 +1,576 @@
 package jago
 
-/*21 (0X15)*/
+/*
+iload
+
+== Operation
+
+Load int from local variable
+
+== Format
+
+iload
+index
+
+== Forms
+
+iload = 21 (0x15)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The local variable at index must contain an int.
+The value of the local variable at index is pushed onto the operand stack.
+
+== Notes
+
+The iload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
+two-byte unsigned index.
+ */
+/*21 (0x15)*/
 func ILOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Int))
 }
 
-/*22 (0X16)*/
+/*
+lload
+
+== Operation
+
+Load long from local variable
+
+== Format
+
+lload
+index
+
+== Forms
+
+lload = 22 (0x16)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current
+frame (§2.6). The local variable at index must contain a long. The value of the local variable at index is pushed onto
+ the operand stack.
+
+Notes
+
+The lload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
+two-byte unsigned index.
+ */
+/*22 (0x16)*/
 func LLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Long))
 }
 
-/*23 (0X17)*/
+/*
+fload
+
+== Operation
+
+Load float from local variable
+
+== Format
+
+fload
+index
+
+== Forms
+
+fload = 23 (0x17)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The local variable at index must contain a float.
+The value of the local variable at index is pushed onto the operand stack.
+
+== Notes
+
+The fload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
+two-byte unsigned index.
+ */
+/*23 (0x17)*/
 func FLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Float))
 }
 
-/*24 (0X18)*/
+/*
+dload
+
+== Operation
+
+Load double from local variable
+
+== Format
+
+dload
+index
+
+== Forms
+
+dload = 24 (0x18)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current frame (§2.6).
+The local variable at index must contain a double. The value of the local variable at index is pushed onto the operand stack.
+
+Notes
+
+The dload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
+two-byte unsigned index.
+ */
+/*24 (0x18)*/
 func DLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Double))
 }
 
-/*25 (0X19)*/
+/*
+aload
+
+== Operation
+
+Load reference from local variable
+
+== Format
+
+aload
+index
+
+== Forms
+
+aload = 25 (0x19)
+
+== Operand Stack
+
+... →
+
+..., objectref
+
+== Description
+
+The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The local variable at index must contain a reference.
+The objectref in the local variable at index is pushed onto the operand stack.
+
+== Notes
+
+The aload instruction cannot be used to load a value of type returnAddress from a local variable onto the operand stack.
+This asymmetry with the astore instruction (§astore) is intentional.
+
+The aload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
+two-byte unsigned index.
+ */
+/*25 (0x19)*/
 func ALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Reference))
 }
 
-/*26 (0X1A)*/
+/*
+iload_<n>
+
+== Operation
+
+Load int from local variable
+
+== Format
+
+iload_<n>
+
+== Forms
+
+iload_0 = 26 (0x1a)
+
+iload_1 = 27 (0x1b)
+
+iload_2 = 28 (0x1c)
+
+iload_3 = 29 (0x1d)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+The <n> must be an index into the local variable array of the current frame (§2.6). The local variable at <n> must
+contain an int. The value of the local variable at <n> is pushed onto the operand stack.
+
+Notes
+
+Each of the iload_<n> instructions is the same as iload with an index of <n>, except that the operand <n> is implicit.
+ */
+
+/*26 (0x1A)*/
 func ILOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(0).(Int))
 }
 
-/*27 (0X1B)*/
+/*27 (0x1B)*/
 func ILOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(1).(Int))
 }
 
-/*28 (0X1C)*/
+/*28 (0x1C)*/
 func ILOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(2).(Int))
 }
 
-/*29 (0X1D)*/
+/*29 (0x1D)*/
 func ILOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(3).(Int))
 }
 
-/*30 (0X1E)*/
+/*
+lload_<n>
+
+== Operation
+
+Load long from local variable
+
+== Format
+
+lload_<n>
+
+== Forms
+
+lload_0 = 30 (0x1e)
+
+lload_1 = 31 (0x1f)
+
+lload_2 = 32 (0x20)
+
+lload_3 = 33 (0x21)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+Both <n> and <n>+1 must be indices into the local variable array of the current frame (§2.6). The local variable at <n>
+must contain a long. The value of the local variable at <n> is pushed onto the operand stack.
+
+Notes
+
+Each of the lload_<n> instructions is the same as lload with an index of <n>, except that the operand <n> is implicit.
+ */
+
+/*30 (0x1E)*/
 func LLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(0)).(Long))
+	f.push(f.loadVar(0).(Long))
 }
 
-/*31 (0X1F)*/
+/*31 (0x1F)*/
 func LLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(1)).(Long))
+	f.push(f.loadVar(1).(Long))
 }
 
-/*32 (0X20)*/
+/*32 (0x20)*/
 func LLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(2)).(Long))
+	f.push(f.loadVar(2).(Long))
 }
 
-/*33 (0X21)*/
+/*33 (0x21)*/
 func LLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(uint(3)).(Long))
 }
 
-/*34 (0X22)*/
+/*
+fload_<n>
+
+== Operation
+
+Load float from local variable
+
+== Format
+
+fload_<n>
+
+== Forms
+
+fload_0 = 34 (0x22)
+
+fload_1 = 35 (0x23)
+
+fload_2 = 36 (0x24)
+
+fload_3 = 37 (0x25)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+The <n> must be an index into the local variable array of the current frame (§2.6). The local variable at <n> must
+contain a float. The value of the local variable at <n> is pushed onto the operand stack.
+
+== Notes
+
+Each of the fload_<n> instructions is the same as fload with an index of <n>, except that the operand <n> is implicit.
+ */
+
+/*34 (0x22)*/
 func FLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(0)).(Float))
+	f.push(f.loadVar(0).(Float))
 }
 
-/*35 (0X23)*/
+/*35 (0x23)*/
 func FLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(1)).(Float))
+	f.push(f.loadVar(1).(Float))
 }
 
-/*36 (0X24)*/
+/*36 (0x24)*/
 func FLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(2)).(Float))
+	f.push(f.loadVar(2).(Float))
 }
 
-/*37 (0X25)*/
+/*37 (0x25)*/
 func FLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(3)).(Float))
+	f.push(f.loadVar(3).(Float))
 }
 
-/*38 (0X26)*/
+/*
+dload_<n>
+
+== Operation
+
+Load double from local variable
+
+== Format
+
+dload_<n>
+
+== Forms
+
+dload_0 = 38 (0x26)
+
+dload_1 = 39 (0x27)
+
+dload_2 = 40 (0x28)
+
+dload_3 = 41 (0x29)
+
+== Operand Stack
+
+... →
+
+..., value
+
+== Description
+
+Both <n> and <n>+1 must be indices into the local variable array of the current frame (§2.6). The local variable at <n>
+must contain a double. The value of the local variable at <n> is pushed onto the operand stack.
+
+== Notes
+
+Each of the dload_<n> instructions is the same as dload with an index of <n>, except that the operand <n> is implicit.
+ */
+
+/*38 (0x26)*/
 func DLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(0)).(Double))
+	f.push(f.loadVar(0).(Double))
 }
 
-/*39 (0X27)*/
+/*39 (0x27)*/
 func DLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(1)).(Double))
+	f.push(f.loadVar(1).(Double))
 }
 
-/*40 (0X28)*/
+/*40 (0x28)*/
 func DLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(2)).(Double))
+	f.push(f.loadVar(2).(Double))
 }
 
-/*41 (0X29)*/
+/*41 (0x29)*/
 func DLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(uint(3)).(Double))
+	f.push(f.loadVar(3).(Double))
 }
 
-/*42 (0X2A)*/
+/*
+aload_<n>
+
+== Operation
+
+Load reference from local variable
+
+== Format
+
+aload_<n>
+
+== Forms
+
+aload_0 = 42 (0x2a)
+
+aload_1 = 43 (0x2b)
+
+aload_2 = 44 (0x2c)
+
+aload_3 = 45 (0x2d)
+
+== Operand Stack
+
+... →
+
+..., objectref
+
+== Description
+
+The <n> must be an index into the local variable array of the current frame (§2.6). The local variable at <n> must
+contain a reference. The objectref in the local variable at <n> is pushed onto the operand stack.
+
+== Notes
+
+An aload_<n> instruction cannot be used to load a value of type returnAddress from a local variable onto the operand
+stack. This asymmetry with the corresponding astore_<n> instruction (§astore_<n>) is intentional.
+
+Each of the aload_<n> instructions is the same as aload with an index of <n>, except that the operand <n> is implicit.
+ */
+
+/*42 (0x2A)*/
 func ALOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(0).(Reference))
 }
 
-/*43 (0X2B)*/
+/*43 (0x2B)*/
 func ALOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(1).(Reference))
 }
 
-/*44 (0X2C)*/
+/*44 (0x2C)*/
 func ALOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(2).(Reference))
 }
 
-/*45 (0X2D)*/
+/*45 (0x2D)*/
 func ALOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.loadVar(3).(Reference))
 }
 
-/*46 (0X2E)
-Run-time Exceptions
+/*
+iaload
+
+== Operation
+
+Load int from array
+
+== Format
+
+iaload
+
+== Forms
+
+iaload = 46 (0x2e)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type int.
+The index must be of type int. Both arrayref and index are popped from the operand stack. The int value in the component
+ of the array at index is retrieved and pushed onto the operand stack.
+
+== Run-time Exceptions
 
 If arrayref is null, iaload throws a NullPointerException.
 
-Otherwise, if index is not within the bounds of the array referenced by arrayref, the iaload instruction throws an ArrayIndexOutOfBoundsException.
-*/
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the iaload instruction throws an
+ArrayIndexOutOfBoundsException.
+ */
+/*46 (0x2E)*/
 func IALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
+
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != INT_TYPE {
-		Fatal("Not an int array")
+		Bug("Not an int array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	f.push(arrayref.elements[index].(Int))
 }
 
-/*47 (0X2F)*/
+/*
+laload
+
+== Operation
+
+Load long from array
+
+== Format
+
+laload
+
+== Forms
+
+laload = 47 (0x2f)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type long.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The long value in the component of the array at index is retrieved and pushed onto the operand stack.
+
+== Run-time Exceptions
+
+If arrayref is null, laload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the laload instruction
+throws an ArrayIndexOutOfBoundsException.
+ */
+/*47 (0x2F)*/
 func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -157,12 +578,49 @@ func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != LONG_TYPE {
-		Fatal("Not a long array")
+		Bug("Not a long array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	f.push(arrayref.elements[index].(Long))
 }
 
-/*48 (0X30)*/
+/*
+faload
+
+== Operation
+
+Load float from array
+
+== Format
+
+faload
+
+== Forms
+
+faload = 48 (0x30)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type float.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The float value in the component of the array at index is retrieved and pushed onto the operand stack.
+
+Run-time Exceptions
+
+If arrayref is null, faload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the faload instruction
+throws an ArrayIndexOutOfBoundsException.
+ */
+/*48 (0x30)*/
 func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -170,12 +628,51 @@ func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != FLOAT_TYPE {
-		Fatal("Not an float array")
+		Bug("Not an float array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	f.push(arrayref.elements[index].(Float))
 }
 
-/*49 (0X31)*/
+/*
+daload
+
+== Operation
+
+Load double from array
+
+== Format
+
+daload
+
+== Forms
+
+daload = 49 (0x31)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type double.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The double value in the component of the array at index is retrieved and pushed onto the operand stack.
+
+== Run-time Exceptions
+
+If arrayref is null, daload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the daload instruction
+throws an ArrayIndexOutOfBoundsException.
+
+
+ */
+/*49 (0x31)*/
 func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -183,12 +680,15 @@ func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != DOUBLE_TYPE {
-		Fatal("Not an double array")
+		Bug("Not an double array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	f.push(arrayref.elements[index].(Double))
 }
 
-/*50 (0X32)*/
+/*50 (0x32)*/
 func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -197,25 +697,115 @@ func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	}
 	_, ok := arrayref.class.componentType.(ClassType)
 	if !ok {
-		Fatal("Not an reference array")
+		Bug("Not an reference array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	f.push(arrayref.elements[index].(Reference))
 }
 
-/*51 (0X33)*/
+/*
+baload
+
+== Operation
+
+Load byte or boolean from array
+
+== Format
+
+baload
+
+== Forms
+
+baload = 51 (0x33)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type byte or of type boolean.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The byte value in the component of the array at index is retrieved, sign-extended to an int value,
+and pushed onto the top of the operand stack.
+
+== Run-time Exceptions
+
+If arrayref is null, baload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the baload instruction throws
+an ArrayIndexOutOfBoundsException.
+
+== Notes
+
+The baload instruction is used to load values from both byte and boolean arrays.
+In Oracle's Java Virtual Machine implementation, boolean arrays - that is, arrays of type T_BOOLEAN (§2.2, §newarray) - are implemented as arrays of 8-bit values.
+Other implementations may implement packed boolean arrays; the baload instruction of such implementations must be used to access those arrays.
+ */
+/*51 (0x33)*/
 func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
 		Throw("NullPointerException", "")
 	}
-	if arrayref.class.componentType != BOOLEAN_TYPE {
-		Fatal("Not a boolean array")
+	if arrayref.class.componentType != BYTE_TYPE && arrayref.class.componentType != BOOLEAN_TYPE {
+		Bug("Not a byte or boolean array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+
+	if arrayref.class.componentType == BYTE_TYPE {
+		b := arrayref.elements[index].(Byte)
+		f.push(Int(b)) // sign-extended
+	}
+	if arrayref.class.componentType == BOOLEAN_TYPE {
+		b := arrayref.elements[index].(Boolean)
+		f.push(Int(b)) // sign-extended
+	}
 }
 
-/*52 (0X34)*/
+/*
+caload
+
+== Operation
+
+Load char from array
+
+== Format
+
+caload
+
+== Forms
+
+caload = 52 (0x34)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type char.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The component of the array at index is retrieved and zero-extended to an int value.
+That value is pushed onto the operand stack.
+
+== Run-time Exceptions
+
+If arrayref is null, caload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the caload instruction throws
+an ArrayIndexOutOfBoundsException.
+ */
+/*52 (0x34)*/
 func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -223,14 +813,50 @@ func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != CHAR_TYPE {
-		Fatal("Not a char array")
+		Bug("Not a char array")
 	}
-	//zero-extended to an int value
-	value := Int(arrayref.elements[index].(Char))
-	f.push(value)
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	ch := arrayref.elements[index].(Char)
+	f.push(Int(ch)) //zero-extended to an int value
 }
 
-/*53 (0X35)*/
+/*
+saload
+
+== Operation
+
+Load short from array
+
+== Format
+
+saload
+
+== Forms
+
+saload = 53 (0x35)
+
+== Operand Stack
+
+..., arrayref, index →
+
+..., value
+
+== Description
+
+The arrayref must be of type reference and must refer to an array whose components are of type short.
+The index must be of type int. Both arrayref and index are popped from the operand stack.
+The component of the array at index is retrieved and sign-extended to an int value.
+That value is pushed onto the operand stack.
+
+== Run-time Exceptions
+
+If arrayref is null, saload throws a NullPointerException.
+
+Otherwise, if index is not within the bounds of the array referenced by arrayref, the saload instruction throws an ArrayIndexOutOfBoundsException.
+ */
+/*53 (0x35)*/
 func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -238,7 +864,11 @@ func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		Throw("NullPointerException", "")
 	}
 	if arrayref.class.componentType != SHORT_TYPE {
-		Fatal("Not a short array")
+		Bug("Not a short array")
 	}
-	f.push(arrayref.elements[index])
+	if index < 0 || index >= Int(len(arrayref.elements)) {
+		Throw("ArrayIndexOutOfBoundsException", "")
+	}
+	s := arrayref.elements[index].(Short)
+	f.push(Int(s)) // sign-extended to an int value
 }

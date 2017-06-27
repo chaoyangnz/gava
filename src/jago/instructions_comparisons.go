@@ -1,16 +1,98 @@
 package jago
 
 import (
-	"fmt"
 	"math"
 )
 
-/*148 (0X94)*/
+/*148 (0x94)*/
+/*
+== Operation
+
+Compare long
+
+== Format
+
+lcmp
+
+== Forms
+
+lcmp = 148 (0x94)
+
+== Operand Stack
+
+..., value1, value2 →
+
+..., result
+
+== Description
+
+Both value1 and value2 must be of type long. They are both popped from the operand stack, and a signed integer
+comparison is performed. If value1 is greater than value2, the int value 1 is pushed onto the operand stack.
+If value1 is equal to value2, the int value 0 is pushed onto the operand stack. If value1 is less than value2,
+the int value -1 is pushed onto the operand stack.
+ */
 func LCMP(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value2 := f.pop().(Long)
+	value1 := f.pop().(Long)
+
+	if value1 > value2 {
+		f.push(Int(1))
+	}
+	if value1 == value2 {
+		f.push(Int(0))
+	}
+	if value1 < value2 {
+		f.push(Int(-1))
+	}
 }
 
-/*149 (0X95)*/
+/*
+fcmp<op>
+
+== Operation
+
+Compare float
+
+== Format
+
+fcmp<op>
+
+== Forms
+
+fcmpg = 150 (0x96)
+
+fcmpl = 149 (0x95)
+
+== Operand Stack
+
+..., value1, value2 →
+
+..., result
+
+== Description
+
+Both value1 and value2 must be of type float. The values are popped from the operand stack and undergo value set
+conversion (§2.8.3), resulting in value1' and value2'. A floating-point comparison is performed:
+
+- If value1 is greater than value2, the int value 1 is pushed onto the operand stack.
+- Otherwise, if value1 is equal to value2, the int value 0 is pushed onto the operand stack.
+- Otherwise, if value1 is less than value2, the int value -1 is pushed onto the operand stack.
+- Otherwise, at least one of value1 or value2 is NaN. The fcmpg instruction pushes the int value 1 onto the operand
+  stack and the fcmpl instruction pushes the int value -1 onto the operand stack.
+
+Floating-point comparison is performed in accordance with IEEE 754. All values other than NaN are ordered, with negative
+ infinity less than all finite values and positive infinity greater than all finite values. Positive zero and negative
+  zero are considered equal.
+
+== Notes
+
+The fcmpg and fcmpl instructions differ only in their treatment of a comparison involving NaN. NaN is unordered, so any
+ float comparison fails if either or both of its operands are NaN. With both fcmpg and fcmpl available, any float
+ comparison may be compiled to push the same result onto the operand stack whether the comparison fails on non-NaN
+ values or fails because it encountered a NaN. For more information, see §3.5.
+ */
+
+/*149 (0x95)*/
 func FCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
@@ -31,7 +113,7 @@ func FCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool)
 	}
 }
 
-/*150 (0X96)*/
+/*150 (0x96)*/
 func FCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
@@ -52,146 +134,398 @@ func FCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool)
 	}
 }
 
-/*151 (0X97)*/
+/*
+dcmp<op>
+
+== Operation
+
+Compare double
+
+== Format
+
+dcmp<op>
+
+== Forms
+
+dcmpg = 152 (0x98)
+
+dcmpl = 151 (0x97)
+
+== Operand Stack
+
+..., value1, value2 →
+
+..., result
+
+== Description
+
+Both value1 and value2 must be of type double. The values are popped from the operand stack and undergo value set
+conversion (§2.8.3), resulting in value1 and value2. A floating-point comparison is performed:
+
+- If value1 is greater than value2, the int value 1 is pushed onto the operand stack.
+- Otherwise, if value1 is equal to value2, the int value 0 is pushed onto the operand stack.
+- Otherwise, if value1 is less than value2, the int value -1 is pushed onto the operand stack.
+- Otherwise, at least one of value1 or value2 is NaN. The dcmpg instruction pushes the int value 1 onto the operand
+ stack and the dcmpl instruction pushes the int value -1 onto the operand stack.
+
+Floating-point comparison is performed in accordance with IEEE 754. All values other than NaN are ordered, with negative
+infinity less than all finite values and positive infinity greater than all finite values. Positive zero and negative
+zero are considered equal.
+
+Notes
+
+The dcmpg and dcmpl instructions differ only in their treatment of a comparison involving NaN. NaN is unordered, so any
+double comparison fails if either or both of its operands are NaN. With both dcmpg and dcmpl available, any double
+comparison may be compiled to push the same result onto the operand stack whether the comparison fails on non-NaN values
+ or fails because it encountered a NaN. For more information, see §3.5.
+ */
+
+/*151 (0x97)*/
 func DCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value2 := f.pop().(Double)
+	value1 := f.pop().(Double)
+
+	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
+		f.push(Int(-1))
+		return
+	}
+
+	if value1 > value2 {
+		f.push(Int(1))
+	}
+	if value1 == value2 {
+		f.push(Int(0))
+	}
+	if value1 < value2 {
+		f.push(Int(-1))
+	}
 }
 
-/*152 (0X98)*/
+/*152 (0x98)*/
 func DCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value2 := f.pop().(Double)
+	value1 := f.pop().(Double)
+
+	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
+		f.push(Int(1))
+		return
+	}
+
+	if value1 > value2 {
+		f.push(Int(1))
+	}
+	if value1 == value2 {
+		f.push(Int(0))
+	}
+	if value1 < value2 {
+		f.push(Int(-1))
+	}
 }
 
-/*153 (0X99)*/
+/*
+if<cond>
+
+== Operation
+
+Branch if int comparison with zero succeeds
+
+== Format
+
+if<cond>
+branchbyte1
+branchbyte2
+
+== Forms
+
+ifeq = 153 (0x99)
+
+ifne = 154 (0x9a)
+
+iflt = 155 (0x9b)
+
+ifge = 156 (0x9c)
+
+ifgt = 157 (0x9d)
+
+ifle = 158 (0x9e)
+
+== Operand Stack
+
+..., value →
+
+...
+
+== Description
+
+The value must be of type int. It is popped from the operand stack and compared against zero. All comparisons are signed.
+The results of the comparisons are as follows:
+
+- ifeq succeeds if and only if value = 0
+- ifne succeeds if and only if value ≠ 0
+- iflt succeeds if and only if value < 0
+- ifle succeeds if and only if value ≤ 0
+- fgt succeeds if and only if value > 0
+- ifge succeeds if and only if value ≥ 0
+
+If the comparison succeeds, the unsigned branchbyte1 and branchbyte2 are used to construct a signed 16-bit offset, where
+the offset is calculated to be (branchbyte1 << 8) | branchbyte2. Execution then proceeds at that offset from the address
+of the opcode of this if<cond> instruction. The target address must be that of an opcode of an instruction within the
+method that contains this if<cond> instruction.
+Otherwise, execution proceeds at the address of the instruction following this if<cond> instruction.
+ */
+
+/*153 (0x99)*/
 func IFEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
-	if value  == 0 {
+
+	if value == 0 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*154 (0X9A)*/
+/*154 (0x9A)*/
 func IFNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
+
 	if value != 0 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*155 (0X9B)*/
+/*155 (0x9B)*/
 func IFLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
+
 	if value < 0 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*156 (0X9C)*/
+/*156 (0x9C)*/
 func IFGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
+
 	if value >= 0 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*157 (0X9D)*/
+/*157 (0x9D)*/
 func IFGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
+
 	if value > 0 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*158 (0X9E)*/
+/*158 (0x9E)*/
 func IFLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 	if value <= 0 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*159 (0X9F)*/
+/*
+if_icmp<cond>
+
+== Operation
+
+Branch if int comparison succeeds
+
+== Format
+
+if_icmp<cond>
+branchbyte1
+branchbyte2
+
+== Forms
+
+if_icmpeq = 159 (0x9f)
+
+if_icmpne = 160 (0xa0)
+
+if_icmplt = 161 (0xa1)
+
+if_icmpge = 162 (0xa2)
+
+if_icmpgt = 163 (0xa3)
+
+if_icmple = 164 (0xa4)
+
+== Operand Stack
+
+..., value1, value2 →
+
+...
+
+== Description
+
+Both value1 and value2 must be of type int. They are both popped from the operand stack and compared. All comparisons
+are signed. The results of the comparison are as follows:
+
+- if_icmpeq succeeds if and only if value1 = value2
+- if_icmpne succeeds if and only if value1 ≠ value2
+- if_icmplt succeeds if and only if value1 < value2
+- if_icmple succeeds if and only if value1 ≤ value2
+- if_icmpgt succeeds if and only if value1 > value2
+- if_icmpge succeeds if and only if value1 ≥ value2
+
+If the comparison succeeds, the unsigned branchbyte1 and branchbyte2 are used to construct a signed 16-bit offset, where
+the offset is calculated to be (branchbyte1 << 8) | branchbyte2. Execution then proceeds at that offset from the address
+of the opcode of this if_icmp<cond> instruction. The target address must be that of an opcode of an instruction within
+the method that contains this if_icmp<cond> instruction.
+
+Otherwise, execution proceeds at the address of the instruction following this if_icmp<cond> instruction.
+ */
+
+/*159 (0x9F)*/
 func IF_ICMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
+
 	if value1 == value2 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*160 (0XA0)*/
+/*160 (0xA0)*/
 func IF_ICMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
+
 	if value1 != value2 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*161 (0XA1)*/
+/*161 (0xA1)*/
 func IF_ICMPLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
+
 	if value1 < value2 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*162 (0XA2)*/
+/*162 (0xA2)*/
 func IF_ICMPGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
+
 	if value1 >= value2 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*163 (0XA3)*/
+/*163 (0xA3)*/
 func IF_ICMPGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
+
 	if value1 > value2 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*164 (0XA4)*/
+/*164 (0xA4)*/
 func IF_ICMPLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
+
 	if value1 <= value2 {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*165 (0XA5)*/
+/*
+if_acmp<cond>
+
+== Operation
+
+Branch if reference comparison succeeds
+
+== Format
+
+if_acmp<cond>
+branchbyte1
+branchbyte2
+
+== Forms
+
+if_acmpeq = 165 (0xa5)
+
+if_acmpne = 166 (0xa6)
+
+== Operand Stack
+
+..., value1, value2 →
+
+...
+
+== Description
+
+Both value1 and value2 must be of type reference. They are both popped from the operand stack and compared.
+The results of the comparison are as follows:
+
+- if_acmpeq succeeds if and only if value1 = value2
+- if_acmpne succeeds if and only if value1 ≠ value2
+
+If the comparison succeeds, the unsigned branchbyte1 and branchbyte2 are used to construct a signed 16-bit offset,
+where the offset is calculated to be (branchbyte1 << 8) | branchbyte2. Execution then proceeds at that offset from
+the address of the opcode of this if_acmp<cond> instruction. The target address must be that of an opcode of an
+instruction within the method that contains this if_acmp<cond> instruction.
+
+Otherwise, if the comparison fails, execution proceeds at the address of the instruction following this if_acmp<cond>
+instruction.
+ */
+
+/*165 (0xA5)*/
 func IF_ACMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
-	value2 := f.pop().(ObjectRef)
-	value1 := f.pop().(ObjectRef)
-	if value1 == value2 {
+	value2 := f.pop().(Reference)
+	value1 := f.pop().(Reference)
+
+	if value1.IsEqual(value2) {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*166 (0XA6)*/
+/*166 (0xA6)*/
 func IF_ACMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
-	value2 := f.pop().(ObjectRef)
-	value1 := f.pop().(ObjectRef)
-	if value1 != value2 {
+	value2 := f.pop().(Reference)
+	value1 := f.pop().(Reference)
+
+	if !value1.IsEqual(value2) {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }

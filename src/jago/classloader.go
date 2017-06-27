@@ -249,7 +249,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constant = &UTF8Constant{class,u2s(constantUtf8Info.bytes)}
 		case *ConstantStringInfo:
 			constantStringInfo := constInfo.(*ConstantStringInfo)
-			constant = &StringConstant{class,classfile.cpUtf8(constantStringInfo.stringIndex), NULL_OBJECT}
+			constant = &StringConstant{class, classfile.cpUtf8(constantStringInfo.stringIndex), null.AsObjectRef()}
 		case *ConstantIntegerInfo:
 			constantIntegerInfo := constInfo.(*ConstantIntegerInfo)
 			constant = &IntegerConstant{class, Int(constantIntegerInfo.bytes)}
@@ -312,7 +312,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 				codeAttribute := attributeInfo.(*CodeAttribute)
 				method.maxStack = uint(codeAttribute.maxStack)
 				method.maxLocals = uint(codeAttribute.maxLocals)
-				method.code = *(*[]byte)(unsafe.Pointer(&codeAttribute.code))
+				method.code = *(*[]uint8)(unsafe.Pointer(&codeAttribute.code))
 				for k := u2(0); k < codeAttribute.attributesCount; k++ {
 					codeAttributeAttribute := codeAttribute.attributes[k]
 					switch codeAttributeAttribute.(type) {

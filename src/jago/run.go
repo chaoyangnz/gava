@@ -92,7 +92,7 @@ func (this *Frame) index16() uint16 {
 }
 
 func (this *Frame) offset16() int16 {
-	return (int16(this.method.code[this.pc+1]) << 8) | int16(this.method.code[this.pc+2])
+	return int16((uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2]))
 }
 
 func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
