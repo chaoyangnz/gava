@@ -168,7 +168,7 @@ func DASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *boo
 
 /*83 (0x53)*/
 func AASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	value := f.pop().(ArrayRef)
+	value := f.pop().(ObjectRef)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	arrayref.elements[index] = value

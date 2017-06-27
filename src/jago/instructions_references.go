@@ -5,7 +5,18 @@ import "fmt"
 /*178 (0xB2)*/
 func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
-	field := c.constantPool[index].(*FieldRef).ResolvedField()
+
+	fieldref := c.constantPool[index].(*FieldRef)
+	class := fieldref.ResolvedClass()
+	field := fieldref.ResolvedField()
+
+	// do class initialization if any
+	clinits := class.Initialize()
+	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
+	if len(clinits) > 0 {
+		*jumped = true // stay this instruction so as to execute again
+		return
+	}
 	f.push(field.class.staticVars[field.index])
 }
 
@@ -13,9 +24,18 @@ func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	value := f.pop()
+
 	fieldref := c.constantPool[index].(*FieldRef)
 	class := fieldref.ResolvedClass()
 	field := fieldref.ResolvedField()
+
+	// do class initialization if any
+	clinits := class.Initialize()
+	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
+	if len(clinits) > 0 {
+		*jumped = true // stay this instruction so as to execute again
+		return
+	}
 	class.staticVars[field.index] = value
 }
 

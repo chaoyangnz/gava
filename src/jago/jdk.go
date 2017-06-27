@@ -16,6 +16,7 @@ var NATIVE_FUNCTIONS = map[string]reflect.Value {
 	"Java_java_lang_Float_floatToRawIntBits": reflect.ValueOf(Java_java_lang_Float_floatToRawIntBits),
 	"Java_java_lang_Double_doubleToRawLongBits": reflect.ValueOf(Java_java_lang_Double_doubleToRawLongBits),
 	"Java_java_lang_Double_longBitsToDouble": reflect.ValueOf(Java_java_lang_Double_longBitsToDouble),
+	"Java_java_lang_System_arraycopy": reflect.ValueOf(Java_java_lang_System_arraycopy),
 }
 /* ---------- JDK Native methods implementation ---*/
 
