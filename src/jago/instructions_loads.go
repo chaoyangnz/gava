@@ -514,7 +514,7 @@ The index must be of type int. Both arrayref and index are popped from the opera
 
 == Run-time Exceptions
 
-If arrayref is null, iaload throws a NullPointerException.
+If arrayref is NULL, iaload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the iaload instruction throws an
 ArrayIndexOutOfBoundsException.
@@ -565,7 +565,7 @@ The long value in the component of the array at index is retrieved and pushed on
 
 == Run-time Exceptions
 
-If arrayref is null, laload throws a NullPointerException.
+If arrayref is NULL, laload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the laload instruction
 throws an ArrayIndexOutOfBoundsException.
@@ -615,7 +615,7 @@ The float value in the component of the array at index is retrieved and pushed o
 
 Run-time Exceptions
 
-If arrayref is null, faload throws a NullPointerException.
+If arrayref is NULL, faload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the faload instruction
 throws an ArrayIndexOutOfBoundsException.
@@ -665,7 +665,7 @@ The double value in the component of the array at index is retrieved and pushed 
 
 == Run-time Exceptions
 
-If arrayref is null, daload throws a NullPointerException.
+If arrayref is NULL, daload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the daload instruction
 throws an ArrayIndexOutOfBoundsException.
@@ -717,7 +717,7 @@ The reference value in the component of the array at index is retrieved and push
 
 == Run-time Exceptions
 
-If arrayref is null, aaload throws a NullPointerException.
+If arrayref is NULL, aaload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the aaload instruction throws an
 ArrayIndexOutOfBoundsException.
@@ -769,7 +769,7 @@ and pushed onto the top of the operand stack.
 
 == Run-time Exceptions
 
-If arrayref is null, baload throws a NullPointerException.
+If arrayref is NULL, baload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the baload instruction throws
 an ArrayIndexOutOfBoundsException.
@@ -834,7 +834,7 @@ That value is pushed onto the operand stack.
 
 == Run-time Exceptions
 
-If arrayref is null, caload throws a NullPointerException.
+If arrayref is NULL, caload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the caload instruction throws
 an ArrayIndexOutOfBoundsException.
@@ -886,7 +886,7 @@ That value is pushed onto the operand stack.
 
 == Run-time Exceptions
 
-If arrayref is null, saload throws a NullPointerException.
+If arrayref is NULL, saload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the saload instruction throws an ArrayIndexOutOfBoundsException.
  */

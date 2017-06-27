@@ -10,7 +10,7 @@ aconst_null
 
 == Operation
 
-Push null
+Push NULL
 
 == Format
 
@@ -24,18 +24,18 @@ aconst_null = 1 (0x1)
 
 ... →
 
-..., null
+..., NULL
 
 == Description
 
-Push the null object reference onto the operand stack.
+Push the NULL object reference onto the operand stack.
 
 == Notes
 
-The Java Virtual Machine does not mandate a concrete value for null.
+The Java Virtual Machine does not mandate a concrete value for NULL.
  */
 func ACONST_NULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(null)
+	f.push(NULL)
 }
 
 /*

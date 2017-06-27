@@ -285,7 +285,7 @@ func (this *Class) NewArray(length Int) ArrayRef {
 		case *FloatType:      elements[i] = Float(0.0)
 		case *DoubleType:     elements[i] = Long(0.0)
 		case *BooleanType:    elements[i] = FALSE
-		case *Class:          elements[i] = null
+		case *Class:          elements[i] = NULL
 		default:
 			Fatal("Not a valid component type")
 		}
@@ -338,51 +338,11 @@ func (this *Class) FindMethod(name string, descriptor string) *Method {
 	return nil
 }
 
-
-//func (this *ArrayClass) IsAssignableFrom(class ClassType) bool  {
-//	switch class.(type) {
-//	case *ArrayClass:
-//		clazz := class.(*ArrayClass)
-//		switch this.componentType.(type) {
-//		case ClassType:
-//			switch clazz.componentType.(type) {
-//			case ClassType:
-//				return this.componentType.(ClassType).IsAssignableFrom(clazz.componentType.(ClassType))
-//			}
-//		}
-//	}
-//	return false
-//}
-
-//type Interface struct {
-//	class_type_shared
-//}
-//
-//func (this *Interface) IsAssignableFrom(class ClassType) bool  {
-//	var interfaces []*Interface
-//	switch class.(type) {
-//	case *Class:      interfaces = class.(*Class).interfaces
-//	case *ArrayClass: interfaces = class.(*ArrayClass).interfaces
-//	case *Interface:  interfaces = class.(*Interface).interfaces
-//	}
-//	for _, interface0 := range interfaces {
-//		if interface0 == this {
-//			return true
-//		}
-//		interfaces = append(interfaces, interface0.interfaces...)
-//	}
-//	return false
-//}
-
-type class_member_shared struct {
+type Field struct {
 	accessFlags        uint16
 	name               string
 	descriptor         string
 	class              *Class
-}
-
-type Field struct {
-	class_member_shared
 	/**
 	index of instanceFields or staticFields
 	for instance fields, it is the global index considering superclass hierarchy
@@ -405,8 +365,8 @@ func  (this *Field) defaultValue() Value {
 	case JVM_SIGNATURE_FLOAT: t = Float(0.0)
 	case JVM_SIGNATURE_DOUBLE: t = Double(0.0)
 	case JVM_SIGNATURE_BOOLEAN: t = FALSE
-	case JVM_SIGNATURE_CLASS: t = null.AsObjectRef()
-	case JVM_SIGNATURE_ARRAY: t = null.AsArrayRef()
+	case JVM_SIGNATURE_CLASS: t = NULL.AsObjectRef()
+	case JVM_SIGNATURE_ARRAY: t = NULL.AsArrayRef()
 	default:
 		Fatal("Not a valid descriptor to get a default value")
 	}
@@ -415,7 +375,10 @@ func  (this *Field) defaultValue() Value {
 }
 
 type Method struct {
-	class_member_shared
+	accessFlags        uint16
+	name               string
+	descriptor         string
+	class              *Class
 
 	maxStack    uint
 	maxLocals   uint
@@ -436,7 +399,12 @@ func (this *Method) isNative() bool {
 }
 
 func (this *Method) Signature() string  {
-	return this.class.name + "." + this.name + JVM_SIGNATURE_FUNC + strings.Join(this.parameterDescriptors, "") + JVM_SIGNATURE_ENDFUNC + this.returnDescriptor
+	return this.name + JVM_SIGNATURE_FUNC + strings.Join(this.parameterDescriptors, "") + JVM_SIGNATURE_ENDFUNC + this.returnDescriptor
+
+}
+
+func (this *Method) Qualifier() string  {
+	return this.class.name + "." + this.Signature()
 }
 
 type LocalVariable struct {

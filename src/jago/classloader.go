@@ -24,8 +24,12 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 	}
 
 	__indention++
-	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
-	Trace(__times(__indention, "  ") + "↳ %s", className)
+	if __indention == 1 {
+		Trace("\n")
+	}
+
+	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
+	Trace(__times(__indention, "  ") + "↳ %s \n", className)
 
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
@@ -41,8 +45,8 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 		class = clazz
 	}
 
-	Trace(__times(__indention, "  ") + "↱ %s", className)
-	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧"))
+	Trace(__times(__indention, "  ") + "↱ %s \n", className)
+	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
 	__indention--
 	return class
 }
@@ -248,7 +252,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constant = &UTF8Constant{class,u2s(constantUtf8Info.bytes)}
 		case *ConstantStringInfo:
 			constantStringInfo := constInfo.(*ConstantStringInfo)
-			constant = &StringConstant{class, classfile.cpUtf8(constantStringInfo.stringIndex), null}
+			constant = &StringConstant{class, classfile.cpUtf8(constantStringInfo.stringIndex), NULL}
 		case *ConstantIntegerInfo:
 			constantIntegerInfo := constInfo.(*ConstantIntegerInfo)
 			constant = &IntegerConstant{class, Int(constantIntegerInfo.bytes)}
