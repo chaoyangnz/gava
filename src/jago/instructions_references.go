@@ -191,7 +191,7 @@ const (
 
 /*188 (0xBC)*/
 func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	atype := uint8(m.code[f.pc+1])
+	atype := f.const8(1)
 	var componentDescriptor string
 	switch atype {
 	case T_CHAR: componentDescriptor = JVM_SIGNATURE_CHAR

@@ -1,5 +1,8 @@
 package jago
 
+const MAIN_METHOD_NAME = "main"
+const MAIN_METHOD_DESCRIPTOR = "([Ljava/lang/String;)V"
+
 func Startup(initialClassName string)  {
 	thread := THREAD_MANAGER.NewThread("main")
 	//systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System").(*Class)

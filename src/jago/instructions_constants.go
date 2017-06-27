@@ -264,7 +264,7 @@ The immediate byte is sign-extended to an int value. That value is pushed onto t
  */
 /*16 (0x10)*/
 func BIPUSH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	b := Byte(m.code[f.pc+1])
+	b := f.const8(1)
 	f.push(Int(b))
 }
 
