@@ -2,12 +2,12 @@ package jago
 
 import "fmt"
 
-/*196 (0XC4)*/
+/*196 (0xC4)*/
 func WIDE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*197 (0XC5)*/
+/*197 (0xC5)*/
 func MULTIANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	//index := f.index16()
 	//dimensions := m.code[f.pc+3]
@@ -31,32 +31,34 @@ func MULTIANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jump
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*198 (0XC6)*/
+/*198 (0xC6)*/
 func IFNULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 
 	value := f.pop().(Reference)
 	if value.IsNull() {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*199 (0XC7)*/
+/*199 (0xC7)*/
 func IFNONNULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 
 	value := f.pop().(Reference)
 	if !value.IsNull() {
 		f.pc += int(offset)
+		*jumped = true
 	}
 }
 
-/*200 (0XC8)*/
+/*200 (0xC8)*/
 func GOTO_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*201 (0XC9)*/
+/*201 (0xC9)*/
 func JSR_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }

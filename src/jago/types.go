@@ -330,8 +330,8 @@ func (this *ArrayClass) NewArray(length Int) ArrayRef {
 		case *FloatType:      elements[i] = Float(0.0)
 		case *DoubleType:     elements[i] = Long(0.0)
 		case *BooleanType:    elements[i] = FALSE
-		case *Class:      elements[i] = NULL_OBJECT
-		case *ArrayClass: elements[i] = NULL_ARRAY
+		case *Class:      elements[i] = null.AsObjectRef()
+		case *ArrayClass: elements[i] = null.AsArrayRef()
 		default:
 			Fatal("Not a valid component type")
 		}
@@ -406,8 +406,8 @@ func  (this *Field) defaultValue() Value {
 	case JVM_SIGNATURE_FLOAT: t = Float(0.0)
 	case JVM_SIGNATURE_DOUBLE: t = Double(0.0)
 	case JVM_SIGNATURE_BOOLEAN: t = FALSE
-	case JVM_SIGNATURE_CLASS: t = NULL_OBJECT
-	case JVM_SIGNATURE_ARRAY: t = NULL_ARRAY
+	case JVM_SIGNATURE_CLASS: t = null.AsObjectRef()
+	case JVM_SIGNATURE_ARRAY: t = null.AsArrayRef()
 	default:
 		Fatal("Not a valid descriptor to get a default value")
 	}
@@ -420,7 +420,7 @@ type Method struct {
 
 	maxStack    uint
 	maxLocals   uint
-	code        []byte               //u4 code_length
+	code        []uint8               //u4 code_length
 	exceptions  []ExceptionTableEntry //u2 exception_table_length
 	localVars   []*LocalVariable
 

@@ -90,7 +90,7 @@ type Array struct {
 
 type (
 	 Reference interface {
-		 Value
+		 Value // implement Value
 		 IsNull() bool
 		 IsEqual(Reference) bool
 		 Class() ClassType
@@ -100,6 +100,7 @@ type (
 	//JavaLangClass struct {ObjectRef}
 	//JavaLangObject struct {ObjectRef}
 	//JavaLangString struct {ObjectRef}
+	NullRef struct {}
 )
 
 func (this ObjectRef) Type() Type       { return this.Class() }
@@ -125,10 +126,30 @@ func (this ArrayRef) IsEqual(reference Reference) bool {
 	return false
 }
 
-var (
-	NULL_OBJECT = ObjectRef{nil}
-	NULL_ARRAY  = ArrayRef{nil}
-)
+func (this NullRef) Type() Type       { return nil }
+func (this NullRef) Class() ClassType { return nil }
+func (this NullRef) IsNull() bool     {return true}
+func (this NullRef) IsEqual(reference Reference) bool {
+	switch reference.(type) {
+	case NullRef: return true
+	case ObjectRef: return reference.(ObjectRef).Object == nil
+	case ArrayRef: return reference.(ArrayRef).Array == nil
+	}
+	return false
+}
+func (this NullRef) AsObjectRef() ObjectRef {
+	return ObjectRef{nil}
+}
+func (this NullRef) AsArrayRef() ArrayRef {
+	return ArrayRef{nil}
+}
+
+var null = NullRef{}
+
+//var (
+//	NULL_OBJECT = ObjectRef{nil}
+//	NULL_ARRAY  = ArrayRef{nil}
+//)
 
 func (this ObjectRef) toString() string  {
 	runes := []rune{}

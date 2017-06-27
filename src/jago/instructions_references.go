@@ -2,14 +2,14 @@ package jago
 
 import "fmt"
 
-/*178 (0XB2)*/
+/*178 (0xB2)*/
 func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	field := c.constantPool[index].(*FieldRef).ResolvedField()
 	f.push(field.class.staticVars[field.index])
 }
 
-/*179 (0XB3)*/
+/*179 (0xB3)*/
 func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	value := f.pop()
@@ -19,7 +19,7 @@ func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	class.staticVars[field.index] = value
 }
 
-/*180 (0XB4)*/
+/*180 (0xB4)*/
 func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	objectref := f.pop().(ObjectRef)
@@ -27,7 +27,7 @@ func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 	f.push(f.getField(objectref, index))
 }
 
-/*181 (0XB5)*/
+/*181 (0xB5)*/
 func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	value := f.pop()
@@ -36,7 +36,7 @@ func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 	f.putField(objectref, index, value)
 }
 
-/*182 (0XB6)*/
+/*182 (0xB6)*/
 func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
@@ -72,7 +72,7 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 }
 
 // like invokevirtual with objectref, but don't find along the inheritance
-/*183 (0XB7)*/
+/*183 (0xB7)*/
 func INVOKESPECIAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 
@@ -99,7 +99,7 @@ func INVOKESPECIAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 	}
 }
 
-/*184 (0XB8)*/
+/*184 (0xB8)*/
 func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 
@@ -137,17 +137,17 @@ func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped
 	}
 }
 
-/*185 (0XB9)*/
+/*185 (0xB9)*/
 func INVOKEINTERFACE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*186 (0XBA)*/
+/*186 (0xBA)*/
 func INVOKEDYNAMIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*187 (0XBB)*/
+/*187 (0xBB)*/
 func NEW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass().(*Class)
@@ -167,7 +167,7 @@ const (
 	T_LONG	        = 11
 )
 
-/*188 (0XBC)*/
+/*188 (0xBC)*/
 func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	atype := uint8(m.code[f.pc+1])
 	var componentDescriptor string
@@ -189,7 +189,7 @@ func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 	f.push(arrayref)
 }
 
-/*189 (0XBD)*/
+/*189 (0xBD)*/
 func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	index := f.index16()
 	count := f.pop().(Int)
@@ -209,32 +209,32 @@ func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	f.push(arrayref)
 }
 
-/*190 (0XBE)*/
+/*190 (0xBE)*/
 func ARRAYLENGTH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	f.push(f.pop().(ArrayRef).length)
 }
 
-/*191 (0XBF)*/
+/*191 (0xBF)*/
 func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*192 (0XC0)*/
+/*192 (0xC0)*/
 func CHECKCAST(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*193 (0XC1)*/
+/*193 (0xC1)*/
 func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*194 (0XC2)*/
+/*194 (0xC2)*/
 func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }
 
-/*195 (0XC3)*/
+/*195 (0xC3)*/
 func MONITOREXIT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
 }

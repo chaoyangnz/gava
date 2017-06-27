@@ -64,6 +64,12 @@ func Fatal(format string, args ...interface{})   {
 	//}
 }
 
+func Bug(format string, args ...interface{})   {
+	//if logLevel <= FATAL {
+	panic(fmt.Sprintf(format, args...))
+	//}
+}
+
 func Throw(exception string, message string) error {
 	msg := fmt.Sprintf("%s: %s", exception, message)
 	Fatal(msg)
