@@ -19,7 +19,6 @@ const logLevel = TRACE
 
 func Log(format string, args ...interface{}) {
 	fmt.Printf(format, args...)
-	fmt.Println("")
 }
 
 func All(format string, args ...interface{})   {

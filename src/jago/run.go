@@ -28,15 +28,16 @@ func (this *Thread) Run()  {
 	for len(this.vmStack) != 0 { // per stack frame
 		f := this.peekFrame()
 		bytecode := f.method.code
-		Trace("🍷 %s.%s%s", f.method.class.name, f.method.name, f.method.descriptor)
+		Trace("🍷 %s \n", f.method.Qualifier())
 		for f.pc < len(f.method.code) {
 			pc := f.pc
 			opcode := bytecode[pc]
 			instruction := instructions[opcode]
 			jumped := false
-			Trace("   %04d ➢ %s", int(pc), instruction.mnemonic)
+			Trace("   %04d ➢ %-18s", int(pc), instruction.mnemonic)
 			intercept(f)
 			instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
+			Trace("\n")
 			// jump instruction can operate pc
 			// some instruction also have variable length: tableswitch...
 			// these instructions will control pc themselves
@@ -54,7 +55,7 @@ func (this *Thread) Run()  {
 }
 
 func intercept(f *Frame)  {
-	//if f.method.Signature() == "java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;" && f.pc == 13 {
+	//if f.method.Qualifier() == "java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;" && f.pc == 13 {
 	//	print("breakpoint")
 	//}
 }
@@ -91,11 +92,15 @@ func (this *Frame) storeVar(index uint, value Value)  {
 }
 
 func (this *Frame) index8() uint8 {
-	return uint8(this.method.code[this.pc+1])
+	index := uint8(this.method.code[this.pc+1])
+	Trace(" #%d", index)
+	return index
 }
 
 func (this *Frame) index16() uint16 {
-	return (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
+	index := (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
+	Trace(" #%d", index)
+	return index
 }
 
 func (this *Frame) offset16() int16 {
@@ -106,7 +111,7 @@ func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
 	if !method.isNative() {
 		Fatal("Not a native method")
 	}
-	Debug("🍺invoke native method %s#%s%s 😎\n", method.class.name, method.name, method.descriptor)
+	Debug("\n🍺invoke native method %s 😎\n", method.Qualifier())
 	name := "Java_" + strings.Replace(method.class.name + "_" + method.name, "/", "_", -1)
 	funcs := NATIVE_FUNCTIONS
 	if _, ok := funcs[name]; !ok {
