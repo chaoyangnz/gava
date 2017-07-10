@@ -1,6 +1,6 @@
 # Jago
 
-A simple Java interpreter written with Go language. This project is to learn JVM specification in depth and try to understand the
+A simplified Java interpreter written in Go language. This project is to learn JVM specification in depth and try to understand the
 under-the-water mechanism when a Java program runs.
 
 Basically, I only refer to "Java Virtual Machine Specification" and then compose how we should design one. 
@@ -16,7 +16,22 @@ demonstrate the idea. For the educational purpose, it is enough.
 - NO JIT
 - NO multi-thread support
 
-# JDK solution
+# Plan
+
+- week01: class file reader refine
+- week02: runtime structure (vm stack, stack frame)
+- week03: type system and class loader
+- week04: method area and heap object creation
+- week05: instruction (1) constants, comparision, conversion
+- week06: instruction (2) loads, stores, stack
+- week07: instruction (3) reference, control, math
+- week08: native methods (1) System, Object, Class, ClassLoader, Array, String
+- week09: native methods (2) Throwable, StackTraceElement and exception handling
+- week10: native methods (3) file io - FileInputStream
+- week11: create test case
+
+
+# Runtime libraries solution
 
 ![](Jago-jdk.png)
 
