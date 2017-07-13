@@ -76,7 +76,11 @@ func (this *MethodRef) ResolvedMethod() *Method {
 
 func (this *MethodRef) resolve() {
 	class := this.ResolvedClass()
-	this.method = class.FindMethod(this.name, this.descriptor)
+	method := class.FindMethod(this.name, this.descriptor)
+	if method == nil {
+		Bug("Resolve Method failed")
+	}
+	this.method = method
 }
 
 type InterfaceMethodRef struct {
@@ -92,7 +96,12 @@ func (this *InterfaceMethodRef) ResolvedMethod() *Method {
 }
 
 func (this *InterfaceMethodRef) resolve() {
-	//TODO
+	class := this.ResolvedClass()
+	method := class.FindMethod(this.name, this.descriptor)
+	if method == nil {
+		Bug("Resolve Interface Method failed")
+	}
+	this.method = method
 }
 
 type StringConstant struct {

@@ -62,7 +62,9 @@ func (this Boolean) IsFalse() bool {
 	return this == FALSE
 }
 
-type ObjectHeader struct {}
+type ObjectHeader struct {
+	hashCode Int
+}
 
 type Object struct {
 	header       ObjectHeader
@@ -189,11 +191,11 @@ var NULL = Reference{nil}
 
 type JavaLangString interface {
 	ObjectRef
-	toString() string
+	toNativeString() string
 }
 type JavaLangClass interface {ObjectRef}
 
-func (this Reference) toString() string  {
+func (this Reference) toNativeString() string  {
 	if this.IsNull() {
 		Throw("NullPointerException", "")
 	}
@@ -268,6 +270,21 @@ func NewJavaLangString(str string) JavaLangString {
 	// TODO
 
 	return object.(Reference)
+}
+
+type JavaLangThread interface {ObjectRef}
+
+func NewJavaLangThread() JavaLangThread {
+	threadClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Thread")
+	jThread := threadClass.NewObject()
+
+	threadGroupClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/ThreadGroup")
+	jGroup := threadGroupClass.NewObject()
+
+	jThread.SetInstanceVariableByName("group", "Ljava/lang/ThreadGroup;", jGroup)
+	jThread.SetInstanceVariableByName("priority", "I", Int(1))
+
+	return jThread
 }
 
 /////////////////////// Type Conversion //////////////////////////////////

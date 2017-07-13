@@ -270,7 +270,9 @@ magnitude of value' and may also lose precision.
  */
 /*139 (0x8B)*/
 func F2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value := f.pop().(Float)
+
+	f.push(Int(int32(float32(value))))
 }
 
 /*

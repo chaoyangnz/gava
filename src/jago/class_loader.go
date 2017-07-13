@@ -39,11 +39,11 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 		// eager linkage
 		this.link(clazz)
 
-		// attach a java.lang.Class object
-		clazz.classObject = NewJavaLangClass()
-
 		class = clazz
 	}
+
+	// attach a java.lang.Class object
+	class.classObject = NewJavaLangClass()
 
 	Trace(__times(__indention, "  ") + "↱ %s \n", className)
 	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
@@ -162,13 +162,14 @@ func (this *ClassLoader) findClass(className string) *Class  {
 	if err != nil {
 		Throw("java.lang.ClassNotFoundException", className)
 	}
+
 	//If L creates C directly, we say that L defines C
 	class := this.defineClass(bytecode)
 	return class
 }
 
 func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
-	classfile := NewClassReader(bytecode).Read()
+	classfile := NewClassFile(bytecode)
 
 	class := &Class{}
 

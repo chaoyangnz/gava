@@ -1,6 +1,9 @@
 package jago
 
-import "strings"
+import (
+	"strings"
+	"hash/fnv"
+)
 
 /*
 Type system:
@@ -210,13 +213,20 @@ func (this *Class) IsArray() bool  {
 func (this *Class) IsAssignableFrom(class *Class) bool  {
 	// this is interface
 	if this.IsInterface() { // check whether this is within class's interfaces list
-		interfaces := class.interfaces
-		for _, interface0 := range interfaces {
-			if interface0 == this {
-				return true
+		clazz := class
+		for clazz != nil {
+			interfaces := clazz.interfaces
+			Info("class %s ifaces %d\n", clazz.Name(), len(interfaces))
+			for _, interface0 := range interfaces {
+				if interface0 == this {
+					return true
+				}
+				interfaces = append(interfaces, interface0.interfaces...)
+				Info("..interface %s ifaces %d\n", interface0.Name(), len(interfaces))
 			}
-			interfaces = append(interfaces, interface0.interfaces...)
+			clazz = clazz.superClass
 		}
+
 	} else if this.IsArray() {
 		if class.IsArray() {
 			thisComponentType, ok1 := this.componentType.(*Class)
@@ -251,6 +261,7 @@ func (this *Class) NewObject() ObjectRef {
 	//this.Link()
 
 	object := &Object{class: this}
+	object.header = ObjectHeader{hashCode: Int(fnv.New32a().Sum32())}
 	object.values = make([]Value, this.maxInstanceVars)
 	// Initialize instance variables
 	class := this
