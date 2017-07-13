@@ -1,18 +1,16 @@
 package jago
 
-import (
-	"strings"
-	"reflect"
-)
-
 type ThreadManager struct {
 	currentThread *Thread
 }
 
 func (this *ThreadManager) NewThread(name string) *Thread {
-	return &Thread{
+	thread := &Thread{
 			name: name,
 			vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE)}
+	thread.threadObject = NewJavaLangThread()
+	this.currentThread = thread
+	return thread
 }
 
 // We choose fix-sized stack size
@@ -22,6 +20,8 @@ type Thread struct {
 	id          uint
 	name        string
 	vmStack     []*Frame
+
+	threadObject JavaLangThread
 }
 
 func (this *Thread) Run()  {
@@ -88,6 +88,10 @@ func (this *Frame) loadVar(index uint) Value {
 }
 
 func (this *Frame) storeVar(index uint, value Value)  {
+	switch value.(type) {
+	case Long, Double:
+		this.localVariables[index+1] = value //occupy two places
+	}
 	this.localVariables[index] = value
 }
 
@@ -115,29 +119,50 @@ func (this *Frame) offset16() int16 {
 	return offset
 }
 
-func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
-	if !method.isNative() {
-		Fatal("Not a native method")
+func (this *Frame) params(callee *Method) []Value {
+	parameterCount := len(callee.parameterDescriptors)
+	if !callee.isStatic() {
+		parameterCount += 1 // with an extra objectref: this
 	}
-	Debug("\n🍺 invoke native method %s", method.Qualifier())
-	name := "Java_" + strings.Replace(method.class.name + "_" + method.name, "/", "_", -1)
-	funcs := NATIVE_FUNCTIONS
-	if _, ok := funcs[name]; !ok {
-		Fatal( "%s does not exist.", name)
+	params := make([]Value, parameterCount)
+	// (objectref) (arg1, arg2 ...) ->
+	for i := parameterCount-1; i >= 0; i-- {
+		params[i] = this.pop()
 	}
-	if len(params) != funcs[name].Type().NumIn() {
-		Fatal( "The number of params is not adapted.")
+	if !callee.isStatic() {
+		// get objectref and target method
+		objectref := params[0].(Reference)
+		if objectref.IsNull() {
+			Fatal("NullPointerException")
+		}
 	}
-	in := make([]reflect.Value, len(params))
-	for k, param := range params {
-		in[k] = reflect.ValueOf(param)
-	}
-	result := funcs[name].Call(in)
-	if len(result) == 0 {
-		return Value(nil)
-	}
-	return result[0].Interface().(Value)
+
+	return params
 }
+
+//func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
+//	if !method.isNative() {
+//		Fatal("Not a native method")
+//	}
+//	Debug("\n🍺 invoke native method %s", method.Qualifier())
+//	name := "Java_" + strings.Replace(method.class.name + "_" + method.name, "/", "_", -1)
+//	funcs := NATIVE_METHODS
+//	if _, ok := funcs[name]; !ok {
+//		Fatal( "%s does not exist.", name)
+//	}
+//	if len(params) != funcs[name].Type().NumIn() {
+//		Fatal( "The number of params is not adapted.")
+//	}
+//	in := make([]reflect.Value, len(params))
+//	for k, param := range params {
+//		in[k] = reflect.ValueOf(param)
+//	}
+//	result := funcs[name].Call(in)
+//	if len(result) == 0 {
+//		return Value(nil)
+//	}
+//	return result[0].Interface().(Value)
+//}
 
 /*
 Parameters are passed in a reversed order from operand stack in JVM
@@ -172,10 +197,18 @@ func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	objectref.SetInstanceVariable(Int(i), value)
 }
 
-func (this *Frame) push(Value Value)  {
+func (this *Frame) push(value Value)  {
+	if value == nil { // check not-null
+		Bug("Operand stack should never contain nil")
+	}
+	if boolean, ok := value.(Boolean); ok {
+		// because interpreter cannot recognise Boolean, always use Int
+		value = boolean.ToInt()
+	}
+
 	operandStackSize := len(this.operandStack)
 	this.operandStack = this.operandStack[:operandStackSize+1]
-	this.operandStack[operandStackSize] = Value
+	this.operandStack[operandStackSize] = value
 }
 
 func (this *Frame) pop() Value {

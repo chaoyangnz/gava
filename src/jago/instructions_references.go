@@ -64,33 +64,12 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 	if method.isStatic() {
 		Fatal("Not an instance method")
 	}
-	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
-	params := make([]Value, parameterCount)
-	for i := parameterCount-1; i >= 0; i-- {
-		params[i] = f.pop()
-	}
-	// get objectref and target method
+	params := f.params(method)
 	objectref := params[0].(Reference)
-	if objectref.IsNull() {
-		Fatal("NullPointerException")
-	}
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-	if method.isNative() {
-		result := t.invokeNativeMethod(overridenMethod, params...)
-		if overridenMethod.returnDescriptor != JVM_SIGNATURE_VOID {
-			f.push(result)
-		}
-	} else {
-		frame := NewStackFrame(overridenMethod)
-		// pass parameters
-		for j := 0; j < parameterCount; j++ {
-			frame.storeVar(uint(j), params[j])
-		}
-
-		t.pushFrame(frame)
-	}
+	VM_invokeMethod(t, overridenMethod, params...)
 }
 
 // like invokevirtual with objectref, but don't find along the inheritance
@@ -99,26 +78,9 @@ func INVOKESPECIAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 	index := f.index16()
 
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
-	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
-	params := make([]Value, parameterCount)
-	for i := parameterCount-1; i >= 0; i-- {
-		params[i] = f.pop()
-	}
+	params := f.params(method)
 
-	if method.isNative() {
-		result := t.invokeNativeMethod(method, params...)
-		if method.returnDescriptor != JVM_SIGNATURE_VOID {
-			f.push(result)
-		}
-	} else {
-		frame := NewStackFrame(method)
-		// pass parameters
-		for j := 0; j < parameterCount; j++ {
-			frame.storeVar(uint(j), params[j])
-		}
-
-		t.pushFrame(frame)
-	}
+	VM_invokeMethod(t, method, params...)
 }
 
 /*184 (0xB8)*/
@@ -136,32 +98,34 @@ func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped
 	}
 
 	method := methodref.ResolvedMethod()
-	parameterCount := len(method.parameterDescriptors)
-	params := make([]Value, parameterCount)
-	// read parameters
-	for i := parameterCount - 1; i >= 0; i-- {
-		params[i] = f.pop()
-	}
+	params := f.params(method)
 
-	if method.isNative() {
-		result := t.invokeNativeMethod(method, params...)
-		if method.returnDescriptor != JVM_SIGNATURE_VOID {
-			f.push(result)
-		}
-	} else {
-		frame := NewStackFrame(method)
-		// pass parameters
-		for j := parameterCount - 1; j >= 0; j-- {
-			frame.storeVar(uint(j), params[j])
-		}
-
-		t.pushFrame(frame)
-	}
+	VM_invokeMethod(t, method, params...)
 }
 
 /*185 (0xB9)*/
 func INVOKEINTERFACE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	index := f.index16()
+	method := c.constantPool[index].(*InterfaceMethodRef).ResolvedMethod()
+
+	if method.isStatic() {
+		Fatal("Not an instance method")
+	}
+	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
+	params := make([]Value, parameterCount)
+	for i := parameterCount-1; i >= 0; i-- {
+		params[i] = f.pop()
+	}
+	// get objectref and target method
+	objectref := params[0].(Reference)
+	if objectref.IsNull() {
+		Fatal("NullPointerException")
+	}
+
+	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
+
+
+	VM_invokeMethod(t, overridenMethod, params...)
 }
 
 /*186 (0xBA)*/
@@ -241,20 +205,54 @@ func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 
 /*192 (0xC0)*/
 func CHECKCAST(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	index := f.index16()
+	objectref := f.pop().(Reference)
+
+	if objectref.IsNull() {
+		f.push(objectref)
+		return
+	}
+
+	class := c.constantPool[index].(*ClassRef).ResolvedClass()
+	if class.IsAssignableFrom(objectref.Class()) {
+		f.push(objectref)
+		return
+	}
+
+	Throw("ClassCastException", "cannot cast from " + objectref.Class().Name() + " to " + class.Name())
 }
 
 /*193 (0xC1)*/
 func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	index := f.index16()
+	objectref := f.pop().(Reference)
+
+	if objectref.IsNull() {
+		f.push(Int(0))
+		return
+	}
+
+	S := objectref.Class()
+	T := c.constantPool[index].(*ClassRef).ResolvedClass()
+	// TODO ???
+	if(T.IsAssignableFrom(S)) {
+		f.push(Int(1))
+		return
+	}
+
+	f.push(Int(0))
 }
 
 /*194 (0xC2)*/
 func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	/*objectref := */f.pop()
+
+	Warn("Not implemented for opcode %d\n", opcode)
 }
 
 /*195 (0xC3)*/
 func MONITOREXIT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	/*objectref := */f.pop()
+
+	Warn("Not implemented for opcode %d\n", opcode)
 }

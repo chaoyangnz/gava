@@ -333,6 +333,7 @@ func IFGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) 
 func IFLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	offset := f.offset16()
 	value := f.pop().(Int)
+
 	if value <= 0 {
 		f.pc += int(offset)
 		*jumped = true

@@ -5,13 +5,13 @@ const MAIN_METHOD_DESCRIPTOR = "([Ljava/lang/String;)V"
 
 func Startup(initialClassName string)  {
 	thread := THREAD_MANAGER.NewThread("main")
-	//systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System").(*Class)
-	//systemClass.Link()
-	//systemClassClinits := systemClass.Initialize()
-	//for _, clinit := range systemClassClinits { thread.enqueueFrame(NewStackFrame(clinit))}
+	RegisterNatives()
+	systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System")
+	systemClassClinits := systemClass.Initialize()
+	for _, clinit := range systemClassClinits { thread.enqueueFrame(NewStackFrame(clinit))}
 	//
-	//initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
-	//thread.enqueueFrame(NewStackFrame(initializeSystemClassMethod))
+	initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
+	thread.enqueueFrame(NewStackFrame(initializeSystemClassMethod))
 
 
 
