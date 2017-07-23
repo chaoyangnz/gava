@@ -85,7 +85,7 @@ func (this *ClassReader) readAttribute() AttributeInfo {
 	case "LocalVariableTable":
 		attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
-		Warn("No reader for attribute: %s, skip\n", attributeName)
+		LOG.Trace("No reader for attribute: %s, skip\n", attributeName)
 		this.readU1s(uint32(attributeLength)) // just skip out
 	}
 
@@ -286,10 +286,10 @@ func (this *ClassFile) Print(){
 	fmt.Printf("fields: %d\n", len(this.fields))
 	for i := 0; i < len(this.fields); i++  {
 		fieldInfo := this.fields[i]
-		fmt.Printf("\t%s", this.cpUtf8(fieldInfo.nameIndex))
+		fmt.Printf("\t%s %s\n", this.cpUtf8(fieldInfo.nameIndex), this.cpUtf8(fieldInfo.descriptorIndex))
 	}
 
-	fmt.Printf("method: %d\n", len(this.methods))
+	fmt.Printf("methods: %d\n", len(this.methods))
 	for i := 0; i < len(this.methods); i++  {
 		methodInfo := this.methods[i]
 		fmt.Printf("\t%s\n", this.cpUtf8(methodInfo.nameIndex))
@@ -780,4 +780,73 @@ type SourceFileAttribue struct {
 
 func (this *SourceFileAttribue) readInfo(reader *ClassReader) {
 	this.sourceFileIndex = reader.readU2()
+}
+
+
+/*
+RuntimeVisibleAnnotations_attribute {
+    u2         attribute_name_index;
+    u4         attribute_length;
+    u2         num_annotations;
+    annotation annotations[num_annotations];
+}
+ */
+
+type RuntimeVisibleAnnotationsAttribute struct {
+	attributeNameIndex  u2
+	attributeLength     u2
+	numAnnotations      u2
+	annotations         []Annotation
+}
+
+/*
+annotation {
+    u2 type_index;
+    u2 num_element_value_pairs;
+    {   u2            element_name_index;
+        element_value value;
+    } element_value_pairs[num_element_value_pairs];
+}
+ */
+type Annotation struct {
+	typeIndex   u2
+	elementValuePairs []struct {
+		element_name_index u2
+		value ElementValue
+	}
+}
+
+/*
+element_value {
+    u1 tag;
+    union {
+        u2 const_value_index;
+
+        {   u2 type_name_index;
+            u2 const_name_index;
+        } enum_const_value;
+
+        u2 class_info_index;
+
+        annotation annotation_value;
+
+        {   u2            num_values;
+            element_value values[num_values];
+        } array_value;
+    } value;
+}
+ */
+
+type ElementValue struct {
+	tag u1
+	const_value_index u2
+	enum_const_value struct{
+		type_name_index u2
+		const_name_index u2
+	}
+	class_info_index u2
+	array_value struct {
+		num_values u2
+		values  []ElementValue
+	}
 }

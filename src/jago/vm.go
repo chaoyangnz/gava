@@ -33,7 +33,7 @@ func VM_invokeNativeMethod(thread *Thread, method *Method, params ... Value) {
 	if !method.isNative() {
 		Fatal("%s Not a native method", method.Qualifier())
 	}
-	Debug("\n🍺 invoke native method %s", method.Qualifier())
+	LOG.Debug("\n🍺 invoke native method %s", method.Qualifier())
 
 	fun, found := findNative(method.Qualifier())
 
@@ -113,6 +113,17 @@ func VM_iHashCode(ref Reference) Int {
 		return Int(0)
 	}
 	return ref.oop.header.hashCode
+}
+
+func VM_intern_String(stringobj JavaLangString) JavaLangString {
+	str := stringobj.toNativeString()
+
+	if stringObject, ok := STRING_TABLE[str]; ok {
+		return stringObject
+	} else {
+		STRING_TABLE[str] = stringobj
+		return stringobj
+	}
 }
 
 //func VM_getCallerClass() JavaLangClass {

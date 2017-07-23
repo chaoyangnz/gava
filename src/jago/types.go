@@ -25,6 +25,7 @@ Type
 type Type interface {
 	Name() string
 	Descriptor() string
+	ClassObject() JavaLangClass
 }
 
 type PrimitiveType interface {
@@ -75,6 +76,15 @@ func (this *FloatType) Descriptor() string   {return JVM_SIGNATURE_FLOAT}
 func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
 func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
 func (this *ReturnAddressType) Descriptor() string {return "->"}
+func (this *ByteType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *ShortType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *CharType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *IntType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *LongType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *FloatType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *DoubleType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *BooleanType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
+func (this *ReturnAddressType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
 
 //type ClassType interface {
 //	Type
@@ -126,61 +136,6 @@ func (this *Class) Descriptor() string  {
 	return JVM_SIGNATURE_CLASS + this.Name() + JVM_SIGNATURE_ENDCLASS
 }
 
-//func (this *Class) Link()  {
-//	if this.linked {
-//		return
-//	}
-//	this.verify()
-//	this.prepare()
-//
-//	this.linked = true
-//	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
-//	// So SymbolRef all implements a method PrimitiveType resolve()
-//	//for _, constant := range this.constantPool {
-//	//	switch constant.(type) {
-//	//	case SymbolRef:
-//	//		constant.(SymbolRef).resolve()
-//	//	}
-//	//}
-//	//this.resolve(class)
-//}
-//
-//func (this *Class) verify() {
-//	//TODO
-//}
-//
-//// initialize static variables to default values: no need to execute code
-//func (this *Class) prepare()  {
-//	maxInstanceVars := 0  // include all the ancestry
-//	maxStaticVars := 0
-//
-//	if this.superClass != nil {
-//		this.superClass.Link()
-//		maxInstanceVars = this.superClass.maxInstanceVars
-//	}
-//
-//	// calculate static variables and instance variable count
-//	for _, field := range this.fields {
-//		if field.isStatic() {
-//			field.index = maxStaticVars
-//			maxStaticVars++
-//		} else {
-//			field.index = maxInstanceVars
-//			maxInstanceVars++
-//		}
-//	}
-//	this.maxInstanceVars = maxInstanceVars
-//	this.maxStaticVars = maxStaticVars
-//
-//	// Initialize static variables
-//	this.staticVars = make([]Value, this.maxStaticVars)
-//	for _, field := range this.fields {
-//		if field.isStatic() {
-//			this.staticVars[field.index] = field.defaultValue()
-//		}
-//	}
-//}
-
 // invoke <clinit> to execute initialization code
 func (this *Class) Initialize() []*Method {
 	methods := []*Method{}
@@ -216,13 +171,12 @@ func (this *Class) IsAssignableFrom(class *Class) bool  {
 		clazz := class
 		for clazz != nil {
 			interfaces := clazz.interfaces
-			Info("class %s ifaces %d\n", clazz.Name(), len(interfaces))
+			LOG.Info("class %s ifaces %d\n", clazz.Name(), len(interfaces))
 			for _, interface0 := range interfaces {
 				if interface0 == this {
 					return true
 				}
 				interfaces = append(interfaces, interface0.interfaces...)
-				Info("..interface %s ifaces %d\n", interface0.Name(), len(interfaces))
 			}
 			clazz = clazz.superClass
 		}
@@ -260,8 +214,8 @@ func (this *Class) IsAssignableFrom(class *Class) bool  {
 func (this *Class) NewObject() ObjectRef {
 	//this.Link()
 
-	object := &Object{class: this}
-	object.header = ObjectHeader{hashCode: Int(fnv.New32a().Sum32())}
+	object := &Object{}
+	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32())}
 	object.values = make([]Value, this.maxInstanceVars)
 	// Initialize instance variables
 	class := this
@@ -302,7 +256,11 @@ func (this *Class) NewArray(length Int) ArrayRef {
 		}
 	}
 
-	return Reference{&Object{ObjectHeader{}, this, elements}}
+	object := &Object{}
+	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32())}
+	object.values = elements
+
+	return Reference{object}
 }
 
 /**
@@ -349,6 +307,20 @@ func (this *Class) FindMethod(name string, descriptor string) *Method {
 	return nil
 }
 
+func (this *Class) GetDeclaredFields(publicOnly bool) []*Field {
+	if !publicOnly {
+		return this.fields
+	}
+
+	publicFields := []*Field{}
+	for _, field := range this.fields {
+		if (field.accessFlags & JVM_ACC_PUBLIC) > 0 {
+			publicFields = append(publicFields, field)
+		}
+	}
+	return publicFields
+}
+
 type Field struct {
 	accessFlags        uint16
 	name               string
@@ -358,7 +330,7 @@ type Field struct {
 	index of instanceFields or staticFields
 	for instance fields, it is the global index considering superclass hierarchy
 	 */
-	index           int
+	index       int
 }
 
 func (this *Field) isStatic() bool {
@@ -383,6 +355,13 @@ func  (this *Field) defaultValue() Value {
 	}
 
 	return t
+}
+
+type ExceptionHandler struct {
+	startPc     int
+	endPc       int
+	handlerPc   int
+	catchType   int   // index of constant pool: ClassRef
 }
 
 type Method struct {

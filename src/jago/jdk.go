@@ -39,6 +39,7 @@ func RegisterNatives()  {
 	register_java_lang_Object()
 	register_java_lang_Class()
 
+	register_java_lang_String()
 	register_java_lang_Float()
 	register_java_lang_Double()
 
@@ -52,6 +53,7 @@ func RegisterNatives()  {
 	register_sun_misc_VM()
 	register_sun_misc_Unsafe()
 	register_sun_reflect_Reflection()
+	register_sun_reflect_NativeConstructorAccessorImpl()
 }
 //
 //
