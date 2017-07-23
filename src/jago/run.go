@@ -28,16 +28,16 @@ func (this *Thread) Run()  {
 	for len(this.vmStack) != 0 { // per stack frame
 		f := this.peekFrame()
 		bytecode := f.method.code
-		Trace("🍷 %s \n", f.method.Qualifier())
+		LOG.Debug("🍷 %s \n", f.method.Qualifier())
 		for f.pc < len(f.method.code) {
 			pc := f.pc
 			opcode := bytecode[pc]
 			instruction := instructions[opcode]
 			jumped := false
-			Trace("   %04d ➢ %-18s", int(pc), instruction.mnemonic)
+			LOG.Debug("   %04d ➢ %-18s", int(pc), instruction.mnemonic)
 			intercept(f)
 			instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
-			Trace("\n")
+			LOG.Debug("\n")
 			// jump instruction can operate pc
 			// some instruction also have variable length: tableswitch...
 			// these instructions will control pc themselves
@@ -97,25 +97,25 @@ func (this *Frame) storeVar(index uint, value Value)  {
 
 func (this *Frame) const8(pos int) int8 {
 	constant := int8(this.method.code[this.pc + pos])
-	Trace("\t%d", constant)
+	LOG.Debug("\t%d", constant)
 	return constant
 }
 
 func (this *Frame) index8() uint8 {
 	index := uint8(this.method.code[this.pc+1])
-	Trace("\t#%d", index)
+	LOG.Debug("\t#%d", index)
 	return index
 }
 
 func (this *Frame) index16() uint16 {
 	index := (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
-	Trace("\t#%d", index)
+	LOG.Debug("\t#%d", index)
 	return index
 }
 
 func (this *Frame) offset16() int16 {
 	offset := int16((uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2]))
-	Trace("\t⤋%d", this.pc + int(offset))
+	LOG.Debug("\t⤋%d", this.pc + int(offset))
 	return offset
 }
 
@@ -127,7 +127,26 @@ func (this *Frame) params(callee *Method) []Value {
 	params := make([]Value, parameterCount)
 	// (objectref) (arg1, arg2 ...) ->
 	for i := parameterCount-1; i >= 0; i-- {
-		params[i] = this.pop()
+		param := this.pop()
+
+		if callee.isNative() {
+			if !callee.isStatic()  {
+				if (i != 0) {
+					index := i-1
+					if callee.parameterDescriptors[index] == JVM_SIGNATURE_BOOLEAN { //Boolean
+						param = param.(Int).ToBoolean() // Int -> Boolean
+					}
+				}
+			} else {
+				index := i
+				if callee.parameterDescriptors[index] == JVM_SIGNATURE_BOOLEAN { //Boolean
+					param = param.(Int).ToBoolean() // Int -> Boolean
+				}
+			}
+		}
+
+
+		params[i] = param
 	}
 	if !callee.isStatic() {
 		// get objectref and target method
@@ -217,6 +236,10 @@ func (this *Frame) pop() Value {
 	this.operandStack[operandStackSize-1] = nil
 	this.operandStack = this.operandStack[:operandStackSize-1]
 	return Value
+}
+
+func (this *Frame) clear()  {
+	this.operandStack = make([]Value, 0, this.method.maxStack)
 }
 
 func (this *Frame) peek() Value {

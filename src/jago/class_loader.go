@@ -25,11 +25,11 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 
 	__indention++
 	if __indention == 1 {
-		Trace("\n")
+		LOG.Trace("\n")
 	}
 
-	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
-	Trace(__times(__indention, "  ") + "↳ %s \n", className)
+	LOG.Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
+	LOG.Trace(__times(__indention, "  ") + "↳ %s \n", className)
 
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
@@ -43,10 +43,10 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 	}
 
 	// attach a java.lang.Class object
-	class.classObject = NewJavaLangClass()
+	class.classObject = NewJavaLangClass(class)
 
-	Trace(__times(__indention, "  ") + "↱ %s \n", className)
-	Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
+	LOG.Trace(__times(__indention, "  ") + "↱ %s \n", className)
+	LOG.Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
 	__indention--
 	return class
 }
@@ -143,7 +143,7 @@ func (this *ClassLoader) createArrayClass(className string) *Class {
 
 	// set classloader
 	class.classLoader = this
-	class.classObject = NewJavaLangClass()
+	class.classObject = NewJavaLangClass(class)
 	return arrayClass
 }
 

@@ -111,11 +111,7 @@ func INVOKEINTERFACE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jum
 	if method.isStatic() {
 		Fatal("Not an instance method")
 	}
-	parameterCount := len(method.parameterDescriptors) + 1 // with an extra objectref: this
-	params := make([]Value, parameterCount)
-	for i := parameterCount-1; i >= 0; i-- {
-		params[i] = f.pop()
-	}
+	params := f.params(method)
 	// get objectref and target method
 	objectref := params[0].(Reference)
 	if objectref.IsNull() {
@@ -200,7 +196,51 @@ func ARRAYLENGTH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped 
 
 /*191 (0xBF)*/
 func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	throwable := f.pop().(Reference)
+	if throwable.IsNull() {
+		Throw("NullPointerException", "")
+	}
+
+	for len(t.vmStack) > 0 {
+		frame := t.peekFrame()
+		for _, exception := range frame.method.exceptions {
+
+			if frame.pc >= int(uint16(exception.startPc)) && frame.pc < int(uint16(exception.endPc)) {
+				matchedType := false
+				if exception.catchType == 0 { // catch-all
+					matchedType = true
+				} else {
+					catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
+					if catchType.IsAssignableFrom(throwable.Class()) {
+						matchedType = true
+					}
+				}
+
+				if matchedType {
+					frame.pc = int(exception.handlerPc)
+					LOG.Trace("exception handler found in %s for throwable %s", m.Signature(), throwable.Class().Name())
+					frame.clear()
+					frame.push(throwable)
+					return
+				}
+			}
+		}
+		t.popFrame()
+	}
+
+	// Print Uncaught exception
+	stacktrace := throwable.oop.extra.([]string)
+
+	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
+	detailMessageStr := ""
+	if !detailMessage.IsNull() {
+		detailMessageStr = detailMessage.toNativeString()
+	}
+	JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
+
+	for _, stacktraceelement := range stacktrace {
+		JavaErrPrintf("\t at %s\n", stacktraceelement)
+	}
 }
 
 /*192 (0xC0)*/
@@ -247,12 +287,12 @@ func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *
 func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	/*objectref := */f.pop()
 
-	Warn("Not implemented for opcode %d\n", opcode)
+	LOG.Warn("Not implemented for opcode %d\n", opcode)
 }
 
 /*195 (0xC3)*/
 func MONITOREXIT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	/*objectref := */f.pop()
 
-	Warn("Not implemented for opcode %d\n", opcode)
+	LOG.Warn("Not implemented for opcode %d\n", opcode)
 }

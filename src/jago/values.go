@@ -1,6 +1,5 @@
 package jago
 
-
 /*
 Value system:
 
@@ -64,12 +63,13 @@ func (this Boolean) IsFalse() bool {
 
 type ObjectHeader struct {
 	hashCode Int
+	class        *Class
 }
 
 type Object struct {
 	header       ObjectHeader
-	class        *Class
 	values      []Value
+	extra       interface{} // for vm use
 }
 
 type ObjectRef interface {
@@ -77,6 +77,8 @@ type ObjectRef interface {
 	IsNull() bool
 	IsEqual(reference Reference) bool
 	Class() *Class
+	GetExtra() interface{}
+	SetExtra(extra interface{})
 
 	GetInstanceVariable(index Int) Value
 	SetInstanceVariable(index Int, value Value)
@@ -89,6 +91,8 @@ type ArrayRef interface {
 	IsNull() bool
 	IsEqual(reference Reference) bool
 	Class() *Class
+	GetExtra() interface{}
+	SetExtra(extra interface{})
 
 	Elements() []Value
 	Length() Int
@@ -124,7 +128,13 @@ func (this Reference) assertObject()  {
 	}
 }
 func (this Reference) Class() *Class {
-	return this.oop.class
+	return this.oop.header.class
+}
+func (this Reference) GetExtra() interface{} {
+	return this.oop.extra
+}
+func (this Reference) SetExtra(extra interface{}) {
+	this.oop.extra = extra
 }
 func (this Reference) GetInstanceVariable(index Int) Value {
 	return this.oop.values[index]
@@ -137,7 +147,7 @@ func (this Reference) GetInstanceVariableByName(name string, descriptor string) 
 	this.assertObject()
 
 	objectref := this.oop
-	field := objectref.class.FindField(name, descriptor)
+	field := objectref.header.class.FindField(name, descriptor)
 	if field.isStatic() {
 		Fatal("not a instance variable")
 	}
@@ -147,7 +157,10 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 	this.assertObject()
 
 	objectref := this.oop
-	field := objectref.class.FindField(name, descriptor)
+	field := objectref.header.class.FindField(name, descriptor)
+	if field == nil {
+		Fatal("Field (%s %s)  cannot be found in %s", name, descriptor, objectref.header.class.Name())
+	}
 	if field.isStatic() {
 		Fatal("not a instance variable")
 	}
@@ -186,120 +199,15 @@ func (this Reference) AsArrayRef() ArrayRef {
 	return this
 }
 
-var NULL = Reference{nil}
+func NewObject(className string) ObjectRef {
+	class := BOOTSTRAP_CLASSLOADER.CreateClass(className)
 
-
-type JavaLangString interface {
-	ObjectRef
-	toNativeString() string
-}
-type JavaLangClass interface {ObjectRef}
-
-func (this Reference) toNativeString() string  {
-	if this.IsNull() {
-		Throw("NullPointerException", "")
-	}
-	this.assertObject()
-	if this.AsObjectRef().Class().name != "java/lang/String" {
-		Bug("It is not a java/lang/String")
-	}
-
-	runes := []rune{}
-	chars := this.GetInstanceVariableByName("value", "[C").(ArrayRef).Elements()
-	for i:=0; i < len(chars); i++ {
-		char := chars[i].(Char)
-		if char >= 0xD800 && char <= 0xDBFF {
-			h := char
-			if i+1 < len(chars) && chars[i+1].(Char) >= 0xDC00 && chars[i+1].(Char) <= 0xDFFF {
-				l := chars[i+1].(Char)
-				//1000016 + (H − D80016) × 40016 + (L − DC0016)
-				codepoint := 0x1000 + (h - 0xD800) * 0x400 + (l - 0xDC00)
-				runes = append(runes, rune(codepoint))
-			} else {
-				panic("Illegal UTF-16 string: only high surrogate")
-			}
-			i++
-		} else if char >= 0xDC00 && char <= 0xDFFF {
-			panic("Illegal UTF-16 string: only low surrogate")
-		} else {
-			runes = append(runes, rune(char))
-		}
-	}
-	return string(runes)
+	return class.NewObject()
 }
 
-func NewJavaLangClass() JavaLangClass {
-	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Class")
-	object := class.NewObject()
+func NewArray(arrayClassName string, length Int) ArrayRef {
+	class := BOOTSTRAP_CLASSLOADER.CreateClass(arrayClassName)
 
-	return object
+	return class.NewArray(length)
 }
 
-func NewJavaLangString(str string) JavaLangString {
-	// check string table
-	if strObj, found := STRING_TABLE[str]; found {
-		return strObj
-	}
-	class := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/String")
-	object := class.NewObject()
-
-	// convert rune (int32) to Java char (UTF-16 with surrogate)
-	chars := []Char{}
-	for _, codepoint := range str {
-		if codepoint <= 0xFFFF {
-			chars = append(chars, Char(codepoint))
-		} else {
-			/*
-				H = (S - 10000) / 400 + D800
-				L = (S - 10000) % 400 + DC00
-			 */
-			high_surrogate := Char((uint32(codepoint) - 0x10000) / 0x400 + 0xD800)
-			low_surrogate := Char((uint32(codepoint) - 0x10000) % 0x400 + 0xDC00)
-			chars = append(chars, high_surrogate, low_surrogate)
-		}
-	}
-	// create value field
-	charArrayClass := BOOTSTRAP_CLASSLOADER.CreateClass("[C")
-	values := charArrayClass.NewArray(Int(len(chars)))
-	for i, _ := range values.Elements() {
-		values.SetElement(Int(i), chars[i])
-	}
-	object.SetInstanceVariableByName("value", "[C", values)
-
-	// create hashing field?
-	// TODO
-
-	return object.(Reference)
-}
-
-type JavaLangThread interface {ObjectRef}
-
-func NewJavaLangThread() JavaLangThread {
-	threadClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Thread")
-	jThread := threadClass.NewObject()
-
-	threadGroupClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/ThreadGroup")
-	jGroup := threadGroupClass.NewObject()
-
-	jThread.SetInstanceVariableByName("group", "Ljava/lang/ThreadGroup;", jGroup)
-	jThread.SetInstanceVariableByName("priority", "I", Int(1))
-
-	return jThread
-}
-
-/////////////////////// Type Conversion //////////////////////////////////
-func (this Boolean) ToInt() Int {
-	return Int(this)
-}
-
-func (this Boolean) ToByte() Byte {
-	return Byte(this)
-}
-
-func (this Int) ToBoolean() Boolean {
-	return Boolean(this)
-}
-
-func (this Byte) ToBoolean() Boolean {
-	return Boolean(this)
-}

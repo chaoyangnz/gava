@@ -3,6 +3,8 @@ package jago
 import (
 	"fmt"
 	"errors"
+	"os"
+	"bufio"
 )
 
 const (
@@ -15,45 +17,73 @@ const (
 	FATAL   = 6
 )
 
-const logLevel = TRACE
 
-func Log(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+
+func NewLog(logfile string) *Log {
+	var _, err = os.Stat(logfile)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		os.Create(logfile)
+	} else {
+		os.Remove(logfile)
+		os.Create(logfile)
+	}
+
+	f, err := os.OpenFile(logfile, os.O_WRONLY, 0666)
+	if err != nil {
+		fmt.Println("File does not exists or cannot be created")
+		os.Exit(1)
+	}
+
+	w := bufio.NewWriter(f)
+
+	log := &Log{writer: w}
+	return log
 }
 
-func All(format string, args ...interface{})   {
-	if logLevel <= ALL {
-		Log(format, args...)
+type Log struct {
+	writer *bufio.Writer
+}
+
+func (this *Log) _log(format string, args ...interface{}) {
+	fmt.Fprintf(this.writer, format, args...)
+	this.writer.Flush()
+}
+
+func (this *Log)  All(format string, args ...interface{})   {
+	if LOG_LEVEL <= ALL {
+		this._log(format, args...)
 	}
 }
 
-func Trace(format string, args ...interface{})   {
-	if logLevel <= TRACE {
-		Log(format, args...)
+func (this *Log)  Trace(format string, args ...interface{})   {
+	if LOG_LEVEL <= TRACE {
+		this._log(format, args...)
 	}
 }
 
-func Debug(format string, args ...interface{})   {
-	if logLevel <= DEBUG {
-		Log(format, args...)
+func (this *Log)   Debug(format string, args ...interface{})   {
+	if LOG_LEVEL <= DEBUG {
+		this._log(format, args...)
 	}
 }
 
-func Info(format string, args ...interface{})   {
-	if logLevel <= INFO {
-		Log(format, args...)
+func (this *Log)  Info(format string, args ...interface{})   {
+	if LOG_LEVEL <= INFO {
+		this._log(format, args...)
 	}
 }
 
-func Warn(format string, args ...interface{})   {
-	if logLevel <= WARN {
-		Log(format, args...)
+func (this *Log)  Warn(format string, args ...interface{})   {
+	if LOG_LEVEL <= WARN {
+		this._log(format, args...)
 	}
 }
 
-func Error(format string, args ...interface{})   {
-	if logLevel <= ERROR {
-		Log(format, args...)
+func (this *Log)  Error(format string, args ...interface{})   {
+	if LOG_LEVEL <= ERROR {
+		this._log(format, args...)
 	}
 }
 
@@ -77,4 +107,12 @@ func Throw(exception string, message string) error {
 
 func NewError(format string, args ...interface{}) error {
 	return errors.New(fmt.Sprintf(format, args...))
+}
+
+func JavaOutPrintf(format string, args ...interface{})  {
+	fmt.Fprintf(os.Stdout, format, args...)
+}
+
+func JavaErrPrintf(format string, args ...interface{})  {
+	fmt.Fprintf(os.Stderr, format, args...)
 }
