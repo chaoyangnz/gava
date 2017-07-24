@@ -4,9 +4,10 @@ import (
 	//"reflect"
 )
 
-var SYS_CLASS_PATH = "jdk/classes:/Users/Chao/Dropbox/Projects/gvm-java/out/production/gvm-java"
+var SYS_CLASS_PATH = "jdk/classes:/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/main"
 var EXT_CLASS_PATH = []string{"ext"}
 var APP_CLASS_PATH []string
+var MAIN_CLASS string
 
 const TRACE_LOG_FILE = "trace.log"
 const LOG_LEVEL = DEBUG

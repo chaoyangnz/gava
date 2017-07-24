@@ -285,6 +285,15 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 		class.constantPool[i] = constant
 	}
 
+	for k := u2(0); k < classfile.attributeCount; k++ {
+		attributeInfo := classfile.attributes[k]
+		switch attributeInfo.(type) {
+		case *SourceFileAttribue:
+			sourceFileAttribue := attributeInfo.(*SourceFileAttribue)
+			class.sourceFile = classfile.cpUtf8(sourceFileAttribue.sourceFileIndex)
+		}
+	}
+
 
 	class.fields = make([]*Field, len(classfile.fields))
 	//class.staticVars = ??
@@ -331,8 +340,15 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 								classfile.cpUtf8(localVariableTableAttribute.localVariableTable[m].nameIndex),
 								classfile.cpUtf8(localVariableTableAttribute.localVariableTable[m].descriptorIndex)}
 						}
+					case *LineNumberTableAttribute:
+						lineNumberTableAttribute := codeAttributeAttribute.(*LineNumberTableAttribute)
+						method.lineNumbers = make([]*LineNumber, lineNumberTableAttribute.lineNumberTableLength)
+						for i, lineNumberTableEntry := range lineNumberTableAttribute.lineNumberTable {
+							method.lineNumbers[i] = &LineNumber{int(lineNumberTableEntry.startPc), int(lineNumberTableEntry.lineNumber)}
+						}
 					}
 				}
+
 			}
 		}
 
@@ -401,7 +417,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 		maxInstanceVars = class.superClass.maxInstanceVars
 	}
 	for _, field := range class.fields {
-		if field.isStatic() {
+		if field.IsStatic() {
 			field.index = maxStaticVars
 			maxStaticVars++
 		} else {
@@ -449,7 +465,7 @@ func (this *ClassLoader) prepare(class *Class)  {
 	// Initialize static variables
 	class.staticVars = make([]Value, class.maxStaticVars)
 	for _, field := range class.fields {
-		if field.isStatic() {
+		if field.IsStatic() {
 			class.staticVars[field.index] = field.defaultValue()
 		}
 	}

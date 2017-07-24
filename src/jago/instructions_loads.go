@@ -236,22 +236,22 @@ Each of the iload_<n> instructions is the same as iload with an index of <n>, ex
 
 /*26 (0x1A)*/
 func ILOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(0).(Int))
+	f.push(assertIntCompatible(f.loadVar(0)))
 }
 
 /*27 (0x1B)*/
 func ILOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(1).(Int))
+	f.push(assertIntCompatible(f.loadVar(1)))
 }
 
 /*28 (0x1C)*/
 func ILOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(2).(Int))
+	f.push(assertIntCompatible(f.loadVar(2)))
 }
 
 /*29 (0x1D)*/
 func ILOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(f.loadVar(3).(Int))
+	f.push(assertIntCompatible(f.loadVar(3).(Int)))
 }
 
 /*

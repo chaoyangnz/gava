@@ -12,22 +12,31 @@ import (
 
 
 func main()  {
-	var cp = flag.String("classpath", "/Users/Charvis/Dropbox/Projects/gvm-java/out/production/gvm-java", "Class path")
+	var cp = flag.String("classpath", "/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/main", "Class path")
 	flag.Parse()
 	jago.APP_CLASS_PATH = strings.Split(*cp, ":")
 
-	jago.Startup("Main")
+
+	//case0()
+	//case1()
+	case2()
 }
 
-//func main() {
-//	testClassFileModule()
-//}
-
-func testClassFileModule()  {
-	bytes, _ := ioutil.ReadFile("/Users/Chao/Dropbox/Projects/gvm-java/out/production/gvm-java/Main.class")
+func case0()  {
+	bytes, _ := ioutil.ReadFile("/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/main/case1/Pyramid.class")
 
 
 	classfile := jago.NewClassFile(bytes)
 
 	classfile.Print()
 }
+
+func case1()  {
+	jago.Startup("case1/Pyramid")
+}
+
+func case2()  {
+	jago.Startup("case2/Calendar", jago.NewJavaLangString("7"), jago.NewJavaLangString("2007"))
+}
+
+

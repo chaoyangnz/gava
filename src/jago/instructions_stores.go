@@ -250,14 +250,16 @@ func ISTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 	f.storeVar(1, f.pop().(Int))
 }
 
+
+
 /*61 (0x3D)*/
 func ISTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.storeVar(2, f.pop().(Int))
+	f.storeVar(2, assertIntCompatible(f.pop()))
 }
 
 /*62 (0x3E)*/
 func ISTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.storeVar(3, f.pop().(Int))
+	f.storeVar(3, assertIntCompatible(f.pop()))
 }
 
 /*

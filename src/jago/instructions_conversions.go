@@ -359,7 +359,9 @@ value set, rounding of value may be required.
  */
 /*141 (0x8D)*/
 func F2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value := f.pop().(Float)
+
+	f.push(Double(float64(value))) // TODO ????
 }
 
 /*
@@ -450,7 +452,9 @@ magnitude of value' and may also lose precision.
  */
 /*143 (0x8F)*/
 func D2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	value := f.pop().(Double)
+
+	f.push(Long(int64(value)))
 }
 
 /*

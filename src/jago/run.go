@@ -25,31 +25,62 @@ type Thread struct {
 }
 
 func (this *Thread) Run()  {
-	for len(this.vmStack) != 0 { // per stack frame
-		f := this.peekFrame()
-		bytecode := f.method.code
-		LOG.Debug("🍷 %s \n", f.method.Qualifier())
-		for f.pc < len(f.method.code) {
-			pc := f.pc
-			opcode := bytecode[pc]
-			instruction := instructions[opcode]
-			jumped := false
-			LOG.Debug("   %04d ➢ %-18s", int(pc), instruction.mnemonic)
-			intercept(f)
-			instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
-			LOG.Debug("\n")
-			// jump instruction can operate pc
-			// some instruction also have variable length: tableswitch...
-			// these instructions will control pc themselves
-			instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
-			if !jumped {
-				f.pc += instruction_length
-			}
 
-			// if instruction operates the stack, we follow it
-			if len(this.vmStack) == 0 || f != this.peekFrame() {
-				break
-			}
+	for len(this.vmStack) > 0 { // per stack frame
+		this.runFrame()
+	}
+}
+
+func (this *Thread) RunTo(frame *Frame)  {
+
+	for { // per stack frame
+		f := this.peekFrame()
+		if f == nil || f == frame {
+			break
+		}
+		this.runFrame()
+	}
+}
+
+func __indent(thread *Thread, frame *Frame) string {
+	var index int
+	for i, f := range thread.vmStack {
+		if f == frame {
+			index = i
+		}
+	}
+
+	str := ""
+	for i:=0; i < index; i++ {
+		str += "\t"
+	}
+	return str
+}
+
+func (this *Thread) runFrame()  {
+	f := this.peekFrame()
+
+	bytecode := f.method.code
+	LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
+	for f.pc < len(f.method.code) {
+		pc := f.pc
+		opcode := bytecode[pc]
+		instruction := instructions[opcode]
+		jumped := false
+		LOG.Debug("\n%s%04d ➢ %-18s", __indent(this, f), int(pc), instruction.mnemonic)
+		intercept(f)
+		instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
+		// jump instruction can operate pc
+		// some instruction also have variable length: tableswitch...
+		// these instructions will control pc themselves
+		instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
+		if !jumped {
+			f.pc += instruction_length
+		}
+
+		// if instruction operates the stack, we follow it
+		if len(this.vmStack) == 0 || f != this.peekFrame() {
+			break
 		}
 	}
 }
@@ -144,7 +175,6 @@ func (this *Frame) params(callee *Method) []Value {
 				}
 			}
 		}
-
 
 		params[i] = param
 	}
@@ -267,6 +297,9 @@ func (this *Thread) popFrame()  {
 
 func (this *Thread) peekFrame() *Frame {
 	size := len(this.vmStack)
+	if size == 0 {
+		return nil
+	}
 	return this.vmStack[size-1]
 }
 
