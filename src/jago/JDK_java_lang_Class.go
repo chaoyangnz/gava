@@ -15,6 +15,7 @@ func register_java_lang_Class() {
 	register("java/lang/Class.getDeclaredConstructors0(Z)[Ljava/lang/reflect/Constructor;", Java_java_lang_Class_getDeclaredConstructors0)
 	register("java/lang/Class.getModifiers()I", Java_java_lang_Class_getModifiers)
 	register("java/lang/Class.getSuperclass()Ljava/lang/Class;", Java_java_lang_Class_getSuperclass)
+	register("java/lang/Class.isArray()Z", Java_java_lang_Class_isArray)
 }
 
 // private static void registerNatives()
@@ -39,8 +40,8 @@ func Java_java_lang_Class_getPrimitiveClass(name JavaLangString) JavaLangClass {
 
 // private static boolean desiredAssertionStatus0(Class javaClass)
 func Java_java_lang_Class_desiredAssertionStatus0(clazz JavaLangClass) Boolean {
-	// TODO
-	return TRUE
+	// Always disable assertions
+	return FALSE
 }
 
 
@@ -127,4 +128,11 @@ func Java_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
 		return NULL
 	}
 	return class.superClass.ClassObject()
+}
+
+func Java_java_lang_Class_isArray(this JavaLangClass) Boolean {
+	if this.GetExtra().(*Class).IsArray() {
+		return TRUE
+	}
+	return FALSE
 }

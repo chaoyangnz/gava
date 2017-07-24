@@ -114,6 +114,8 @@ type Class struct {
 	maxStaticVars       int
 	staticVars          []Value
 
+	sourceFile          string
+
 	// support link and initialization
 	linked      bool
 	initialized bool
@@ -137,24 +139,30 @@ func (this *Class) Descriptor() string  {
 }
 
 // invoke <clinit> to execute initialization code
-func (this *Class) Initialize() []*Method {
-	methods := []*Method{}
+func (this *Class) Initialize(thread *Thread) {
 	if this.initialized {
-		return methods
+		return
+	}
+
+	if this.superClass != nil {
+		this.superClass.Initialize(thread)
 	}
 
 	clinit := this.GetMethod("<clinit>", "()V")
 	if clinit != nil {
-		methods = append(methods, clinit)
+		inStack := false
+		for _, frame := range thread.vmStack {
+			if frame.method == clinit {
+				inStack = true
+				break
+			}
+		}
+		if !inStack {
+			VM_invokeMethod(thread, clinit)
+		}
 	}
 
 	this.initialized = true
-
-	if this.superClass != nil {
-		methods = append(methods, this.superClass.Initialize()...)
-	}
-
-	return methods
 }
 
 func (this *Class) IsInterface() bool  {
@@ -221,7 +229,7 @@ func (this *Class) NewObject() ObjectRef {
 	class := this
 	for class != nil {
 		for _, field := range class.fields {
-			if !field.isStatic() {
+			if !field.IsStatic() {
 				object.values[field.index] = field.defaultValue()
 			}
 		}
@@ -333,7 +341,7 @@ type Field struct {
 	index       int
 }
 
-func (this *Field) isStatic() bool {
+func (this *Field) IsStatic() bool {
 	return (this.accessFlags & JVM_ACC_STATIC) > 0
 }
 
@@ -375,6 +383,7 @@ type Method struct {
 	code        []uint8               //u4 code_length
 	exceptions  []ExceptionTableEntry //u2 exception_table_length
 	localVars   []*LocalVariable
+	lineNumbers []*LineNumber
 
 	parameterDescriptors  []string
 	returnDescriptor string
@@ -397,6 +406,10 @@ func (this *Method) Qualifier() string  {
 	return this.class.name + "." + this.Signature()
 }
 
+func (this *Method) IsClinit() bool {
+	return this.name == "<clinit>" && this.descriptor == "()V"
+}
+
 type LocalVariable struct {
 	method              *Method
 	startPc             uint16
@@ -404,6 +417,11 @@ type LocalVariable struct {
 	index               uint16
 	name                string
 	descriptor          string
+}
+
+type LineNumber struct {
+	startPc     int
+	lineNumber  int
 }
 
 

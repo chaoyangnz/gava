@@ -45,6 +45,7 @@ func RegisterNatives()  {
 
 	register_java_lang_Thread()
 	register_java_lang_Throwable()
+	register_java_lang_Runtime()
 
 	register_java_security_AccessController()
 
@@ -54,6 +55,9 @@ func RegisterNatives()  {
 	register_sun_misc_Unsafe()
 	register_sun_reflect_Reflection()
 	register_sun_reflect_NativeConstructorAccessorImpl()
+
+	///
+	register_jago_Jago()
 }
 //
 //

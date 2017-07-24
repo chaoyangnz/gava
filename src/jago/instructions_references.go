@@ -11,12 +11,8 @@ func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	field := fieldref.ResolvedField()
 
 	// do class initialization if any
-	clinits := class.Initialize()
-	if len(clinits) > 0 {
-		for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
-		*jumped = true // stay this instruction so as to execute again
-		return
-	}
+	class.Initialize(t)
+
 	f.push(field.class.staticVars[field.index])
 }
 
@@ -30,12 +26,8 @@ func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	field := fieldref.ResolvedField()
 
 	// do class initialization if any
-	clinits := class.Initialize()
-	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
-	if len(clinits) > 0 {
-		*jumped = true // stay this instruction so as to execute again
-		return
-	}
+	class.Initialize(t)
+
 	class.staticVars[field.index] = value
 }
 
@@ -90,12 +82,7 @@ func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped
 	methodref := c.constantPool[index].(*MethodRef)
 	class := methodref.ResolvedClass()
 	// do class initialization if any
-	clinits := class.Initialize()
-	for _, clinit := range clinits { t.pushFrame(NewStackFrame(clinit))}
-	if len(clinits) > 0 {
-		*jumped = true // stay this instruction so as to execute again
-		return
-	}
+	class.Initialize(t)
 
 	method := methodref.ResolvedMethod()
 	params := f.params(method)

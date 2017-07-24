@@ -148,7 +148,7 @@ func (this Reference) GetInstanceVariableByName(name string, descriptor string) 
 
 	objectref := this.oop
 	field := objectref.header.class.FindField(name, descriptor)
-	if field.isStatic() {
+	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}
 	return objectref.values[field.index]
@@ -161,7 +161,7 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 	if field == nil {
 		Fatal("Field (%s %s)  cannot be found in %s", name, descriptor, objectref.header.class.Name())
 	}
-	if field.isStatic() {
+	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}
 	objectref.values[field.index] = value

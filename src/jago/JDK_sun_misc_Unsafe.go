@@ -10,6 +10,9 @@ func register_sun_misc_Unsafe() {
 	register("sun/misc/Unsafe.compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z", Java_sun_misc_Unsafe_compareAndSwapObject)
 	register("sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I", Java_sun_misc_Unsafe_getIntVolatile)
 	register("sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z", Java_sun_misc_Unsafe_compareAndSwapInt)
+	register("sun/misc/Unsafe.allocateMemory(J)J", Java_sun_misc_Unsafe_allocateMemory)
+	register("sun/misc/Unsafe.putLong(JJ)V", Java_sun_misc_Unsafe_putLong)
+	register("sun/misc/Unsafe.getByte(J)B", Java_sun_misc_Unsafe_getByte)
 }
 
 // private static void registerNatives()
@@ -72,4 +75,18 @@ func Java_sun_misc_Unsafe_getIntVolatile(this Reference, obj Reference, offset L
 
 	slots := obj.oop.values
 	return slots[offset].(Int)
+}
+
+func Java_sun_misc_Unsafe_allocateMemory(this Reference, size Long) Long {
+	//TODO
+	return size
+}
+
+func Java_sun_misc_Unsafe_putLong(this Reference, address Long, val Long) {
+	//TODO
+}
+
+func Java_sun_misc_Unsafe_getByte(this Reference, address Long) Byte {
+	//TODO
+	return Byte(0)
 }

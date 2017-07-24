@@ -5,65 +5,63 @@ import (
 	"reflect"
 )
 
+func _isClinit(method *Method) bool {
+	return method.name == "<clinit>" && method.descriptor == "()V"
+}
+
 func VM_invokeMethod(thread *Thread, method *Method, params ... Value)  {
-	if method.isNative() {
-		VM_invokeNativeMethod(thread, method, params...)
-	} else {
-		VM_invokeJavaMethod(thread, method, params...)
-	}
-}
-
-func VM_invokeJavaMethod(thread *Thread, method *Method, params ... Value) {
-	frame := NewStackFrame(method)
-	i := 0
-	for _, param := range params {
-		frame.storeVar(uint(i), param)
-
-		switch param.(type) {
-		case Long, Double:
-			i += 2
-		default:
-			i += 1
-		}
-	}
-	thread.pushFrames(frame)
-}
-
-func VM_invokeNativeMethod(thread *Thread, method *Method, params ... Value) {
 	if !method.isNative() {
-		Fatal("%s Not a native method", method.Qualifier())
-	}
-	LOG.Debug("\n🍺 invoke native method %s", method.Qualifier())
+		current := thread.peekFrame()
+		frame := NewStackFrame(method)
+		i := 0
+		for _, param := range params {
+			frame.storeVar(uint(i), param)
 
-	fun, found := findNative(method.Qualifier())
-
-	staticDesc := ""
-	if method.isStatic() {
-		staticDesc = "static"
-	}
-	if !found {
-		Fatal( "native method %s %s is not implemented.", staticDesc, method.Qualifier())
-	}
-
-	if len(params) != fun.Type().NumIn() {
-		Fatal( "The number of params is not adapted for native method %s %s.", staticDesc, method.Qualifier())
-	}
-	in := make([]reflect.Value, len(params))
-	for k, param := range params {
-		in[k] = reflect.ValueOf(param)
-		if in[k].Kind() == reflect.Invalid {
-			Bug("Native method params is nil, bug!")
+			switch param.(type) {
+			case Long, Double:
+				i += 2
+			default:
+				i += 1
+			}
 		}
-	}
-	result := fun.Call(in)
+		thread.pushFrames(frame)
+		thread.RunTo(current)
+	} else {
+		if !method.isNative() {
+			Fatal("%s Not a native method", method.Qualifier())
+		}
+		LOG.Info("\n%s\t🍎%s", __indent(thread, thread.peekFrame()), method.Qualifier())
+
+		fun, found := findNative(method.Qualifier())
+
+		staticDesc := ""
+		if method.isStatic() {
+			staticDesc = "static"
+		}
+		if !found {
+			Fatal( "native method %s %s is not implemented.", staticDesc, method.Qualifier())
+		}
+
+		if len(params) != fun.Type().NumIn() {
+			Fatal( "The number of params is not adapted for native method %s %s.", staticDesc, method.Qualifier())
+		}
+		in := make([]reflect.Value, len(params))
+		for k, param := range params {
+			in[k] = reflect.ValueOf(param)
+			if in[k].Kind() == reflect.Invalid {
+				Bug("Native method params is nil, bug!")
+			}
+		}
+		result := fun.Call(in)
 
 
-	if len(result) == 0 {
-		return
-	}
+		if len(result) == 0 {
+			return
+		}
 
-	if method.returnDescriptor != JVM_SIGNATURE_VOID {
-		thread.peekFrame().push(result[0].Interface().(Value))
+		if method.returnDescriptor != JVM_SIGNATURE_VOID {
+			thread.peekFrame().push(result[0].Interface().(Value))
+		}
 	}
 }
 
@@ -86,7 +84,7 @@ func VM_setInstanceVariable(objref ObjectRef, name string, descriptor string, va
 
 func VM_getStaticVariable(class *Class, name string, descriptor string) Value {
 	field := class.FindField(name, descriptor)
-	if field == nil || !field.isStatic() {
+	if field == nil || !field.IsStatic() {
 		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
 	}
 	return class.staticVars[field.index]
@@ -94,7 +92,7 @@ func VM_getStaticVariable(class *Class, name string, descriptor string) Value {
 
 func VM_setStaticVariable(class *Class, name string, descriptor string, value Value)  {
 	field := class.FindField(name, descriptor)
-	if field == nil || !field.isStatic() {
+	if field == nil || !field.IsStatic() {
 		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
 	}
 	class.staticVars[field.index] = value
