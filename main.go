@@ -18,9 +18,9 @@ func main()  {
 
 
 	//case0()
-	//case1()
+	case1()
 	//case2()
-	testAthrow()
+	//testAthrow()
 }
 
 func case0()  {

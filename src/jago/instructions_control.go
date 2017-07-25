@@ -22,7 +22,52 @@ func RET(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 
 /*170 (0xAA)*/
 func TABLESWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+	var start int
+	for i:= 0; i <=3; i++ {
+		if ((f.pc+1)+i) % 4 == 0 {
+			start = f.pc+1 +i
+			break;
+		}
+	}
+	defaultByte1 := m.code[start]
+	defaultByte2 := m.code[start+1]
+	defaultByte3 := m.code[start+2]
+	defaultByte4 := m.code[start+3]
+	lowbyte1 := m.code[start+4]
+	lowbyte2 := m.code[start+5]
+	lowbyte3 := m.code[start+6]
+	lowbyte4 := m.code[start+7]
+	highbyte1 := m.code[start+8]
+	highbyte2 := m.code[start+9]
+	highbyte3 := m.code[start+10]
+	highbyte4 := m.code[start+11]
+
+	defaultOffset := fourUBytesToInt(defaultByte1, defaultByte2, defaultByte3, defaultByte4)
+	low := fourUBytesToInt(lowbyte1, lowbyte2, lowbyte3, lowbyte4)
+	high := fourUBytesToInt(highbyte1, highbyte2, highbyte3, highbyte4)
+
+	LOG.Trace("[tableswitch] %s", m.Qualifier())
+	LOG.Trace("[tableswitch] %d ~ %d\n", low, high)
+	offsets := make([]int32, high - low + 1)
+	for n:=0; n < int(high - low + 1); n++ {
+		offsetStart := start + 12 + 4*n
+		byte1 := m.code[offsetStart]
+		byte2 := m.code[offsetStart+1]
+		byte3 := m.code[offsetStart+2]
+		byte4 := m.code[offsetStart+3]
+		offsets[n] = fourUBytesToInt(byte1, byte2, byte3, byte4)
+		LOG.Trace("[tableswitch] %d: %d\n", int(low) + n, offsets[n])
+	}
+	LOG.Trace("[tableswitch] default: %d\n\n", defaultOffset)
+
+	index := f.pop().(Int)
+
+	if int32(index) < low || int32(index) > high {
+		f.pc += int(defaultOffset)
+	} else {
+		f.pc += int(offsets[int32(index) - low])
+	}
+	*jumped = true
 }
 
 /*171 (0xAB)*/

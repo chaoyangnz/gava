@@ -12,6 +12,7 @@ func register_java_lang_System()  {
 	register("java/lang/System.arraycopy(Ljava/lang/Object;ILjava/lang/Object;II)V", Java_java_lang_System_arraycopy)
 	register("java/lang/System.identityHashCode(Ljava/lang/Object;)I", Java_java_lang_System_identityHashCode)
 	register("java/lang/System.initProperties(Ljava/util/Properties;)Ljava/util/Properties;", Java_java_lang_System_initProperties)
+	register("java/lang/System.mapLibraryName(Ljava/lang/String;)Ljava/lang/String;", Java_java_lang_System_mapLibraryName)
 }
 
 // private static void registers()
@@ -97,4 +98,8 @@ var _sysProps map[string]string = map[string]string{
 		"file.encoding":        "UTF-8",
 		"sun.stdout.encoding":  "UTF-8",
 		"sun.stderr.encoding":  "UTF-8",
+}
+
+func Java_java_lang_System_mapLibraryName(name JavaLangString) JavaLangString {
+	return name
 }

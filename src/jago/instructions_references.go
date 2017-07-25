@@ -44,9 +44,6 @@ func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 
 /*181 (0xB5)*/
 func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	if c.name == "java/nio/ByteBuffer" && m.name == "<init>" {
-		print("breakpoint")
-	}
 	index := f.index16()
 	value := f.pop()
 	objectref := f.pop().(ObjectRef)
@@ -64,6 +61,10 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 	}
 	params := f.params(method)
 	objectref := params[0].(Reference)
+	if objectref.IsNull() {
+		Throw("java/lang/NullPointerException", "")
+		return
+	}
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
