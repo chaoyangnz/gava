@@ -5,6 +5,7 @@ func register_java_lang_Object() {
 	register("java/lang/Object.hashCode()I", Java_java_lang_Object_hashCode)
 	register("java/lang/Object.getClass()Ljava/lang/Class;", Java_java_lang_Object_getClass)
 	register("java/lang/Object.clone()Ljava/lang/Object;", Java_java_lang_Object_clone)
+	register("java/lang/Object.notifyAll()V", Java_java_lang_Object_notifyAll)
 }
 
 // private static void registerNatives()
@@ -41,4 +42,8 @@ func __clone(obj Reference) Reference {
 	}
 
 	return clone
+}
+
+func Java_java_lang_Object_notifyAll(this Reference) {
+	// DO NOTHING
 }

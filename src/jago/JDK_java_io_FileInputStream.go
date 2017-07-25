@@ -1,9 +1,9 @@
 package jago
 
-func register_java_io_FieOutputStream() {
-	register("java/io/FileOutputStream.initIDs()V", Java_java_io_FileOutputStream_initIDs)
+func register_java_io_FieInputStream() {
+	register("java/io/FileInputStream.initIDs()V", Java_java_io_FileInputStream_initIDs)
 }
 
-func Java_java_io_FileOutputStream_initIDs() {
+func Java_java_io_FileInputStream_initIDs() {
 	// TODO
 }

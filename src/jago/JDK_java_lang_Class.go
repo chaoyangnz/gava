@@ -16,6 +16,7 @@ func register_java_lang_Class() {
 	register("java/lang/Class.getModifiers()I", Java_java_lang_Class_getModifiers)
 	register("java/lang/Class.getSuperclass()Ljava/lang/Class;", Java_java_lang_Class_getSuperclass)
 	register("java/lang/Class.isArray()Z", Java_java_lang_Class_isArray)
+	register("java/lang/Class.getComponentType()Ljava/lang/Class;", Java_java_lang_Class_getComponentType)
 }
 
 // private static void registerNatives()
@@ -131,8 +132,21 @@ func Java_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
 }
 
 func Java_java_lang_Class_isArray(this JavaLangClass) Boolean {
-	if this.GetExtra().(*Class).IsArray() {
-		return TRUE
+	type0 := this.GetExtra().(Type)
+	switch type0.(type) {
+	case *Class:
+		if type0.(*Class).IsArray() {
+			return TRUE
+		}
 	}
 	return FALSE
+}
+
+func Java_java_lang_Class_getComponentType(this JavaLangClass) JavaLangClass {
+	class := this.GetExtra().(*Class)
+	if !class.IsArray() {
+		Fatal("%s is not array type", this.Class().name)
+	}
+
+	return class.componentType.ClassObject()
 }

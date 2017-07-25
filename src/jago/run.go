@@ -183,7 +183,7 @@ func (this *Frame) params(callee *Method) []Value {
 		// get objectref and target method
 		objectref := params[0].(Reference)
 		if objectref.IsNull() {
-			Fatal("NullPointerException")
+			Throw("java/lang/NullPointerException", "")
 		}
 	}
 

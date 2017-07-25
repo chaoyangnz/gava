@@ -277,14 +277,31 @@ func (this *Class) GetMethod(name string, descriptor string) *Method {
  * Java doesn't permit a static and instance method with same name + signature
  */
 func (this *Class) FindMethod(name string, descriptor string) *Method {
-	class := this
-	for class != nil {
-		for _, method := range class.methods {
-			if method.name == name && method.descriptor == descriptor {
-				return method
-			}
+	for _, method := range this.methods {
+		if method.name == name && method.descriptor == descriptor {
+			return method
 		}
-		class = class.superClass
+	}
+	if this.superClass != nil {
+		method := this.superClass.FindMethod(name, descriptor)
+		if method != nil {
+			return method
+		}
+	}
+	//class := this
+	//for class != nil {
+	//	for _, method := range class.methods {
+	//		if method.name == name && method.descriptor == descriptor {
+	//			return method
+	//		}
+	//	}
+	//	class = class.superClass
+	//}
+	for _, iface := range this.interfaces {
+		method := iface.FindMethod(name, descriptor)
+		if method != nil {
+			return method
+		}
 	}
 	return nil
 }
