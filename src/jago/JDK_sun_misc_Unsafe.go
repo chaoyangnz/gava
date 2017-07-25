@@ -13,6 +13,7 @@ func register_sun_misc_Unsafe() {
 	register("sun/misc/Unsafe.allocateMemory(J)J", Java_sun_misc_Unsafe_allocateMemory)
 	register("sun/misc/Unsafe.putLong(JJ)V", Java_sun_misc_Unsafe_putLong)
 	register("sun/misc/Unsafe.getByte(J)B", Java_sun_misc_Unsafe_getByte)
+	register("sun/misc/Unsafe.freeMemory(J)V", Java_sun_misc_Unsafe_freeMemory)
 }
 
 // private static void registerNatives()
@@ -40,7 +41,7 @@ func Java_sun_misc_Unsafe_objectFieldOffset(this Reference, fieldObject JavaLang
 
 func Java_sun_misc_Unsafe_compareAndSwapObject(this Reference, obj Reference, offset Long, expected Reference, newVal Reference) Boolean {
 	if obj.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
@@ -55,7 +56,7 @@ func Java_sun_misc_Unsafe_compareAndSwapObject(this Reference, obj Reference, of
 
 func Java_sun_misc_Unsafe_compareAndSwapInt(this Reference, obj Reference, offset Long, expected Int, newVal Int) Boolean {
 	if obj.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
@@ -70,7 +71,7 @@ func Java_sun_misc_Unsafe_compareAndSwapInt(this Reference, obj Reference, offse
 
 func Java_sun_misc_Unsafe_getIntVolatile(this Reference, obj Reference, offset Long) Int {
 	if obj.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
@@ -89,4 +90,8 @@ func Java_sun_misc_Unsafe_putLong(this Reference, address Long, val Long) {
 func Java_sun_misc_Unsafe_getByte(this Reference, address Long) Byte {
 	//TODO
 	return Byte(0)
+}
+
+func Java_sun_misc_Unsafe_freeMemory(this Reference, size Long)  {
+	// do nothing
 }

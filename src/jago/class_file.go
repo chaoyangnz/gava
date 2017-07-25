@@ -85,7 +85,7 @@ func (this *ClassReader) readAttribute() AttributeInfo {
 	case "LocalVariableTable":
 		attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
-		LOG.Trace("No reader for attribute: %s, skip\n", attributeName)
+		CLASSLOAD_LOG.Trace("No reader for attribute: %s, skip\n", attributeName)
 		this.readU1s(uint32(attributeLength)) // just skip out
 	}
 

@@ -23,13 +23,8 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 		return class
 	}
 
+	CLASSLOAD_LOG.Debug(__times(__indention, "   ") + "↳ %s \n", className)
 	__indention++
-	if __indention == 1 {
-		LOG.Trace("\n")
-	}
-
-	LOG.Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
-	LOG.Trace(__times(__indention, "  ") + "↳ %s \n", className)
 
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
@@ -47,10 +42,6 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 	// eager linkage
 	this.link(class)
 
-
-
-	LOG.Trace(__times(__indention, "  ") + "↱ %s \n", className)
-	LOG.Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
 	__indention--
 	return class
 }
@@ -329,6 +320,11 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 				method.maxStack = uint(codeAttribute.maxStack)
 				method.maxLocals = uint(codeAttribute.maxLocals)
 				method.code = *(*[]uint8)(unsafe.Pointer(&codeAttribute.code))
+				method.exceptions = make([]*ExceptionHandler, codeAttribute.exceptionTableLength)
+				for ei, ete := range codeAttribute.exceptionTable {
+					exceptionHandler := &ExceptionHandler{int(ete.startPc), int(ete.endPc), int(ete.handlerPc), int(ete.catchType)}
+					method.exceptions[ei] = exceptionHandler
+				}
 				for k := u2(0); k < codeAttribute.attributesCount; k++ {
 					codeAttributeAttribute := codeAttribute.attributes[k]
 					switch codeAttributeAttribute.(type) {
@@ -475,16 +471,22 @@ func (this *ClassLoader) initialize(class *Class) {
 
 	clinit := class.GetMethod("<clinit>", "()V")
 	if clinit != nil {
-		inStack := false
-		for _, frame := range thread.vmStack {
-			if frame.method == clinit {
-				inStack = true
-				break
-			}
+		//inStack := false
+		//for _, frame := range thread.vmStack {
+		//	if frame.method == clinit {
+		//		inStack = true
+		//		break
+		//	}
+		//}
+		//if !inStack {
+
+		// always initialize super class
+		if class.superClass != nil {
+			this.initialize(class.superClass)
 		}
-		if !inStack {
+		CLASSLOAD_LOG.Debug(__times(__indention, "   ") + "%s \n", clinit.Qualifier())
 			VM_invokeMethod(thread, clinit)
-		}
+		//}
 	}
 
 	class.initialized = true

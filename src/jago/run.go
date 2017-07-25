@@ -62,13 +62,13 @@ func (this *Thread) runFrame()  {
 	f := this.peekFrame()
 
 	bytecode := f.method.code
-	LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
+	EXEC_LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
 	for f.pc < len(f.method.code) {
 		pc := f.pc
 		opcode := bytecode[pc]
 		instruction := instructions[opcode]
 		jumped := false
-		LOG.Debug("\n%s%04d ➢ %-18s", __indent(this, f), int(pc), instruction.mnemonic)
+		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", __indent(this, f), int(pc), instruction.mnemonic)
 		intercept(f)
 		instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
 		// jump instruction can operate pc
@@ -129,25 +129,25 @@ func (this *Frame) storeVar(index uint, value Value)  {
 
 func (this *Frame) const8(pos int) int8 {
 	constant := int8(this.method.code[this.pc + pos])
-	LOG.Debug("\t%d", constant)
+	EXEC_LOG.Debug("\t%d", constant)
 	return constant
 }
 
 func (this *Frame) index8() uint8 {
 	index := uint8(this.method.code[this.pc+1])
-	LOG.Debug("\t#%d", index)
+	EXEC_LOG.Debug("\t#%d", index)
 	return index
 }
 
 func (this *Frame) index16() uint16 {
 	index := (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
-	LOG.Debug("\t#%d", index)
+	EXEC_LOG.Debug("\t#%d", index)
 	return index
 }
 
 func (this *Frame) offset16() int16 {
 	offset := int16((uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2]))
-	LOG.Debug("\t⤋%d", this.pc + int(offset))
+	EXEC_LOG.Debug("\t⤋%d", this.pc + int(offset))
 	return offset
 }
 
@@ -282,7 +282,7 @@ func (this *Frame) peek() Value {
 func (this *Thread) pushFrame(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
-		Throw("java.lang.StackOverflowError", "Exceed the maximum stack size")
+		Throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
 	}
 	this.vmStack = this.vmStack[:size+1]
 	this.vmStack[size] = stackFrame

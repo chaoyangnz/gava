@@ -19,7 +19,7 @@ const (
 
 
 
-func NewLog(logfile string) *Log {
+func NewLog(category string, level int, logfile string) *Log {
 	var _, err = os.Stat(logfile)
 
 	// create file if not exists
@@ -38,11 +38,13 @@ func NewLog(logfile string) *Log {
 
 	w := bufio.NewWriter(f)
 
-	log := &Log{writer: w}
+	log := &Log{category, level, w}
 	return log
 }
 
 type Log struct {
+	category string
+	level int
 	writer *bufio.Writer
 }
 
@@ -52,37 +54,37 @@ func (this *Log) _log(format string, args ...interface{}) {
 }
 
 func (this *Log)  All(format string, args ...interface{})   {
-	if LOG_LEVEL <= ALL {
+	if this.level <= ALL {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Trace(format string, args ...interface{})   {
-	if LOG_LEVEL <= TRACE {
+	if this.level <= TRACE {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)   Debug(format string, args ...interface{})   {
-	if LOG_LEVEL <= DEBUG {
+	if this.level <= DEBUG {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Info(format string, args ...interface{})   {
-	if LOG_LEVEL <= INFO {
+	if this.level <= INFO {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Warn(format string, args ...interface{})   {
-	if LOG_LEVEL <= WARN {
+	if this.level <= WARN {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Error(format string, args ...interface{})   {
-	if LOG_LEVEL <= ERROR {
+	if this.level <= ERROR {
 		this._log(format, args...)
 	}
 }
@@ -97,12 +99,6 @@ func Bug(format string, args ...interface{})   {
 	//if logLevel <= FATAL {
 	panic(fmt.Sprintf(format, args...))
 	//}
-}
-
-func Throw(exception string, message string) error {
-	msg := fmt.Sprintf("%s: %s", exception, message)
-	Fatal(msg)
-	return errors.New(msg)
 }
 
 func NewError(format string, args ...interface{}) error {

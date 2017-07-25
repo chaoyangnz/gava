@@ -5,13 +5,12 @@ const MAIN_METHOD_DESCRIPTOR = "([Ljava/lang/String;)V"
 
 func Startup(initialClassName string, args... string)  {
 	RegisterNatives()
-
 	thread := THREAD_MANAGER.NewThread("main")
 
-	systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System")
-	//systemClass.Initialize(thread)
-	initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
-	VM_invokeMethod(thread, initializeSystemClassMethod)
+	//systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System")
+	////systemClass.Initialize(thread)
+	//initializeSystemClassMethod := systemClass.GetMethod("initializeSystemClass", "()V")
+	//VM_invokeMethod(thread, initializeSystemClassMethod)
 
 
 	//systemClass := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/System")

@@ -236,22 +236,22 @@ Each of the iload_<n> instructions is the same as iload with an index of <n>, ex
 
 /*26 (0x1A)*/
 func ILOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(assertIntCompatible(f.loadVar(0)))
+	f.push(intCompatible(f.loadVar(0)))
 }
 
 /*27 (0x1B)*/
 func ILOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(assertIntCompatible(f.loadVar(1)))
+	f.push(intCompatible(f.loadVar(1)))
 }
 
 /*28 (0x1C)*/
 func ILOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(assertIntCompatible(f.loadVar(2)))
+	f.push(intCompatible(f.loadVar(2)))
 }
 
 /*29 (0x1D)*/
 func ILOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	f.push(assertIntCompatible(f.loadVar(3).(Int)))
+	f.push(intCompatible(f.loadVar(3)))
 }
 
 /*
@@ -525,13 +525,13 @@ func IALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	arrayref := f.pop().(ArrayRef)
 
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != INT_TYPE {
 		Bug("Not an int array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Int))
 }
@@ -575,13 +575,13 @@ func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != LONG_TYPE {
 		Bug("Not a long array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Long))
 }
@@ -625,13 +625,13 @@ func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != FLOAT_TYPE {
 		Bug("Not an float array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Float))
 }
@@ -677,13 +677,13 @@ func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != DOUBLE_TYPE {
 		Bug("Not an double array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Double))
 }
@@ -727,14 +727,14 @@ func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	_, ok := arrayref.Class().componentType.(*Class)
 	if !ok {
 		Bug("Not an reference array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Reference))
 }
@@ -785,13 +785,13 @@ func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != BYTE_TYPE && arrayref.Class().componentType != BOOLEAN_TYPE {
 		Bug("Not a byte or boolean array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 
 	if arrayref.Class().componentType == BYTE_TYPE {
@@ -844,13 +844,14 @@ func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != CHAR_TYPE {
 		Bug("Not a char array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "%d is not in range [0, %d)", index, arrayref.Length())
+		return
 	}
 	ch := arrayref.GetElement(index).(Char)
 	f.push(Int(ch)) //zero-extended to an int value
@@ -895,13 +896,13 @@ func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != SHORT_TYPE {
 		Bug("Not a short array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	s := arrayref.GetElement(index).(Short)
 	f.push(Int(s)) // sign-extended to an int value

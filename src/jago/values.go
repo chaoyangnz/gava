@@ -121,7 +121,7 @@ func (this Reference) IsEqual(reference Reference) bool {
 
 func (this Reference) assertObject()  {
 	if this.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if this.Class().IsArray() {
 		Bug("It is not an ObjectRef")
@@ -169,7 +169,7 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 
 func (this Reference) assertArray()  {
 	if this.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
 	if !this.Class().IsArray() {
 		Bug("It is not an ArrayRef")

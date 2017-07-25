@@ -45,13 +45,13 @@ func Java_java_lang_System_nanoTime() Long {
 // public static void arraycopy(Object fromArray, int fromIndex, Object toArray, int toIndex, int length)
 func Java_java_lang_System_arraycopy(src Reference, srcPos Int, dest Reference, destPos Int, length Int) {
 	if !src.Class().IsArray() || !dest.Class().IsArray() {
-		Throw("ArrayStoreException", "")
+		Throw("java/lang/ArrayStoreException", "")
 	}
 	srcArrayRef := src.AsArrayRef()
 	dstArrayRef := dest.AsArrayRef()
 
 	if srcPos + length > srcArrayRef.Length() || destPos + length > dstArrayRef.Length() {
-		Throw("ArrayIndexOutOfBoundsException", "")
+		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	for i := Int(0); i < length; i++ {
 		dstArrayRef.SetElement(destPos + i, srcArrayRef.GetElement(srcPos + i))

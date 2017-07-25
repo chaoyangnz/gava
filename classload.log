@@ -1,0 +1,58 @@
+↳ java/lang/Thread 
+   ↳ java/lang/Object 
+      ↳ java/lang/Class 
+         ↳ java/io/Serializable 
+         ↳ java/lang/reflect/GenericDeclaration 
+            ↳ java/lang/reflect/AnnotatedElement 
+         ↳ java/lang/reflect/Type 
+         java/lang/Object.<clinit>()V 
+         java/lang/Class.<clinit>()V 
+         ↳ java/io/ObjectStreamField 
+            ↳ java/lang/Comparable 
+         ↳ [Ljava/io/ObjectStreamField; 
+            ↳ java/lang/Cloneable 
+   ↳ java/lang/Runnable 
+   java/lang/Thread.<clinit>()V 
+   ↳ java/lang/StackTraceElement 
+   ↳ [Ljava/lang/StackTraceElement; 
+   ↳ java/lang/RuntimePermission 
+      ↳ java/security/BasicPermission 
+         ↳ java/security/Permission 
+            ↳ java/security/Guard 
+   ↳ java/lang/String 
+      ↳ java/lang/CharSequence 
+      java/lang/String.<clinit>()V 
+      ↳ java/lang/String$CaseInsensitiveComparator 
+         ↳ java/util/Comparator 
+   ↳ [C 
+↳ java/lang/ThreadGroup 
+   ↳ java/lang/Thread$UncaughtExceptionHandler 
+↳ test_athrow 
+↳ [Ljava/lang/String; 
+↳ java/lang/RuntimeException 
+   ↳ java/lang/Exception 
+      ↳ java/lang/Throwable 
+         java/lang/Throwable.<clinit>()V 
+         ↳ java/util/ArrayList 
+            ↳ java/util/AbstractList 
+               ↳ java/util/AbstractCollection 
+                  ↳ java/util/Collection 
+                     ↳ java/lang/Iterable 
+               ↳ java/util/List 
+            ↳ java/util/RandomAccess 
+            java/util/ArrayList.<clinit>()V 
+            ↳ [Ljava/lang/Object; 
+         ↳ java/util/Collections 
+            java/util/Collections.<clinit>()V 
+            ↳ java/util/Collections$EmptySet 
+               ↳ java/util/AbstractSet 
+                  ↳ java/util/Set 
+            ↳ java/util/Collections$EmptyList 
+            ↳ java/util/Collections$EmptyMap 
+               ↳ java/util/AbstractMap 
+                  ↳ java/util/Map 
+         ↳ java/util/Collections$UnmodifiableRandomAccessList 
+            ↳ java/util/Collections$UnmodifiableList 
+               ↳ java/util/Collections$UnmodifiableCollection 
+         ↳ [Ljava/lang/Throwable; 
+↳ jago/Jago 
