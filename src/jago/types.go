@@ -138,32 +138,7 @@ func (this *Class) Descriptor() string  {
 	return JVM_SIGNATURE_CLASS + this.Name() + JVM_SIGNATURE_ENDCLASS
 }
 
-// invoke <clinit> to execute initialization code
-func (this *Class) Initialize(thread *Thread) {
-	if this.initialized {
-		return
-	}
 
-	if this.superClass != nil {
-		this.superClass.Initialize(thread)
-	}
-
-	clinit := this.GetMethod("<clinit>", "()V")
-	if clinit != nil {
-		inStack := false
-		for _, frame := range thread.vmStack {
-			if frame.method == clinit {
-				inStack = true
-				break
-			}
-		}
-		if !inStack {
-			VM_invokeMethod(thread, clinit)
-		}
-	}
-
-	this.initialized = true
-}
 
 func (this *Class) IsInterface() bool  {
 	return this.accessFlags & JVM_ACC_INTERFACE > 0
@@ -179,7 +154,6 @@ func (this *Class) IsAssignableFrom(class *Class) bool  {
 		clazz := class
 		for clazz != nil {
 			interfaces := clazz.interfaces
-			LOG.Info("class %s ifaces %d\n", clazz.Name(), len(interfaces))
 			for _, interface0 := range interfaces {
 				if interface0 == this {
 					return true

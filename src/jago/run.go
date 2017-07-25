@@ -8,8 +8,9 @@ func (this *ThreadManager) NewThread(name string) *Thread {
 	thread := &Thread{
 			name: name,
 			vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE)}
-	thread.threadObject = NewJavaLangThread()
 	this.currentThread = thread
+
+	thread.threadObject = NewJavaLangThread()
 	return thread
 }
 

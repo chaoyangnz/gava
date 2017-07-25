@@ -10,7 +10,7 @@ var APP_CLASS_PATH []string
 var MAIN_CLASS string
 
 const TRACE_LOG_FILE = "trace.log"
-const LOG_LEVEL = DEBUG
+const LOG_LEVEL = INFO
 
 
 var LOG = NewLog(TRACE_LOG_FILE)

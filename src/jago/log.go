@@ -30,7 +30,7 @@ func NewLog(logfile string) *Log {
 		os.Create(logfile)
 	}
 
-	f, err := os.OpenFile(logfile, os.O_WRONLY, 0666)
+	f, err := os.OpenFile(logfile, os.O_RDWR, 0666)
 	if err != nil {
 		fmt.Println("File does not exists or cannot be created")
 		os.Exit(1)
