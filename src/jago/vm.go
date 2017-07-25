@@ -30,7 +30,7 @@ func VM_invokeMethod(thread *Thread, method *Method, params ... Value)  {
 		if !method.isNative() {
 			Fatal("%s Not a native method", method.Qualifier())
 		}
-		LOG.Info("\n%s\t🍎%s", __indent(thread, thread.peekFrame()), method.Qualifier())
+		EXEC_LOG.Info("\n%s\t🍎%s", __indent(thread, thread.peekFrame()), method.Qualifier())
 
 		fun, found := findNative(method.Qualifier())
 

@@ -5,6 +5,6 @@ func register_jago_Jago() {
 }
 
 func Java_jago_Jago_print(str JavaLangString) {
-	print(str.toNativeString())
+	JavaOutPrintf("%s", str.toNativeString())
 }
 

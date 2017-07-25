@@ -355,7 +355,7 @@ type Method struct {
 	maxStack    uint
 	maxLocals   uint
 	code        []uint8               //u4 code_length
-	exceptions  []ExceptionTableEntry //u2 exception_table_length
+	exceptions  []*ExceptionHandler //u2 exception_table_length
 	localVars   []*LocalVariable
 	lineNumbers []*LineNumber
 

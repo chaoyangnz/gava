@@ -19,7 +19,8 @@ func main()  {
 
 	//case0()
 	//case1()
-	case2()
+	//case2()
+	testAthrow()
 }
 
 func case0()  {
@@ -37,6 +38,10 @@ func case1()  {
 
 func case2()  {
 	jago.Startup("case2/Calendar", "7", "2007")
+}
+
+func testAthrow()  {
+	jago.Startup("test_athrow")
 }
 
 

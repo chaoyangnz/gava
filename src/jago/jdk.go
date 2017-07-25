@@ -61,6 +61,8 @@ func RegisterNatives()  {
 	register_java_io_FieInputStream()
 	register_java_io_FieOutputStream()
 
+	register_java_util_concurrent_atomic_AtomicLong()
+
 	///
 	register_jago_Jago()
 }

@@ -238,4 +238,26 @@ func assertIntCompatible(value Value) Value {
 	return value
 }
 
+func intCompatible(value Value) Int {
+	assertIntCompatible(value)
+
+	switch value.(type) {
+	case Boolean:
+		return Int(value.(Boolean))
+	case Byte:
+		return Int(value.(Byte))
+	case Short:
+		return Int(value.(Short))
+	case Char:
+		return Int(value.(Char))
+	case Int:
+		return value.(Int)
+	default:
+		Fatal("%s is not int compatible", value.Type().Name())
+	}
+
+	// never be here
+	return 0
+}
+
 

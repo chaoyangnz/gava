@@ -1,0 +1,461 @@
+
+🍏java/lang/Object.<clinit>()V
+0000 ➢ invokestatic      	#16
+	🍎java/lang/Object.registerNatives()V
+0003 ➢ return            
+🍏java/lang/Class.<clinit>()V
+0000 ➢ invokestatic      	#330
+	🍎java/lang/Class.registerNatives()V
+0003 ➢ iconst_1          
+0004 ➢ putstatic         	#2
+0007 ➢ iconst_0          
+0008 ➢ anewarray         	#331
+0011 ➢ putstatic         	#332
+0014 ➢ iconst_0          
+0015 ➢ putstatic         	#1
+0018 ➢ return            
+🍏java/lang/Thread.<clinit>()V
+0000 ➢ invokestatic      	#140
+	🍎java/lang/Thread.registerNatives()V
+0003 ➢ iconst_0          
+0004 ➢ anewarray         	#141
+0007 ➢ putstatic         	#110
+0010 ➢ new               	#106
+0013 ➢ dup               
+0014 ➢ ldc               	#142
+	🍏java/lang/String.<clinit>()V
+	0000 ➢ iconst_0          
+	0001 ➢ anewarray         	#143
+	0004 ➢ putstatic         	#144
+	0007 ➢ new               	#145
+	0010 ➢ dup               
+	0011 ➢ aconst_null       
+	0012 ➢ invokespecial     	#146
+		🍏java/lang/String$CaseInsensitiveComparator.<init>(Ljava/lang/String$1;)V
+		0000 ➢ aload_0           
+		0001 ➢ invokespecial     	#1
+			🍏java/lang/String$CaseInsensitiveComparator.<init>()V
+			0000 ➢ aload_0           
+			0001 ➢ invokespecial     	#2
+				🍏java/lang/Object.<init>()V
+				0000 ➢ return            
+			0004 ➢ return            
+		0004 ➢ return            
+	0015 ➢ putstatic         	#55
+	0018 ➢ return            
+0016 ➢ invokespecial     	#108
+	🍏java/lang/RuntimePermission.<init>(Ljava/lang/String;)V
+	0000 ➢ aload_0           
+	0001 ➢ aload_1           
+	0002 ➢ invokespecial     	#1
+		🍏java/security/BasicPermission.<init>(Ljava/lang/String;)V
+		0000 ➢ aload_0           
+		0001 ➢ aload_1           
+		0002 ➢ invokespecial     	#17
+			🍏java/security/Permission.<init>(Ljava/lang/String;)V
+			0000 ➢ aload_0           
+			0001 ➢ invokespecial     	#1
+				🍏java/lang/Object.<init>()V
+				0000 ➢ return            
+			0004 ➢ aload_0           
+			0005 ➢ aload_1           
+			0006 ➢ putfield          	#2
+			0009 ➢ return            
+		0005 ➢ aload_0           
+		0006 ➢ aload_1           
+		0007 ➢ invokespecial     	#18
+			🍏java/security/BasicPermission.init(Ljava/lang/String;)V
+			0000 ➢ aload_1           
+			0001 ➢ ifnonnull         	⤋14
+			0014 ➢ aload_1           
+			0015 ➢ invokevirtual     	#4
+				🍏java/lang/String.length()I
+				0000 ➢ aload_0           
+				0001 ➢ getfield          	#3
+				0004 ➢ arraylength       
+				0005 ➢ ireturn           
+			0018 ➢ istore_2          
+			0019 ➢ iload_2           
+			0020 ➢ ifne              	⤋33
+			0033 ➢ aload_1           
+			0034 ➢ iload_2           
+			0035 ➢ iconst_1          
+			0036 ➢ isub              
+			0037 ➢ invokevirtual     	#8
+				🍏java/lang/String.charAt(I)C
+				0000 ➢ iload_1           
+				0001 ➢ iflt              	⤋13
+				0004 ➢ iload_1           
+				0005 ➢ aload_0           
+				0006 ➢ getfield          	#3
+				0009 ➢ arraylength       
+				0010 ➢ if_icmplt         	⤋22
+				0022 ➢ aload_0           
+				0023 ➢ getfield          	#3
+				0026 ➢ iload_1           
+				0027 ➢ caload            
+				0028 ➢ ireturn           
+			0040 ➢ istore_3          
+			0041 ➢ iload_3           
+			0042 ➢ bipush            	42
+			0044 ➢ if_icmpne         	⤋98
+			0098 ➢ aload_1           
+			0099 ➢ ldc               	#13
+			0101 ➢ invokevirtual     	#14
+				🍏java/lang/String.equals(Ljava/lang/Object;)Z
+				0000 ➢ aload_0           
+				0001 ➢ aload_1           
+				0002 ➢ if_acmpne         	⤋7
+				0007 ➢ aload_1           
+				0008 ➢ instanceof        	#43
+				0011 ➢ ifeq              	⤋79
+				0014 ➢ aload_1           
+				0015 ➢ checkcast         	#43
+				0018 ➢ astore_2          
+				0019 ➢ aload_0           
+				0020 ➢ getfield          	#3
+				0023 ➢ arraylength       
+				0024 ➢ istore_3          
+				0025 ➢ iload_3           
+				0026 ➢ aload_2           
+				0027 ➢ getfield          	#3
+				0030 ➢ arraylength       
+				0031 ➢ if_icmpne         	⤋79
+				0079 ➢ iconst_0          
+				0080 ➢ ireturn           
+			0104 ➢ ifeq              	⤋126
+			0126 ➢ aload_0           
+			0127 ➢ aload_1           
+			0128 ➢ putfield          	#11
+			0131 ➢ return            
+		0010 ➢ return            
+	0005 ➢ return            
+0019 ➢ putstatic         	#24
+0022 ➢ return            
+🍏test_athrow.main([Ljava/lang/String;)V
+0000 ➢ invokestatic      	#2
+	🍏test_athrow.bar()V
+	0000 ➢ ldc               	#7
+	0002 ➢ astore_0          
+	0003 ➢ new               	#4
+		🍏java/lang/Throwable.<clinit>()V
+		0000 ➢ ldc               	#42
+		0002 ➢ invokevirtual     	#93
+			🍏java/lang/Class.desiredAssertionStatus()Z
+			0000 ➢ aload_0           
+			0001 ➢ invokevirtual     	#257
+				🍏java/lang/Class.getClassLoader()Ljava/lang/ClassLoader;
+				0000 ➢ aload_0           
+				0001 ➢ invokevirtual     	#67
+					🍏java/lang/Class.getClassLoader0()Ljava/lang/ClassLoader;
+					0000 ➢ aload_0           
+					0001 ➢ getfield          	#10
+					0004 ➢ areturn           
+				0004 ➢ astore_1          
+				0005 ➢ aload_1           
+				0006 ➢ ifnonnull         	⤋11
+				0009 ➢ aconst_null       
+				0010 ➢ areturn           
+			0004 ➢ astore_1          
+			0005 ➢ aload_1           
+			0006 ➢ ifnonnull         	⤋14
+			0009 ➢ aload_0           
+			0010 ➢ invokestatic      	#258
+				🍎java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z
+			0013 ➢ ireturn           
+		0005 ➢ ifne              	⤋12
+		0008 ➢ iconst_1          
+		0009 ➢ goto              	⤋13
+		0013 ➢ putstatic         	#49
+		0016 ➢ iconst_0          
+		0017 ➢ anewarray         	#67
+		0020 ➢ putstatic         	#3
+		0023 ➢ new               	#75
+			🍏java/util/ArrayList.<clinit>()V
+			0000 ➢ iconst_0          
+			0001 ➢ anewarray         	#4
+			0004 ➢ putstatic         	#6
+			0007 ➢ iconst_0          
+			0008 ➢ anewarray         	#4
+			0011 ➢ putstatic         	#15
+			0014 ➢ return            
+		0026 ➢ dup               
+		0027 ➢ iconst_0          
+		0028 ➢ invokespecial     	#76
+			🍏java/util/ArrayList.<init>(I)V
+			0000 ➢ aload_0           
+			0001 ➢ invokespecial     	#3
+				🍏java/util/AbstractList.<init>()V
+				0000 ➢ aload_0           
+				0001 ➢ invokespecial     	#1
+					🍏java/util/AbstractCollection.<init>()V
+					0000 ➢ aload_0           
+					0001 ➢ invokespecial     	#2
+						🍏java/lang/Object.<init>()V
+						0000 ➢ return            
+					0004 ➢ return            
+				0004 ➢ aload_0           
+				0005 ➢ iconst_0          
+				0006 ➢ putfield          	#2
+				0009 ➢ return            
+			0004 ➢ iload_1           
+			0005 ➢ ifle              	⤋19
+			0019 ➢ iload_1           
+			0020 ➢ ifne              	⤋33
+			0023 ➢ aload_0           
+			0024 ➢ getstatic         	#6
+			0027 ➢ putfield          	#5
+			0030 ➢ goto              	⤋60
+			0060 ➢ return            
+		0031 ➢ invokestatic      	#94
+			🍏java/util/Collections.<clinit>()V
+			0000 ➢ new               	#155
+			0003 ➢ dup               
+			0004 ➢ aconst_null       
+			0005 ➢ invokespecial     	#156
+				🍏java/util/Collections$EmptySet.<init>(Ljava/util/Collections$1;)V
+				0000 ➢ aload_0           
+				0001 ➢ invokespecial     	#1
+					🍏java/util/Collections$EmptySet.<init>()V
+					0000 ➢ aload_0           
+					0001 ➢ invokespecial     	#2
+						🍏java/util/AbstractSet.<init>()V
+						0000 ➢ aload_0           
+						0001 ➢ invokespecial     	#1
+							🍏java/util/AbstractCollection.<init>()V
+							0000 ➢ aload_0           
+							0001 ➢ invokespecial     	#2
+								🍏java/lang/Object.<init>()V
+								0000 ➢ return            
+							0004 ➢ return            
+						0004 ➢ return            
+					0004 ➢ return            
+				0004 ➢ return            
+			0008 ➢ putstatic         	#110
+			0011 ➢ new               	#157
+			0014 ➢ dup               
+			0015 ➢ aconst_null       
+			0016 ➢ invokespecial     	#158
+				🍏java/util/Collections$EmptyList.<init>(Ljava/util/Collections$1;)V
+				0000 ➢ aload_0           
+				0001 ➢ invokespecial     	#1
+					🍏java/util/Collections$EmptyList.<init>()V
+					0000 ➢ aload_0           
+					0001 ➢ invokespecial     	#2
+						🍏java/util/AbstractList.<init>()V
+						0000 ➢ aload_0           
+						0001 ➢ invokespecial     	#1
+							🍏java/util/AbstractCollection.<init>()V
+							0000 ➢ aload_0           
+							0001 ➢ invokespecial     	#2
+								🍏java/lang/Object.<init>()V
+								0000 ➢ return            
+							0004 ➢ return            
+						0004 ➢ aload_0           
+						0005 ➢ iconst_0          
+						0006 ➢ putfield          	#2
+						0009 ➢ return            
+					0004 ➢ return            
+				0004 ➢ return            
+			0019 ➢ putstatic         	#112
+			0022 ➢ new               	#159
+			0025 ➢ dup               
+			0026 ➢ aconst_null       
+			0027 ➢ invokespecial     	#160
+				🍏java/util/Collections$EmptyMap.<init>(Ljava/util/Collections$1;)V
+				0000 ➢ aload_0           
+				0001 ➢ invokespecial     	#1
+					🍏java/util/Collections$EmptyMap.<init>()V
+					0000 ➢ aload_0           
+					0001 ➢ invokespecial     	#2
+						🍏java/util/AbstractMap.<init>()V
+						0000 ➢ aload_0           
+						0001 ➢ invokespecial     	#2
+							🍏java/lang/Object.<init>()V
+							0000 ➢ return            
+						0004 ➢ return            
+					0004 ➢ return            
+				0004 ➢ return            
+			0030 ➢ putstatic         	#113
+			0033 ➢ return            
+			🍏java/util/Collections.unmodifiableList(Ljava/util/List;)Ljava/util/List;
+			0000 ➢ aload_0           
+			0001 ➢ instanceof        	#3
+			0004 ➢ ifeq              	⤋18
+			0007 ➢ new               	#53
+			0010 ➢ dup               
+			0011 ➢ aload_0           
+			0012 ➢ invokespecial     	#54
+				🍏java/util/Collections$UnmodifiableRandomAccessList.<init>(Ljava/util/List;)V
+				0000 ➢ aload_0           
+				0001 ➢ aload_1           
+				0002 ➢ invokespecial     	#1
+					🍏java/util/Collections$UnmodifiableList.<init>(Ljava/util/List;)V
+					0000 ➢ aload_0           
+					0001 ➢ aload_1           
+					0002 ➢ invokespecial     	#1
+						🍏java/util/Collections$UnmodifiableCollection.<init>(Ljava/util/Collection;)V
+						0000 ➢ aload_0           
+						0001 ➢ invokespecial     	#1
+							🍏java/lang/Object.<init>()V
+							0000 ➢ return            
+						0004 ➢ aload_1           
+						0005 ➢ ifnonnull         	⤋16
+						0016 ➢ aload_0           
+						0017 ➢ aload_1           
+						0018 ➢ putfield          	#4
+						0021 ➢ return            
+					0005 ➢ aload_0           
+					0006 ➢ aload_1           
+					0007 ➢ putfield          	#2
+					0010 ➢ return            
+				0005 ➢ return            
+			0015 ➢ goto              	⤋26
+			0026 ➢ areturn           
+		0034 ➢ putstatic         	#5
+		0037 ➢ iconst_0          
+		0038 ➢ anewarray         	#42
+		0041 ➢ putstatic         	#90
+		0044 ➢ return            
+	0006 ➢ dup               
+	0007 ➢ ldc               	#5
+	0009 ➢ invokespecial     	#6
+		🍏java/lang/RuntimeException.<init>(Ljava/lang/String;)V
+		0000 ➢ aload_0           
+		0001 ➢ aload_1           
+		0002 ➢ invokespecial     	#2
+			🍏java/lang/Exception.<init>(Ljava/lang/String;)V
+			0000 ➢ aload_0           
+			0001 ➢ aload_1           
+			0002 ➢ invokespecial     	#2
+				🍏java/lang/Throwable.<init>(Ljava/lang/String;)V
+				0000 ➢ aload_0           
+				0001 ➢ invokespecial     	#1
+					🍏java/lang/Object.<init>()V
+					0000 ➢ return            
+				0004 ➢ aload_0           
+				0005 ➢ aload_0           
+				0006 ➢ putfield          	#2
+				0009 ➢ aload_0           
+				0010 ➢ getstatic         	#3
+				0013 ➢ putfield          	#4
+				0016 ➢ aload_0           
+				0017 ➢ getstatic         	#5
+				0020 ➢ putfield          	#6
+				0023 ➢ aload_0           
+				0024 ➢ invokevirtual     	#7
+					🍏java/lang/Throwable.fillInStackTrace()Ljava/lang/Throwable;
+					0000 ➢ aload_0           
+					0001 ➢ getfield          	#4
+					0004 ➢ ifnonnull         	⤋14
+					0014 ➢ aload_0           
+					0015 ➢ iconst_0          
+					0016 ➢ invokespecial     	#63
+						🍎java/lang/Throwable.fillInStackTrace(I)Ljava/lang/Throwable;
+					0019 ➢ pop               
+					0020 ➢ aload_0           
+					0021 ➢ getstatic         	#3
+					0024 ➢ putfield          	#4
+					0027 ➢ aload_0           
+					0028 ➢ areturn           
+				0027 ➢ pop               
+				0028 ➢ aload_0           
+				0029 ➢ aload_1           
+				0030 ➢ putfield          	#8
+				0033 ➢ return            
+			0005 ➢ return            
+		0005 ➢ return            
+	0012 ➢ athrow            
+	0013 ➢ astore_1          
+	0014 ➢ aload_0           
+	0015 ➢ invokestatic      	#9
+		🍏jago/Jago.print(Ljava/lang/Object;)V
+		0000 ➢ aload_0           
+		0001 ➢ invokestatic      	#5
+			🍏java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;
+			0000 ➢ aload_0           
+			0001 ➢ ifnonnull         	⤋9
+			0009 ➢ aload_0           
+			0010 ➢ invokevirtual     	#135
+				🍏java/lang/String.toString()Ljava/lang/String;
+				0000 ➢ aload_0           
+				0001 ➢ areturn           
+			0013 ➢ areturn           
+		0004 ➢ invokestatic      	#6
+			🍎jago/Jago.print(Ljava/lang/String;)V
+		0007 ➢ return            
+	0018 ➢ aload_1           
+	0019 ➢ invokevirtual     	#10
+		🍏java/lang/Throwable.getMessage()Ljava/lang/String;
+		0000 ➢ aload_0           
+		0001 ➢ getfield          	#8
+		0004 ➢ areturn           
+	0022 ➢ invokestatic      	#9
+		🍏jago/Jago.print(Ljava/lang/Object;)V
+		0000 ➢ aload_0           
+		0001 ➢ invokestatic      	#5
+			🍏java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;
+			0000 ➢ aload_0           
+			0001 ➢ ifnonnull         	⤋9
+			0009 ➢ aload_0           
+			0010 ➢ invokevirtual     	#135
+				🍏java/lang/String.toString()Ljava/lang/String;
+				0000 ➢ aload_0           
+				0001 ➢ areturn           
+			0013 ➢ areturn           
+		0004 ➢ invokestatic      	#6
+			🍎jago/Jago.print(Ljava/lang/String;)V
+		0007 ➢ return            
+	0025 ➢ return            
+0003 ➢ invokestatic      	#3
+	🍏test_athrow.foo()V
+	0000 ➢ new               	#4
+	0003 ➢ dup               
+	0004 ➢ ldc               	#5
+	0006 ➢ invokespecial     	#6
+		🍏java/lang/RuntimeException.<init>(Ljava/lang/String;)V
+		0000 ➢ aload_0           
+		0001 ➢ aload_1           
+		0002 ➢ invokespecial     	#2
+			🍏java/lang/Exception.<init>(Ljava/lang/String;)V
+			0000 ➢ aload_0           
+			0001 ➢ aload_1           
+			0002 ➢ invokespecial     	#2
+				🍏java/lang/Throwable.<init>(Ljava/lang/String;)V
+				0000 ➢ aload_0           
+				0001 ➢ invokespecial     	#1
+					🍏java/lang/Object.<init>()V
+					0000 ➢ return            
+				0004 ➢ aload_0           
+				0005 ➢ aload_0           
+				0006 ➢ putfield          	#2
+				0009 ➢ aload_0           
+				0010 ➢ getstatic         	#3
+				0013 ➢ putfield          	#4
+				0016 ➢ aload_0           
+				0017 ➢ getstatic         	#5
+				0020 ➢ putfield          	#6
+				0023 ➢ aload_0           
+				0024 ➢ invokevirtual     	#7
+					🍏java/lang/Throwable.fillInStackTrace()Ljava/lang/Throwable;
+					0000 ➢ aload_0           
+					0001 ➢ getfield          	#4
+					0004 ➢ ifnonnull         	⤋14
+					0014 ➢ aload_0           
+					0015 ➢ iconst_0          
+					0016 ➢ invokespecial     	#63
+						🍎java/lang/Throwable.fillInStackTrace(I)Ljava/lang/Throwable;
+					0019 ➢ pop               
+					0020 ➢ aload_0           
+					0021 ➢ getstatic         	#3
+					0024 ➢ putfield          	#4
+					0027 ➢ aload_0           
+					0028 ➢ areturn           
+				0027 ➢ pop               
+				0028 ➢ aload_0           
+				0029 ➢ aload_1           
+				0030 ➢ putfield          	#8
+				0033 ➢ return            
+			0005 ➢ return            
+		0005 ➢ return            
+	0009 ➢ athrow            

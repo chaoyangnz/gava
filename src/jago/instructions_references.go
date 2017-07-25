@@ -1,6 +1,9 @@
 package jago
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 /*178 (0xB2)*/
 func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
@@ -41,6 +44,9 @@ func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bo
 
 /*181 (0xB5)*/
 func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+	if c.name == "java/nio/ByteBuffer" && m.name == "<init>" {
+		print("breakpoint")
+	}
 	index := f.index16()
 	value := f.pop()
 	objectref := f.pop().(ObjectRef)
@@ -185,27 +191,55 @@ func ARRAYLENGTH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped 
 func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	throwable := f.pop().(Reference)
 	if throwable.IsNull() {
-		Throw("NullPointerException", "")
+		Throw("java/lang/NullPointerException", "")
 	}
+
+	TryCatch(t, throwable)
+	*jumped = true
+}
+
+/*
+call this method should always follow "return"
+ */
+func Throw(exception string, message string, args ...interface{}) {
+	msg := fmt.Sprintf(message, args...)
+	t := THREAD_MANAGER.currentThread
+
+	throwable := NewObject(exception).(Reference)
+	constructorWithMessage := throwable.Class().GetMethod("<init>", "(Ljava/lang/String;)V")
+	if constructorWithMessage != nil {
+		VM_invokeMethod(t, constructorWithMessage, throwable, NewJavaLangString(msg))
+	} else {
+		constructorDefault := throwable.Class().GetMethod("<init>", "()V")
+		if constructorDefault == nil {
+			Fatal("%s has no default constructor")
+		}
+		VM_invokeMethod(t, constructorWithMessage, throwable)
+	}
+
+	TryCatch(t, throwable)
+}
+
+func TryCatch(t *Thread, throwable Reference) {
 
 	for len(t.vmStack) > 0 {
 		frame := t.peekFrame()
 		for _, exception := range frame.method.exceptions {
 
-			if frame.pc >= int(uint16(exception.startPc)) && frame.pc < int(uint16(exception.endPc)) {
-				matchedType := false
+			if frame.pc >= exception.startPc && frame.pc < exception.endPc {
+				caught := false
 				if exception.catchType == 0 { // catch-all
-					matchedType = true
+					caught = true
 				} else {
 					catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
 					if catchType.IsAssignableFrom(throwable.Class()) {
-						matchedType = true
+						caught = true
 					}
 				}
 
-				if matchedType {
-					frame.pc = int(exception.handlerPc)
-					LOG.Trace("exception handler found in %s for throwable %s", m.Signature(), throwable.Class().Name())
+				if caught {
+					frame.pc = int(exception.handlerPc) // move pc
+					LOG.Trace("exception handler found in %s for throwable %s", frame.method.Signature(), throwable.Class().Name())
 					frame.clear()
 					frame.push(throwable)
 					return
@@ -214,6 +248,8 @@ func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		}
 		t.popFrame()
 	}
+
+	// all the frames has been popped: the stack should be empty
 
 	// Print Uncaught exception
 	stacktrace := throwable.oop.extra.([]string)
@@ -228,6 +264,7 @@ func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	for _, stacktraceelement := range stacktrace {
 		JavaErrPrintf("\t at %s\n", stacktraceelement)
 	}
+	os.Exit(-1)
 }
 
 /*192 (0xC0)*/
@@ -246,7 +283,7 @@ func CHECKCAST(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 		return
 	}
 
-	Throw("ClassCastException", "cannot cast from " + objectref.Class().Name() + " to " + class.Name())
+	Throw("java/lang/ClassCastException", "cannot cast from " + objectref.Class().Name() + " to " + class.Name())
 }
 
 /*193 (0xC1)*/
