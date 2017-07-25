@@ -34,16 +34,20 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
 		class = this.createArrayClass(className)
+
 	} else {
 		clazz := this.loadClass(className)
-		// eager linkage
-		this.link(clazz)
 
 		class = clazz
 	}
 
 	// attach a java.lang.Class object
 	class.classObject = NewJavaLangClass(class)
+
+	// eager linkage
+	this.link(class)
+
+
 
 	LOG.Trace(__times(__indention, "  ") + "↱ %s \n", className)
 	LOG.Trace(__times(__indention, "  ") + __times(50-2*__indention, "‧") + "\n")
@@ -443,6 +447,7 @@ func (this *ClassLoader) link(class *Class)  {
 	}
 	this.verify(class)
 	this.prepare(class)
+	this.initialize(class)
 
 	class.linked = true
 	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
@@ -454,6 +459,35 @@ func (this *ClassLoader) link(class *Class)  {
 	//	}
 	//}
 	//this.resolve(class)
+}
+
+// invoke <clinit> to execute initialization code
+func (this *ClassLoader) initialize(class *Class) {
+	if class.initialized {
+		return
+	}
+
+	//if class.superClass != nil {
+	//	class.superClass.Initialize(thread)
+	//}
+
+	thread := THREAD_MANAGER.currentThread
+
+	clinit := class.GetMethod("<clinit>", "()V")
+	if clinit != nil {
+		inStack := false
+		for _, frame := range thread.vmStack {
+			if frame.method == clinit {
+				inStack = true
+				break
+			}
+		}
+		if !inStack {
+			VM_invokeMethod(thread, clinit)
+		}
+	}
+
+	class.initialized = true
 }
 
 func (this *ClassLoader) verify(class *Class) {

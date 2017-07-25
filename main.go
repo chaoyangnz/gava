@@ -36,7 +36,7 @@ func case1()  {
 }
 
 func case2()  {
-	jago.Startup("case2/Calendar", jago.NewJavaLangString("7"), jago.NewJavaLangString("2007"))
+	jago.Startup("case2/Calendar", "7", "2007")
 }
 
 

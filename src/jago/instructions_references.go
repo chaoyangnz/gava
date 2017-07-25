@@ -11,9 +11,9 @@ func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	field := fieldref.ResolvedField()
 
 	// do class initialization if any
-	class.Initialize(t)
+	//class.Initialize(t)
 
-	f.push(field.class.staticVars[field.index])
+	f.push(class.staticVars[field.index])
 }
 
 /*179 (0xB3)*/
@@ -26,7 +26,7 @@ func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	field := fieldref.ResolvedField()
 
 	// do class initialization if any
-	class.Initialize(t)
+	//class.Initialize(t)
 
 	class.staticVars[field.index] = value
 }
@@ -80,9 +80,9 @@ func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped
 	index := f.index16()
 
 	methodref := c.constantPool[index].(*MethodRef)
-	class := methodref.ResolvedClass()
+	//class := methodref.ResolvedClass()
 	// do class initialization if any
-	class.Initialize(t)
+	//class.Initialize(t)
 
 	method := methodref.ResolvedMethod()
 	params := f.params(method)
@@ -274,12 +274,12 @@ func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *
 func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	/*objectref := */f.pop()
 
-	LOG.Warn("Not implemented for opcode %d\n", opcode)
+	//LOG.Warn("Not implemented for opcode %d\n", opcode)
 }
 
 /*195 (0xC3)*/
 func MONITOREXIT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	/*objectref := */f.pop()
 
-	LOG.Warn("Not implemented for opcode %d\n", opcode)
+	//LOG.Warn("Not implemented for opcode %d\n", opcode)
 }

@@ -38,6 +38,7 @@ func RegisterNatives()  {
 	register_java_lang_System()
 	register_java_lang_Object()
 	register_java_lang_Class()
+	register_java_lang_ClassLoader()
 
 	register_java_lang_String()
 	register_java_lang_Float()
@@ -49,12 +50,16 @@ func RegisterNatives()  {
 
 	register_java_security_AccessController()
 
-	register_java_io_FileDescriptor()
+
 
 	register_sun_misc_VM()
 	register_sun_misc_Unsafe()
 	register_sun_reflect_Reflection()
 	register_sun_reflect_NativeConstructorAccessorImpl()
+
+	register_java_io_FileDescriptor()
+	register_java_io_FieInputStream()
+	register_java_io_FieOutputStream()
 
 	///
 	register_jago_Jago()
