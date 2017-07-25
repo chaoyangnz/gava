@@ -62,7 +62,10 @@ func (this *Thread) runFrame()  {
 	f := this.peekFrame()
 
 	bytecode := f.method.code
-	EXEC_LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
+	if f.pc == 0 {
+		EXEC_LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
+	}
+
 	for f.pc < len(f.method.code) {
 		pc := f.pc
 		opcode := bytecode[pc]
@@ -178,13 +181,6 @@ func (this *Frame) params(callee *Method) []Value {
 		}
 
 		params[i] = param
-	}
-	if !callee.isStatic() {
-		// get objectref and target method
-		objectref := params[0].(Reference)
-		if objectref.IsNull() {
-			Throw("java/lang/NullPointerException", "")
-		}
 	}
 
 	return params
