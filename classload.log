@@ -244,13 +244,22 @@
    ↳ sun/nio/cs/StandardCharsets$Cache 
    ↳ java/lang/ThreadLocal 
       java/lang/ThreadLocal.<clinit>()V 
-↳ sun/nio/cs/US_ASCII 
+↳ sun/nio/cs/ISO_8859_1 
    ↳ sun/nio/cs/HistoricallyNamedCharset 
-↳ sun/nio/cs/US_ASCII$Encoder 
+↳ [Ljava/lang/Class; 
+↳ [Ljava/lang/reflect/Constructor; 
+↳ java/lang/Class$1 
+↳ sun/reflect/ReflectionFactory$1 
+↳ sun/reflect/ConstructorAccessorImpl 
+   ↳ sun/reflect/MagicAccessorImpl 
+   ↳ sun/reflect/ConstructorAccessor 
+↳ sun/reflect/NativeConstructorAccessorImpl 
+↳ sun/reflect/DelegatingConstructorAccessorImpl 
+↳ sun/nio/cs/ISO_8859_1$Encoder 
    ↳ java/nio/charset/CharsetEncoder 
       java/nio/charset/CharsetEncoder.<clinit>()V 
    ↳ sun/nio/cs/ArrayEncoder 
-   sun/nio/cs/US_ASCII$Encoder.<clinit>()V 
+   sun/nio/cs/ISO_8859_1$Encoder.<clinit>()V 
 ↳ java/nio/charset/CodingErrorAction 
    java/nio/charset/CodingErrorAction.<clinit>()V 
 ↳ sun/nio/cs/Surrogate$Parser 
@@ -282,6 +291,5 @@
 ↳ java/nio/CharBuffer 
    ↳ java/lang/Readable 
 ↳ java/nio/HeapCharBuffer 
-↳ java/lang/NullPointerException 
-↳ java/io/InterruptedIOException 
-   ↳ java/io/IOException 
+↳ java/lang/Integer 
+   java/lang/Integer.<clinit>()V 

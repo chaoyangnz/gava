@@ -10,13 +10,9 @@ func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	index := f.index16()
 
 	fieldref := c.constantPool[index].(*FieldRef)
-	class := fieldref.ResolvedClass()
 	field := fieldref.ResolvedField()
 
-	// do class initialization if any
-	//class.Initialize(t)
-
-	f.push(class.staticVars[field.index])
+	f.push(field.class.staticVars[field.index])
 }
 
 /*179 (0xB3)*/
@@ -25,13 +21,9 @@ func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *b
 	value := f.pop()
 
 	fieldref := c.constantPool[index].(*FieldRef)
-	class := fieldref.ResolvedClass()
 	field := fieldref.ResolvedField()
 
-	// do class initialization if any
-	//class.Initialize(t)
-
-	class.staticVars[field.index] = value
+	field.class.staticVars[field.index] = value
 }
 
 /*180 (0xB4)*/
@@ -62,7 +54,7 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumpe
 	params := f.params(method)
 	objectref := params[0].(Reference)
 	if objectref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
+		Throw("java/lang/NullPointerException", "Cannot call method %s.%s%s on null", method.class.name, method.name, method.descriptor)
 		return
 	}
 
@@ -203,6 +195,9 @@ func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 call this method should always follow "return"
  */
 func Throw(exception string, message string, args ...interface{}) {
+	if exception == "java/lang/NullPointerException" {
+		print("breakpoint")
+	}
 	msg := fmt.Sprintf(message, args...)
 	t := THREAD_MANAGER.currentThread
 
