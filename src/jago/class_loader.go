@@ -19,6 +19,10 @@ func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
 }
 
 func (this *ClassLoader) CreateClass(className string) *Class {
+	return this.internalCreateClass(className, true)
+}
+
+func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool) *Class {
 	if class, found := this.classCache[className]; found {
 		return class
 	}
@@ -28,19 +32,25 @@ func (this *ClassLoader) CreateClass(className string) *Class {
 
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
-		class = this.createArrayClass(className)
-
+		class = this.defineArrayClass(className)
 	} else {
 		clazz := this.loadClass(className)
-
 		class = clazz
 	}
 
 	// attach a java.lang.Class object
+	// set classloader
+	class.classLoader = this
 	class.classObject = NewJavaLangClass(class)
 
 	// eager linkage
 	this.link(class)
+
+	// initialize only all the super class and interface prepared
+	// now can initialize together
+	if requireInitialize {
+		this.initialize(class)
+	}
 
 	__indention--
 	return class
@@ -55,7 +65,7 @@ func __times(t int, str string) string {
 	return ret
 }
 
-func (this *ClassLoader) createArrayClass(className string) *Class {
+func (this *ClassLoader) defineArrayClass(className string) *Class {
 
 	arrayClass := &Class{
 			name: className,
@@ -65,10 +75,10 @@ func (this *ClassLoader) createArrayClass(className string) *Class {
 	this.classCache[className] = arrayClass
 
 	arrayClass.accessFlags = 0
-	arrayClass.superClass = BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Object")
+	arrayClass.superClass = this.internalCreateClass("java/lang/Object", false)
 	arrayClass.interfaces = []*Class{
-		BOOTSTRAP_CLASSLOADER.CreateClass("java/io/Serializable"),
-		BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Cloneable")}
+		this.internalCreateClass("java/io/Serializable", false),
+		this.internalCreateClass("java/lang/Cloneable", false)}
 
 	componentDescriptor := string(className[1])
 	switch componentDescriptor {
@@ -136,9 +146,7 @@ func (this *ClassLoader) createArrayClass(className string) *Class {
 	}
 	arrayClass.dimensions = dimensions
 
-	// set classloader
-	class.classLoader = this
-	class.classObject = NewJavaLangClass(class)
+	arrayClass.defined = true
 	return arrayClass
 }
 
@@ -405,7 +413,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 
 	// resolve super class
 	if class.superClassName != "" {
-		class.superClass = this.CreateClass(class.superClassName)
+		class.superClass = this.internalCreateClass(class.superClassName, false)
 	}
 
 	// calculate static variables and instance variable count
@@ -431,7 +439,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	// resolve interfaces
 	class.interfaces = make([]*Class, len(class.interfaceNames))
 	for i, interfaceName := range class.interfaceNames {
-		class.interfaces[i] = this.CreateClass(interfaceName)
+		class.interfaces[i] = this.internalCreateClass(interfaceName, false)
 	}
 
 	return class
@@ -443,7 +451,6 @@ func (this *ClassLoader) link(class *Class)  {
 	}
 	this.verify(class)
 	this.prepare(class)
-	this.initialize(class)
 
 	class.linked = true
 	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
@@ -463,9 +470,13 @@ func (this *ClassLoader) initialize(class *Class) {
 		return
 	}
 
-	//if class.superClass != nil {
-	//	class.superClass.Initialize(thread)
-	//}
+	// initialize its supper class and interfaces first
+	if class.superClass != nil {
+		this.initialize(class.superClass)
+	}
+	for _, iface := range class.interfaces {
+		this.initialize(iface)
+	}
 
 	thread := THREAD_MANAGER.currentThread
 

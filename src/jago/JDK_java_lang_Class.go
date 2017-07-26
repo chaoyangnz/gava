@@ -17,6 +17,8 @@ func register_java_lang_Class() {
 	register("java/lang/Class.getSuperclass()Ljava/lang/Class;", Java_java_lang_Class_getSuperclass)
 	register("java/lang/Class.isArray()Z", Java_java_lang_Class_isArray)
 	register("java/lang/Class.getComponentType()Ljava/lang/Class;", Java_java_lang_Class_getComponentType)
+	register("java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;", Java_java_lang_Class_getEnclosingMethod0)
+	register("java/lang/Class.getDeclaringClass0()Ljava/lang/Class;", Java_java_lang_Class_getDeclaringClass0)
 }
 
 // private static void registerNatives()
@@ -149,4 +151,16 @@ func Java_java_lang_Class_getComponentType(this JavaLangClass) JavaLangClass {
 	}
 
 	return class.componentType.ClassObject()
+}
+
+func Java_java_lang_Class_getEnclosingMethod0(this JavaLangClass) ArrayRef {
+
+	//TODO
+	return NULL
+}
+
+func Java_java_lang_Class_getDeclaringClass0(this JavaLangClass) JavaLangClass {
+
+	//TODO
+	return NULL
 }

@@ -239,7 +239,8 @@ func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
 }
 
 func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
-	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
+	field := this.method.class.constantPool[index].(*FieldRef).ResolvedField()
+	i := field.index
 	objectref.SetInstanceVariable(Int(i), value)
 }
 

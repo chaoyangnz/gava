@@ -117,6 +117,7 @@ type Class struct {
 	sourceFile          string
 
 	// support link and initialization
+	defined     bool
 	linked      bool
 	initialized bool
 
@@ -149,6 +150,9 @@ func (this *Class) IsArray() bool  {
 }
 
 func (this *Class) IsAssignableFrom(class *Class) bool  {
+	if this == class {
+		return true
+	}
 	// this is interface
 	if this.IsInterface() { // check whether this is within class's interfaces list
 		clazz := class

@@ -13,15 +13,25 @@ func Java_jang_lang_Throwable_fillInStackTrace(this Reference, dummy Int) Refere
 	thread := THREAD_MANAGER.currentThread
 
 	size := len(thread.vmStack) - ___exceptionHierarchy(this.Class()) // skip how many frames
-	stacktrace := make([]string, size)
+	//backtrace := NewArray("[Ljava/lang/String;", Int(size))
+	//
+	//for i, frame := range thread.vmStack[:size] {
+	//	javaClassName := strings.Replace(frame.method.class.name, "/", ".", -1)
+	//	str := NewJavaLangString(javaClassName + "." + frame.method.name + __getSourceFileAndLineNumber(frame))
+	//	backtrace.SetElement(Int(size-1-i), str)
+	//}
+	//
+	//this.SetInstanceVariableByName("backtrace", "Ljava/lang/Object;", backtrace)
 
+	backtrace := make([]string, size)
 
 	for i, frame := range thread.vmStack[:size] {
 		javaClassName := strings.Replace(frame.method.class.name, "/", ".", -1)
-		stacktrace[size-1-i] = javaClassName + "." + frame.method.name + __getSourceFileAndLineNumber(frame)
+		backtrace[size-1-i] = javaClassName + "." + frame.method.name + __getSourceFileAndLineNumber(frame)
 	}
 
-	this.SetExtra(stacktrace)
+	this.SetExtra(backtrace)
+
 	return this
 }
 

@@ -176,11 +176,8 @@ func ISHL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) 
 /*121 (0x79)*/
 func LSHL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	value2 := f.pop().(Int)
-
 	value1 := f.pop().(Long)
-	if f.pc == 9 && m.name == "setTabAt" {
-		JavaErrPrintf("%d << %d (%d): %d\n", value1, uint(value2 & 0x3F), value2, value1 << uint(value2 & 0x3F))
-	}
+
 	f.push(Long(value1 << uint(value2 & 0x3F))) // low 6 bits
 }
 
