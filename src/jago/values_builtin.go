@@ -19,7 +19,7 @@ type JavaLangString interface {
 
 func (this Reference) toNativeString() string  {
 	if this.IsNull() {
-		Throw("java/lang/NullPointerException", "")
+		PseudoThrow("java/lang/NullPointerException", "")
 	}
 	this.assertObject()
 	if this.AsObjectRef().Class().name != JAVA_LANG_STRING {

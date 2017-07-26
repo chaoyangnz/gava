@@ -155,7 +155,7 @@ func (this *ClassLoader) loadClass(className string) *Class  {
 func (this *ClassLoader) findClass(className string) *Class  {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {
-		Throw("java.lang.ClassNotFoundException", className)
+		PseudoThrow("java.lang.ClassNotFoundException", className)
 	}
 
 	//If L creates C directly, we say that L defines C

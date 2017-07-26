@@ -278,7 +278,7 @@ func (this *Frame) peek() Value {
 func (this *Thread) pushFrame(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
-		Throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
+		PseudoThrow("java/lang/StackOverflowError", "Exceed the maximum stack size")
 	}
 	this.vmStack = this.vmStack[:size+1]
 	this.vmStack[size] = stackFrame
