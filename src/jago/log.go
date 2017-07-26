@@ -92,6 +92,8 @@ func (this *Log)  Error(format string, args ...interface{})   {
 func Fatal(format string, args ...interface{})   {
 	//if logLevel <= FATAL {
 	panic(fmt.Sprintf(format, args...))
+	//fmt.Fprintf(os.Stderr, format, args...)
+	//os.Exit(-1)
 	//}
 }
 

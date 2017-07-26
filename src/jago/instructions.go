@@ -323,7 +323,7 @@ func TryCatch(t *Thread, throwable Reference) {
 	// all the frames has been popped: the stack should be empty
 
 	// Print Uncaught exception
-	stacktrace := throwable.oop.extra.([]string)
+
 
 	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 	detailMessageStr := ""
@@ -332,9 +332,13 @@ func TryCatch(t *Thread, throwable Reference) {
 	}
 	JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
 
-	for _, stacktraceelement := range stacktrace {
-		JavaErrPrintf("\t at %s\n", stacktraceelement)
+	stacktrace := throwable.GetExtra()
+	if stacktrace != nil {
+		for _, stacktraceelement := range stacktrace.([]string) {
+			JavaErrPrintf("\t at %s\n", stacktraceelement)
+		}
 	}
+
 	os.Exit(-1)
 }
 

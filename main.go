@@ -18,9 +18,10 @@ func main()  {
 
 
 	//case0()
-	case1()
-	//case2()
+	//case1()
+	case2()
 	//testAthrow()
+	//print_system_properties()
 }
 
 func case0()  {
@@ -37,7 +38,11 @@ func case1()  {
 }
 
 func case2()  {
-	jago.Startup("case2/Calendar", "7", "2007")
+	jago.Startup("case2/Calendar", "7", "2017")
+}
+
+func print_system_properties()  {
+	jago.Startup("test_system_properties")
 }
 
 func testAthrow()  {
