@@ -27,7 +27,7 @@ demonstrate the idea. For the educational purpose, it is enough.
 - week07: instruction (3) reference, control, math
 - week08: native methods (1) System, Object, Class, ClassLoader, Array, String
 - week09: native methods (2) Throwable, StackTraceElement and exception handling
-- week10: native methods (3) file io - FileInputStream
+- week10: native methods (3) file io - FileInputStream, FileOutputStream
 - week11: create test case
 
 # How to run
