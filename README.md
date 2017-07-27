@@ -36,7 +36,8 @@ demonstrate the idea. For the educational purpose, it is enough.
 
 ```bash
 ❯ cd ~/jago
-❯ export PATH=$PATH:./bin
+❯ export GOPATH=`pwd`
+❯ export PATH=$PATH:`pwd`/bin
 ❯ ./build.sh
 ```
 
