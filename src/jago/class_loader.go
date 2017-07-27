@@ -164,7 +164,7 @@ func (this *ClassLoader) loadClass(className string) *Class  {
 func (this *ClassLoader) findClass(className string) *Class  {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {
-		VM_throw("java.lang.ClassNotFoundException", className)
+		VM_throw("java/lang/ClassNotFoundException", className)
 	}
 
 	//If L creates C directly, we say that L defines C
@@ -200,9 +200,6 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 
 	// start loading
 	for i, _ := range classfile.constantPool {
-		if class.name == "_000_util/TreePrinter" && i == 25 {
-			print("ss")
-		}
 		constInfo := classfile.constantPool[i]
 		var constant Constant
 		switch constInfo.(type) {
