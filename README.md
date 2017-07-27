@@ -212,7 +212,7 @@ Exception in thread "main" test/Exception2: this is exception 2
 ### log/execution.log 
 this log file records the each instruction execution and method call hierarchy. Set the log level to info to view call hierarchy more clearly.
 ### log/classload.log 
-this log file records the class loading process, including what triggers a class loading and when its class initialization method <clinit> is invoked.
+this log file records the class loading process, including what triggers a class loading and when its class initialization method \<clinit\> is invoked.
 ### log/misc.log
 other trivial logs 
 # Runtime libraries solution (TBD)
