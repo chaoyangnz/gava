@@ -57,35 +57,43 @@ func MULTIANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	indexbyte2 := m.code[f.pc+2]
 	dimensions := m.code[f.pc+3]
 
+	if dimensions < 1 {
+		Fatal("The dimension of multi-dimensional array must be >= 1")
+	}
 	index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
+
+	EXEC_LOG.Debug("\t%d\t dim %d:", index, dimensions)
+
 	counts := make([]Int, dimensions)
-	for i:=dimensions-1; i >= 0; i-- {
-		counts[i] = f.pop().(Int)
+	for j:= int(dimensions-1); j >= 0; j-- {
+		counts[j] = f.pop().(Int)
+		if counts[j] < 0 {
+			VM_throw("java/lang/NegativeArraySizeException", "Array size cannot be negative")
+		}
+		EXEC_LOG.Debug("\t%d", counts[j])
 	}
 
-	class := c.constantPool[index].(ClassRef).ResolvedClass()
+	class := c.constantPool[index].(*ClassRef).ResolvedClass()
+	if !class.IsArray() {
+		Fatal("Non-Array class %s cannot be used to new multi-dimensional array", class.name)
+	}
 
-	arrayref := class.NewArray()
-	//index := f.index16()
-	//dimensions := m.code[f.pc+3]
-	//
-	//arrayType := c.constantPool[index].(*ClassRef).class.(*ArrayClass)
-	//componentType := arrayType.componentType.(ClassType)
-	//counts := make([]jint, dimensions)
-	//for i := jint(dimensions-1); i >= 0; i-- {
-	//	counts[i] = f.pop().(jint)
-	//}
-	//var arrayref *Array
-	//componentArray := newArray(componentType, counts[0])
-	//for j := uint8(1); j < dimensions-1; j++ {
-	//	arrayref = newArray(componentType, counts[j])
-	//	for k := jint(0); k < counts[j]; k++ {
-	//		arrayref.elements[k] = componentArray
-	//	}
-	//	componentArray = arrayref
-	//}
-	//f.push(arrayref)
-	Fatal("Not implemented for opcode %d\n", opcode)
+	f.push(newMultiDimensioalArray(counts, class))
+	f.nextPc()
+}
+
+func newMultiDimensioalArray(counts []Int, class *Class) ArrayRef {
+	count := counts[0]
+	arr := class.NewArray(count)
+
+	if len(counts) > 1 {
+		elements := arr.Elements()
+		for i := range elements {
+			elements[i] = newMultiDimensioalArray(counts[1:], class.componentType.(*Class))
+		}
+	}
+
+	return  arr
 }
 
 /*198 (0xC6)*/

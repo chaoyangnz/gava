@@ -104,6 +104,16 @@ func Bug(format string, args ...interface{})   {
 	os.Exit(3)
 }
 
+
+func Assert(expression bool, format string, args ...interface{})  {
+	if !expression {
+		fmt.Fprintf(os.Stderr, "VM runtime assertion violation: ")
+		fmt.Fprintf(os.Stderr, format+ "\n\n ------------------------\n", args...)
+		os.Stderr.Write(debug.Stack())
+		os.Exit(4)
+	}
+}
+
 func NewError(format string, args ...interface{}) error {
 	return errors.New(fmt.Sprintf(format, args...))
 }
