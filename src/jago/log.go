@@ -44,8 +44,8 @@ func NewLog(category string, level int, logfile string) *Log {
 
 type Log struct {
 	category string
-	level int
-	writer *bufio.Writer
+	Level    int
+	writer   *bufio.Writer
 }
 
 func (this *Log) _log(format string, args ...interface{}) {
@@ -54,37 +54,37 @@ func (this *Log) _log(format string, args ...interface{}) {
 }
 
 func (this *Log)  All(format string, args ...interface{})   {
-	if this.level <= ALL {
+	if this.Level <= ALL {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Trace(format string, args ...interface{})   {
-	if this.level <= TRACE {
+	if this.Level <= TRACE {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)   Debug(format string, args ...interface{})   {
-	if this.level <= DEBUG {
+	if this.Level <= DEBUG {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Info(format string, args ...interface{})   {
-	if this.level <= INFO {
+	if this.Level <= INFO {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Warn(format string, args ...interface{})   {
-	if this.level <= WARN {
+	if this.Level <= WARN {
 		this._log(format, args...)
 	}
 }
 
 func (this *Log)  Error(format string, args ...interface{})   {
-	if this.level <= ERROR {
+	if this.Level <= ERROR {
 		this._log(format, args...)
 	}
 }
