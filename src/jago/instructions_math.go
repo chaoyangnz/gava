@@ -150,7 +150,7 @@ func LREM(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 func FREM(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
-	f.push(Float(math.Mod(float64(value1), float64(value2))))
+	f.push(Float(math.Remainder(float64(value1), float64(value2))))
 	f.nextPc()
 }
 
@@ -158,7 +158,7 @@ func FREM(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 func DREM(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Double)
 	value1 := f.pop().(Double)
-	f.push(Float(math.Mod(float64(value1), float64(value2))))
+	f.push(Float(math.Remainder(float64(value1), float64(value2))))
 	f.nextPc()
 }
 

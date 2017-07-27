@@ -116,6 +116,7 @@ func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
 		if r != nil {
 			throwable, ok := r.(Reference)
 			if ok {
+				// try catch exception
 				for i := len(this.vmStack)-1; i >= 0; i-- {
 					frame := this.vmStack[i]
 					if caught, handlePc := tryCatch(frame, throwable); caught {
@@ -129,6 +130,7 @@ func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
 					}
 				}
 
+				// handle uncaught exception
 				detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 				detailMessageStr := ""
 				if !detailMessage.IsNull() {
@@ -152,9 +154,7 @@ func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
 }
 
 func intercept(f *Frame)  {
-	//if f.method.Qualifier() == "java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;" && f.pc == 13 {
-	//	print("breakpoint")
-	//}
+
 }
 
 func __indent(thread *Thread, frame *Frame) string {
