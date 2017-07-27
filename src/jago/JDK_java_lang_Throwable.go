@@ -54,6 +54,7 @@ func __getSourceFileAndLineNumber(frame *Frame) string {
 		entry := lineNumbers[i]
 		if frame.pc >= entry.startPc {
 			lineNumber = int(entry.lineNumber)
+			break
 		}
 	}
 

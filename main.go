@@ -22,8 +22,9 @@ func main()  {
 	//case2()
 	//testAthrow()
 	//print_system_properties()
-	test_static_double()
-	//test_tree_traverse()
+	//test_static_double()
+	test_tree_traverse()
+	//test_shift()
 }
 
 func case0()  {
@@ -57,6 +58,10 @@ func test_tree_traverse()  {
 
 func test_static_double()  {
 	jago.Startup("test_static_double")
+}
+
+func test_shift()  {
+	jago.Startup("test_shift")
 }
 
 
