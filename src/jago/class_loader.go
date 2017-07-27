@@ -3,6 +3,7 @@ package jago
 import (
 	"unsafe"
 	"strings"
+	"math"
 )
 
 type ClassLoader struct {
@@ -163,7 +164,7 @@ func (this *ClassLoader) loadClass(className string) *Class  {
 func (this *ClassLoader) findClass(className string) *Class  {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {
-		PseudoThrow("java.lang.ClassNotFoundException", className)
+		VM_throw("java.lang.ClassNotFoundException", className)
 	}
 
 	//If L creates C directly, we say that L defines C
@@ -199,6 +200,9 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 
 	// start loading
 	for i, _ := range classfile.constantPool {
+		if class.name == "_000_util/TreePrinter" && i == 25 {
+			print("ss")
+		}
 		constInfo := classfile.constantPool[i]
 		var constant Constant
 		switch constInfo.(type) {
@@ -264,10 +268,32 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constant = &FloatConstant{class, Float(constantFloatInfo.bytes)}
 		case *ConstantLongInfo:
 			constantLongInfo := constInfo.(*ConstantLongInfo)
-			constant = &LongConstant{class, Long(constantLongInfo.highBytes << 32 | constantLongInfo.lowBytes)}
+			l := int64(uint64(constantLongInfo.highBytes) << 32 + uint64(constantLongInfo.lowBytes))
+			constant = &LongConstant{class, Long(l)}
 		case *ConstantDoubleInfo:
 			constantDoubleInfo := constInfo.(*ConstantDoubleInfo)
-			constant = &DoubleConstant{class, Double(constantDoubleInfo.highBytes << 32 | constantDoubleInfo.lowBytes)}
+			bits := uint64(constantDoubleInfo.highBytes) << 32 + uint64(constantDoubleInfo.lowBytes)
+			d := math.Float64frombits(bits)
+			//var d float64
+			//if l == 0x7ff0000000000000 {
+			//	d = math.Inf(1)
+			//} else if l == 0xfff0000000000000 {
+			//	d = math.Inf(-1)
+			//} else if (l >= 0x7ff0000000000001 && l <= 0x7fffffffffffffff) || (l >= 0xfff0000000000001 && l <= 0xffffffffffffffff) {
+			//	d = math.NaN()
+			//} else {
+			//	s := -1
+			//	if ((l >> 63) == 0) {
+			//		s = 1
+			//	}
+			//	e := (l >> 52) & 0x7ff
+			//	m := (l & 0xfffffffffffff) | 0x10000000000000
+			//	if e == 0 {
+			//		m = (l & 0xfffffffffffff) << 1
+			//	}
+			//	d = s * m * math.2e-1075
+			//}
+			constant = &DoubleConstant{class, Double(d)}
 		case *ConstantNameAndTypeInfo:
 			constantNameAndTypeInfo := constInfo.(*ConstantNameAndTypeInfo)
 			constant = &NameAndTypeConstant{class,classfile.cpUtf8(constantNameAndTypeInfo.nameIndex),classfile.cpUtf8(constantNameAndTypeInfo.descriptorIndex)}

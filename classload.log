@@ -280,7 +280,9 @@
 ↳ sun/misc/OSEnvironment 
 ↳ java/lang/System$2 
    ↳ sun/misc/JavaLangAccess 
-↳ case2/Calendar 
+↳ test_static_double 
+↳ java/lang/Long 
+   java/lang/Long.<clinit>()V 
 ↳ java/lang/Integer 
    java/lang/Integer.<clinit>()V 
 ↳ java/nio/CharBuffer 
@@ -291,91 +293,19 @@
    ↳ java/nio/charset/CoderResult$1 
       ↳ java/nio/charset/CoderResult$Cache 
    ↳ java/nio/charset/CoderResult$2 
-↳ java/lang/Integer$IntegerCache 
-   java/lang/Integer$IntegerCache.<clinit>()V 
-   ↳ [Ljava/lang/Integer; 
-↳ java/util/Formatter 
-   java/util/Formatter.<clinit>()V 
-   ↳ java/util/regex/Pattern 
-      java/util/regex/Pattern.<clinit>()V 
-      ↳ java/util/regex/Pattern$4 
-         ↳ java/util/regex/Pattern$Node 
-      ↳ java/util/regex/Pattern$LastNode 
-   ↳ java/util/regex/Pattern$GroupHead 
-   ↳ [Ljava/util/regex/Pattern$GroupHead; 
-   ↳ java/util/regex/Pattern$Single 
-      ↳ java/util/regex/Pattern$BmpCharProperty 
-         ↳ java/util/regex/Pattern$CharProperty 
-   ↳ java/util/regex/Pattern$GroupTail 
-   ↳ java/util/regex/Pattern$Ctype 
-   ↳ java/util/regex/Pattern$Curly 
-   ↳ java/util/regex/Pattern$Ques 
-   ↳ java/util/regex/Pattern$BranchConn 
-   ↳ java/util/regex/Pattern$Branch 
-   ↳ [Ljava/util/regex/Pattern$Node; 
-   ↳ java/util/regex/Pattern$BitClass 
-      java/util/regex/Pattern$BitClass.<clinit>()V 
-   ↳ java/util/regex/Pattern$1 
-   ↳ java/util/regex/Pattern$5 
-   ↳ java/util/regex/Pattern$Slice 
-      ↳ java/util/regex/Pattern$SliceNode 
-   ↳ java/util/regex/Pattern$Begin 
-   ↳ java/util/regex/Pattern$First 
-   ↳ java/util/regex/Pattern$Start 
-   ↳ java/util/regex/Pattern$TreeInfo 
-↳ java/util/Locale$Category 
-   ↳ java/lang/Enum 
-   java/util/Locale$Category.<clinit>()V 
-   ↳ [Ljava/util/Locale$Category; 
-↳ java/util/Locale 
-   java/util/Locale.<clinit>()V 
-   ↳ java/util/Locale$Cache 
-      ↳ sun/util/locale/LocaleObjectCache 
-   ↳ java/util/concurrent/ConcurrentHashMap 
-      ↳ java/util/concurrent/ConcurrentMap 
-      java/util/concurrent/ConcurrentHashMap.<clinit>()V 
-      ↳ java/lang/Runtime 
-         java/lang/Runtime.<clinit>()V 
-      ↳ [Ljava/util/concurrent/ConcurrentHashMap$Segment; 
-         ↳ java/util/concurrent/ConcurrentHashMap$Segment 
-            ↳ java/util/concurrent/locks/ReentrantLock 
-               ↳ java/util/concurrent/locks/Lock 
-      ↳ [Ljava/util/concurrent/ConcurrentHashMap$Node; 
-         ↳ java/util/concurrent/ConcurrentHashMap$Node 
-      ↳ [Ljava/util/concurrent/ConcurrentHashMap$CounterCell; 
-         ↳ java/util/concurrent/ConcurrentHashMap$CounterCell 
-      ↳ java/util/concurrent/ConcurrentHashMap$KeySetView 
-         ↳ java/util/concurrent/ConcurrentHashMap$CollectionView 
-      ↳ java/util/concurrent/ConcurrentHashMap$ValuesView 
-      ↳ java/util/concurrent/ConcurrentHashMap$EntrySetView 
-   ↳ sun/util/locale/BaseLocale 
-      sun/util/locale/BaseLocale.<clinit>()V 
-      ↳ sun/util/locale/BaseLocale$Cache 
-         sun/util/locale/BaseLocale$Cache.<clinit>()V 
-   ↳ sun/util/locale/BaseLocale$Key 
-      sun/util/locale/BaseLocale$Key.<clinit>()V 
-   ↳ sun/util/locale/LocaleObjectCache$CacheEntry 
-   ↳ java/util/concurrent/ConcurrentHashMap$ForwardingNode 
-   ↳ java/util/Locale$LocaleKey 
-   ↳ sun/util/locale/LocaleUtils 
-↳ java/util/Locale$1 
-   java/util/Locale$1.<clinit>()V 
-↳ java/util/regex/Matcher 
-   ↳ java/util/regex/MatchResult 
-↳ java/util/regex/ASCII 
-   java/util/regex/ASCII.<clinit>()V 
-↳ java/util/Formatter$FormatSpecifier 
-   ↳ java/util/Formatter$FormatString 
-   java/util/Formatter$FormatSpecifier.<clinit>()V 
-↳ java/util/Formatter$Flags 
-   java/util/Formatter$Flags.<clinit>()V 
-↳ java/util/Formatter$Conversion 
-↳ [Ljava/util/Formatter$Flags; 
-↳ java/util/Formatter$FixedString 
-↳ [Ljava/util/Formatter$FormatString; 
-↳ java/lang/Byte 
-   java/lang/Byte.<clinit>()V 
-↳ java/lang/Short 
-   java/lang/Short.<clinit>()V 
-↳ java/lang/Long 
-   java/lang/Long.<clinit>()V 
+↳ sun/misc/FloatingDecimal 
+   sun/misc/FloatingDecimal.<clinit>()V 
+   ↳ sun/misc/FloatingDecimal$ExceptionalBinaryToASCIIBuffer 
+      ↳ sun/misc/FloatingDecimal$BinaryToASCIIConverter 
+      sun/misc/FloatingDecimal$ExceptionalBinaryToASCIIBuffer.<clinit>()V 
+   ↳ sun/misc/FloatingDecimal$BinaryToASCIIBuffer 
+      sun/misc/FloatingDecimal$BinaryToASCIIBuffer.<clinit>()V 
+   ↳ sun/misc/FloatingDecimal$1 
+   ↳ sun/misc/FloatingDecimal$PreparedASCIIToBinaryBuffer 
+      ↳ sun/misc/FloatingDecimal$ASCIIToBinaryConverter 
+↳ java/lang/ThreadLocal$ThreadLocalMap 
+↳ java/lang/ThreadLocal$ThreadLocalMap$Entry 
+↳ [Ljava/lang/ThreadLocal$ThreadLocalMap$Entry; 
+↳ sun/misc/FDBigInteger 
+   sun/misc/FDBigInteger.<clinit>()V 
+   ↳ [Lsun/misc/FDBigInteger; 

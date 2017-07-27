@@ -48,6 +48,8 @@ func RegisterNatives()  {
 	register_java_lang_Throwable()
 	register_java_lang_Runtime()
 
+	register_java_lang_StrictMath()
+
 	register_java_security_AccessController()
 
 

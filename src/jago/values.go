@@ -121,7 +121,7 @@ func (this Reference) IsEqual(reference Reference) bool {
 
 func (this Reference) assertObject()  {
 	if this.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if this.Class().IsArray() {
 		Bug("It is not an ObjectRef")
@@ -169,7 +169,7 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 
 func (this Reference) assertArray()  {
 	if this.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if !this.Class().IsArray() {
 		Bug("It is not an ArrayRef")
@@ -189,6 +189,9 @@ func (this Reference) GetElement(index Int) Value {
 }
 func (this Reference) SetElement(index Int, value Value) {
 	this.assertArray()
+	if index >= this.Length() {
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "%d exceeded array boundary %d", index, this.Length())
+	}
 	this.oop.values[index] = value
 }
 
@@ -210,4 +213,6 @@ func NewArray(arrayClassName string, length Int) ArrayRef {
 
 	return class.NewArray(length)
 }
+
+
 

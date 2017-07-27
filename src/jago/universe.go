@@ -4,7 +4,7 @@ import (
 	//"reflect"
 )
 
-var SYS_CLASS_PATH = "jdk/classes:/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/main:/Library/Java/JavaVirtualMachines/jdk1.8.0_152.jdk/Contents/Home/jre/lib/ext/localedata.jar:/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/test"
+var SYS_CLASS_PATH = "jdk/classes:/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/main:/Users/Chao/Dropbox/Projects/jago-showcase/build/classes/test"
 var EXT_CLASS_PATH = []string{"ext"}
 var APP_CLASS_PATH []string
 var MAIN_CLASS string

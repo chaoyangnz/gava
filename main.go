@@ -19,9 +19,11 @@ func main()  {
 
 	//case0()
 	//case1()
-	case2()
+	//case2()
 	//testAthrow()
 	//print_system_properties()
+	test_static_double()
+	//test_tree_traverse()
 }
 
 func case0()  {
@@ -47,6 +49,14 @@ func print_system_properties()  {
 
 func testAthrow()  {
 	jago.Startup("test_athrow")
+}
+
+func test_tree_traverse()  {
+	jago.Startup("_102_binary_tree_level_order_traversal/Tests")
+}
+
+func test_static_double()  {
+	jago.Startup("test_static_double")
 }
 
 

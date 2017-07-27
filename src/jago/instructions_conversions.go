@@ -1,7 +1,5 @@
 package jago
 
-import "fmt"
-
 /*
 i2l
 
@@ -34,10 +32,11 @@ The i2l instruction performs a widening primitive conversion (JLS §5.1.2). Beca
 representable by type long, the conversion is exact.
  */
 /*133 (0x85)*/
-func I2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func I2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	f.push(Long(value))
+	f.nextPc()
 }
 
 /*
@@ -72,10 +71,11 @@ The i2f instruction performs a widening primitive conversion (JLS §5.1.2), but 
 because values of type float have only 24 significand bits.
  */
 /*134 (0x86)*/
-func I2F(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func I2F(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	f.push(Float(value))
+	f.nextPc()
 }
 
 /*
@@ -108,10 +108,11 @@ The value on the top of the operand stack must be of type int. It is popped from
 The i2d instruction performs a widening primitive conversion (JLS §5.1.2). Because all values of type int are exactly representable by type double, the conversion is exact.
  */
 /*135 (0x87)*/
-func I2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func I2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	f.push(Double(value))
+	f.nextPc()
 }
 
 /*
@@ -147,10 +148,11 @@ The l2i instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value. The result may also not have the same sign as value.
  */
 /*136 (0x88)*/
-func L2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func L2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 
 	f.push(Int(value)) // truncate to 32 bits
+	f.nextPc()
 }
 
 /*
@@ -185,10 +187,11 @@ The l2f instruction performs a widening primitive conversion (JLS §5.1.2) that 
 type float have only 24 significand bits.
  */
 /*137 (0x89)*/
-func L2F(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func L2F(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 
 	f.push(Float(value))
+	f.nextPc()
 }
 
 /*
@@ -223,10 +226,11 @@ The l2d instruction performs a widening primitive conversion (JLS §5.1.2) that 
 type double have only 53 significand bits.
  */
 /*138 (0x8A)*/
-func L2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func L2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 
 	f.push(Double(value))
+	f.nextPc()
 }
 
 /*
@@ -269,10 +273,11 @@ The f2i instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value' and may also lose precision.
  */
 /*139 (0x8B)*/
-func F2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func F2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
 
 	f.push(Int(int32(float32(value))))
+	f.nextPc()
 }
 
 /*
@@ -315,8 +320,8 @@ The f2l instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value' and may also lose precision.
  */
 /*140 (0x8C)*/
-func F2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+func F2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+	Fatal("Not implemented for opcode %d\n", opcode)
 }
 
 /*
@@ -358,10 +363,11 @@ operand value is taken from the float-extended-exponent value set and the target
 value set, rounding of value may be required.
  */
 /*141 (0x8D)*/
-func F2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func F2D(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
 
 	f.push(Double(float64(value))) // TODO ????
+	f.nextPc()
 }
 
 /*
@@ -406,8 +412,12 @@ The d2i instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value' and may also lose precision.
  */
 /*142 (0x8E)*/
-func D2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+func D2I(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+	value := f.pop().(Double)
+
+	// round how to?? TODO
+	f.push(Int(value))
+	f.nextPc()
 }
 
 /*
@@ -451,10 +461,11 @@ The d2l instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value' and may also lose precision.
  */
 /*143 (0x8F)*/
-func D2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func D2L(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Double)
 
 	f.push(Long(int64(value)))
+	f.nextPc()
 }
 
 /*
@@ -500,8 +511,8 @@ The d2f instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value' and may also lose precision.
  */
 /*144 (0x90)*/
-func D2F(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+func D2F(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+	Fatal("Not implemented for opcode %d\n", opcode)
 }
 
 /*
@@ -536,11 +547,12 @@ The i2b instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value. The result may also not have the same sign as value.
  */
 /*145 (0x91)*/
-func I2B(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func I2B(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	b := Byte(value) // truncate to 8 bits
 	f.push(Int(b)) // // sign-extended
+	f.nextPc()
 }
 
 /*
@@ -575,11 +587,12 @@ The i2c instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value. The result (which is always positive) may also not have the same sign as value.
  */
 /*146 (0x92)*/
-func I2C(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func I2C(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	ch := Char(int16(value)) // truncate to 16 bits
 	f.push(Int(ch)) // 0-extended
+	f.nextPc()
 }
 
 /*
@@ -614,9 +627,10 @@ The i2s instruction performs a narrowing primitive conversion (JLS §5.1.3). It 
 magnitude of value. The result may also not have the same sign as value.
  */
 /*147 (0x93)*/
-func I2S(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func I2S(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	s := Short(value) // truncate to 16 bits
 	f.push(Int(s)) // sign-extended
+	f.nextPc()
 }

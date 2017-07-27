@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"bufio"
+	"runtime/debug"
 )
 
 const (
@@ -90,17 +91,18 @@ func (this *Log)  Error(format string, args ...interface{})   {
 }
 
 func Fatal(format string, args ...interface{})   {
-	//if logLevel <= FATAL {
-	panic(fmt.Sprintf(format, args...))
-	//fmt.Fprintf(os.Stderr, format, args...)
-	//os.Exit(-1)
-	//}
+	fmt.Fprintf(os.Stderr, "VM runtime error: ")
+	fmt.Fprintf(os.Stderr, format, args...)
+	os.Stderr.Write(debug.Stack())
+	os.Exit(-2)
 }
 
 func Bug(format string, args ...interface{})   {
-	//if logLevel <= FATAL {
-	panic(fmt.Sprintf(format, args...))
-	//}
+	fmt.Fprintf(os.Stderr, "VM runtime error: ")
+	fmt.Fprintf(os.Stderr, format + "\n\n ------------------------\n", args...)
+
+	os.Stderr.Write(debug.Stack())
+	os.Exit(-3)
 }
 
 func NewError(format string, args ...interface{}) error {

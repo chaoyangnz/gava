@@ -36,7 +36,7 @@ func Java_java_lang_Class_getPrimitiveClass(name JavaLangString) JavaLangClass {
 	case "double": return DOUBLE_TYPE.ClassObject()
 	case "boolean": return BOOLEAN_TYPE.ClassObject()
 	default:
-		PseudoThrow("java/lang/RuntimeException", "Not a primitive type")
+		VM_throw("java/lang/RuntimeException", "Not a primitive type")
 	}
 	return nil
 }

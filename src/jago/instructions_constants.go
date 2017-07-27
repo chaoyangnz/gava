@@ -1,7 +1,9 @@
 package jago
 
 /*00 (0x00)*/
-func NOP(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func NOP(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+
+	f.nextPc()
 }
 
 /*01 (0x01)*/
@@ -34,8 +36,9 @@ Push the NULL object reference onto the operand stack.
 
 The Java Virtual Machine does not mandate a concrete value for NULL.
  */
-func ACONST_NULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ACONST_NULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(NULL)
+	f.nextPc()
 }
 
 /*
@@ -81,38 +84,45 @@ Each of this family of instructions is equivalent to bipush <i> for the respecti
  */
 
 /*02 (0x02)*/
-func ICONST_M1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_M1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(-1))
+	f.nextPc()
 }
 
 /*03 (0x03)*/
-func ICONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(0))
+	f.nextPc()
 }
 
 /*04 (0x04)*/
-func ICONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(1))
+	f.nextPc()
 }
 
 /*05 (0x05)*/
-func ICONST_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(2))
+	f.nextPc()
 }
 
 /*06 (0x06)*/
-func ICONST_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(3))
+	f.nextPc()
 }
 
 /*07 (0x07)*/
-func ICONST_4(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_4(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(4))
+	f.nextPc()
 }
 
 /*08 (0x08)*/
-func ICONST_5(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ICONST_5(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(5))
+	f.nextPc()
 }
 
 /*
@@ -144,13 +154,15 @@ Push the long constant <l> (0 or 1) onto the operand stack.
  */
 
 /*09 (0x09)*/
-func LCONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LCONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Long(0))
+	f.nextPc()
 }
 
 /*10 (0x0A)*/
-func LCONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LCONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Long(1))
+	f.nextPc()
 }
 
 /*
@@ -184,18 +196,21 @@ Push the float constant <f> (0.0, 1.0, or 2.0) onto the operand stack.
  */
 
 /*11 (0x0B)*/
-func FCONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FCONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Float(0.0))
+	f.nextPc()
 }
 
 /*12 (0x0C)*/
-func FCONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FCONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Float(1.0))
+	f.nextPc()
 }
 
 /*13 (0x0D)*/
-func FCONST_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FCONST_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Float(2.0))
+	f.nextPc()
 }
 
 /*
@@ -227,13 +242,15 @@ Push the double constant <d> (0.0 or 1.0) onto the operand stack.
  */
 
 /*14 (0x0E)*/
-func DCONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DCONST_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Double(0.0))
+	f.nextPc()
 }
 
 /*15 (0x0F)*/
-func DCONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DCONST_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Double(1.0))
+	f.nextPc()
 }
 
 /*
@@ -263,9 +280,10 @@ bipush = 16 (0x10)
 The immediate byte is sign-extended to an int value. That value is pushed onto the operand stack.
  */
 /*16 (0x10)*/
-func BIPUSH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func BIPUSH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	b := f.const8(1)
 	f.push(Int(b))
+	f.nextPc()
 }
 
 /*
@@ -298,9 +316,10 @@ The immediate unsigned byte1 and byte2 values are assembled into an intermediate
 operand stack.
  */
 /*17 (0x11)*/
-func SIPUSH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func SIPUSH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	s := Short(f.offset16())
 	f.push(Int(s))
+	f.nextPc()
 }
 
 /*
@@ -358,7 +377,7 @@ The ldc instruction can only be used to push a value of type float taken from th
 constant of type float in the constant pool (§4.4.4) must be taken from the float value set.
  */
 /*18 (0x12)*/
-func LDC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LDC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index8()
 
 	cpInfo := c.constantPool[index]
@@ -374,8 +393,9 @@ func LDC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
 	case *MethodTypeConstant, *MethodHandleConstant:
 		// TODO
 	default:
-		panic("Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
+		VM_throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
+	f.nextPc()
 }
 
 /*
@@ -438,7 +458,7 @@ The ldc_w instruction can only be used to push a value of type float taken from 
 constant of type float in the constant pool (§4.4.4) must be taken from the float value set.
  */
 /*19 (0x13)*/
-func LDC_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LDC_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index16()
 
 	cpInfo := c.constantPool[index]
@@ -454,8 +474,9 @@ func LDC_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool)
 	case *MethodTypeConstant, *MethodHandleConstant:
 		// TODO
 	default:
-		panic("Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
+		VM_throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
+	f.nextPc()
 }
 
 /*
@@ -498,7 +519,7 @@ The ldc2_w instruction can only be used to push a value of type double taken fro
 a constant of type double in the constant pool (§4.4.5) must be taken from the double value set.
  */
 /*20 (0x14)*/
-func LDC2_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LDC2_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index16()
 
 	cpInfo := c.constantPool[index]
@@ -508,6 +529,7 @@ func LDC2_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 	case *DoubleConstant:
 		f.push(cpInfo.(*DoubleConstant).value)
 	default:
-		panic("Not long or double in constant pool")
+		VM_throw("java/lang/UnknownError", "Not long or double in constant pool")
 	}
+	f.nextPc()
 }

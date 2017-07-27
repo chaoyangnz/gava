@@ -1,5 +1,7 @@
 package jago
 
+import "fmt"
+
 var NULL = Reference{nil}
 
 const (
@@ -19,7 +21,7 @@ type JavaLangString interface {
 
 func (this Reference) toNativeString() string  {
 	if this.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	this.assertObject()
 	if this.AsObjectRef().Class().name != JAVA_LANG_STRING {
@@ -38,11 +40,11 @@ func (this Reference) toNativeString() string  {
 				codepoint := 0x1000 + (h - 0xD800) * 0x400 + (l - 0xDC00)
 				runes = append(runes, rune(codepoint))
 			} else {
-				panic("Illegal UTF-16 string: only high surrogate")
+				VM_throw("java/lang/UnknownError","Illegal UTF-16 string: only high surrogate")
 			}
 			i++
 		} else if char >= 0xDC00 && char <= 0xDFFF {
-			panic("Illegal UTF-16 string: only low surrogate")
+			VM_throw("java/lang/UnknownError","Illegal UTF-16 string: only low surrogate")
 		} else {
 			runes = append(runes, rune(char))
 		}
@@ -211,6 +213,25 @@ func NewJavaLangThread() JavaLangThread {
 	jThread.SetInstanceVariableByName("priority", "I", Int(1))
 
 	return jThread
+}
+
+func NewThrowable(exception string, message string, args ...interface{}) Reference {
+	msg := fmt.Sprintf(message, args...)
+	t := THREAD_MANAGER.currentThread
+
+	throwable := NewObject(exception).(Reference)
+	constructorWithMessage := throwable.Class().GetMethod("<init>", "(Ljava/lang/String;)V")
+	if constructorWithMessage != nil {
+		VM_invokeMethod(t, constructorWithMessage, throwable, NewJavaLangString(msg))
+	} else {
+		constructorDefault := throwable.Class().GetMethod("<init>", "()V")
+		if constructorDefault == nil {
+			Fatal("%s has no default constructor")
+		}
+		VM_invokeMethod(t, constructorWithMessage, throwable)
+	}
+
+	return throwable
 }
 
 /////////////////////// Type Conversion //////////////////////////////////

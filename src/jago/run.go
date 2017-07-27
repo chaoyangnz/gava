@@ -1,5 +1,9 @@
 package jago
 
+import (
+	"os"
+)
+
 type ThreadManager struct {
 	currentThread *Thread
 }
@@ -25,13 +29,32 @@ type Thread struct {
 	threadObject JavaLangThread
 }
 
-func (this *Thread) Run()  {
+/*
+  _____
+  |   |   <- existing, run from heredirectly
+  ______
+  |   |
+  ______
+  |   |
+  ______
+ */
+//func (this *Thread) RunFrom()  {
+//
+//	for len(this.vmStack) > 0 { // per stack frame
+//		this.runFrame()
+//	}
+//}
 
-	for len(this.vmStack) > 0 { // per stack frame
-		this.runFrame()
-	}
-}
+/*
+  _____
+  |   |   <- add a new frame as top, no touch existing
+----------
+  |   |   <- existing
+  ______
+  |   |
+  ______
 
+ */
 func (this *Thread) RunTo(frame *Frame)  {
 
 	for { // per stack frame
@@ -39,8 +62,99 @@ func (this *Thread) RunTo(frame *Frame)  {
 		if f == nil || f == frame {
 			break
 		}
-		this.runFrame()
+		this.runFrame(f)
 	}
+}
+
+func (this *Thread) runFrame(f *Frame)  {
+
+	bytecode := f.method.code
+	if f.pc == 0 {
+		EXEC_LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
+	}
+
+	for f.pc < len(f.method.code) {
+		pc := f.pc
+		opcode := bytecode[pc]
+		instruction := instructions[opcode]
+		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", __indent(this, f), int(pc), instruction.mnemonic)
+		intercept(f)
+		this.execute(f, opcode, instruction)
+		// jump instruction can operate pc
+		// some instruction also have variable length: tableswitch...
+		// these instructions will control pc themselves
+		// if instruction operates the stack, we follow it
+		if len(this.vmStack) == 0 || f != this.peekFrame() {
+			break
+		}
+		if pc == f.pc {
+			Bug("Dead loop or forget to call nextPc() for instruction %s", instruction.mnemonic)
+		}
+	}
+}
+
+func tryCatch(frame *Frame, throwable Reference) (bool, int) {
+	for _, exception := range frame.method.exceptions {
+		if frame.pc >= exception.startPc && frame.pc < exception.endPc {
+			if exception.catchType == 0 { // catch-all
+				return true, exception.handlerPc
+			} else {
+				catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
+				if catchType.IsAssignableFrom(throwable.Class()) {
+					return true, exception.handlerPc
+				}
+			}
+		}
+	}
+
+	return false, -1
+}
+
+func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
+	defer func() { // handle exception here !!!
+		r := recover()
+		if r != nil {
+			throwable, ok := r.(Reference)
+			if ok {
+				for i := len(this.vmStack)-1; i >= 0; i-- {
+					frame := this.vmStack[i]
+					if caught, handlePc := tryCatch(frame, throwable); caught {
+						frame.pc = handlePc // move pc
+						LOG.Trace("exception handler found in %s for throwable %s", frame.method.Signature(), throwable.Class().Name())
+						frame.clear()
+						frame.push(throwable)
+						return
+					} else {
+						this.popFrame()
+					}
+				}
+
+				detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
+				detailMessageStr := ""
+				if !detailMessage.IsNull() {
+					detailMessageStr = detailMessage.toNativeString()
+				}
+				JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
+
+				stacktrace := throwable.GetExtra()
+				if stacktrace != nil {
+					for _, stacktraceelement := range stacktrace.([]string) {
+						JavaErrPrintf("\t at %s\n", stacktraceelement)
+					}
+				}
+
+				os.Exit(-1)
+			}
+		}
+	}()
+
+	instruction.interpret(opcode, this, f, f.method.class, f.method)
+}
+
+func intercept(f *Frame)  {
+	//if f.method.Qualifier() == "java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;" && f.pc == 13 {
+	//	print("breakpoint")
+	//}
 }
 
 func __indent(thread *Thread, frame *Frame) string {
@@ -58,43 +172,6 @@ func __indent(thread *Thread, frame *Frame) string {
 	return str
 }
 
-func (this *Thread) runFrame()  {
-	f := this.peekFrame()
-
-	bytecode := f.method.code
-	if f.pc == 0 {
-		EXEC_LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
-	}
-
-	for f.pc < len(f.method.code) {
-		pc := f.pc
-		opcode := bytecode[pc]
-		instruction := instructions[opcode]
-		jumped := false
-		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", __indent(this, f), int(pc), instruction.mnemonic)
-		intercept(f)
-		instruction.interpret(opcode, this, f, f.method.class, f.method, &jumped)
-		// jump instruction can operate pc
-		// some instruction also have variable length: tableswitch...
-		// these instructions will control pc themselves
-		instruction_length := JVM_OPCODE_LENGTH_INITIALIZER[opcode]
-		if !jumped {
-			f.pc += instruction_length
-		}
-
-		// if instruction operates the stack, we follow it
-		if len(this.vmStack) == 0 || f != this.peekFrame() {
-			break
-		}
-	}
-}
-
-func intercept(f *Frame)  {
-	//if f.method.Qualifier() == "java/lang/String.valueOf(Ljava/lang/Object;)Ljava/lang/String;" && f.pc == 13 {
-	//	print("breakpoint")
-	//}
-}
-
 type Frame struct {
 	method *Method
 	// if this frame is current frame, the pc is for the pc of this thread;
@@ -106,6 +183,19 @@ type Frame struct {
 	// a value of type `long` or `double` contributes two units to the depth and a value of any other type contributes one unit
 	// but here we use long and double only use one unit. There is not any violation
 	operandStack        []Value
+}
+
+func (this *Frame) nextPc()  {
+	opcode := this.method.code[this.pc]
+	this.pc += JVM_OPCODE_LENGTH_INITIALIZER[opcode]
+}
+
+func (this *Frame) offsetPc(offset int16)  {
+	this.pc += int(offset)
+}
+
+func (this *Frame) offsetPcW(offset int32)  {
+	this.pc += int(offset)
 }
 
 func NewStackFrame(method *Method) *Frame {
@@ -279,7 +369,7 @@ func (this *Frame) peek() Value {
 func (this *Thread) pushFrame(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
-		PseudoThrow("java/lang/StackOverflowError", "Exceed the maximum stack size")
+		VM_throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
 	}
 	this.vmStack = this.vmStack[:size+1]
 	this.vmStack[size] = stackFrame

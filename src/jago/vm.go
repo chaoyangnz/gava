@@ -124,6 +124,17 @@ func VM_intern_String(stringobj JavaLangString) JavaLangString {
 	}
 }
 
+func VM_throw(exception string, message string, args ...interface{})  {
+	doThrow(NewThrowable(exception, message, args...))
+}
+
+/*
+The whole project should use panic only here !!!!!
+ */
+func doThrow(throwable Reference)  {
+	panic(throwable)
+}
+
 //func VM_getCallerClass() JavaLangClass {
 //
 //}

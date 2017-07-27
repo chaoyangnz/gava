@@ -34,9 +34,10 @@ The iload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*21 (0x15)*/
-func ILOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ILOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Int))
+	f.nextPc()
 }
 
 /*
@@ -73,9 +74,10 @@ The lload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*22 (0x16)*/
-func LLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Long))
+	f.nextPc()
 }
 
 /*
@@ -112,9 +114,10 @@ The fload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*23 (0x17)*/
-func FLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Float))
+	f.nextPc()
 }
 
 /*
@@ -150,9 +153,10 @@ The dload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*24 (0x18)*/
-func DLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Double))
+	f.nextPc()
 }
 
 /*
@@ -192,9 +196,10 @@ The aload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*25 (0x19)*/
-func ALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.index8()
 	f.push(f.loadVar(uint(index)).(Reference))
+	f.nextPc()
 }
 
 /*
@@ -235,23 +240,27 @@ Each of the iload_<n> instructions is the same as iload with an index of <n>, ex
  */
 
 /*26 (0x1A)*/
-func ILOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ILOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(0)))
+	f.nextPc()
 }
 
 /*27 (0x1B)*/
-func ILOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ILOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(1)))
+	f.nextPc()
 }
 
 /*28 (0x1C)*/
-func ILOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ILOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(2)))
+	f.nextPc()
 }
 
 /*29 (0x1D)*/
-func ILOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ILOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(3)))
+	f.nextPc()
 }
 
 /*
@@ -292,23 +301,27 @@ Each of the lload_<n> instructions is the same as lload with an index of <n>, ex
  */
 
 /*30 (0x1E)*/
-func LLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Long))
+	f.nextPc()
 }
 
 /*31 (0x1F)*/
-func LLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Long))
+	f.nextPc()
 }
 
 /*32 (0x20)*/
-func LLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Long))
+	f.nextPc()
 }
 
 /*33 (0x21)*/
-func LLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(uint(3)).(Long))
+	f.nextPc()
 }
 
 /*
@@ -349,23 +362,27 @@ Each of the fload_<n> instructions is the same as fload with an index of <n>, ex
  */
 
 /*34 (0x22)*/
-func FLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Float))
+	f.nextPc()
 }
 
 /*35 (0x23)*/
-func FLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Float))
+	f.nextPc()
 }
 
 /*36 (0x24)*/
-func FLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Float))
+	f.nextPc()
 }
 
 /*37 (0x25)*/
-func FLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Float))
+	f.nextPc()
 }
 
 /*
@@ -406,23 +423,27 @@ Each of the dload_<n> instructions is the same as dload with an index of <n>, ex
  */
 
 /*38 (0x26)*/
-func DLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Double))
+	f.nextPc()
 }
 
 /*39 (0x27)*/
-func DLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Double))
+	f.nextPc()
 }
 
 /*40 (0x28)*/
-func DLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Double))
+	f.nextPc()
 }
 
 /*41 (0x29)*/
-func DLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Double))
+	f.nextPc()
 }
 
 /*
@@ -466,23 +487,27 @@ Each of the aload_<n> instructions is the same as aload with an index of <n>, ex
  */
 
 /*42 (0x2A)*/
-func ALOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ALOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Reference))
+	f.nextPc()
 }
 
 /*43 (0x2B)*/
-func ALOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ALOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Reference))
+	f.nextPc()
 }
 
 /*44 (0x2C)*/
-func ALOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ALOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Reference))
+	f.nextPc()
 }
 
 /*45 (0x2D)*/
-func ALOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ALOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Reference))
+	f.nextPc()
 }
 
 /*
@@ -520,24 +545,21 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 ArrayIndexOutOfBoundsException.
  */
 /*46 (0x2E)*/
-func IALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != INT_TYPE {
 		Bug("Not an int array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Int))
+	f.nextPc()
 }
 
 /*
@@ -575,23 +597,20 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 throws an ArrayIndexOutOfBoundsException.
  */
 /*47 (0x2F)*/
-func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != LONG_TYPE {
 		Bug("Not a long array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Long))
+	f.nextPc()
 }
 
 /*
@@ -629,23 +648,20 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 throws an ArrayIndexOutOfBoundsException.
  */
 /*48 (0x30)*/
-func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != FLOAT_TYPE {
 		Bug("Not an float array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Float))
+	f.nextPc()
 }
 
 /*
@@ -685,23 +701,20 @@ throws an ArrayIndexOutOfBoundsException.
 
  */
 /*49 (0x31)*/
-func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != DOUBLE_TYPE {
 		Bug("Not an double array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Double))
+	f.nextPc()
 }
 
 /*
@@ -739,24 +752,21 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 ArrayIndexOutOfBoundsException.
  */
 /*50 (0x32)*/
-func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	_, ok := arrayref.Class().componentType.(*Class)
 	if !ok {
 		Bug("Not an reference array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Reference))
+	f.nextPc()
 }
 
 /*
@@ -801,21 +811,17 @@ In Oracle's Java Virtual Machine implementation, boolean arrays - that is, array
 Other implementations may implement packed boolean arrays; the baload instruction of such implementations must be used to access those arrays.
  */
 /*51 (0x33)*/
-func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != BYTE_TYPE && arrayref.Class().componentType != BOOLEAN_TYPE {
 		Bug("Not a byte or boolean array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 
 	if arrayref.Class().componentType == BYTE_TYPE {
@@ -826,6 +832,7 @@ func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool
 		b := arrayref.GetElement(index).(Boolean)
 		f.push(Int(b)) // sign-extended
 	}
+	f.nextPc()
 }
 
 /*
@@ -864,24 +871,21 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 an ArrayIndexOutOfBoundsException.
  */
 /*52 (0x34)*/
-func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != CHAR_TYPE {
 		Bug("Not a char array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "%d is not in range [0, %d)", index, arrayref.Length())
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "%d is not in range [0, %d)", index, arrayref.Length())
 	}
 	ch := arrayref.GetElement(index).(Char)
 	f.push(Int(ch)) //zero-extended to an int value
+	f.nextPc()
 }
 
 /*
@@ -919,22 +923,19 @@ If arrayref is NULL, saload throws a NullPointerException.
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the saload instruction throws an ArrayIndexOutOfBoundsException.
  */
 /*53 (0x35)*/
-func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
-		Throw("java/lang/NullPointerException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/NullPointerException", "")
 	}
 	if arrayref.Class().componentType != SHORT_TYPE {
 		Bug("Not a short array")
 	}
 	if index < 0 || index >= arrayref.Length() {
-		Throw("java/lang/ArrayIndexOutOfBoundsException", "")
-		*jumped = true
-		return
+		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	s := arrayref.GetElement(index).(Short)
 	f.push(Int(s)) // sign-extended to an int value
+	f.nextPc()
 }
