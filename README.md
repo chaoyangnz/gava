@@ -30,11 +30,6 @@ demonstrate the idea. For the educational purpose, it is enough.
 - week10: native methods (3) file io - FileInputStream
 - week11: create test case
 
-
-# Runtime libraries solution
-
-![](Jago-jdk.png)
-
 # How to run
 
 ## build and set gopath
@@ -167,3 +162,7 @@ Exception in thread "main" test/Exception2: this is exception 2
          at test.test_athrow.main(test_athrow.java:8)
 
 ```
+
+# Runtime libraries solution (TBD)
+
+![](Jago-jdk.png)
