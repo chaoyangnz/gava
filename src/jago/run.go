@@ -31,22 +31,6 @@ type Thread struct {
 
 /*
   _____
-  |   |   <- existing, run from heredirectly
-  ______
-  |   |
-  ______
-  |   |
-  ______
- */
-//func (this *Thread) RunFrom()  {
-//
-//	for len(this.vmStack) > 0 { // per stack frame
-//		this.runFrame()
-//	}
-//}
-
-/*
-  _____
   |   |   <- add a new frame as top, no touch existing
 ----------
   |   |   <- existing
@@ -279,30 +263,6 @@ func (this *Frame) params(callee *Method) []Value {
 
 	return params
 }
-
-//func (this *Thread) invokeNativeMethod(method *Method, params ... Value) Value {
-//	if !method.isNative() {
-//		Fatal("Not a native method")
-//	}
-//	Debug("\n🍺 invoke native method %s", method.Qualifier())
-//	name := "Java_" + strings.Replace(method.class.name + "_" + method.name, "/", "_", -1)
-//	funcs := NATIVE_METHODS
-//	if _, ok := funcs[name]; !ok {
-//		Fatal( "%s does not exist.", name)
-//	}
-//	if len(params) != funcs[name].Type().NumIn() {
-//		Fatal( "The number of params is not adapted.")
-//	}
-//	in := make([]reflect.Value, len(params))
-//	for k, param := range params {
-//		in[k] = reflect.ValueOf(param)
-//	}
-//	result := funcs[name].Call(in)
-//	if len(result) == 0 {
-//		return Value(nil)
-//	}
-//	return result[0].Interface().(Value)
-//}
 
 /*
 Parameters are passed in a reversed order from operand stack in JVM

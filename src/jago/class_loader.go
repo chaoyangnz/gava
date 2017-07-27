@@ -271,25 +271,6 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 			constantDoubleInfo := constInfo.(*ConstantDoubleInfo)
 			bits := uint64(constantDoubleInfo.highBytes) << 32 + uint64(constantDoubleInfo.lowBytes)
 			d := math.Float64frombits(bits)
-			//var d float64
-			//if l == 0x7ff0000000000000 {
-			//	d = math.Inf(1)
-			//} else if l == 0xfff0000000000000 {
-			//	d = math.Inf(-1)
-			//} else if (l >= 0x7ff0000000000001 && l <= 0x7fffffffffffffff) || (l >= 0xfff0000000000001 && l <= 0xffffffffffffffff) {
-			//	d = math.NaN()
-			//} else {
-			//	s := -1
-			//	if ((l >> 63) == 0) {
-			//		s = 1
-			//	}
-			//	e := (l >> 52) & 0x7ff
-			//	m := (l & 0xfffffffffffff) | 0x10000000000000
-			//	if e == 0 {
-			//		m = (l & 0xfffffffffffff) << 1
-			//	}
-			//	d = s * m * math.2e-1075
-			//}
 			constant = &DoubleConstant{class, Double(d)}
 		case *ConstantNameAndTypeInfo:
 			constantNameAndTypeInfo := constInfo.(*ConstantNameAndTypeInfo)
@@ -478,13 +459,6 @@ func (this *ClassLoader) link(class *Class)  {
 	class.linked = true
 	// we resolve each symbolic class in a class or interface individually when it is used ("lazy" or "late" resolution)
 	// So SymbolRef all implements a method PrimitiveType resolve()
-	//for _, constant := range this.constantPool {
-	//	switch constant.(type) {
-	//	case SymbolRef:
-	//		constant.(SymbolRef).resolve()
-	//	}
-	//}
-	//this.resolve(class)
 }
 
 // invoke <clinit> to execute initialization code
@@ -505,15 +479,6 @@ func (this *ClassLoader) initialize(class *Class) {
 
 	clinit := class.GetMethod("<clinit>", "()V")
 	if clinit != nil {
-		//inStack := false
-		//for _, frame := range thread.vmStack {
-		//	if frame.method == clinit {
-		//		inStack = true
-		//		break
-		//	}
-		//}
-		//if !inStack {
-
 		// always initialize super class
 		if class.superClass != nil {
 			this.initialize(class.superClass)

@@ -292,15 +292,6 @@ func (this *Class) FindMethod(name string, descriptor string) *Method {
 			return method
 		}
 	}
-	//class := this
-	//for class != nil {
-	//	for _, method := range class.methods {
-	//		if method.name == name && method.descriptor == descriptor {
-	//			return method
-	//		}
-	//	}
-	//	class = class.superClass
-	//}
 	for _, iface := range this.interfaces {
 		method := iface.FindMethod(name, descriptor)
 		if method != nil {
