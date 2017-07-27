@@ -134,7 +134,3 @@ The whole project should use panic only here !!!!!
 func doThrow(throwable Reference)  {
 	panic(throwable)
 }
-
-//func VM_getCallerClass() JavaLangClass {
-//
-//}
