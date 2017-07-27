@@ -93,23 +93,6 @@ func (this *Thread) runFrame(f *Frame)  {
 	}
 }
 
-func tryCatch(frame *Frame, throwable Reference) (bool, int) {
-	for _, exception := range frame.method.exceptions {
-		if frame.pc >= exception.startPc && frame.pc < exception.endPc {
-			if exception.catchType == 0 { // catch-all
-				return true, exception.handlerPc
-			} else {
-				catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
-				if catchType.IsAssignableFrom(throwable.Class()) {
-					return true, exception.handlerPc
-				}
-			}
-		}
-	}
-
-	return false, -1
-}
-
 func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
 	defer func() { // handle exception here !!!
 		r := recover()
@@ -131,26 +114,47 @@ func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
 				}
 
 				// handle uncaught exception
-				detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
-				detailMessageStr := ""
-				if !detailMessage.IsNull() {
-					detailMessageStr = detailMessage.toNativeString()
-				}
-				JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
-
-				stacktrace := throwable.GetExtra()
-				if stacktrace != nil {
-					for _, stacktraceelement := range stacktrace.([]string) {
-						JavaErrPrintf("\t at %s\n", stacktraceelement)
-					}
-				}
-
-				os.Exit(-1)
+				handleUncaughtException(throwable)
 			}
 		}
 	}()
 
 	instruction.interpret(opcode, this, f, f.method.class, f.method)
+}
+
+func tryCatch(frame *Frame, throwable Reference) (bool, int) {
+	for _, exception := range frame.method.exceptions {
+		if frame.pc >= exception.startPc && frame.pc < exception.endPc {
+			if exception.catchType == 0 { // catch-all
+				return true, exception.handlerPc
+			} else {
+				catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
+				if catchType.IsAssignableFrom(throwable.Class()) {
+					return true, exception.handlerPc
+				}
+			}
+		}
+	}
+
+	return false, -1
+}
+
+func handleUncaughtException(throwable Reference)  {
+	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
+	detailMessageStr := ""
+	if !detailMessage.IsNull() {
+		detailMessageStr = detailMessage.toNativeString()
+	}
+	JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
+
+	stacktrace := throwable.GetExtra()
+	if stacktrace != nil {
+		for _, stacktraceelement := range stacktrace.([]string) {
+			JavaErrPrintf("\t at %s\n", stacktraceelement)
+		}
+	}
+
+	os.Exit(1)
 }
 
 func intercept(f *Frame)  {

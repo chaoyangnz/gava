@@ -33,8 +33,7 @@ func NewLog(category string, level int, logfile string) *Log {
 
 	f, err := os.OpenFile(logfile, os.O_RDWR, 0666)
 	if err != nil {
-		fmt.Println("File does not exists or cannot be created")
-		os.Exit(1)
+		Fatal("File does not exists or cannot be created")
 	}
 
 	w := bufio.NewWriter(f)
@@ -91,18 +90,18 @@ func (this *Log)  Error(format string, args ...interface{})   {
 }
 
 func Fatal(format string, args ...interface{})   {
-	fmt.Fprintf(os.Stderr, "VM runtime error: ")
-	fmt.Fprintf(os.Stderr, format, args...)
+	fmt.Fprintf(os.Stderr, "VM internal error: ")
+	fmt.Fprintf(os.Stderr, format+ "\n\n ------------------------\n", args...)
 	os.Stderr.Write(debug.Stack())
-	os.Exit(-2)
+	os.Exit(2)
 }
 
 func Bug(format string, args ...interface{})   {
-	fmt.Fprintf(os.Stderr, "VM runtime error: ")
+	fmt.Fprintf(os.Stderr, "VM implmentation bug: ")
 	fmt.Fprintf(os.Stderr, format + "\n\n ------------------------\n", args...)
 
 	os.Stderr.Write(debug.Stack())
-	os.Exit(-3)
+	os.Exit(3)
 }
 
 func NewError(format string, args ...interface{}) error {

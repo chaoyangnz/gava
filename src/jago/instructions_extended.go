@@ -53,6 +53,19 @@ func WIDE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 
 /*197 (0xC5)*/
 func MULTIANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+	indexbyte1 := m.code[f.pc+1]
+	indexbyte2 := m.code[f.pc+2]
+	dimensions := m.code[f.pc+3]
+
+	index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
+	counts := make([]Int, dimensions)
+	for i:=dimensions-1; i >= 0; i-- {
+		counts[i] = f.pop().(Int)
+	}
+
+	class := c.constantPool[index].(ClassRef).ResolvedClass()
+
+	arrayref := class.NewArray()
 	//index := f.index16()
 	//dimensions := m.code[f.pc+3]
 	//
