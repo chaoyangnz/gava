@@ -213,7 +213,7 @@ func (this *ClassFile) readConstantPool(reader *ClassReader) {
 			cpInfo = &ConstantInvokeDynamicInfo{tag: tag}
 		default:
 			// ignore
-			panic("java.lang.ClassFormatError")
+			VM_throw("java/lang/ClassFormatError", "Not a supported constant tag: %s", tag)
 		}
 		cpInfo.readInfo(reader)
 		this.constantPool[i] = cpInfo

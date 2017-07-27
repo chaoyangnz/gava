@@ -1,13 +1,8 @@
 package jago
 
-import (
-	"os"
-	"fmt"
-)
-
 type Instruction struct {
 	mnemonic  string
-	interpret func(uint8, *Thread, *Frame, *Class, *Method, *bool)
+	interpret func(uint8, *Thread, *Frame, *Class, *Method)
 }
 
 var instructions []Instruction
@@ -263,83 +258,6 @@ func intCompatible(value Value) Int {
 
 	// never be here
 	return 0
-}
-
-func PseudoThrow(exception string, message string, args ...interface{})  {
-	Fatal(exception + " " + message, args...)
-}
-
-/*
-call this method should always follow "return"
- */
-func Throw(exception string, message string, args ...interface{}) {
-	msg := fmt.Sprintf(message, args...)
-	t := THREAD_MANAGER.currentThread
-
-	throwable := NewObject(exception).(Reference)
-	constructorWithMessage := throwable.Class().GetMethod("<init>", "(Ljava/lang/String;)V")
-	if constructorWithMessage != nil {
-		VM_invokeMethod(t, constructorWithMessage, throwable, NewJavaLangString(msg))
-	} else {
-		constructorDefault := throwable.Class().GetMethod("<init>", "()V")
-		if constructorDefault == nil {
-			Fatal("%s has no default constructor")
-		}
-		VM_invokeMethod(t, constructorWithMessage, throwable)
-	}
-
-	TryCatch(t, throwable)
-}
-
-func TryCatch(t *Thread, throwable Reference) {
-
-	for len(t.vmStack) > 0 {
-		frame := t.peekFrame()
-		for _, exception := range frame.method.exceptions {
-
-			if frame.pc >= exception.startPc && frame.pc < exception.endPc {
-				caught := false
-				if exception.catchType == 0 { // catch-all
-					caught = true
-				} else {
-					catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
-					if catchType.IsAssignableFrom(throwable.Class()) {
-						caught = true
-					}
-				}
-
-				if caught {
-					frame.pc = int(exception.handlerPc) // move pc
-					LOG.Trace("exception handler found in %s for throwable %s", frame.method.Signature(), throwable.Class().Name())
-					frame.clear()
-					frame.push(throwable)
-					return
-				}
-			}
-		}
-		t.popFrame()
-	}
-
-	// all the frames has been popped: the stack should be empty
-
-	// Print Uncaught exception
-
-
-	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
-	detailMessageStr := ""
-	if !detailMessage.IsNull() {
-		detailMessageStr = detailMessage.toNativeString()
-	}
-	JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
-
-	stacktrace := throwable.GetExtra()
-	if stacktrace != nil {
-		for _, stacktraceelement := range stacktrace.([]string) {
-			JavaErrPrintf("\t at %s\n", stacktraceelement)
-		}
-	}
-
-	os.Exit(-1)
 }
 
 

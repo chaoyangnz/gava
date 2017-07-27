@@ -1,27 +1,26 @@
 package jago
 
-import "fmt"
-
 /*167 (0xA7)*/
-func GOTO(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func GOTO(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 
-	f.pc += int(offset)
-	*jumped = true
+	f.offsetPc(offset)
 }
 
 /*168 (0xA8)*/
-func JSR(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+func JSR(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+	Fatal("Not implemented for opcode %d\n", opcode)
 }
 
 /*169 (0xA9)*/
-func RET(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
-	panic(fmt.Sprintf("Not implemented for opcode %d\n", opcode))
+func RET(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+	/*index := */f.index8()
+	// IGNORE
+	f.nextPc()
 }
 
 /*170 (0xAA)*/
-func TABLESWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func TABLESWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	var start int
 	for i:= 0; i <=3; i++ {
 		if ((f.pc+1)+i) % 4 == 0 {
@@ -63,15 +62,14 @@ func TABLESWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped 
 	index := f.pop().(Int)
 
 	if int32(index) < low || int32(index) > high {
-		f.pc += int(defaultOffset)
+		f.offsetPcW(defaultOffset)
 	} else {
-		f.pc += int(offsets[int32(index) - low])
+		f.offsetPcW(offsets[int32(index) - low])
 	}
-	*jumped = true
 }
 
 /*171 (0xAB)*/
-func LOOKUPSWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LOOKUPSWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	var start int
 	for i:= 0; i <=3; i++ {
 		if ((f.pc+1)+i) % 4 == 0 {
@@ -120,16 +118,15 @@ func LOOKUPSWITCH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped
 	matched := false
 	for j:= 0; j < int(npairs); j++ {
 		if int32(key) == matches[j] {
-			f.pc += int(offsets[j])
+			f.offsetPcW(offsets[j])
 			matched = true
 			break
 		}
 	}
 
 	if !matched {
-		f.pc += int(defaultOffset)
+		f.offsetPcW(defaultOffset)
 	}
-	*jumped = true
 }
 
 func fourUBytesToInt(byte1 uint8, byte2 uint8, byte3 uint8, byte4 uint8) int32 {
@@ -137,41 +134,48 @@ func fourUBytesToInt(byte1 uint8, byte2 uint8, byte3 uint8, byte4 uint8) int32 {
 }
 
 /*172 (0xAC)*/
-func IRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
+	f.nextPc()
 }
 
 /*173 (0xAD)*/
-func LRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
+	f.nextPc()
 }
 
 /*174 (0xAE)*/
-func FRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
+	f.nextPc()
 }
 
 /*175 (0xAF)*/
-func DRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DRETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
+	f.nextPc()
 }
 
 /*176 (0xB0)*/
-func ARETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func ARETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	t.popFrame()
 	// return value
 	f.passReturn(t.peekFrame())
+	f.nextPc()
 }
 
 /*177 (0xB1)*/
-func RETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func RETURN(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	t.popFrame()
+	// no return
+	f.nextPc()
 }

@@ -31,19 +31,19 @@ comparison is performed. If value1 is greater than value2, the int value 1 is pu
 If value1 is equal to value2, the int value 0 is pushed onto the operand stack. If value1 is less than value2,
 the int value -1 is pushed onto the operand stack.
  */
-func LCMP(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func LCMP(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Long)
 	value1 := f.pop().(Long)
 
 	if value1 > value2 {
 		f.push(Int(1))
-	}
-	if value1 == value2 {
+	} else if value1 == value2 {
 		f.push(Int(0))
-	}
-	if value1 < value2 {
+	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
+
+	f.nextPc()
 }
 
 /*
@@ -93,45 +93,39 @@ The fcmpg and fcmpl instructions differ only in their treatment of a comparison 
  */
 
 /*149 (0x95)*/
-func FCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
 
 	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
 		f.push(Int(-1))
-		return
-	}
-
-	if value1 > value2 {
+	} else if value1 > value2 {
 		f.push(Int(1))
-	}
-	if value1 == value2 {
+	} else if value1 == value2 {
 		f.push(Int(0))
-	}
-	if value1 < value2 {
+	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
+
+	f.nextPc()
 }
 
 /*150 (0x96)*/
-func FCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func FCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
 
 	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
 		f.push(Int(1))
-		return
-	}
-
-	if value1 > value2 {
+	} else if value1 > value2 {
 		f.push(Int(1))
-	}
-	if value1 == value2 {
+	} else if value1 == value2 {
 		f.push(Int(0))
-	}
-	if value1 < value2 {
+	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
+
+	f.nextPc()
 }
 
 /*
@@ -181,45 +175,39 @@ comparison may be compiled to push the same result onto the operand stack whethe
  */
 
 /*151 (0x97)*/
-func DCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Double)
 	value1 := f.pop().(Double)
 
 	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
 		f.push(Int(-1))
-		return
-	}
-
-	if value1 > value2 {
+	} else if value1 > value2 {
 		f.push(Int(1))
-	}
-	if value1 == value2 {
+	} else if value1 == value2 {
 		f.push(Int(0))
-	}
-	if value1 < value2 {
+	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
+
+	f.nextPc()
 }
 
 /*152 (0x98)*/
-func DCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func DCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Double)
 	value1 := f.pop().(Double)
 
 	if math.IsNaN(float64(value1)) || math.IsNaN(float64(value2)) {
 		f.push(Int(1))
-		return
-	}
-
-	if value1 > value2 {
+	} else if value1 > value2 {
 		f.push(Int(1))
-	}
-	if value1 == value2 {
+	} else if value1 == value2 {
 		f.push(Int(0))
-	}
-	if value1 < value2 {
+	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
+
+	f.nextPc()
 }
 
 /*
@@ -275,68 +263,74 @@ Otherwise, execution proceeds at the address of the instruction following this i
  */
 
 /*153 (0x99)*/
-func IFEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IFEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 
 	if value == 0 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*154 (0x9A)*/
-func IFNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IFNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 
 	if value != 0 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*155 (0x9B)*/
-func IFLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IFLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 
 	if value < 0 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*156 (0x9C)*/
-func IFGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IFGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 
 	if value >= 0 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*157 (0x9D)*/
-func IFGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IFGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 
 	if value > 0 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*158 (0x9E)*/
-func IFLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IFLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value := f.pop().(Int)
 
 	if value <= 0 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
@@ -394,74 +388,80 @@ Otherwise, execution proceeds at the address of the instruction following this i
  */
 
 /*159 (0x9F)*/
-func IF_ICMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ICMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
 	if value1 == value2 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*160 (0xA0)*/
-func IF_ICMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ICMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
 	if value1 != value2 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*161 (0xA1)*/
-func IF_ICMPLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ICMPLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
 	if value1 < value2 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*162 (0xA2)*/
-func IF_ICMPGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ICMPGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
 	if value1 >= value2 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*163 (0xA3)*/
-func IF_ICMPGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ICMPGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
 	if value1 > value2 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*164 (0xA4)*/
-func IF_ICMPLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ICMPLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
 	if value1 <= value2 {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
@@ -508,25 +508,27 @@ instruction.
  */
 
 /*165 (0xA5)*/
-func IF_ACMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ACMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Reference)
 	value1 := f.pop().(Reference)
 
 	if value1.IsEqual(value2) {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }
 
 /*166 (0xA6)*/
-func IF_ACMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method, jumped *bool) {
+func IF_ACMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	offset := f.offset16()
 	value2 := f.pop().(Reference)
 	value1 := f.pop().(Reference)
 
 	if !value1.IsEqual(value2) {
-		f.pc += int(offset)
-		*jumped = true
+		f.offsetPc(offset)
+	} else {
+		f.nextPc()
 	}
 }

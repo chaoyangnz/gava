@@ -46,7 +46,7 @@ func Java_sun_misc_Unsafe_objectFieldOffset(this Reference, fieldObject JavaLang
 
 func Java_sun_misc_Unsafe_compareAndSwapObject(this Reference, obj Reference, offset Long, expected Reference, newVal Reference) Boolean {
 	if obj.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
@@ -61,7 +61,7 @@ func Java_sun_misc_Unsafe_compareAndSwapObject(this Reference, obj Reference, of
 
 func Java_sun_misc_Unsafe_compareAndSwapInt(this Reference, obj Reference, offset Long, expected Int, newVal Int) Boolean {
 	if obj.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
@@ -76,7 +76,7 @@ func Java_sun_misc_Unsafe_compareAndSwapInt(this Reference, obj Reference, offse
 
 func Java_sun_misc_Unsafe_compareAndSwapLong(this Reference, obj Reference, offset Long, expected Long, newVal Long) Boolean {
 	if obj.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
@@ -91,7 +91,7 @@ func Java_sun_misc_Unsafe_compareAndSwapLong(this Reference, obj Reference, offs
 
 func Java_sun_misc_Unsafe_getIntVolatile(this Reference, obj Reference, offset Long) Int {
 	if obj.IsNull() {
-		PseudoThrow("java/lang/NullPointerException", "")
+		VM_throw("java/lang/NullPointerException", "")
 	}
 
 	slots := obj.oop.values
