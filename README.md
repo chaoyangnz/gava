@@ -136,6 +136,51 @@ Pyramid of numbers in Java :
  0 1 2 3 4 
 ```
 
+## run a program traversing a tree in the level order
+
+```bash
+❯ jago --log:execution info -cp . example/TreeLevelOrderTraverse
+    _                   
+   (_) __ _  __ _  ___  
+   | |/ _` |/ _` |/ _ \ 
+   | | (_| | (_| | (_) |   version 1.0.0
+  _/ |\__,_|\__, |\___/    
+ |__/       |___/     
+
+
+Command: jago --log:execution info -cp . example/TreeLevelOrderTraverse 
+
+Add a new classpath: .
+------------------------------------------------------------
+
+
+    ___3__
+   /      \
+   9      20
+         /  \
+        15   7
+[[3], [9, 20], [15, 7]]
+
+    ___1__
+   /      \
+  _2       3
+ /          \
+ 4           5
+[[1], [2, 3], [4, 5]]
+
+                _______________1______________
+               /                              \
+               2______                  _______3______
+                      \                /              \
+                       4            ___5__             6  
+                                   /      \                
+                                  _7       8                
+                                 /                           
+                                 9                            
+[[1], [2, 3], [4, 5, 6], [7, 8], [9]]
+
+```
+
 ## Run a program with exception
 
 ```bash
