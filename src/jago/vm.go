@@ -9,9 +9,10 @@ func _isClinit(method *Method) bool {
 	return method.name == "<clinit>" && method.descriptor == "()V"
 }
 
-func VM_invokeMethod(thread *Thread, method *Method, params ... Value)  {
+func VM_invokeMethod(method *Method, params ... Value)  {
+	thread := VM_getCurrentThread()
 	if !method.isNative() {
-		current := thread.peekFrame()
+		current := thread.current()
 		frame := NewStackFrame(method)
 		i := 0
 		for _, param := range params {
@@ -30,7 +31,7 @@ func VM_invokeMethod(thread *Thread, method *Method, params ... Value)  {
 		if !method.isNative() {
 			Fatal("%s Not a native method", method.Qualifier())
 		}
-		EXEC_LOG.Info("\n%s\t🍎%s", __indent(thread, thread.peekFrame()), method.Qualifier())
+		EXEC_LOG.Info("\n%s\t🍎%s", repeat("\t", thread.indexOf(thread.current())), method.Qualifier())
 
 		fun, found := findNative(method.Qualifier())
 
@@ -43,13 +44,13 @@ func VM_invokeMethod(thread *Thread, method *Method, params ... Value)  {
 		}
 
 		if len(params) != fun.Type().NumIn() {
-			Fatal( "The number of params is not adapted for native method %s %s.", staticDesc, method.Qualifier())
+			Fatal( "The number of loadParameters is not adapted for native method %s %s.", staticDesc, method.Qualifier())
 		}
 		in := make([]reflect.Value, len(params))
 		for k, param := range params {
 			in[k] = reflect.ValueOf(param)
 			if in[k].Kind() == reflect.Invalid {
-				Bug("Native method params is nil, bug!")
+				Bug("Native method loadParameters is nil, bug!")
 			}
 		}
 		result := fun.Call(in)
@@ -60,14 +61,18 @@ func VM_invokeMethod(thread *Thread, method *Method, params ... Value)  {
 		}
 
 		if method.returnDescriptor != JVM_SIGNATURE_VOID {
-			thread.peekFrame().push(result[0].Interface().(Value))
+			if ret, ok := result[0].Interface().(Value); ok {
+				thread.current().push(ret)
+			} else {
+				Bug("native return wrong type")
+			}
+
 		}
 	}
 }
 
 func VM_getCurrentThread() *Thread {
-	//TODO
-	return THREAD_MANAGER.currentThread
+	return THREAD_MANAGER.current()
 }
 
 func VM_getClass(name string) *Class {

@@ -2,7 +2,7 @@ package jago
 
 type Instruction struct {
 	mnemonic  string
-	interpret func(uint8, *Thread, *Frame, *Class, *Method)
+	interpret func(*Thread, *Frame, *Class, *Method)
 }
 
 var instructions []Instruction

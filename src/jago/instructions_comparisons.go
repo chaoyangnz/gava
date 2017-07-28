@@ -31,7 +31,7 @@ comparison is performed. If value1 is greater than value2, the int value 1 is pu
 If value1 is equal to value2, the int value 0 is pushed onto the operand stack. If value1 is less than value2,
 the int value -1 is pushed onto the operand stack.
  */
-func LCMP(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LCMP(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Long)
 	value1 := f.pop().(Long)
 
@@ -93,7 +93,7 @@ The fcmpg and fcmpl instructions differ only in their treatment of a comparison 
  */
 
 /*149 (0x95)*/
-func FCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FCMPL(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
 
@@ -111,7 +111,7 @@ func FCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*150 (0x96)*/
-func FCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FCMPG(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Float)
 	value1 := f.pop().(Float)
 
@@ -175,7 +175,7 @@ comparison may be compiled to push the same result onto the operand stack whethe
  */
 
 /*151 (0x97)*/
-func DCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DCMPL(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Double)
 	value1 := f.pop().(Double)
 
@@ -193,7 +193,7 @@ func DCMPL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*152 (0x98)*/
-func DCMPG(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DCMPG(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Double)
 	value1 := f.pop().(Double)
 
@@ -263,8 +263,8 @@ Otherwise, execution proceeds at the address of the instruction following this i
  */
 
 /*153 (0x99)*/
-func IFEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFEQ(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value := f.pop().(Int)
 
 	if value == 0 {
@@ -275,8 +275,8 @@ func IFEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*154 (0x9A)*/
-func IFNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFNE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value := f.pop().(Int)
 
 	if value != 0 {
@@ -287,8 +287,8 @@ func IFNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*155 (0x9B)*/
-func IFLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFLT(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value := f.pop().(Int)
 
 	if value < 0 {
@@ -299,8 +299,8 @@ func IFLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*156 (0x9C)*/
-func IFGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFGE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value := f.pop().(Int)
 
 	if value >= 0 {
@@ -311,8 +311,8 @@ func IFGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*157 (0x9D)*/
-func IFGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFGT(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value := f.pop().(Int)
 
 	if value > 0 {
@@ -323,8 +323,8 @@ func IFGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*158 (0x9E)*/
-func IFLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFLE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value := f.pop().(Int)
 
 	if value <= 0 {
@@ -388,8 +388,8 @@ Otherwise, execution proceeds at the address of the instruction following this i
  */
 
 /*159 (0x9F)*/
-func IF_ICMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ICMPEQ(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
@@ -401,8 +401,8 @@ func IF_ICMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*160 (0xA0)*/
-func IF_ICMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ICMPNE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
@@ -414,8 +414,8 @@ func IF_ICMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*161 (0xA1)*/
-func IF_ICMPLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ICMPLT(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
@@ -427,8 +427,8 @@ func IF_ICMPLT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*162 (0xA2)*/
-func IF_ICMPGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ICMPGE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
@@ -440,8 +440,8 @@ func IF_ICMPGE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*163 (0xA3)*/
-func IF_ICMPGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ICMPGT(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
@@ -453,8 +453,8 @@ func IF_ICMPGT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*164 (0xA4)*/
-func IF_ICMPLE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ICMPLE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Int)
 	value1 := f.pop().(Int)
 
@@ -508,8 +508,8 @@ instruction.
  */
 
 /*165 (0xA5)*/
-func IF_ACMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ACMPEQ(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Reference)
 	value1 := f.pop().(Reference)
 
@@ -521,8 +521,8 @@ func IF_ACMPEQ(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*166 (0xA6)*/
-func IF_ACMPNE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IF_ACMPNE(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 	value2 := f.pop().(Reference)
 	value1 := f.pop().(Reference)
 

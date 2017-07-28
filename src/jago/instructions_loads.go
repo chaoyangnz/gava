@@ -34,8 +34,8 @@ The iload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*21 (0x15)*/
-func ILOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func ILOAD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Int))
 	f.nextPc()
 }
@@ -74,8 +74,8 @@ The lload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*22 (0x16)*/
-func LLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func LLOAD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Long))
 	f.nextPc()
 }
@@ -114,8 +114,8 @@ The fload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*23 (0x17)*/
-func FLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func FLOAD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Float))
 	f.nextPc()
 }
@@ -153,8 +153,8 @@ The dload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*24 (0x18)*/
-func DLOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func DLOAD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Double))
 	f.nextPc()
 }
@@ -196,8 +196,8 @@ The aload opcode can be used in conjunction with the wide instruction (§wide) t
 two-byte unsigned index.
  */
 /*25 (0x19)*/
-func ALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func ALOAD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Reference))
 	f.nextPc()
 }
@@ -240,25 +240,25 @@ Each of the iload_<n> instructions is the same as iload with an index of <n>, ex
  */
 
 /*26 (0x1A)*/
-func ILOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ILOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(0)))
 	f.nextPc()
 }
 
 /*27 (0x1B)*/
-func ILOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ILOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(1)))
 	f.nextPc()
 }
 
 /*28 (0x1C)*/
-func ILOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ILOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(2)))
 	f.nextPc()
 }
 
 /*29 (0x1D)*/
-func ILOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ILOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(3)))
 	f.nextPc()
 }
@@ -301,25 +301,25 @@ Each of the lload_<n> instructions is the same as lload with an index of <n>, ex
  */
 
 /*30 (0x1E)*/
-func LLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Long))
 	f.nextPc()
 }
 
 /*31 (0x1F)*/
-func LLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LLOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Long))
 	f.nextPc()
 }
 
 /*32 (0x20)*/
-func LLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LLOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Long))
 	f.nextPc()
 }
 
 /*33 (0x21)*/
-func LLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LLOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(uint(3)).(Long))
 	f.nextPc()
 }
@@ -362,25 +362,25 @@ Each of the fload_<n> instructions is the same as fload with an index of <n>, ex
  */
 
 /*34 (0x22)*/
-func FLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Float))
 	f.nextPc()
 }
 
 /*35 (0x23)*/
-func FLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FLOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Float))
 	f.nextPc()
 }
 
 /*36 (0x24)*/
-func FLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FLOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Float))
 	f.nextPc()
 }
 
 /*37 (0x25)*/
-func FLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FLOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Float))
 	f.nextPc()
 }
@@ -423,25 +423,25 @@ Each of the dload_<n> instructions is the same as dload with an index of <n>, ex
  */
 
 /*38 (0x26)*/
-func DLOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Double))
 	f.nextPc()
 }
 
 /*39 (0x27)*/
-func DLOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DLOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Double))
 	f.nextPc()
 }
 
 /*40 (0x28)*/
-func DLOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DLOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Double))
 	f.nextPc()
 }
 
 /*41 (0x29)*/
-func DLOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DLOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Double))
 	f.nextPc()
 }
@@ -487,25 +487,25 @@ Each of the aload_<n> instructions is the same as aload with an index of <n>, ex
  */
 
 /*42 (0x2A)*/
-func ALOAD_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ALOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Reference))
 	f.nextPc()
 }
 
 /*43 (0x2B)*/
-func ALOAD_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ALOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Reference))
 	f.nextPc()
 }
 
 /*44 (0x2C)*/
-func ALOAD_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ALOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Reference))
 	f.nextPc()
 }
 
 /*45 (0x2D)*/
-func ALOAD_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ALOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Reference))
 	f.nextPc()
 }
@@ -545,7 +545,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 ArrayIndexOutOfBoundsException.
  */
 /*46 (0x2E)*/
-func IALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func IALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 
@@ -597,7 +597,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 throws an ArrayIndexOutOfBoundsException.
  */
 /*47 (0x2F)*/
-func LALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
@@ -648,7 +648,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 throws an ArrayIndexOutOfBoundsException.
  */
 /*48 (0x30)*/
-func FALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
@@ -701,7 +701,7 @@ throws an ArrayIndexOutOfBoundsException.
 
  */
 /*49 (0x31)*/
-func DALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
@@ -752,7 +752,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 ArrayIndexOutOfBoundsException.
  */
 /*50 (0x32)*/
-func AALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func AALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
@@ -811,7 +811,7 @@ In Oracle's Java Virtual Machine implementation, boolean arrays - that is, array
 Other implementations may implement packed boolean arrays; the baload instruction of such implementations must be used to access those arrays.
  */
 /*51 (0x33)*/
-func BALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func BALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
@@ -871,7 +871,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 an ArrayIndexOutOfBoundsException.
  */
 /*52 (0x34)*/
-func CALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func CALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {
@@ -923,7 +923,7 @@ If arrayref is NULL, saload throws a NullPointerException.
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the saload instruction throws an ArrayIndexOutOfBoundsException.
  */
 /*53 (0x35)*/
-func SALOAD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func SALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
 	if arrayref.IsNull() {

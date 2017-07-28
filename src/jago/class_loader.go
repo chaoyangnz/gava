@@ -475,16 +475,14 @@ func (this *ClassLoader) initialize(class *Class) {
 		this.initialize(iface)
 	}
 
-	thread := THREAD_MANAGER.currentThread
-
-	clinit := class.GetMethod("<clinit>", "()V")
+	clinit := class.GetClassInitializer()
 	if clinit != nil {
 		// always initialize super class
 		if class.superClass != nil {
 			this.initialize(class.superClass)
 		}
 		CLASSLOAD_LOG.Debug(__times(__indention, "   ") + "%s \n", clinit.Qualifier())
-			VM_invokeMethod(thread, clinit)
+		VM_invokeMethod(clinit)
 		//}
 	}
 

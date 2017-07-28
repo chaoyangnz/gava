@@ -276,6 +276,46 @@ func (this *Class) GetMethod(name string, descriptor string) *Method {
 	return nil
 }
 
+/*
+<clinit>()V method
+ */
+func (this *Class) GetClassInitializer() *Method {
+	clinit := this.GetMethod("<clinit>", "()V")
+	if clinit != nil && clinit.isStatic() { // must be static
+		return clinit
+	}
+	return nil
+}
+
+/*
+<init>(..)V methods
+ */
+func (this *Class) GetConstructors(publicOnly bool) []*Method {
+	constructors := []*Method{}
+	for _,method := range this.methods {
+		if method.name == "<init>" && method.returnDescriptor == JVM_SIGNATURE_VOID && !method.isStatic() { // non-static
+			if publicOnly {
+				if (method.accessFlags & JVM_ACC_PUBLIC) > 0 {
+					constructors = append(constructors, method)
+				}
+			} else {
+				constructors = append(constructors, method)
+			}
+		}
+	}
+
+	return constructors
+}
+
+func (this *Class) GetConstructor(descriptor string) *Method {
+	method := this.GetMethod("<init>", descriptor)
+	if method != nil && method.returnDescriptor == JVM_SIGNATURE_VOID && !method.isStatic() {
+		return method
+	}
+
+	return nil
+}
+
 /**
  * Find field with its name and descriptor in the class hierarchy
  * Java doesn't permit a static and instance method with same name + signature
@@ -313,6 +353,14 @@ func (this *Class) GetDeclaredFields(publicOnly bool) []*Field {
 		}
 	}
 	return publicFields
+}
+
+func (this *Class) inheritanceDepth() int {
+	depth := 1
+	for c := this.superClass; c != nil; c = c.superClass {
+		depth++
+	}
+	return depth
 }
 
 type Field struct {
@@ -390,10 +438,6 @@ func (this *Method) Signature() string  {
 
 func (this *Method) Qualifier() string  {
 	return this.class.name + "." + this.Signature()
-}
-
-func (this *Method) IsClinit() bool {
-	return this.name == "<clinit>" && this.descriptor == "()V"
 }
 
 type LocalVariable struct {

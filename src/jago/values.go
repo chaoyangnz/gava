@@ -208,6 +208,9 @@ func NewObject(className string) ObjectRef {
 	return class.NewObject()
 }
 
+/*
+arrayClassName is the full array class, not its component type
+ */
 func NewArray(arrayClassName string, length Int) ArrayRef {
 	class := BOOTSTRAP_CLASSLOADER.CreateClass(arrayClassName)
 

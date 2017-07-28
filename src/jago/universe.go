@@ -2,6 +2,7 @@ package jago
 
 import (
 	//"reflect"
+	"github.com/jtolds/gls"
 )
 
 var SYS_CLASS_PATH = "jdk/classes:example/classes"
@@ -22,7 +23,9 @@ var STRING_TABLE = map[string]JavaLangString{}
 
 var BOOTSTRAP_CLASSLOADER = NewClassLoader(SYS_CLASS_PATH, nil)
 
-var THREAD_MANAGER = &ThreadManager{}
+var THREAD_MANAGER = &ThreadManager{gls.NewContextManager()}
+
+
 
 
 

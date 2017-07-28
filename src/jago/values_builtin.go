@@ -217,18 +217,17 @@ func NewJavaLangThread() JavaLangThread {
 
 func NewThrowable(exception string, message string, args ...interface{}) Reference {
 	msg := fmt.Sprintf(message, args...)
-	t := THREAD_MANAGER.currentThread
 
 	throwable := NewObject(exception).(Reference)
-	constructorWithMessage := throwable.Class().GetMethod("<init>", "(Ljava/lang/String;)V")
+	constructorWithMessage := throwable.Class().GetConstructor("(Ljava/lang/String;)V")
 	if constructorWithMessage != nil {
-		VM_invokeMethod(t, constructorWithMessage, throwable, NewJavaLangString(msg))
+		VM_invokeMethod(constructorWithMessage, throwable, NewJavaLangString(msg))
 	} else {
-		constructorDefault := throwable.Class().GetMethod("<init>", "()V")
+		constructorDefault := throwable.Class().GetConstructor( "()V")
 		if constructorDefault == nil {
 			Fatal("%s has no default constructor")
 		}
-		VM_invokeMethod(t, constructorWithMessage, throwable)
+		VM_invokeMethod(constructorWithMessage, throwable)
 	}
 
 	return throwable

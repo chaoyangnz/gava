@@ -99,19 +99,7 @@ func Java_java_lang_Class_isInterface(this JavaLangClass) Boolean {
 func Java_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly Boolean) ArrayRef {
 	class := this.GetExtra().(*Class)
 
-
-	constructors := []*Method{}
-	for _,method := range class.methods {
-		if method.name == "<init>" && method.returnDescriptor == JVM_SIGNATURE_VOID {
-			if publicOnly.IsTrue() {
-				if (method.accessFlags & JVM_ACC_PUBLIC) > 0 {
-					constructors = append(constructors, method)
-				}
-			} else {
-				constructors = append(constructors, method)
-			}
-		}
-	}
+	constructors := class.GetConstructors(publicOnly.IsTrue())
 
 	constructorArr := NewArray("[Ljava/lang/reflect/Constructor;", Int(len(constructors)))
 	for i,constructor := range constructors {

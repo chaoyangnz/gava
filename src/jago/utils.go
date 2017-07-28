@@ -1,5 +1,9 @@
 package jago
 
+import (
+	"strings"
+	"fmt"
+)
 
 func u2b(u1s []u1) []uint8 {
 	bytes := make([]uint8, len(u1s))
@@ -27,4 +31,16 @@ func bytes2uint16(bytes []uint8) uint16 {
 
 func u16toi32(i uint16) int32 {
 	return int32(i)
+}
+
+func numberWithSign(i int32) string {
+	if i >= 0 {
+		return fmt.Sprintf("%s%d", "+", i)
+	} else {
+		return fmt.Sprintf("%s%d", "-", -i)
+	}
+}
+
+func repeat(str string, times int) string {
+	return strings.Repeat(str, times)
 }
