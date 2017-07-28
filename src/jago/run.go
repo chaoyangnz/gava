@@ -50,27 +50,17 @@ type Thread struct {
 
 /*
   _____
-  |   |   <- add a new this as top, no touch existing
+  |   |   <-  a new frame added on top, no touch existing. just run this frame
 ----------
   |   |   <- existing
   ______
   |   |
   ______
 
- */
-func (this *Thread) RunTo(frame *Frame)  {
-
-	for { // per stack this
-		f := this.current()
-		if f == nil || f == frame {
-			break
-		}
-		this.runFrame(f)
-	}
-}
-
-func (this *Thread) runFrame(f *Frame)  {
-
+Only run one single frame
+*/
+func (this *Thread) Run()  {
+	f := this.current()
 	bytecode := f.method.code
 	if f.pc == 0 {
 		EXEC_LOG.Info("\n%s🍏%s", repeat("\t", this.indexOf(f)), f.method.Qualifier())
@@ -175,6 +165,7 @@ type Frame struct {
 	// otherwise, it is a snapshot one since the last time
 	pc int
 	pos int // operand pos: internal use only. For an instruction, initially it always starts from pc. Each time read an operand, it advanced.
+
 	// long and double will occupy two variable indexes
 	localVariables      []Value
 	// operand stack
@@ -414,6 +405,9 @@ func (this *Frame) getSourceFileAndLineNumber() string {
 func (this *Frame) push(value Value)  {
 	if value == nil { // check not-null
 		Bug("Operand stack should never contain nil")
+	}
+	if value == VOID {
+		return
 	}
 	if boolean, ok := value.(Boolean); ok {
 		// because interpreter cannot recognise Boolean, always use Int
