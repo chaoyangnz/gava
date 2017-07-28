@@ -212,7 +212,7 @@ Exception in thread "main" test/Exception2: this is exception 2
 
 ### log/execution.log 
 This log file records the each instruction execution and method call hierarchy. Set the log level to info to view call hierarchy more clearly.
-The green apple symbols mean pure Java methods while the read ones mean native methods which is implemented within Jago internally.
+The green apple symbols mean pure Java methods while the red ones mean native methods which is implemented within Jago internally.
 ### log/classload.log 
 This log file records the class loading process, including what triggers a class loading and when its class initialization method \<clinit\> is invoked.
 The trigger reason can be viewed after a class name.
