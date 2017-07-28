@@ -69,9 +69,9 @@ func Java_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 
 	//TODO
 	//setProperty := properties.Class().GetMethod("setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;")
-	//VM_invokeMethod(THREAD_MANAGER.current, setProperty, properties, NewJavaLangString("file.encoding"), NewJavaLangString("UTF-8"))
+	//VM_invokeMethod0(THREAD_MANAGER.current, setProperty, properties, NewJavaLangString("file.encoding"), NewJavaLangString("UTF-8"))
 	//for key, val := range _sysProps {
-	//	VM_invokeMethod(THREAD_MANAGER.current, setProperty, properties, NewJavaLangString(key), NewJavaLangString(val))
+	//	VM_invokeMethod0(THREAD_MANAGER.current, setProperty, properties, NewJavaLangString(key), NewJavaLangString(val))
 	//}
 
 	return properties

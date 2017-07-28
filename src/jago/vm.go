@@ -3,13 +3,21 @@ package jago
 import (
 	"time"
 	"reflect"
+	"fmt"
+	"os"
 )
 
 func _isClinit(method *Method) bool {
 	return method.name == "<clinit>" && method.descriptor == "()V"
 }
 
-func VM_invokeMethod(method *Method, params ... Value)  {
+func VM_invokeMethod(className string, methodName string, methodDescriptor string, params ... Value)  {
+	class := BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_ACCESS_MEMBER)
+	method := class.GetMethod(methodName, methodDescriptor)
+	VM_invokeMethod0(method, params...)
+}
+
+func VM_invokeMethod0(method *Method, params ... Value)  {
 	thread := VM_getCurrentThread()
 	if !method.isNative() {
 		current := thread.current()
@@ -76,7 +84,7 @@ func VM_getCurrentThread() *Thread {
 }
 
 func VM_getClass(name string) *Class {
-	return BOOTSTRAP_CLASSLOADER.CreateClass(name)
+	return BOOTSTRAP_CLASSLOADER.CreateClass(name, TRIGGER_BY_JAVA_REFLECTION)
 }
 
 func VM_getInstanceVariable(objref ObjectRef, name string, descriptor string) Value {
@@ -129,13 +137,49 @@ func VM_intern_String(stringobj JavaLangString) JavaLangString {
 	}
 }
 
-func VM_throw(exception string, message string, args ...interface{})  {
-	doThrow(NewThrowable(exception, message, args...))
-}
-
 /*
 The whole project should use panic only here !!!!!
  */
-func doThrow(throwable Reference)  {
+func VM_Throw0(throwable Reference)  {
 	panic(throwable)
 }
+
+func VM_throw(exception string, message string, args ...interface{})  {
+	VM_Throw0(NewThrowable(exception, message, args...))
+}
+
+func VM_stdoutPrintf(format string, args ...interface{})  {
+	fmt.Fprintf(os.Stdout, format, args...)
+}
+
+func VM_stderrPrintf(format string, args ...interface{})  {
+	fmt.Fprintf(os.Stderr, format, args...)
+}
+
+func VM_getTypeClass(descriptor string) JavaLangClass {
+	var typeClass JavaLangClass
+	switch string(descriptor[0]) {
+	case JVM_SIGNATURE_CLASS: {
+		fieldTypeClassName := descriptor[1:len(descriptor)-1]
+		typeClass = BOOTSTRAP_CLASSLOADER.CreateClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+	}
+	case JVM_SIGNATURE_ARRAY: {
+		fieldTypeClassName := descriptor
+		typeClass = BOOTSTRAP_CLASSLOADER.CreateClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+	}
+	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
+	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
+	case JVM_SIGNATURE_CHAR: typeClass = CHAR_TYPE.ClassObject()
+	case JVM_SIGNATURE_INT: typeClass = INT_TYPE.ClassObject()
+	case JVM_SIGNATURE_LONG: typeClass = LONG_TYPE.ClassObject()
+	case JVM_SIGNATURE_FLOAT: typeClass = FLOAT_TYPE.ClassObject()
+	case JVM_SIGNATURE_DOUBLE: typeClass = DOUBLE_TYPE.ClassObject()
+	case JVM_SIGNATURE_BOOLEAN: typeClass = BOOLEAN_TYPE.ClassObject()
+	default:
+		Fatal("type %s is not a unsupported type", descriptor)
+	}
+
+	return typeClass
+}
+
+

@@ -15,9 +15,9 @@ func Java_jang_lang_Throwable_fillInStackTrace(this Reference, dummy Int) Refere
 	size := len(thread.vmStack) - this.Class().inheritanceDepth() // skip how many frames
 	//backtrace := NewArray("[Ljava/lang/String;", Int(size))
 	//
-	//for i, frame := range thread.vmStack[:size] {
-	//	javaClassName := strings.Replace(frame.method.class.name, "/", ".", -1)
-	//	str := NewJavaLangString(javaClassName + "." + frame.method.name + __getSourceFileAndLineNumber(frame))
+	//for i, this := range thread.vmStack[:size] {
+	//	javaClassName := strings.Replace(this.method.class.name, "/", ".", -1)
+	//	str := NewJavaLangString(javaClassName + "." + this.method.name + __getSourceFileAndLineNumber(this))
 	//	backtrace.SetElement(Int(size-1-i), str)
 	//}
 	//

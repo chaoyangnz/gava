@@ -24,7 +24,7 @@ iload = 21 (0x15)
 
 == Description
 
-The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The index is an unsigned byte that must be an index into the local variable array of the current this (§2.6).
 The local variable at index must contain an int.
 The value of the local variable at index is pushed onto the operand stack.
 
@@ -65,7 +65,7 @@ lload = 22 (0x16)
 == Description
 
 The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current
-frame (§2.6). The local variable at index must contain a long. The value of the local variable at index is pushed onto
+this (§2.6). The local variable at index must contain a long. The value of the local variable at index is pushed onto
  the operand stack.
 
 Notes
@@ -104,7 +104,7 @@ fload = 23 (0x17)
 
 == Description
 
-The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The index is an unsigned byte that must be an index into the local variable array of the current this (§2.6).
 The local variable at index must contain a float.
 The value of the local variable at index is pushed onto the operand stack.
 
@@ -144,7 +144,7 @@ dload = 24 (0x18)
 
 == Description
 
-The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current frame (§2.6).
+The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current this (§2.6).
 The local variable at index must contain a double. The value of the local variable at index is pushed onto the operand stack.
 
 Notes
@@ -183,7 +183,7 @@ aload = 25 (0x19)
 
 == Description
 
-The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The index is an unsigned byte that must be an index into the local variable array of the current this (§2.6).
 The local variable at index must contain a reference.
 The objectref in the local variable at index is pushed onto the operand stack.
 
@@ -231,7 +231,7 @@ iload_3 = 29 (0x1d)
 
 == Description
 
-The <n> must be an index into the local variable array of the current frame (§2.6). The local variable at <n> must
+The <n> must be an index into the local variable array of the current this (§2.6). The local variable at <n> must
 contain an int. The value of the local variable at <n> is pushed onto the operand stack.
 
 Notes
@@ -292,7 +292,7 @@ lload_3 = 33 (0x21)
 
 == Description
 
-Both <n> and <n>+1 must be indices into the local variable array of the current frame (§2.6). The local variable at <n>
+Both <n> and <n>+1 must be indices into the local variable array of the current this (§2.6). The local variable at <n>
 must contain a long. The value of the local variable at <n> is pushed onto the operand stack.
 
 Notes
@@ -353,7 +353,7 @@ fload_3 = 37 (0x25)
 
 == Description
 
-The <n> must be an index into the local variable array of the current frame (§2.6). The local variable at <n> must
+The <n> must be an index into the local variable array of the current this (§2.6). The local variable at <n> must
 contain a float. The value of the local variable at <n> is pushed onto the operand stack.
 
 == Notes
@@ -414,7 +414,7 @@ dload_3 = 41 (0x29)
 
 == Description
 
-Both <n> and <n>+1 must be indices into the local variable array of the current frame (§2.6). The local variable at <n>
+Both <n> and <n>+1 must be indices into the local variable array of the current this (§2.6). The local variable at <n>
 must contain a double. The value of the local variable at <n> is pushed onto the operand stack.
 
 == Notes
@@ -475,7 +475,7 @@ aload_3 = 45 (0x2d)
 
 == Description
 
-The <n> must be an index into the local variable array of the current frame (§2.6). The local variable at <n> must
+The <n> must be an index into the local variable array of the current this (§2.6). The local variable at <n> must
 contain a reference. The objectref in the local variable at <n> is pushed onto the operand stack.
 
 == Notes

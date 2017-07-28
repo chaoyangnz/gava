@@ -203,7 +203,7 @@ func (this Reference) AsArrayRef() ArrayRef {
 }
 
 func NewObject(className string) ObjectRef {
-	class := BOOTSTRAP_CLASSLOADER.CreateClass(className)
+	class := BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_NEW_INSTANCE)
 
 	return class.NewObject()
 }
@@ -212,7 +212,7 @@ func NewObject(className string) ObjectRef {
 arrayClassName is the full array class, not its component type
  */
 func NewArray(arrayClassName string, length Int) ArrayRef {
-	class := BOOTSTRAP_CLASSLOADER.CreateClass(arrayClassName)
+	class := BOOTSTRAP_CLASSLOADER.CreateClass(arrayClassName, TRIGGER_BY_NEW_INSTANCE)
 
 	return class.NewArray(length)
 }

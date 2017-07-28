@@ -6,10 +6,10 @@ func register_jago_Jago() {
 }
 
 func Java_jago_Jago_print(str JavaLangString) {
-	JavaOutPrintf("%s", str.toNativeString())
+	VM_stdoutPrintf("%s", str.toNativeString())
 }
 
 func Java_jago_Jago_printDouble(d Double)  {
-	JavaOutPrintf("%v", d)
+	VM_stdoutPrintf("%v", d)
 }
 

@@ -24,7 +24,7 @@ istore = 54 (0x36)
 
 == Description
 
-The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The index is an unsigned byte that must be an index into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type int.
 It is popped from the operand stack, and the value of the local variable at index is set to value.
 
@@ -63,7 +63,7 @@ lstore = 55 (0x37)
 
 == Description
 
-The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current frame (§2.6). The value on the top of the operand stack must be of type long. It is popped from the operand stack, and the local variables at index and index+1 are set to value.
+The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current this (§2.6). The value on the top of the operand stack must be of type long. It is popped from the operand stack, and the local variables at index and index+1 are set to value.
 
 == Notes
 
@@ -100,7 +100,7 @@ fstore = 56 (0x38)
 
 == Description
 
-The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The index is an unsigned byte that must be an index into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type float.
 It is popped from the operand stack and undergoes value set conversion (§2.8.3), resulting in value'.
 The value of the local variable at index is set to value'.
@@ -141,7 +141,7 @@ dstore = 57 (0x39)
 
 == Description
 
-The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current frame (§2.6).
+The index is an unsigned byte. Both index and index+1 must be indices into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type double.
 It is popped from the operand stack and undergoes value set conversion (§2.8.3), resulting in value'.
 The local variables at index and index+1 are set to value'.
@@ -182,7 +182,7 @@ astore = 58 (0x3a)
 
 == Description
 
-The index is an unsigned byte that must be an index into the local variable array of the current frame (§2.6).
+The index is an unsigned byte that must be an index into the local variable array of the current this (§2.6).
 The objectref on the top of the operand stack must be of type returnAddress or of type reference.
 It is popped from the operand stack, and the value of the local variable at index is set to objectref.
 
@@ -236,7 +236,7 @@ istore_3 = 62 (0x3e)
 
 == Description
 
-The <n> must be an index into the local variable array of the current frame (§2.6).
+The <n> must be an index into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type int. It is popped from the operand stack,
 and the value of the local variable at <n> is set to value.
 
@@ -300,7 +300,7 @@ lstore_3 = 66 (0x42)
 
 == Description
 
-Both <n> and <n>+1 must be indices into the local variable array of the current frame (§2.6).
+Both <n> and <n>+1 must be indices into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type long. It is popped from the operand stack,
 and the local variables at <n> and <n>+1 are set to value.
 
@@ -361,7 +361,7 @@ fstore_3 = 70 (0x46)
 
 == Description
 
-The <n> must be an index into the local variable array of the current frame (§2.6).
+The <n> must be an index into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type float.
 It is popped from the operand stack and undergoes value set conversion (§2.8.3), resulting in value'.
 The value of the local variable at <n> is set to value'.
@@ -423,7 +423,7 @@ Operand Stack
 
 == Description
 
-Both <n> and <n>+1 must be indices into the local variable array of the current frame (§2.6).
+Both <n> and <n>+1 must be indices into the local variable array of the current this (§2.6).
 The value on the top of the operand stack must be of type double.
 It is popped from the operand stack and undergoes value set conversion (§2.8.3), resulting in value'.
 The local variables at <n> and <n>+1 are set to value'.
@@ -485,7 +485,7 @@ astore_3 = 78 (0x4e)
 
 == Description
 
-The <n> must be an index into the local variable array of the current frame (§2.6).
+The <n> must be an index into the local variable array of the current this (§2.6).
 The objectref on the top of the operand stack must be of type returnAddress or of type reference.
 It is popped from the operand stack, and the value of the local variable at <n> is set to objectref.
 

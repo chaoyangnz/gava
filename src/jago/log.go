@@ -118,10 +118,4 @@ func NewError(format string, args ...interface{}) error {
 	return errors.New(fmt.Sprintf(format, args...))
 }
 
-func JavaOutPrintf(format string, args ...interface{})  {
-	fmt.Fprintf(os.Stdout, format, args...)
-}
 
-func JavaErrPrintf(format string, args ...interface{})  {
-	fmt.Fprintf(os.Stderr, format, args...)
-}
