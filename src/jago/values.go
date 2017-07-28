@@ -12,11 +12,13 @@ Value system:
 	|- Float
 	|- Double
 	|- Boolean
-	|- <ObjectRef>                      \
-	    |- <JavaLangString>              \
+	|- <ObjectRef>                     \
+	    |- <JavaLangString>             \
+	    |- <JavaLangThread>              \
 	    |- <JavaLangClass>                Reference ( -> *Object)
 	    |- <JavaLangClassLoader>         /
-	|- <ArrayRef>                       /
+	    |- ...                          /
+	|- <ArrayRef>                      /
 
 ObjectRef and ArrayRef are only reference value holding a pointer to real heap object <Object> or <Array>.
 The reference itself will be never nil, but its containing pointer can be nil, which means the reference is `NULL` in Java.

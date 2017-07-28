@@ -8,7 +8,7 @@ import (
 /*
 Type system:
 
-Type
+<Type>
   |- PrimitiveType
         |- *ByteType
         |- *ShortType
