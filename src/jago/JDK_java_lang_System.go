@@ -1,7 +1,5 @@
 package jago
 
-import "runtime"
-
 func register_java_lang_System()  {
 	register("java/lang/System.registerNatives()V", JDK_java_lang_System_registerNatives)
 	register("java/lang/System.setIn0(Ljava/io/InputStream;)V", JDK_java_lang_System_setIn0)
@@ -68,37 +66,16 @@ func JDK_java_lang_System_identityHashCode(object Reference) Int {
 func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 
 	//TODO
-	//setProperty := properties.Class().GetMethod("setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;")
-	//VM_invokeMethod0(THREAD_MANAGER.current, setProperty, properties, NewJavaLangString("file.encoding"), NewJavaLangString("UTF-8"))
-	//for key, val := range _sysProps {
-	//	VM_invokeMethod0(THREAD_MANAGER.current, setProperty, properties, NewJavaLangString(key), NewJavaLangString(val))
-	//}
+	setProperty := properties.Class().GetMethod("setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;")
+	for key, val := range system_properties {
+		VM_invokeMethodWithReturn(setProperty, properties, NewJavaLangString(key), NewJavaLangString(val))
+	}
 
 	return properties
 }
 
-var _sysProps map[string]string = map[string]string{
-		"java.version":         "1.8.0",
-		"java.vendor":          "jago",
-		"java.vendor.url":      "https://yangchao.me",
-		"java.home":            "todo",
-		"java.class.version":   "52.0",
-		"java.class.path":      "todo",
-		"java.awt.graphicsenv": "sun.awt.CGraphicsEnvironment",
-		"os.name":              runtime.GOOS,   // todo
-		"os.arch":              runtime.GOARCH, // todo
-		"os.version":           "",             // todo
-		"file.separator":       "/",            // todo os.PathSeparator
-		"path.separator":       ":",            // todo os.PathListSeparator
-		"line.separator":       "\n",           // todo
-		"user.name":            "",             // todo
-		"user.home":            "",             // todo
-		"user.dir":             ".",            // todo
-		"user.country":         "CN",           // todo
-		"file.encoding":        "UTF-8",
-		"sun.stdout.encoding":  "UTF-8",
-		"sun.stderr.encoding":  "UTF-8",
-}
+
+
 
 func JDK_java_lang_System_mapLibraryName(name JavaLangString) JavaLangString {
 	return name

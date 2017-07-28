@@ -201,13 +201,13 @@ func NewThrowable(exception string, message string, args ...interface{}) Referen
 	throwable := NewObject(exception).(Reference)
 	constructorWithMessage := throwable.Class().GetConstructor("(Ljava/lang/String;)V")
 	if constructorWithMessage != nil {
-		VM_invokeMethod0(constructorWithMessage, throwable, NewJavaLangString(msg))
+		VM_invokeMethod(constructorWithMessage, throwable, NewJavaLangString(msg))
 	} else {
 		constructorDefault := throwable.Class().GetConstructor( "()V")
 		if constructorDefault == nil {
 			Fatal("%s has no default constructor")
 		}
-		VM_invokeMethod0(constructorWithMessage, throwable)
+		VM_invokeMethod(constructorWithMessage, throwable)
 	}
 
 	return throwable

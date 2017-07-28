@@ -67,6 +67,10 @@ func (this Boolean) ToInt() Int {
 	return Int(int32(this))
 }
 
+func (this Int) ToBoolean() Boolean {
+	return Boolean(this)
+}
+
 type ObjectHeader struct {
 	hashCode Int
 	class        *Class

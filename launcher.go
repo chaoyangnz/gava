@@ -8,7 +8,9 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"os"
+	"os/user"
 	"strings"
+	"path/filepath"
 )
 
 
@@ -50,11 +52,12 @@ func main()  {
 
 	fmt.Printf("    _                   \r\n   (_) __ _  __ _  ___  \r\n   | |/ _` |/ _` |/ _ \\ \r\n   | | (_| | (_| | (_) |   version %s\r\n  _/ |\\__,_|\\__, |\\___/    \r\n |__/       |___/     \n\n\n", app.Version)
 
-	fmt.Printf("Command: ")
+
+	var command string
 	for _, arg := range os.Args {
-		fmt.Printf("%s ", arg)
+		command += fmt.Sprintf("%s ", arg)
 	}
-	fmt.Println("\n")
+	fmt.Printf("Command: %s \n", command)
 
 	app.Action = func(c *cli.Context) error {
 		//fmt.Println(" ┬┌─┐┌─┐┌─┐")
@@ -100,6 +103,27 @@ func main()  {
 		}
 
 		fmt.Println("------------------------------------------------------------\n")
+
+		currentPath, _ := filepath.Abs(filepath.Dir(os.Args[0])+"/..")
+		jago.VM_setSystemProperty("sun.java.command", command)
+		jago.VM_setSystemProperty("java.home", currentPath)
+		jago.VM_setSystemProperty("java.class.path", jago.SYS_CLASS_PATH)
+
+		jago.VM_setSystemProperty("java.io.tmpdir", jago.SYS_CLASS_PATH)
+		jago.VM_setSystemProperty("java.library.path", jago.SYS_CLASS_PATH)
+		jago.VM_setSystemProperty("java.ext.dirs", jago.SYS_CLASS_PATH)
+		jago.VM_setSystemProperty("java.endorsed.dirs", jago.SYS_CLASS_PATH)
+
+		user, _ := user.Current()
+		jago.VM_setSystemProperty("user.name", user.Name)
+		jago.VM_setSystemProperty("user.home", user.HomeDir)
+		jago.VM_setSystemProperty("user.country", "NZ")
+		jago.VM_setSystemProperty("user.language", "en")
+		jago.VM_setSystemProperty("user.timezone", "")
+		jago.VM_setSystemProperty("user.dir", user.HomeDir)
+		jago.VM_setSystemProperty("sun.boot.library.path", "")
+		jago.VM_setSystemProperty("sun.boot.class.path", "")
+
 
 		jago.Startup(strings.Replace(jagoClassName, ".", "/", -1), jagoArgs...)
 		return nil

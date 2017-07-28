@@ -17,7 +17,7 @@ func JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor Java
 		allArgs = append(allArgs, args.(Reference).oop.values...)
 	}
 
-	VM_invokeMethod0(method, allArgs...)
+	VM_invokeMethod(method, allArgs...)
 
 	return objeref
 }
