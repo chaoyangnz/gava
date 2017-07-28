@@ -59,7 +59,7 @@ func INVOKEVIRTUAL(t *Thread, f *Frame, c *Class, m *Method) {
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-	VM_invokeMethod(overridenMethod, params...)
+	f.push(VM_invokeMethod(overridenMethod, params...))
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
@@ -74,7 +74,7 @@ func INVOKESPECIAL(t *Thread, f *Frame, c *Class, m *Method) {
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 	params := f.loadParameters(method)
 
-	VM_invokeMethod(method, params...)
+	f.push(VM_invokeMethod(method, params...))
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
@@ -91,7 +91,7 @@ func INVOKESTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 	method := methodref.ResolvedMethod()
 	params := f.loadParameters(method)
 
-	VM_invokeMethod(method, params...)
+	f.push(VM_invokeMethod(method, params...))
 
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
@@ -116,8 +116,7 @@ func INVOKEINTERFACE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-
-	VM_invokeMethod(overridenMethod, params...)
+	f.push(VM_invokeMethod(overridenMethod, params...))
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}

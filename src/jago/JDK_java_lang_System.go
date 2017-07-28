@@ -68,7 +68,7 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 	//TODO
 	setProperty := properties.Class().GetMethod("setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;")
 	for key, val := range VM_systemProperties() {
-		VM_invokeMethodWithReturn(setProperty, properties, NewJavaLangString(key), NewJavaLangString(val))
+		VM_invokeMethod(setProperty, properties, NewJavaLangString(key), NewJavaLangString(val))
 	}
 
 	return properties

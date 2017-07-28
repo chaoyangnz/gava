@@ -40,9 +40,14 @@ type (
 	ReturnAddress uint32
 )
 
+type Void struct {} // void value has not type
+func (this Void) Type() Type {return nil}
+
 var (
 	TRUE = Boolean(1)
 	FALSE = Boolean(0)
+
+	VOID = Void{}
 )
 
 func (this Byte) Type() Type   { return BYTE_TYPE }

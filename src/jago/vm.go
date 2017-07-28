@@ -13,22 +13,21 @@ func VM_invokeMethod0(className string, methodName string, methodDescriptor stri
 	VM_invokeMethod(method, params...)
 }
 
-func VM_invokeMethodWithReturn(method *Method, params ... Value) Value {
-	if method.returnDescriptor == JVM_SIGNATURE_VOID {
-		Bug("Void method don't need to return, use VM_invokeMethod() instead")
-	}
-	VM_invokeMethod(method, params...)
-	thread := VM_getCurrentThread()
-	return thread.current().pop()
-}
+//func VM_invokeMethodWithReturn(method *Method, params ... Value) Value {
+//	if method.returnDescriptor == JVM_SIGNATURE_VOID {
+//		Bug("Void method don't need to return, use VM_invokeMethod() instead")
+//	}
+//	VM_invokeMethod(method, params...)
+//	thread := VM_getCurrentThread()
+//	return thread.current().pop()
+//}
 
 /*
-This method is used to void method, or return value is directly put into caller's stack
+This method is used to run a method and return value (even void method return a void value)
  */
-func VM_invokeMethod(method *Method, params ... Value)  {
+func VM_invokeMethod(method *Method, params ... Value) Value {
 	thread := VM_getCurrentThread()
 	if !method.isNative() {
-		current := thread.current()
 		frame := NewStackFrame(method)
 		i := 0
 		for _, param := range params {
@@ -41,8 +40,13 @@ func VM_invokeMethod(method *Method, params ... Value)  {
 				i += 1
 			}
 		}
+		caller := thread.current()
 		thread.pushFrames(frame)
-		thread.RunTo(current)
+		thread.Run()
+
+		if method.returnDescriptor != JVM_SIGNATURE_VOID {
+			return caller.pop()
+		}
 	} else {
 		if !method.isNative() {
 			Fatal("%s Not a native method", method.Qualifier())
@@ -71,19 +75,18 @@ func VM_invokeMethod(method *Method, params ... Value)  {
 		}
 		result := fun.Call(in)
 
-
-		if len(result) == 0 {
-			return
-		}
-
-		if method.returnDescriptor != JVM_SIGNATURE_VOID {
-			if ret, ok := result[0].Interface().(Value); ok {
-				thread.current().push(ret)
+		if  method.returnDescriptor != JVM_SIGNATURE_VOID {
+			if len(result) != 0 {
+				if ret, ok := result[0].Interface().(Value); ok {
+					return ret
+				}
 			} else {
-				Bug("native return wrong type")
+				Bug("native return wrong type or size")
 			}
 		}
 	}
+
+	return VOID
 }
 
 func VM_getCurrentThread() *Thread {
