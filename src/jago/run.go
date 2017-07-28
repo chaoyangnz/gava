@@ -31,7 +31,7 @@ func (this *ThreadManager) NewThread(name string, run func(thread *Thread)) *Thr
 
 	// must set last
 	this.contextManager.SetValues(gls.Values{thread_id_key: thread}, func() {
-		thread.threadObject = NewJavaLangThread()
+		thread.threadObject = NewJavaLangThread(thread.name) // this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
 		run(thread)
 	})
 	return thread
@@ -50,7 +50,7 @@ type Thread struct {
 
 /*
   _____
-  |   |   <- add a new frame as top, no touch existing
+  |   |   <- add a new this as top, no touch existing
 ----------
   |   |   <- existing
   ______
@@ -60,7 +60,7 @@ type Thread struct {
  */
 func (this *Thread) RunTo(frame *Frame)  {
 
-	for { // per stack frame
+	for { // per stack this
 		f := this.current()
 		if f == nil || f == frame {
 			break
@@ -81,8 +81,9 @@ func (this *Thread) runFrame(f *Frame)  {
 		opcode := bytecode[pc]
 		instruction := instructions[opcode]
 		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
-		intercept(f)
+		this.interceptBefore(f)
 		this.execute(f, instruction)
+		this.interceptAfter(f)
 		// jump instruction can operate pc
 		// some instruction also have variable length: tableswitch...
 		// these instructions will control pc themselves
@@ -105,7 +106,7 @@ func (this *Thread) execute(f *Frame, instruction Instruction) {
 				// try catch exception
 				for i := len(this.vmStack)-1; i >= 0; i-- {
 					frame := this.vmStack[i]
-					if caught, handlePc := tryCatch(frame, throwable); caught {
+					if caught, handlePc := frame.tryCatch(throwable); caught {
 						frame.jumpPc(handlePc) // move pc
 						LOG.Trace("exception handler found in %s for throwable %s", frame.method.Signature(), throwable.Class().Name())
 						frame.clear()
@@ -125,13 +126,21 @@ func (this *Thread) execute(f *Frame, instruction Instruction) {
 	instruction.interpret(this, f, f.method.class, f.method)
 }
 
-func tryCatch(frame *Frame, throwable Reference) (bool, int) {
-	for _, exception := range frame.method.exceptions {
-		if frame.pc >= exception.startPc && frame.pc < exception.endPc {
+func (this *Thread) interceptBefore(frame *Frame)  {
+
+}
+
+func (this *Thread) interceptAfter(frame *Frame)  {
+
+}
+
+func (this *Frame) tryCatch(throwable Reference) (bool, int) {
+	for _, exception := range this.method.exceptions {
+		if this.pc >= exception.startPc && this.pc < exception.endPc {
 			if exception.catchType == 0 { // catch-all
 				return true, exception.handlerPc
 			} else {
-				catchType := frame.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
+				catchType := this.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
 				if catchType.IsAssignableFrom(throwable.Class()) {
 					return true, exception.handlerPc
 				}
@@ -148,32 +157,28 @@ func (this *Thread) handleUncaughtException(throwable Reference)  {
 	if !detailMessage.IsNull() {
 		detailMessageStr = detailMessage.toNativeString()
 	}
-	JavaErrPrintf("\nException in thread \"%s\" #%d %s : %s\n", this.name, this.id, throwable.Class().Name(), detailMessageStr)
+	VM_stderrPrintf("\nException in thread \"%s\" #%d %s : %s\n", this.name, this.id, throwable.Class().Name(), detailMessageStr)
 
 	stacktrace := throwable.GetExtra()
 	if stacktrace != nil {
 		for _, stacktraceelement := range stacktrace.([]string) {
-			JavaErrPrintf("\t at %s\n", stacktraceelement)
+			VM_stderrPrintf("\t at %s\n", stacktraceelement)
 		}
 	}
 
 	os.Exit(1)
 }
 
-func intercept(f *Frame)  {
-
-}
-
 type Frame struct {
 	method *Method
-	// if this frame is current frame, the pc is for the pc of this thread;
+	// if this this is current this, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc int
 	pos int // operand pos: internal use only. For an instruction, initially it always starts from pc. Each time read an operand, it advanced.
 	// long and double will occupy two variable indexes
 	localVariables      []Value
 	// operand stack
-	// a value of type `long` or `double` contributes two units to the depth and a value of any other type contributes one unit
+	// a value of type `long` or `double` contributes two units to the indexOf and a value of any other type contributes one unit
 	// but here we use long and double only use one unit. There is not any violation
 	operandStack        []Value
 }

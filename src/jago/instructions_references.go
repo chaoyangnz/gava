@@ -59,7 +59,7 @@ func INVOKEVIRTUAL(t *Thread, f *Frame, c *Class, m *Method) {
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-	VM_invokeMethod(overridenMethod, params...)
+	VM_invokeMethod0(overridenMethod, params...)
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
@@ -74,7 +74,7 @@ func INVOKESPECIAL(t *Thread, f *Frame, c *Class, m *Method) {
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 	params := f.loadParameters(method)
 
-	VM_invokeMethod(method, params...)
+	VM_invokeMethod0(method, params...)
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
@@ -91,7 +91,7 @@ func INVOKESTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 	method := methodref.ResolvedMethod()
 	params := f.loadParameters(method)
 
-	VM_invokeMethod(method, params...)
+	VM_invokeMethod0(method, params...)
 
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
@@ -117,7 +117,7 @@ func INVOKEINTERFACE(t *Thread, f *Frame, c *Class, m *Method) {
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
 
-	VM_invokeMethod(overridenMethod, params...)
+	VM_invokeMethod0(overridenMethod, params...)
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
@@ -166,7 +166,7 @@ func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("Invalid atype value")
 	}
 	count := f.pop().(Int)
-	arrayClass := BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor)
+	arrayClass := BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, TRIGGER_BY_NEW_INSTANCE)
 	arrayref := arrayClass.NewArray(count)
 	f.push(arrayref)
 	f.nextPc()
@@ -180,9 +180,9 @@ func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	var arrayClass *Class
 	componentType := c.constantPool[index].(*ClassRef).ResolvedClass()
 	if !componentType.IsArray() {
-		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS)
+		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, TRIGGER_BY_NEW_INSTANCE)
 	} else {
-		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name())
+		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), TRIGGER_BY_NEW_INSTANCE)
 	}
 
 	arrayref := arrayClass.NewArray(count)
@@ -205,7 +205,7 @@ func ATHROW(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 
 	f.nextPc()
-	doThrow(throwable)
+	VM_Throw0(throwable)
 }
 
 /*192 (0xC0)*/

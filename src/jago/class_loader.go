@@ -10,26 +10,39 @@ type ClassLoader struct {
 	classPath     *ClassPath
 	classCache    map[string]*Class
 	parent        *ClassLoader
+	depth         int // current load indexOf
 }
 
 func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
 	return &ClassLoader{
 		NewClassPath(str),
 		make(map[string]*Class),
-		parent}
+		parent,
+		0}
 }
 
-func (this *ClassLoader) CreateClass(className string) *Class {
-	return this.internalCreateClass(className, true)
+const (
+	TRIGGER_BY_JAVA_REFLECTION    = "java reflection from name"
+	TRIGGER_BY_CHECK_OBJECT_TYPE  = "check java object type"
+	TRIGGER_BY_AS_SUPERCLASS      = "as superclass"
+	TRIGGER_BY_AS_SUPER_INTERFACE = "as superinterface"
+	TRIGGER_BY_AS_ARRAY_COMPONENT = "as array component"
+	TRIGGER_BY_RESOLVE_CLASS_REF  = "revolve symbol_ref in constant pool"
+	TRIGGER_BY_NEW_INSTANCE       = "new instance"
+	TRIGGER_BY_ACCESS_MEMBER      = "access field or method"
+)
+
+func (this *ClassLoader) CreateClass(className string, triggerReason string) *Class {
+	return this.internalCreateClass(className, true, triggerReason)
 }
 
-func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool) *Class {
+func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool, triggerReason string) *Class {
 	if class, found := this.classCache[className]; found {
 		return class
 	}
 
-	CLASSLOAD_LOG.Debug(__times(__indention, "   ") + "↳ %s \n", className)
-	__indention++
+	CLASSLOAD_LOG.Debug(repeat("\t", this.depth) + "↳ %s (reason: %s)\n", className, triggerReason)
+	this.depth++
 
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
@@ -53,17 +66,8 @@ func (this *ClassLoader) internalCreateClass(className string, requireInitialize
 		this.initialize(class)
 	}
 
-	__indention--
+	this.depth--
 	return class
-}
-
-var __indention = 0
-func __times(t int, str string) string {
-	ret := ""
-	for i := 0; i < t; i++ {
-		ret += str
-	}
-	return ret
 }
 
 func (this *ClassLoader) defineArrayClass(className string) *Class {
@@ -76,10 +80,10 @@ func (this *ClassLoader) defineArrayClass(className string) *Class {
 	this.classCache[className] = arrayClass
 
 	arrayClass.accessFlags = 0
-	arrayClass.superClass = this.internalCreateClass("java/lang/Object", false)
+	arrayClass.superClass = this.internalCreateClass("java/lang/Object", false, TRIGGER_BY_AS_SUPERCLASS)
 	arrayClass.interfaces = []*Class{
-		this.internalCreateClass("java/io/Serializable", false),
-		this.internalCreateClass("java/lang/Cloneable", false)}
+		this.internalCreateClass("java/io/Serializable", false, TRIGGER_BY_AS_SUPER_INTERFACE),
+		this.internalCreateClass("java/lang/Cloneable", false, TRIGGER_BY_AS_SUPER_INTERFACE)}
 
 	componentDescriptor := string(className[1])
 	switch componentDescriptor {
@@ -125,12 +129,12 @@ func (this *ClassLoader) defineArrayClass(className string) *Class {
 		}
 	case JVM_SIGNATURE_CLASS:
 		{
-			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[2:len(className)-1])
+			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[2:len(className)-1], TRIGGER_BY_AS_ARRAY_COMPONENT)
 			arrayClass.elementType = arrayClass.componentType
 		}
 	case JVM_SIGNATURE_ARRAY:
 		{
-			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[1:])
+			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[1:], TRIGGER_BY_AS_ARRAY_COMPONENT)
 			arrayClass.elementType = arrayClass.componentType.(*Class).elementType
 		}
 	}
@@ -417,7 +421,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 
 	// resolve super class
 	if class.superClassName != "" {
-		class.superClass = this.internalCreateClass(class.superClassName, false)
+		class.superClass = this.internalCreateClass(class.superClassName, false, TRIGGER_BY_AS_SUPERCLASS)
 	}
 
 	// calculate static variables and instance variable count
@@ -443,7 +447,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	// resolve interfaces
 	class.interfaces = make([]*Class, len(class.interfaceNames))
 	for i, interfaceName := range class.interfaceNames {
-		class.interfaces[i] = this.internalCreateClass(interfaceName, false)
+		class.interfaces[i] = this.internalCreateClass(interfaceName, false, TRIGGER_BY_AS_SUPER_INTERFACE)
 	}
 
 	return class
@@ -481,8 +485,8 @@ func (this *ClassLoader) initialize(class *Class) {
 		if class.superClass != nil {
 			this.initialize(class.superClass)
 		}
-		CLASSLOAD_LOG.Debug(__times(__indention, "   ") + "%s \n", clinit.Qualifier())
-		VM_invokeMethod(clinit)
+		CLASSLOAD_LOG.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
+		VM_invokeMethod0(clinit)
 		//}
 	}
 

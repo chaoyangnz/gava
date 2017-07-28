@@ -86,7 +86,7 @@ func Java_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
 
 func Java_java_lang_Class_forName0(name JavaLangString, initialize Boolean, loader JavaLangClassLoader, caller JavaLangClass) JavaLangClass {
 	className := strings.Replace(name.toNativeString(), ".", "/", -1)
-	return BOOTSTRAP_CLASSLOADER.CreateClass(className).ClassObject()
+	return BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 }
 
 func Java_java_lang_Class_isInterface(this JavaLangClass) Boolean {

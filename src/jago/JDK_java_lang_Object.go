@@ -20,7 +20,7 @@ func Java_java_lang_Object_getClass(this Reference) JavaLangClass {
 }
 
 func Java_java_lang_Object_clone(this Reference) Reference {
-	cloneable := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Cloneable")
+	cloneable := BOOTSTRAP_CLASSLOADER.CreateClass("java/lang/Cloneable", TRIGGER_BY_CHECK_OBJECT_TYPE)
 	if !cloneable.IsAssignableFrom(this.Class()) {
 		VM_throw("java/lang/CloneNotSupportedException", "Not implement java.lang.Cloneable")
 	}

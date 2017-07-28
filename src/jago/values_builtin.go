@@ -106,31 +106,7 @@ func NewJavaLangClass(_type Type) JavaLangClass {
 	return object
 }
 
-func __getTypeClass(descriptor string) JavaLangClass {
-	var typeClass JavaLangClass
-	switch string(descriptor[0]) {
-	case JVM_SIGNATURE_CLASS: {
-		fieldTypeClassName := descriptor[1:len(descriptor)-1]
-		typeClass = BOOTSTRAP_CLASSLOADER.CreateClass(fieldTypeClassName).ClassObject()
-	}
-	case JVM_SIGNATURE_ARRAY: {
-		fieldTypeClassName := descriptor
-		typeClass = BOOTSTRAP_CLASSLOADER.CreateClass(fieldTypeClassName).ClassObject()
-	}
-	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
-	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
-	case JVM_SIGNATURE_CHAR: typeClass = CHAR_TYPE.ClassObject()
-	case JVM_SIGNATURE_INT: typeClass = INT_TYPE.ClassObject()
-	case JVM_SIGNATURE_LONG: typeClass = LONG_TYPE.ClassObject()
-	case JVM_SIGNATURE_FLOAT: typeClass = FLOAT_TYPE.ClassObject()
-	case JVM_SIGNATURE_DOUBLE: typeClass = DOUBLE_TYPE.ClassObject()
-	case JVM_SIGNATURE_BOOLEAN: typeClass = BOOLEAN_TYPE.ClassObject()
-	default:
-		Fatal("type %s is not a unsupported type", descriptor)
-	}
 
-	return typeClass
-}
 
 /*
 Field(Class<?> declaringClass,
@@ -153,7 +129,7 @@ func NewJavaLangReflectField(field *Field) JavaLangReflectField {
 	fieldObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, field.class.classObject)
 	fieldObject.SetInstanceVariableByName("name", JVM_SIGNATURE_CLASS + JAVA_LANG_STRING + JVM_SIGNATURE_ENDCLASS, NewJavaLangString(field.name))
 
-	fieldObject.SetInstanceVariableByName("type", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, __getTypeClass(field.descriptor))
+	fieldObject.SetInstanceVariableByName("type", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, VM_getTypeClass(field.descriptor))
 	fieldObject.SetInstanceVariableByName("modifiers", JVM_SIGNATURE_INT, Int(field.accessFlags))
 	fieldObject.SetInstanceVariableByName("slot", JVM_SIGNATURE_INT, Int(field.index))
 	fieldObject.SetInstanceVariableByName("signature", JVM_SIGNATURE_CLASS + JAVA_LANG_STRING + JVM_SIGNATURE_ENDCLASS, NewJavaLangString(field.descriptor))
@@ -182,7 +158,7 @@ func NewJavaLangReflectConstructor(method *Method) JavaLangReflectConstructor {
 
 	parameterTypes := NewArray("[Ljava/lang/Class;", Int(len(method.parameterDescriptors)))
 	for i, parameterDescriptor := range method.parameterDescriptors {
-		parameterTypes.SetElement(Int(i), __getTypeClass(parameterDescriptor))
+		parameterTypes.SetElement(Int(i), VM_getTypeClass(parameterDescriptor))
 	}
 	constructorObject.SetInstanceVariableByName("parameterTypes", "[Ljava/lang/Class;", parameterTypes)
 	// TODO
@@ -204,13 +180,17 @@ func NewJavaLangReflectConstructor(method *Method) JavaLangReflectConstructor {
 
 type JavaLangThread interface {ObjectRef}
 
-func NewJavaLangThread() JavaLangThread {
+func NewJavaLangThread(name string) JavaLangThread {
 	jThread := NewObject(JAVA_LANG_THREAD)
 
-	jGroup := NewObject("java/lang/ThreadGroup")
+	// ThreadGroup just need to set its name; no parent
+	jThreadGroup := NewObject("java/lang/ThreadGroup")
+	jThreadGroup.SetInstanceVariableByName("name", "Ljava/lang/String;", NewJavaLangString(name))
 
-	jThread.SetInstanceVariableByName("group", "Ljava/lang/ThreadGroup;", jGroup)
+	jThread.SetInstanceVariableByName("name", "Ljava/lang/String;", NewJavaLangString(name))
+	jThread.SetInstanceVariableByName("group", "Ljava/lang/ThreadGroup;", jThreadGroup)
 	jThread.SetInstanceVariableByName("priority", "I", Int(1))
+	// no initialization here
 
 	return jThread
 }
@@ -221,13 +201,13 @@ func NewThrowable(exception string, message string, args ...interface{}) Referen
 	throwable := NewObject(exception).(Reference)
 	constructorWithMessage := throwable.Class().GetConstructor("(Ljava/lang/String;)V")
 	if constructorWithMessage != nil {
-		VM_invokeMethod(constructorWithMessage, throwable, NewJavaLangString(msg))
+		VM_invokeMethod0(constructorWithMessage, throwable, NewJavaLangString(msg))
 	} else {
 		constructorDefault := throwable.Class().GetConstructor( "()V")
 		if constructorDefault == nil {
 			Fatal("%s has no default constructor")
 		}
-		VM_invokeMethod(constructorWithMessage, throwable)
+		VM_invokeMethod0(constructorWithMessage, throwable)
 	}
 
 	return throwable
