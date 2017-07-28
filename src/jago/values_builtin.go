@@ -213,19 +213,3 @@ func NewThrowable(exception string, message string, args ...interface{}) Referen
 	return throwable
 }
 
-/////////////////////// Type Conversion //////////////////////////////////
-func (this Boolean) ToInt() Int {
-	return Int(this)
-}
-
-func (this Boolean) ToByte() Byte {
-	return Byte(this)
-}
-
-func (this Int) ToBoolean() Boolean {
-	return Boolean(this)
-}
-
-func (this Byte) ToBoolean() Boolean {
-	return Boolean(this)
-}
