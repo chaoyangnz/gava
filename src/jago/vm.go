@@ -7,13 +7,25 @@ import (
 	"os"
 )
 
-func VM_invokeMethod(className string, methodName string, methodDescriptor string, params ... Value)  {
+func VM_invokeMethod0(className string, methodName string, methodDescriptor string, params ... Value)  {
 	class := BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_ACCESS_MEMBER)
 	method := class.GetMethod(methodName, methodDescriptor)
-	VM_invokeMethod0(method, params...)
+	VM_invokeMethod(method, params...)
 }
 
-func VM_invokeMethod0(method *Method, params ... Value)  {
+func VM_invokeMethodWithReturn(method *Method, params ... Value) Value {
+	if method.returnDescriptor == JVM_SIGNATURE_VOID {
+		Bug("Void method don't need to return, use VM_invokeMethod() instead")
+	}
+	VM_invokeMethod(method, params...)
+	thread := VM_getCurrentThread()
+	return thread.current().pop()
+}
+
+/*
+This method is used to void method, or return value is directly put into caller's stack
+ */
+func VM_invokeMethod(method *Method, params ... Value)  {
 	thread := VM_getCurrentThread()
 	if !method.isNative() {
 		current := thread.current()
@@ -70,7 +82,6 @@ func VM_invokeMethod0(method *Method, params ... Value)  {
 			} else {
 				Bug("native return wrong type")
 			}
-
 		}
 	}
 }
@@ -192,6 +203,85 @@ func VM_getTypeClass(descriptor string) JavaLangClass {
 	}
 
 	return typeClass
+}
+
+var system_properties = map[string]string {
+	"java.version":                "1.8.0_152-ea",
+	"java.home":                   "TODO",
+	"java.specification.name":     "Java Platform API Specification",
+	"java.specification.version":  "1.8",
+	"java.specification.vendor":   "Oracle Corporation",
+
+	"java.vendor":                 "Oracle Corporation",
+	"java.vendor.url":             "http://java.oracle.com/",
+	"java.vendor.url.bug":         "http://bugreport.sun.com/bugreport/",
+
+	"java.vm.name":                "Jago 64-Bit VM",
+	"java.vm.version":             "1.0.0",
+	"java.vm.vendor":              "Chao Yang",//"Oracle Corporation",
+	"java.vm.info":                "mixed mode",
+	"java.vm.specification.name":  "Java Virtual Machine Specification",
+	"java.vm.specification.version": "1.8",
+	"java.vm.specification.vendor": "Oracle Corporation",
+
+	"java.runtime.name":           "Java(TM) SE Runtime Environment",
+	"java.runtime.version":        "1.8.0_152-ea-b05",
+
+	"java.class.version":          "52.0",
+	"java.class.path":             "TODO",
+
+	"java.io.tmpdir":              "TODO",
+	"java.library.path":           "TODO",
+	"java.ext.dirs":               "TODO",
+	"java.endorsed.dirs":          "TODO",
+	"java.awt.graphicsenv":        "sun.awt.CGraphicsEnvironment",
+	"java.awt.printerjob":         "sun.lwawt.macosx.CPrinterJob",
+	"awt.toolkit":                 "sun.lwawt.macosx.LWCToolkit",
+
+	"path.separator":              ":",
+	"line.separator":              "\n",
+	"file.separator":              "/",
+	"file.encoding":               "UTF-8",
+	"file.encoding.pkg":           "sun.io",
+
+	"sun.stdout.encoding":  "UTF-8",
+	"sun.stderr.encoding":  "UTF-8",
+
+	"os.name":                     "Mac OS X",
+	"os.arch":                     "x86_64",
+	"os.version":                  "10.12.5",
+
+	"user.name":                   "TODO",
+	"user.home":                   "TODO",
+	"user.country":                "TODO",
+	"user.language":               "TODO",
+	"user.timezone":               "TODO",
+	"user.dir":                    "TODO",
+
+	"sun.java.launcher":           "SUN_STANDARD",
+	"sun.java.command":            "TODO",
+	"sun.boot.library.path":       "TODO",
+	"sun.boot.class.path":         "TODO",
+	"sun.os.patch.level":          "unknown",
+	"sun.jnu.encoding":            "UTF-8",
+	"sun.management.compiler":     "HotSpot 64-Bit Tiered Compilers",
+	"sun.arch.data.model":         "64",
+	"sun.cpu.endian":              "little",
+	"sun.io.unicode.encoding":     "UnicodeBig",
+	"sun.cpu.isalist":             "",
+
+	"http.nonProxyHosts":          "local|*.local|169.254/16|*.169.254/16",
+	"ftp.nonProxyHosts":           "local|*.local|169.254/16|*.169.254/16",
+	"socksNonProxyHosts":          "local|*.local|169.254/16|*.169.254/16",
+	"gopherProxySet":              "false",
+}
+
+func VM_systemProperties() map[string]string {
+	return system_properties
+}
+
+func VM_setSystemProperty(prop string, value string)  {
+	system_properties[prop] = value
 }
 
 

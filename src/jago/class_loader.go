@@ -498,7 +498,7 @@ func (this *ClassLoader) initialize(class *Class) {
 			this.initialize(class.superClass)
 		}
 		CLASSLOAD_LOG.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
-		VM_invokeMethod0(clinit)
+		VM_invokeMethod(clinit)
 		//}
 	}
 

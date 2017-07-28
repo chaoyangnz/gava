@@ -9,7 +9,7 @@ func register_java_security_AccessController() {
 // because here need to call java method, so the return value will automatically be placed in the stack
 func JDK_java_security_AccessController_doPrivileged(action Reference) /*Reference*/ {
 	method := action.Class().FindMethod("run", "()Ljava/lang/Object;")
-	VM_invokeMethod0(method, action)
+	VM_invokeMethod(method, action)
 }
 
 func JDK_java_security_AccessController_getStackAccessControlContext() Reference {
