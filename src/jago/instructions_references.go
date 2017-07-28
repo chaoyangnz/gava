@@ -1,8 +1,8 @@
 package jago
 
 /*178 (0xB2)*/
-func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func GETSTATIC(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 
 	fieldref := c.constantPool[index].(*FieldRef)
 	field := fieldref.ResolvedField()
@@ -12,8 +12,8 @@ func GETSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*179 (0xB3)*/
-func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func PUTSTATIC(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	value := f.pop()
 
 	fieldref := c.constantPool[index].(*FieldRef)
@@ -24,8 +24,8 @@ func PUTSTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*180 (0xB4)*/
-func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func GETFIELD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	objectref := f.pop().(ObjectRef)
 
 	f.push(f.getField(objectref, index))
@@ -33,8 +33,8 @@ func GETFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*181 (0xB5)*/
-func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func PUTFIELD(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	value := f.pop()
 	objectref := f.pop().(ObjectRef)
 
@@ -43,15 +43,15 @@ func PUTFIELD(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*182 (0xB6)*/
-func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func INVOKEVIRTUAL(t *Thread, f *Frame, c *Class, m *Method) {
 	pc := f.pc
-	index := f.index16()
+	index := f.operandIndex16()
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 
 	if method.isStatic() {
 		Fatal("Not an instance method")
 	}
-	params := f.params(method)
+	params := f.loadParameters(method)
 	objectref := params[0].(Reference)
 	if objectref.IsNull() {
 		VM_throw("java/lang/NullPointerException", "Cannot call method %s.%s%s on null", method.class.name, method.name, method.descriptor)
@@ -59,7 +59,7 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-	VM_invokeMethod(t, overridenMethod, params...)
+	VM_invokeMethod(overridenMethod, params...)
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
@@ -67,45 +67,47 @@ func INVOKEVIRTUAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 
 // like invokevirtual with objectref, but don't find along the inheritance
 /*183 (0xB7)*/
-func INVOKESPECIAL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func INVOKESPECIAL(t *Thread, f *Frame, c *Class, m *Method) {
 	pc := f.pc
-	index := f.index16()
+	index := f.operandIndex16()
 
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
-	params := f.params(method)
+	params := f.loadParameters(method)
 
-	VM_invokeMethod(t, method, params...)
+	VM_invokeMethod(method, params...)
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
 }
 
 /*184 (0xB8)*/
-func INVOKESTATIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func INVOKESTATIC(t *Thread, f *Frame, c *Class, m *Method) {
+
 	pc := f.pc
-	index := f.index16()
+	index := f.operandIndex16()
 
 	methodref := c.constantPool[index].(*MethodRef)
 
 	method := methodref.ResolvedMethod()
-	params := f.params(method)
+	params := f.loadParameters(method)
 
-	VM_invokeMethod(t, method, params...)
+	VM_invokeMethod(method, params...)
+
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
 }
 
 /*185 (0xB9)*/
-func INVOKEINTERFACE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func INVOKEINTERFACE(t *Thread, f *Frame, c *Class, m *Method) {
 	pc := f.pc
-	index := f.index16()
+	index := f.operandIndex16()
 	method := c.constantPool[index].(*InterfaceMethodRef).ResolvedMethod()
 
 	if method.isStatic() {
 		Fatal("Not an instance method")
 	}
-	params := f.params(method)
+	params := f.loadParameters(method)
 	// get objectref and target method
 	objectref := params[0].(Reference)
 	if objectref.IsNull() {
@@ -115,20 +117,20 @@ func INVOKEINTERFACE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
 
-	VM_invokeMethod(t, overridenMethod, params...)
+	VM_invokeMethod(overridenMethod, params...)
 	if pc == f.pc { // otherwise, may be offset due to exception caught
 		f.nextPc()
 	}
 }
 
 /*186 (0xBA)*/
-func INVOKEDYNAMIC(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	Fatal("Not implemented for opcode %d\n", opcode)
+func INVOKEDYNAMIC(t *Thread, f *Frame, c *Class, m *Method) {
+	Fatal("Not implemented for opcode %d\n", f.opcode())
 }
 
 /*187 (0xBB)*/
-func NEW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func NEW(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass()
 	objectref := class.NewObject()
 	f.push(objectref)
@@ -148,8 +150,8 @@ const (
 )
 
 /*188 (0xBC)*/
-func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	atype := f.const8(1)
+func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
+	atype := f.operandConst8()
 	var componentDescriptor string
 	switch atype {
 	case T_CHAR: componentDescriptor = JVM_SIGNATURE_CHAR
@@ -171,8 +173,8 @@ func NEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*189 (0xBD)*/
-func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	count := f.pop().(Int)
 
 	var arrayClass *Class
@@ -190,13 +192,13 @@ func ANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*190 (0xBE)*/
-func ARRAYLENGTH(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ARRAYLENGTH(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.pop().(ArrayRef).Length())
 	f.nextPc()
 }
 
 /*191 (0xBF)*/
-func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ATHROW(t *Thread, f *Frame, c *Class, m *Method) {
 	throwable := f.pop().(Reference)
 	if throwable.IsNull() {
 		VM_throw("java/lang/NullPointerException", "cannot throw a null throwable")
@@ -207,8 +209,8 @@ func ATHROW(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*192 (0xC0)*/
-func CHECKCAST(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func CHECKCAST(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	objectref := f.pop().(Reference)
 
 	if objectref.IsNull() {
@@ -229,8 +231,8 @@ func CHECKCAST(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*193 (0xC1)*/
-func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index16()
+func INSTANCEOF(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
 	objectref := f.pop().(Reference)
 
 	if objectref.IsNull() {
@@ -253,7 +255,7 @@ func INSTANCEOF(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*194 (0xC2)*/
-func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func MONITORENTER(t *Thread, f *Frame, c *Class, m *Method) {
 	/*objectref := */f.pop()
 
 	//LOG.Warn("Not implemented for opcode %d\n", opcode)
@@ -261,7 +263,7 @@ func MONITORENTER(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*195 (0xC3)*/
-func MONITOREXIT(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func MONITOREXIT(t *Thread, f *Frame, c *Class, m *Method) {
 	/*objectref := */f.pop()
 
 	//LOG.Warn("Not implemented for opcode %d\n", opcode)

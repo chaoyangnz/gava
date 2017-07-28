@@ -9,7 +9,7 @@ func Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor Jav
 	class := constructor.GetInstanceVariableByName("clazz", "Ljava/lang/Class;").(JavaLangClass).GetExtra().(*Class)
 	descriptor := constructor.GetInstanceVariableByName("signature", "Ljava/lang/String;").(JavaLangString).toNativeString()
 
-	method := class.FindMethod("<init>", descriptor)
+	method := class.GetConstructor(descriptor)
 
 	objeref := class.NewObject()
 	allArgs := []Value {objeref}
@@ -17,7 +17,7 @@ func Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor Jav
 		allArgs = append(allArgs, args.(Reference).oop.values...)
 	}
 
-	VM_invokeMethod(THREAD_MANAGER.currentThread, method, allArgs...)
+	VM_invokeMethod(method, allArgs...)
 
 	return objeref
 }

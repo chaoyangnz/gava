@@ -9,7 +9,7 @@ func register_sun_reflect_Reflection() {
 func Java_sun_reflect_Reflection_getCallerClass() JavaLangClass {
 	//todo
 
-	vmStack := THREAD_MANAGER.currentThread.vmStack
+	vmStack := VM_getCurrentThread().vmStack
 	if len(vmStack) == 1 {
 		return NULL
 	} else {

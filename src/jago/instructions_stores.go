@@ -33,8 +33,8 @@ It is popped from the operand stack, and the value of the local variable at inde
 The istore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a two-byte unsigned index.
  */
 /*54 (0x36)*/
-func ISTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func ISTORE(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Int))
 	f.nextPc()
 }
@@ -70,8 +70,8 @@ The index is an unsigned byte. Both index and index+1 must be indices into the l
 The lstore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a two-byte unsigned index.
  */
 /*55 (0x37)*/
-func LSTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func LSTORE(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Long))
 	f.nextPc()
 }
@@ -111,8 +111,8 @@ The fstore opcode can be used in conjunction with the wide instruction (§wide) 
 two-byte unsigned index.
  */
 /*56 (0x38)*/
-func FSTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func FSTORE(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Float))
 	f.nextPc()
 }
@@ -152,8 +152,8 @@ The dstore opcode can be used in conjunction with the wide instruction (§wide) 
 two-byte unsigned index.
  */
 /*57 (0x39)*/
-func DSTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func DSTORE(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Double))
 	f.nextPc()
 }
@@ -196,8 +196,8 @@ This asymmetry with the astore instruction is intentional.
 The astore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a two-byte unsigned index.
  */
 /*58 (0x3A)*/
-func ASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	index := f.index8()
+func ASTORE(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex8()
 
 	value := f.pop()
 	switch value.(type) {
@@ -246,13 +246,13 @@ Each of the istore_<n> instructions is the same as istore with an index of <n>, 
  */
 
 /*59 (0x3B)*/
-func ISTORE_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ISTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Int))
 	f.nextPc()
 }
 
 /*60 (0x3C)*/
-func ISTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ISTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Int))
 	f.nextPc()
 }
@@ -260,13 +260,13 @@ func ISTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 
 
 /*61 (0x3D)*/
-func ISTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ISTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, assertIntCompatible(f.pop()))
 	f.nextPc()
 }
 
 /*62 (0x3E)*/
-func ISTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ISTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, assertIntCompatible(f.pop()))
 	f.nextPc()
 }
@@ -309,25 +309,25 @@ and the local variables at <n> and <n>+1 are set to value.
 Each of the lstore_<n> instructions is the same as lstore with an index of <n>, except that the operand <n> is implicit.
  */
 /*63 (0x3F)*/
-func LSTORE_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Long))
 	f.nextPc()
 }
 
 /*64 (0x40)*/
-func LSTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LSTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Long))
 	f.nextPc()
 }
 
 /*65 (0x41)*/
-func LSTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LSTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, f.pop().(Long))
 	f.nextPc()
 }
 
 /*66 (0x42)*/
-func LSTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LSTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, f.pop().(Long))
 	f.nextPc()
 }
@@ -371,25 +371,25 @@ Notes
 Each of the fstore_<n> instructions is the same as fstore with an index of <n>, except that the operand <n> is implicit.
  */
 /*67 (0x43)*/
-func FSTORE_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Float))
 	f.nextPc()
 }
 
 /*68 (0x44)*/
-func FSTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FSTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Float))
 	f.nextPc()
 }
 
 /*69 (0x45)*/
-func FSTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FSTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, f.pop().(Float))
 	f.nextPc()
 }
 
 /*70 (0x46)*/
-func FSTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FSTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, f.pop().(Float))
 	f.nextPc()
 }
@@ -433,25 +433,25 @@ The local variables at <n> and <n>+1 are set to value'.
 Each of the dstore_<n> instructions is the same as dstore with an index of <n>, except that the operand <n> is implicit.
  */
 /*71 (0x47)*/
-func DSTORE_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Double))
 	f.nextPc()
 }
 
 /*72 (0x48)*/
-func DSTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DSTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Double))
 	f.nextPc()
 }
 
 /*73 (0x49)*/
-func DSTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DSTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, f.pop().(Double))
 	f.nextPc()
 }
 
 /*74 (0x4A)*/
-func DSTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DSTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, f.pop().(Double))
 	f.nextPc()
 }
@@ -500,7 +500,7 @@ Each of the astore_<n> instructions is the same as astore with an index of <n>, 
  */
 
 /*75 (0x4B)*/
-func ASTORE_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ASTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
 	case Reference: f.storeVar(0, value.(Reference))
@@ -510,7 +510,7 @@ func ASTORE_0(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*76 (0x4C)*/
-func ASTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ASTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
 	case Reference: f.storeVar(1, value.(Reference))
@@ -520,7 +520,7 @@ func ASTORE_1(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*77 (0x4D)*/
-func ASTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ASTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
 	case Reference: f.storeVar(2, value.(Reference))
@@ -530,7 +530,7 @@ func ASTORE_2(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*78 (0x4E)*/
-func ASTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func ASTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
 	case Reference: f.storeVar(3, value.(Reference))
@@ -540,7 +540,7 @@ func ASTORE_3(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*79 (0x4F)*/
-func IASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func IASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -550,7 +550,7 @@ func IASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*80 (0x50)*/
-func LASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func LASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -560,7 +560,7 @@ func LASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*81 (0x51)*/
-func FASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func FASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -570,7 +570,7 @@ func FASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*82 (0x52)*/
-func DASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func DASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Double)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -580,7 +580,7 @@ func DASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*83 (0x53)*/
-func AASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func AASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(ObjectRef)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -590,7 +590,7 @@ func AASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*84 (0x54)*/
-func BASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func BASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
@@ -600,7 +600,7 @@ func BASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*85 (0x55)*/
-func CASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func CASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 
@@ -611,7 +611,7 @@ func CASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*86 (0x56)*/
-func SASTORE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
+func SASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)

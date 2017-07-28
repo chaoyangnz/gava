@@ -1,47 +1,31 @@
 package jago
 
 /*196 (0xC4)*/
-func WIDE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	wide_opcode := m.code[f.pc+1]
+func WIDE(t *Thread, f *Frame, c *Class, m *Method) {
+	wide_opcode := f.operandUByte()
+
 	instruction := instructions[wide_opcode]
+	EXEC_LOG.Debug("\t%s", instruction.mnemonic)
+
 	switch instruction.mnemonic {
 	case "iload", "fload", "aload", "lload", "dload":
-		indexbyte1 := m.code[f.pc+2]
-		indexbyte2 := m.code[f.pc+3]
-
-		index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
-		EXEC_LOG.Debug("\t%s\t#%d", instruction.mnemonic, index)
+		index := f.operandIndex16()
 
 		f.push(f.loadVar(uint(index)))
 		f.offsetPc(4)
 	case "istore", "fstore", "astore", "lstore", "dstore":
-		indexbyte1 := m.code[f.pc+2]
-		indexbyte2 := m.code[f.pc+3]
-
-		index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
-		EXEC_LOG.Debug("\t%s\t#%d", instruction.mnemonic, index)
+		index := f.operandIndex16()
 
 		f.storeVar(uint(index), f.pop())
 		f.offsetPc(4)
 	case "ret":
-		indexbyte1 := m.code[f.pc+2]
-		indexbyte2 := m.code[f.pc+3]
+		/*index :=*/ f.operandIndex16()
 
-		index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
-		EXEC_LOG.Debug("\t%s\t#%d", instruction.mnemonic, index)
 		// IGNORE
-
 		f.offsetPc(4)
 	case "iinc":
-		indexbyte1 := m.code[f.pc+2]
-		indexbyte2 := m.code[f.pc+3]
-		constbyte1 := m.code[f.pc+4]
-		constbyte2 := m.code[f.pc+5]
-
-		index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
-		const_value := int16(uint16(constbyte1) << 8 | uint16(constbyte2))
-
-		EXEC_LOG.Debug("\t%s\t#%d\t%d", instruction.mnemonic, index, const_value)
+		index := f.operandIndex16()
+		const_value := f.operandConst16()
 
 		value := f.loadVar(uint(index)).(Int)
 		f.storeVar(uint(index), value + Int(const_value))
@@ -52,15 +36,14 @@ func WIDE(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*197 (0xC5)*/
-func MULTIANEWARRAY(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	indexbyte1 := m.code[f.pc+1]
-	indexbyte2 := m.code[f.pc+2]
-	dimensions := m.code[f.pc+3]
+func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
+	index := f.operandIndex16()
+	dimensions := f.operandUByte()
 
 	if dimensions < 1 {
 		Fatal("The dimension of multi-dimensional array must be >= 1")
 	}
-	index := uint16(indexbyte1) << 8 | uint16(indexbyte2)
+
 
 	EXEC_LOG.Debug("\t%d\t dim %d:", index, dimensions)
 
@@ -97,8 +80,8 @@ func newMultiDimensioalArray(counts []Int, class *Class) ArrayRef {
 }
 
 /*198 (0xC6)*/
-func IFNULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFNULL(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 
 	value := f.pop().(Reference)
 
@@ -110,8 +93,8 @@ func IFNULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*199 (0xC7)*/
-func IFNONNULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	offset := f.offset16()
+func IFNONNULL(t *Thread, f *Frame, c *Class, m *Method) {
+	offset := f.operandOffset16()
 
 	value := f.pop().(Reference)
 
@@ -123,11 +106,11 @@ func IFNONNULL(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
 }
 
 /*200 (0xC8)*/
-func GOTO_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	Fatal("Not implemented for opcode %d\n", opcode)
+func GOTO_W(t *Thread, f *Frame, c *Class, m *Method) {
+	Fatal("Not implemented for opcode %d\n", f.opcode())
 }
 
 /*201 (0xC9)*/
-func JSR_W(opcode uint8, t *Thread, f *Frame, c *Class, m *Method) {
-	Fatal("Not implemented for opcode %d\n", opcode)
+func JSR_W(t *Thread, f *Frame, c *Class, m *Method) {
+	Fatal("Not implemented for opcode %d\n", f.opcode())
 }

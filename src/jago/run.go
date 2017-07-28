@@ -2,19 +2,38 @@ package jago
 
 import (
 	"os"
+	"strconv"
+	"github.com/jtolds/gls"
 )
 
+var thread_id_key = gls.GenSym()
 type ThreadManager struct {
-	currentThread *Thread
+	contextManager *gls.ContextManager
 }
 
-func (this *ThreadManager) NewThread(name string) *Thread {
-	thread := &Thread{
-			name: name,
-			vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE)}
-	this.currentThread = thread
+func (this *ThreadManager) current() *Thread {
+	if v, ok := this.contextManager.GetValue(thread_id_key); ok {
+		return v.(*Thread)
+	}
 
-	thread.threadObject = NewJavaLangThread()
+	Bug("Cannot get current thread")
+	return nil
+}
+
+func (this *ThreadManager) NewThread(name string, run func(thread *Thread)) *Thread {
+	thread := &Thread{
+	name: name,
+	vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE)}
+
+	if tid, ok := gls.GetGoroutineId(); ok {
+		thread.id = tid
+	}
+
+	// must set last
+	this.contextManager.SetValues(gls.Values{thread_id_key: thread}, func() {
+		thread.threadObject = NewJavaLangThread()
+		run(thread)
+	})
 	return thread
 }
 
@@ -42,7 +61,7 @@ type Thread struct {
 func (this *Thread) RunTo(frame *Frame)  {
 
 	for { // per stack frame
-		f := this.peekFrame()
+		f := this.current()
 		if f == nil || f == frame {
 			break
 		}
@@ -54,21 +73,21 @@ func (this *Thread) runFrame(f *Frame)  {
 
 	bytecode := f.method.code
 	if f.pc == 0 {
-		EXEC_LOG.Info("\n%s🍏%s", __indent(this, f), f.method.Qualifier())
+		EXEC_LOG.Info("\n%s🍏%s", repeat("\t", this.indexOf(f)), f.method.Qualifier())
 	}
 
 	for f.pc < len(f.method.code) {
 		pc := f.pc
 		opcode := bytecode[pc]
 		instruction := instructions[opcode]
-		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", __indent(this, f), int(pc), instruction.mnemonic)
+		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
 		intercept(f)
-		this.execute(f, opcode, instruction)
+		this.execute(f, instruction)
 		// jump instruction can operate pc
 		// some instruction also have variable length: tableswitch...
 		// these instructions will control pc themselves
 		// if instruction operates the stack, we follow it
-		if len(this.vmStack) == 0 || f != this.peekFrame() {
+		if len(this.vmStack) == 0 || f != this.current() {
 			break
 		}
 		if pc == f.pc {
@@ -77,7 +96,7 @@ func (this *Thread) runFrame(f *Frame)  {
 	}
 }
 
-func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
+func (this *Thread) execute(f *Frame, instruction Instruction) {
 	defer func() { // handle exception here !!!
 		r := recover()
 		if r != nil {
@@ -87,23 +106,23 @@ func (this *Thread) execute(f *Frame, opcode uint8, instruction Instruction) {
 				for i := len(this.vmStack)-1; i >= 0; i-- {
 					frame := this.vmStack[i]
 					if caught, handlePc := tryCatch(frame, throwable); caught {
-						frame.pc = handlePc // move pc
+						frame.jumpPc(handlePc) // move pc
 						LOG.Trace("exception handler found in %s for throwable %s", frame.method.Signature(), throwable.Class().Name())
 						frame.clear()
 						frame.push(throwable)
 						return
 					} else {
-						this.popFrame()
+						this.pop()
 					}
 				}
 
 				// handle uncaught exception
-				handleUncaughtException(throwable)
+				this.handleUncaughtException(throwable)
 			}
 		}
 	}()
 
-	instruction.interpret(opcode, this, f, f.method.class, f.method)
+	instruction.interpret(this, f, f.method.class, f.method)
 }
 
 func tryCatch(frame *Frame, throwable Reference) (bool, int) {
@@ -123,13 +142,13 @@ func tryCatch(frame *Frame, throwable Reference) (bool, int) {
 	return false, -1
 }
 
-func handleUncaughtException(throwable Reference)  {
+func (this *Thread) handleUncaughtException(throwable Reference)  {
 	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 	detailMessageStr := ""
 	if !detailMessage.IsNull() {
 		detailMessageStr = detailMessage.toNativeString()
 	}
-	JavaErrPrintf("\nException in thread \"main\" %s: %s\n", throwable.Class().Name(), detailMessageStr)
+	JavaErrPrintf("\nException in thread \"%s\" #%d %s : %s\n", this.name, this.id, throwable.Class().Name(), detailMessageStr)
 
 	stacktrace := throwable.GetExtra()
 	if stacktrace != nil {
@@ -145,26 +164,12 @@ func intercept(f *Frame)  {
 
 }
 
-func __indent(thread *Thread, frame *Frame) string {
-	var index int
-	for i, f := range thread.vmStack {
-		if f == frame {
-			index = i
-		}
-	}
-
-	str := ""
-	for i:=0; i < index; i++ {
-		str += "\t"
-	}
-	return str
-}
-
 type Frame struct {
 	method *Method
 	// if this frame is current frame, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc int
+	pos int // operand pos: internal use only. For an instruction, initially it always starts from pc. Each time read an operand, it advanced.
 	// long and double will occupy two variable indexes
 	localVariables      []Value
 	// operand stack
@@ -176,20 +181,29 @@ type Frame struct {
 func (this *Frame) nextPc()  {
 	opcode := this.method.code[this.pc]
 	this.pc += JVM_OPCODE_LENGTH_INITIALIZER[opcode]
+	this.pos = this.pc + 1
 }
 
 func (this *Frame) offsetPc(offset int16)  {
 	this.pc += int(offset)
+	this.pos = this.pc + 1
 }
 
-func (this *Frame) offsetPcW(offset int32)  {
+func (this *Frame) offsetPc32(offset int32)  {
 	this.pc += int(offset)
+	this.pos = this.pc + 1
+}
+
+func (this *Frame) jumpPc(to int)  {
+	this.pc = to
+	this.pos = this.pc + 1
 }
 
 func NewStackFrame(method *Method) *Frame {
 	stackFrame := &Frame{
 		method: method,
 		pc: 0,
+		pos: 1, // all opcode is 1 byte, then operand starts with 1
 		localVariables: make([]Value, method.maxLocals), // local variables have no initial values
 		operandStack: make([]Value, 0, method.maxStack)}
 	return stackFrame
@@ -208,31 +222,103 @@ func (this *Frame) storeVar(index uint, value Value)  {
 	this.localVariables[index] = value
 }
 
-func (this *Frame) const8(pos int) int8 {
-	constant := int8(this.method.code[this.pc + pos])
+func (this *Frame) opcode() uint8 {
+	return this.method.code[this.pc]
+}
+
+/*
+padding operand start pos to multiply of 4
+ */
+func (this *Frame) operandPadding() {
+	var start int
+	for i:= 0; i <=3; i++ {
+		if (this.pos+i) % 4 == 0 {
+			start = this.pos +i
+			break;
+		}
+	}
+	this.pos = start
+}
+
+func (this *Frame) operandConst8() int8 {
+	constant := int8(this.method.code[this.pos])
 	EXEC_LOG.Debug("\t%d", constant)
+	this.pos += 1
 	return constant
 }
 
-func (this *Frame) index8() uint8 {
-	index := uint8(this.method.code[this.pc+1])
+func (this *Frame) operandConst16() int16 {
+	constbyte1 := this.method.code[this.pos]
+	constbyte2 := this.method.code[this.pos+1]
+	constant := int16(uint16(constbyte1) << 8 | uint16(constbyte2))
+	EXEC_LOG.Debug("\t%d", constant)
+	this.pos += 2
+	return constant
+}
+
+func (this *Frame) operandConst32() int32 {
+	constbyte1 := this.method.code[this.pos]
+	constbyte2 := this.method.code[this.pos+1]
+	constbyte3 := this.method.code[this.pos+2]
+	constbyte4 := this.method.code[this.pos+3]
+	constant := int32((uint32(constbyte1) << 24) | (uint32(constbyte2) << 16) | (uint32(constbyte3) << 8) | uint32(constbyte4))
+	EXEC_LOG.Debug("\t%d", constant)
+	this.pos += 4
+	return constant
+}
+
+func (this *Frame) operandIndex8() uint8 {
+	index := uint8(this.method.code[this.pos])
 	EXEC_LOG.Debug("\t#%d", index)
+	this.pos += 1
 	return index
 }
 
-func (this *Frame) index16() uint16 {
-	index := (uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2])
+func (this *Frame) operandIndex16() uint16 {
+	indexbyte1 := this.method.code[this.pos]
+	indexbyte2 := this.method.code[this.pos+1]
+	index := (uint16(indexbyte1) << 8) | uint16(indexbyte2)
 	EXEC_LOG.Debug("\t#%d", index)
+	this.pos += 2
 	return index
 }
 
-func (this *Frame) offset16() int16 {
-	offset := int16((uint16(this.method.code[this.pc+1]) << 8) | uint16(this.method.code[this.pc+2]))
-	EXEC_LOG.Debug("\t⤋%d", this.pc + int(offset))
+func (this *Frame) operandOffset16() int16 {
+	offsetbyte1 := this.method.code[this.pos]
+	offsetbyte2 := this.method.code[this.pos+1]
+
+	offset := int16((uint16(offsetbyte1) << 8) | uint16(offsetbyte2))
+	EXEC_LOG.Debug("\t⤋%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
+	this.pos += 2
 	return offset
 }
 
-func (this *Frame) params(callee *Method) []Value {
+func (this *Frame) operandOffset32() int32 {
+	offsetbyte1 := this.method.code[this.pos]
+	offsetbyte2 := this.method.code[this.pos+1]
+	offsetbyte3 := this.method.code[this.pos+2]
+	offsetbyte4 := this.method.code[this.pos+3]
+
+	offset := int32((uint32(offsetbyte1) << 24) | (uint32(offsetbyte2) << 16) | (uint32(offsetbyte3) << 8) | uint32(offsetbyte4))
+	EXEC_LOG.Debug("\t⤋%d (%s)", this.pc + int(offset), numberWithSign(offset))
+
+	this.pos += 4
+	return offset
+}
+
+//func (this *Frame) operandByte() int32 {
+//	byte := uint32(this.method.code[this.pos])
+//	this.pos += 1
+//	return int32(byte)
+//}
+
+func (this *Frame) operandUByte() uint8 {
+	byte := this.method.code[this.pos]
+	this.pos += 1
+	return byte
+}
+
+func (this *Frame) loadParameters(callee *Method) []Value {
 	parameterCount := len(callee.parameterDescriptors)
 	if !callee.isStatic() {
 		parameterCount += 1 // with an extra objectref: this
@@ -298,6 +384,28 @@ func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	objectref.SetInstanceVariable(Int(i), value)
 }
 
+func (this *Frame) getSourceFileAndLineNumber() string {
+	sourceFile := this.method.class.sourceFile
+	if sourceFile == "" {
+		sourceFile = "<Unknow>"
+	}
+	lineNumber := -1
+	lineNumbers := this.method.lineNumbers
+	for i := len(lineNumbers)-1; i >= 0; i-- {
+		entry := lineNumbers[i]
+		if this.pc >= entry.startPc {
+			lineNumber = int(entry.lineNumber)
+			break
+		}
+	}
+
+	linenum := ""
+	if lineNumber >= 0 {
+		linenum = strconv.FormatInt(int64(lineNumber), 10)
+	}
+	return "(" + sourceFile + ":" + linenum + ")"
+}
+
 func (this *Frame) push(value Value)  {
 	if value == nil { // check not-null
 		Bug("Operand stack should never contain nil")
@@ -330,7 +438,7 @@ func (this *Frame) peek() Value {
 	return Value
 }
 
-func (this *Thread) pushFrame(stackFrame *Frame)  {
+func (this *Thread) push(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
 		VM_throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
@@ -339,7 +447,7 @@ func (this *Thread) pushFrame(stackFrame *Frame)  {
 	this.vmStack[size] = stackFrame
 }
 
-func (this *Thread) popFrame()  {
+func (this *Thread) pop()  {
 	size := len(this.vmStack)
 	if size == 0 {
 		return
@@ -347,7 +455,7 @@ func (this *Thread) popFrame()  {
 	this.vmStack = this.vmStack[:size-1]
 }
 
-func (this *Thread) peekFrame() *Frame {
+func (this *Thread) current() *Frame {
 	size := len(this.vmStack)
 	if size == 0 {
 		return nil
@@ -357,27 +465,17 @@ func (this *Thread) peekFrame() *Frame {
 
 func (this *Thread) pushFrames(stackFrames ...*Frame)  {
 	for _, stackFrame := range stackFrames {
-		this.pushFrame(stackFrame)
+		this.push(stackFrame)
 	}
 }
 
-/**
-	Always add to tail: this can be used when system initialization
- */
-func (this *Thread) enqueueFrame(stackFrame *Frame)  {
-	size := len(this.vmStack)
-	if size == DEFAULT_VM_STACK_SIZE {
-		Fatal("Stack Overflow")
+func (this *Thread) indexOf(frame *Frame) int {
+	for i, f := range this.vmStack {
+		if f == frame {
+			return i
+		}
 	}
-	this.vmStack = this.vmStack[:size+1]
-	for i := size; i >= 1; i-- {
-		this.vmStack[i] = this.vmStack[i-1]
-	}
-	this.vmStack[0] = stackFrame
-}
 
-func (this *Thread) enqueueFrames(stackFrames ...*Frame)  {
-	for _, stackFrame := range stackFrames {
-		this.enqueueFrame(stackFrame)
-	}
+	Bug("Frame is not in the VM stack")
+	return -1
 }
