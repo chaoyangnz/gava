@@ -274,7 +274,7 @@ func (this *Frame) operandConst32() int32 {
 
 func (this *Frame) operandIndex8() uint8 {
 	index := uint8(this.method.code[this.pos])
-	EXEC_LOG.Debug("\t#%d", index)
+	EXEC_LOG.Debug("\t♯%d", index)
 	this.pos += 1
 	return index
 }
@@ -283,7 +283,7 @@ func (this *Frame) operandIndex16() uint16 {
 	indexbyte1 := this.method.code[this.pos]
 	indexbyte2 := this.method.code[this.pos+1]
 	index := (uint16(indexbyte1) << 8) | uint16(indexbyte2)
-	EXEC_LOG.Debug("\t#%d", index)
+	EXEC_LOG.Debug("\t♯%d", index)
 	this.pos += 2
 	return index
 }
@@ -293,7 +293,7 @@ func (this *Frame) operandOffset16() int16 {
 	offsetbyte2 := this.method.code[this.pos+1]
 
 	offset := int16((uint16(offsetbyte1) << 8) | uint16(offsetbyte2))
-	EXEC_LOG.Debug("\t⤋%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
+	EXEC_LOG.Debug("\t»%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
 	this.pos += 2
 	return offset
 }
@@ -305,7 +305,7 @@ func (this *Frame) operandOffset32() int32 {
 	offsetbyte4 := this.method.code[this.pos+3]
 
 	offset := int32((uint32(offsetbyte1) << 24) | (uint32(offsetbyte2) << 16) | (uint32(offsetbyte3) << 8) | uint32(offsetbyte4))
-	EXEC_LOG.Debug("\t⤋%d (%s)", this.pc + int(offset), numberWithSign(offset))
+	EXEC_LOG.Debug("\t»%d (%s)", this.pc + int(offset), numberWithSign(offset))
 
 	this.pos += 4
 	return offset

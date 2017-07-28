@@ -7,10 +7,6 @@ import (
 	"os"
 )
 
-func _isClinit(method *Method) bool {
-	return method.name == "<clinit>" && method.descriptor == "()V"
-}
-
 func VM_invokeMethod(className string, methodName string, methodDescriptor string, params ... Value)  {
 	class := BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_ACCESS_MEMBER)
 	method := class.GetMethod(methodName, methodDescriptor)
@@ -124,6 +120,22 @@ func VM_iHashCode(ref Reference) Int {
 		return Int(0)
 	}
 	return ref.oop.header.hashCode
+}
+
+func VM_clone(obj Reference) Reference {
+
+	var clone Reference
+	if !obj.Class().IsArray() {
+		clone = obj.Class().NewObject().(Reference)
+	} else {
+		clone = obj.Class().NewArray(obj.Length()).(Reference)
+	}
+
+	for i,value := range obj.oop.values {
+		clone.oop.values[i] = value
+	}
+
+	return clone
 }
 
 func VM_intern_String(stringobj JavaLangString) JavaLangString {

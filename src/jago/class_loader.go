@@ -22,26 +22,38 @@ func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
 }
 
 const (
-	TRIGGER_BY_JAVA_REFLECTION    = "java reflection from name"
-	TRIGGER_BY_CHECK_OBJECT_TYPE  = "check java object type"
-	TRIGGER_BY_AS_SUPERCLASS      = "as superclass"
-	TRIGGER_BY_AS_SUPER_INTERFACE = "as superinterface"
-	TRIGGER_BY_AS_ARRAY_COMPONENT = "as array component"
-	TRIGGER_BY_RESOLVE_CLASS_REF  = "revolve symbol_ref in constant pool"
-	TRIGGER_BY_NEW_INSTANCE       = "new instance"
-	TRIGGER_BY_ACCESS_MEMBER      = "access field or method"
+
 )
 
-func (this *ClassLoader) CreateClass(className string, triggerReason string) *Class {
+type ClassTriggerReason struct {
+	code string
+	desc string
+}
+
+var (
+	TRIGGER_BY_JAVA_REFLECTION    = &ClassTriggerReason{"JR", "java reflection from name"}
+	TRIGGER_BY_CHECK_OBJECT_TYPE  = &ClassTriggerReason{"CT", "check java object type"}
+	TRIGGER_BY_AS_SUPERCLASS      = &ClassTriggerReason{"SC", "as superclass"}
+	TRIGGER_BY_AS_SUPER_INTERFACE = &ClassTriggerReason{"SI", "as superinterface"}
+	TRIGGER_BY_AS_ARRAY_COMPONENT = &ClassTriggerReason{"AC", "as array component"}
+	TRIGGER_BY_RESOLVE_CLASS_REF  = &ClassTriggerReason{"RR", "revolve symbol_ref in constant pool"}
+	TRIGGER_BY_NEW_INSTANCE       = &ClassTriggerReason{"NI", "new instance"}
+	TRIGGER_BY_ACCESS_MEMBER      = &ClassTriggerReason{"AM", "access field or method"}
+)
+
+func (this *ClassLoader) CreateClass(className string, triggerReason *ClassTriggerReason) *Class {
 	return this.internalCreateClass(className, true, triggerReason)
 }
 
-func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool, triggerReason string) *Class {
+func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool, triggerReason *ClassTriggerReason) *Class {
 	if class, found := this.classCache[className]; found {
 		return class
 	}
 
-	CLASSLOAD_LOG.Debug(repeat("\t", this.depth) + "↳ %s (reason: %s)\n", className, triggerReason)
+	CLASSLOAD_LOG.Debug(repeat("\t", this.depth) + "↳ %s ", className)
+	CLASSLOAD_LOG.Debug("(reason: %s", triggerReason.code)
+	CLASSLOAD_LOG.Trace(" - %s", triggerReason.desc)
+	CLASSLOAD_LOG.Debug(")\n")
 	this.depth++
 
 	var class *Class

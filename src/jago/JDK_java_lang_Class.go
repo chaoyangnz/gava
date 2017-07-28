@@ -3,29 +3,29 @@ package jago
 import "strings"
 
 func register_java_lang_Class() {
-	register("java/lang/Class.registerNatives()V", Java_jang_lang_Class_registerNatives)
-	register("java/lang/Class.getPrimitiveClass(Ljava/lang/String;)Ljava/lang/Class;", Java_java_lang_Class_getPrimitiveClass)
-	register("java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z", Java_java_lang_Class_desiredAssertionStatus0)
-	register("java/lang/Class.getDeclaredFields0(Z)[Ljava/lang/reflect/Field;", Java_java_lang_Class_getDeclaredFields0)
-	register("java/lang/Class.isPrimitive()Z", Java_java_lang_Class_isPrimitive)
-	register("java/lang/Class.isAssignableFrom(Ljava/lang/Class;)Z", Java_java_lang_Class_isAssignableFrom)
-	register("java/lang/Class.getName0()Ljava/lang/String;", Java_java_lang_Class_getName0)
-	register("java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;", Java_java_lang_Class_forName0)
-	register("java/lang/Class.isInterface()Z", Java_java_lang_Class_isInterface)
-	register("java/lang/Class.getDeclaredConstructors0(Z)[Ljava/lang/reflect/Constructor;", Java_java_lang_Class_getDeclaredConstructors0)
-	register("java/lang/Class.getModifiers()I", Java_java_lang_Class_getModifiers)
-	register("java/lang/Class.getSuperclass()Ljava/lang/Class;", Java_java_lang_Class_getSuperclass)
-	register("java/lang/Class.isArray()Z", Java_java_lang_Class_isArray)
-	register("java/lang/Class.getComponentType()Ljava/lang/Class;", Java_java_lang_Class_getComponentType)
-	register("java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;", Java_java_lang_Class_getEnclosingMethod0)
-	register("java/lang/Class.getDeclaringClass0()Ljava/lang/Class;", Java_java_lang_Class_getDeclaringClass0)
+	register("java/lang/Class.registerNatives()V", JDK_jang_lang_Class_registerNatives)
+	register("java/lang/Class.getPrimitiveClass(Ljava/lang/String;)Ljava/lang/Class;", JDK_java_lang_Class_getPrimitiveClass)
+	register("java/lang/Class.desiredAssertionStatus0(Ljava/lang/Class;)Z", JDK_java_lang_Class_desiredAssertionStatus0)
+	register("java/lang/Class.getDeclaredFields0(Z)[Ljava/lang/reflect/Field;", JDK_java_lang_Class_getDeclaredFields0)
+	register("java/lang/Class.isPrimitive()Z", JDK_java_lang_Class_isPrimitive)
+	register("java/lang/Class.isAssignableFrom(Ljava/lang/Class;)Z", JDK_java_lang_Class_isAssignableFrom)
+	register("java/lang/Class.getName0()Ljava/lang/String;", JDK_java_lang_Class_getName0)
+	register("java/lang/Class.forName0(Ljava/lang/String;ZLjava/lang/ClassLoader;Ljava/lang/Class;)Ljava/lang/Class;", JDK_java_lang_Class_forName0)
+	register("java/lang/Class.isInterface()Z", JDK_java_lang_Class_isInterface)
+	register("java/lang/Class.getDeclaredConstructors0(Z)[Ljava/lang/reflect/Constructor;", JDK_java_lang_Class_getDeclaredConstructors0)
+	register("java/lang/Class.getModifiers()I", JDK_java_lang_Class_getModifiers)
+	register("java/lang/Class.getSuperclass()Ljava/lang/Class;", JDK_java_lang_Class_getSuperclass)
+	register("java/lang/Class.isArray()Z", JDK_java_lang_Class_isArray)
+	register("java/lang/Class.getComponentType()Ljava/lang/Class;", JDK_java_lang_Class_getComponentType)
+	register("java/lang/Class.getEnclosingMethod0()[Ljava/lang/Object;", JDK_java_lang_Class_getEnclosingMethod0)
+	register("java/lang/Class.getDeclaringClass0()Ljava/lang/Class;", JDK_java_lang_Class_getDeclaringClass0)
 }
 
 // private static void registerNatives()
-func Java_jang_lang_Class_registerNatives()  {}
+func JDK_jang_lang_Class_registerNatives()  {}
 
 // static Class getPrimitiveClass(String name)
-func Java_java_lang_Class_getPrimitiveClass(name JavaLangString) JavaLangClass {
+func JDK_java_lang_Class_getPrimitiveClass(name JavaLangString) JavaLangClass {
 	switch name.toNativeString() {
 	case "byte": return BYTE_TYPE.ClassObject()
 	case "short": return SHORT_TYPE.ClassObject()
@@ -42,13 +42,13 @@ func Java_java_lang_Class_getPrimitiveClass(name JavaLangString) JavaLangClass {
 }
 
 // private static boolean desiredAssertionStatus0(Class javaClass)
-func Java_java_lang_Class_desiredAssertionStatus0(clazz JavaLangClass) Boolean {
+func JDK_java_lang_Class_desiredAssertionStatus0(clazz JavaLangClass) Boolean {
 	// Always disable assertions
 	return FALSE
 }
 
 
-func Java_java_lang_Class_getDeclaredFields0(this JavaLangClass, publicOnly Boolean) ArrayRef {
+func JDK_java_lang_Class_getDeclaredFields0(this JavaLangClass, publicOnly Boolean) ArrayRef {
 	class := this.GetExtra().(*Class)
 	fields := class.GetDeclaredFields(publicOnly.IsTrue())
 	fieldObjectArr := NewArray("[Ljava/lang/reflect/Field;", Int(len(fields)))
@@ -59,7 +59,7 @@ func Java_java_lang_Class_getDeclaredFields0(this JavaLangClass, publicOnly Bool
 	return fieldObjectArr
 }
 
-func Java_java_lang_Class_isPrimitive(this JavaLangClass) Boolean {
+func JDK_java_lang_Class_isPrimitive(this JavaLangClass) Boolean {
 	type_ := this.GetExtra().(Type)
 	if _, ok := type_.(*Class); ok {
 		return FALSE
@@ -67,7 +67,7 @@ func Java_java_lang_Class_isPrimitive(this JavaLangClass) Boolean {
 	return TRUE
 }
 
-func Java_java_lang_Class_isAssignableFrom(this JavaLangClass, cls JavaLangClass) Boolean {
+func JDK_java_lang_Class_isAssignableFrom(this JavaLangClass, cls JavaLangClass) Boolean {
 	thisClass := this.GetExtra().(*Class)
 	clsClass := cls.GetExtra().(*Class)
 
@@ -78,25 +78,25 @@ func Java_java_lang_Class_isAssignableFrom(this JavaLangClass, cls JavaLangClass
 	return assignable
 }
 
-func Java_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
+func JDK_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
 	classNameJavaStyle := strings.Replace(this.Class().name, "/", ".", -1)
 
 	return NewJavaLangString(classNameJavaStyle)
 }
 
-func Java_java_lang_Class_forName0(name JavaLangString, initialize Boolean, loader JavaLangClassLoader, caller JavaLangClass) JavaLangClass {
+func JDK_java_lang_Class_forName0(name JavaLangString, initialize Boolean, loader JavaLangClassLoader, caller JavaLangClass) JavaLangClass {
 	className := strings.Replace(name.toNativeString(), ".", "/", -1)
 	return BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 }
 
-func Java_java_lang_Class_isInterface(this JavaLangClass) Boolean {
+func JDK_java_lang_Class_isInterface(this JavaLangClass) Boolean {
 	if this.GetExtra().(*Class).IsInterface() {
 		return TRUE
 	}
 	return FALSE
 }
 
-func Java_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly Boolean) ArrayRef {
+func JDK_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly Boolean) ArrayRef {
 	class := this.GetExtra().(*Class)
 
 	constructors := class.GetConstructors(publicOnly.IsTrue())
@@ -109,11 +109,11 @@ func Java_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnl
 	return constructorArr
 }
 
-func Java_java_lang_Class_getModifiers(this JavaLangClass) Int {
+func JDK_java_lang_Class_getModifiers(this JavaLangClass) Int {
 	return Int(u16toi32((this.GetExtra().(*Class).accessFlags)))
 }
 
-func Java_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
+func JDK_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
 	class := this.GetExtra().(*Class)
 	if class.name == "java/lang/Object" {
 		return NULL
@@ -121,7 +121,7 @@ func Java_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
 	return class.superClass.ClassObject()
 }
 
-func Java_java_lang_Class_isArray(this JavaLangClass) Boolean {
+func JDK_java_lang_Class_isArray(this JavaLangClass) Boolean {
 	type0 := this.GetExtra().(Type)
 	switch type0.(type) {
 	case *Class:
@@ -132,7 +132,7 @@ func Java_java_lang_Class_isArray(this JavaLangClass) Boolean {
 	return FALSE
 }
 
-func Java_java_lang_Class_getComponentType(this JavaLangClass) JavaLangClass {
+func JDK_java_lang_Class_getComponentType(this JavaLangClass) JavaLangClass {
 	class := this.GetExtra().(*Class)
 	if !class.IsArray() {
 		Fatal("%s is not array type", this.Class().name)
@@ -141,13 +141,13 @@ func Java_java_lang_Class_getComponentType(this JavaLangClass) JavaLangClass {
 	return class.componentType.ClassObject()
 }
 
-func Java_java_lang_Class_getEnclosingMethod0(this JavaLangClass) ArrayRef {
+func JDK_java_lang_Class_getEnclosingMethod0(this JavaLangClass) ArrayRef {
 
 	//TODO
 	return NULL
 }
 
-func Java_java_lang_Class_getDeclaringClass0(this JavaLangClass) JavaLangClass {
+func JDK_java_lang_Class_getDeclaringClass0(this JavaLangClass) JavaLangClass {
 
 	//TODO
 	return NULL
