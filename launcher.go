@@ -8,6 +8,7 @@ import (
 	"github.com/urfave/cli"
 	"fmt"
 	"os"
+	"strings"
 )
 
 
@@ -73,7 +74,6 @@ func main()  {
 		}
 
 
-
 		if classpath != "" {
 			fmt.Printf("Add a new classpath: %s\n", classpath)
 			jago.SYS_CLASS_PATH += classpath
@@ -101,7 +101,7 @@ func main()  {
 
 		fmt.Println("------------------------------------------------------------\n")
 
-		jago.Startup(jagoClassName, jagoArgs...)
+		jago.Startup(strings.Replace(jagoClassName, ".", "/", -1), jagoArgs...)
 		return nil
 	}
 

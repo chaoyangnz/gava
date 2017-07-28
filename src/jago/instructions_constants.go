@@ -317,7 +317,7 @@ operand stack.
  */
 /*17 (0x11)*/
 func SIPUSH(t *Thread, f *Frame, c *Class, m *Method) {
-	s := Short(f.operandOffset16())
+	s := Short(f.operandConst16())
 	f.push(Int(s))
 	f.nextPc()
 }

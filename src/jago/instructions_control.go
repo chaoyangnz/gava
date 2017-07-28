@@ -53,8 +53,7 @@ func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 	defaultOffset := f.operandOffset32()
 	EXEC_LOG.Debug(" pairs: ")
 	npairs := f.operandConst32()
-
-	LOG.Trace("[lookupswitch] npairs: %d\n", npairs)
+	EXEC_LOG.Debug("\t[")
 
 	matches := make([]int32, npairs)
 	offsets := make([]int32, npairs)
@@ -63,11 +62,10 @@ func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 		match := f.operandConst32()
 		matches[n] = match
 
-		EXEC_LOG.Debug(" |-> ")
-
 		offset := f.operandOffset32()
 		offsets[n] = offset
 	}
+	EXEC_LOG.Debug("\t]")
 
 	key := f.pop().(Int)
 

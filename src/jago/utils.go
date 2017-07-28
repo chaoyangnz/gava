@@ -25,12 +25,8 @@ func u2s(u1s []u1) string {
 	return string(u2b(u1s))
 }
 
-func bytes2uint16(bytes []uint8) uint16 {
-	return uint16((bytes[0] << 8) | bytes[1])
-}
-
 func u16toi32(i uint16) int32 {
-	return int32(i)
+	return int32(uint32(i))
 }
 
 func numberWithSign(i int32) string {
