@@ -42,7 +42,7 @@ func VM_invokeMethod(method *Method, params ... Value) Value {
 		}
 		caller := thread.current()
 		thread.push(frame)
-		thread.Run()
+		thread.ExecuteFrame()
 
 
 		if frame.exception.IsNull() { // normal return
@@ -72,7 +72,7 @@ func VM_invokeMethod(method *Method, params ... Value) Value {
 		}
 
 		if len(params) != fun.Type().NumIn() {
-			Fatal( "The number of loadParameters is not adapted for native method %s %s.", staticDesc, method.Qualifier())
+			Fatal( "The size of parameters is not adapted for native method %s %s.", staticDesc, method.Qualifier())
 		}
 		in := make([]reflect.Value, len(params))
 		for k, param := range params {

@@ -40,3 +40,31 @@ func numberWithSign(i int32) string {
 func repeat(str string, times int) string {
 	return strings.Repeat(str, times)
 }
+
+type Block struct {
+	try     func()
+	catch   func(throwable Reference) // throwable never be nil
+	finally func()
+}
+
+func (tcf Block) Do() {
+	if tcf.finally != nil {
+		defer tcf.finally()
+	}
+	if tcf.catch != nil {
+		defer func() {
+			if r := recover(); r != nil {
+				if throwable, ok := r.(Reference); ok {
+					tcf.catch(throwable)
+				} else {
+					// otherwise, the whole project has non-throwable panic,
+					// But some 3rd-party package can panic other non-throwable
+					Bug("Jago project has never non-throwable panic. " +
+						"There is some 3rd-party package doing a non-throwable panic, check it. " +
+						"Original panic: \n%v", r)
+				}
+			}
+		}()
+	}
+	tcf.try()
+}

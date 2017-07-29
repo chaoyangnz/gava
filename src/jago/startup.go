@@ -11,16 +11,6 @@ func Startup(initialClassName string, args... string)  {
 	THREAD_MANAGER.NewThread("main", func(thread *Thread) {
 		// welcome to the Java world
 		// the Java journey starts here
-		defer func() { // finally check uncaught exception
-			r := recover()
-			if r != nil {
-				throwable, ok := r.(Reference)
-				if ok {
-					thread.handleUncaughtException(throwable)
-				}
-			}
-		}()
-
 		VM_invokeMethod0("java/lang/System", "initializeSystemClass", "()V")
 
 		// once system classes are initialized, set up the java.lang.Thread object
@@ -33,7 +23,6 @@ func Startup(initialClassName string, args... string)  {
 			argsArr.SetElement(Int(i), NewJavaLangString(arg))
 		}
 		VM_invokeMethod0(initialClassName, MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR, argsArr)
-	})
-
+	}).start()
 
 }

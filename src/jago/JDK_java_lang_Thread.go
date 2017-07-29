@@ -16,7 +16,10 @@ func JDK_java_lang_Thread_currentThread() JavaLangThread  {
 }
 
 func JDK_java_lang_Thread_setPriority0(this Reference, priority Int) {
-	//todo
+	if priority < 1 {
+		this.SetInstanceVariableByName("priority", "I", Int(5))
+	}
+
 }
 
 func JDK_java_lang_Thread_isAlive(this Reference) Boolean {
@@ -24,6 +27,11 @@ func JDK_java_lang_Thread_isAlive(this Reference) Boolean {
 }
 
 func JDK_java_lang_Thread_start0(this Reference) {
-	//todo
+	name := this.GetInstanceVariableByName("name", "Ljava/lang/String;").(JavaLangString).toNativeString()
+	runMethod := this.Class().GetMethod("run", "()V")
+
+	THREAD_MANAGER.NewThread(name, func(thread *Thread) {
+		VM_invokeMethod(runMethod, this)
+	})//.start()
 }
 

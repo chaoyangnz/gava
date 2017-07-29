@@ -182,6 +182,19 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 	objectref.values[field.index] = value
 }
 
+func (this Reference) dump() {
+	if !this.IsNull() {
+		LOG.Debug("Dump object (%s): {", this.Class().Name())
+		for _, field := range this.Class().fields {
+			if !field.IsStatic() {
+				value := this.GetInstanceVariable(Int(field.index))
+				LOG.Debug("\t%s: %v", field.name, value)
+			}
+		}
+		LOG.Debug("}\n")
+	}
+}
+
 func (this Reference) assertArray()  {
 	if this.IsNull() {
 		VM_throw("java/lang/NullPointerException", "")

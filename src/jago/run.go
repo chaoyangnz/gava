@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 	"github.com/jtolds/gls"
+	"sync"
 )
 
 var thread_id_key = gls.GenSym()
@@ -23,17 +24,36 @@ func (this *ThreadManager) current() *Thread {
 func (this *ThreadManager) NewThread(name string, run func(thread *Thread)) *Thread {
 	thread := &Thread{
 	name: name,
-	vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE)}
+	vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE),
+	started: false}
 
 	if tid, ok := gls.GetGoroutineId(); ok {
 		thread.id = tid
 	}
 
-	// must set last
-	this.contextManager.SetValues(gls.Values{thread_id_key: thread}, func() {
-		thread.threadObject = NewJavaLangThread(thread.name) // this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
-		run(thread)
-	})
+	thread.runBlock = Block{
+		func() { run(thread) },
+		func(throwable Reference)  {
+			EXEC_LOG.Info("\n💥Exception uncaught  in thread \"%s\", thus print stacktrace on stdout", thread.name)
+			detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
+			detailMessageStr := ""
+			if !detailMessage.IsNull() {
+				detailMessageStr = detailMessage.toNativeString()
+			}
+			VM_stderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, throwable.Class().Name(), detailMessageStr)
+
+			stacktrace := throwable.GetExtra()
+			if stacktrace != nil {
+				for _, stacktraceelement := range stacktrace.([]string) {
+					VM_stderrPrintf("\t at %s\n", stacktraceelement)
+				}
+			}
+
+			os.Exit(1)
+		},
+		func() {},
+	}
+
 	return thread
 }
 
@@ -44,8 +64,29 @@ type Thread struct {
 	id          uint
 	name        string
 	vmStack     []*Frame
+	runBlock    Block
+	started     bool
 
 	threadObject JavaLangThread
+}
+
+// start thread
+func (this *Thread) start()  {
+	if this.started {
+		return
+	}
+	// must set last
+	THREAD_MANAGER.contextManager.SetValues(gls.Values{thread_id_key: this}, func() { // thread.start()
+		var wg sync.WaitGroup
+		wg.Add(1)
+		gls.Go(func() {
+			defer wg.Done()
+			this.started = true
+			this.threadObject = NewJavaLangThread(this.name) // this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
+			this.runBlock.Do()
+		})
+		wg.Wait()
+	})
 }
 
 /*
@@ -59,7 +100,7 @@ type Thread struct {
 
 Only run one single frame
 */
-func (this *Thread) Run() /* this return is throwable if this method is return exceptionally, otherwise nil */{
+func (this *Thread) ExecuteFrame() /* this return is throwable if this method is return exceptionally, otherwise nil */{
 	f := this.current()
 	bytecode := f.method.code
 	if f.pc == 0 {
@@ -72,30 +113,10 @@ func (this *Thread) Run() /* this return is throwable if this method is return e
 		instruction := instructions[opcode]
 		EXEC_LOG.Trace("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
 		this.interceptBefore(f)
-		this.interpret(f, instruction)
-		this.interceptAfter(f)
-
-		if len(this.vmStack) == 0 || f != this.current() || !f.exception.IsNull() {
-			// 1) normal return and it's the last method
-			// 2) call another method
-			// 3) current method throws exception but has not caught this exception. To be rethrow in its caller
-			break
-		}
-		if pc == f.pc { // not jump
-			f.nextPc()
-		}
-		// otherwise normal jump or exception handle in current method: just go to!
-		// jump instruction can operate pc; some instruction also have variable length: tableswitch...
-		// these instructions will control pc themselves, if instruction operates the stack, we follow it
-	}
-}
-
-func (this *Thread) interpret(f *Frame, instruction Instruction) {
-	defer func() { // try catch exception here !!!
-		r := recover()
-		if r != nil {
-			throwable, ok := r.(Reference)
-			if ok {
+		// each instruction execution can throw exception
+		Block{
+			func() { instruction.interpret(this, f, f.method.class, f.method) },
+			func(throwable Reference) {
 				// try catch exception
 				caught := false
 				handlePc := -1
@@ -125,11 +146,24 @@ func (this *Thread) interpret(f *Frame, instruction Instruction) {
 					f.exception = throwable
 					this.pop()
 				}
-			}
-		}
-	}()
+			},
+			func() {},
+		}.Do()
+		this.interceptAfter(f)
 
-	instruction.interpret(this, f, f.method.class, f.method)
+		if len(this.vmStack) == 0 || f != this.current() || !f.exception.IsNull() {
+			// 1) normal return and it's the last method
+			// 2) call another method
+			// 3) current method throws exception but has not caught this exception. To be rethrow in its caller
+			break
+		}
+		if pc == f.pc { // not jump
+			f.nextPc()
+		}
+		// otherwise normal jump or exception handle in current method: just go to!
+		// jump instruction can operate pc; some instruction also have variable length: tableswitch...
+		// these instructions will control pc themselves, if instruction operates the stack, we follow it
+	}
 }
 
 func (this *Thread) interceptBefore(frame *Frame)  {
@@ -138,25 +172,6 @@ func (this *Thread) interceptBefore(frame *Frame)  {
 
 func (this *Thread) interceptAfter(frame *Frame)  {
 
-}
-
-func (this *Thread) handleUncaughtException(throwable Reference)  {
-	EXEC_LOG.Info("\n💥Exception uncaught  in thread \"%s\", thus print stacktrace on stdout", this.name)
-	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
-	detailMessageStr := ""
-	if !detailMessage.IsNull() {
-		detailMessageStr = detailMessage.toNativeString()
-	}
-	VM_stderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", this.name, this.id, throwable.Class().Name(), detailMessageStr)
-
-	stacktrace := throwable.GetExtra()
-	if stacktrace != nil {
-		for _, stacktraceelement := range stacktrace.([]string) {
-			VM_stderrPrintf("\t at %s\n", stacktraceelement)
-		}
-	}
-
-	os.Exit(1)
 }
 
 type Frame struct {
