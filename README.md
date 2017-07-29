@@ -212,8 +212,11 @@ Exception in thread "main" test/Exception2: this is exception 2
 
 ### log/execution.log 
 This log file records the each instruction execution and method call hierarchy. Set the log level to info to view call hierarchy more clearly.
+
 The blue diamond symbols 🔹 mean pure Java methods while the yellow ones 🔸 mean native methods which is implemented within Jago internally.
+
 The fire symbols 🔥 mean throwing exception (thrown by `athrow` bytecode, rethrown if uncaught or thrown by VM internally), the blue water symbols 💧 mean an exception is caught by a method.
+
 - TRACE: log all low level bytecode instructions, method call and exception thrown/caught
 - DEBUG: only method call and exception thrown/caught
 - INFO: only exception thrown/caught info
