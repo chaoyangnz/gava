@@ -4,9 +4,9 @@ import (
 	//"os"
 	"strconv"
 	"github.com/jtolds/gls"
-	"sync"
 	"github.com/orcaman/concurrent-map"
 	"fmt"
+	"time"
 )
 
 var thread_id_key = gls.GenSym()
@@ -31,7 +31,8 @@ func (this *ThreadManager) exitDaemonThreads()  {
 	for _, t := range this.threads.Items() {
 		thread := t.(*Thread)
 		if thread.daemon {
-			thread.interrupt()
+			LOG.Info("[thread]Thread '%s' interrupt \n", thread.name)
+			//thread.interrupt()
 		}
 	}
 }
@@ -47,25 +48,26 @@ func (this *ThreadManager) current() *Thread {
 }
 
 func (this *ThreadManager) RunBootstrapThread(run func()) {
-	thread := procreateThread("bootstrap", run, func(){})
+	thread := precreateThread("bootstrap", run, func(){})
 	thread.id = getGID()
 	THREAD_MANAGER.register(thread) // register to THREAD_MANAGER
 	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
 	thread.threadObject = NewJavaLangThread(thread.name)
 
 	thread.started = true
-	LOG.Info("Start to run bootstrap thread %s #%d\n", VM_currentThread().name, VM_currentThread().id)
+	LOG.Info("[thread]Start to run bootstrap thread %s #%d\n", VM_currentThread().name, VM_currentThread().id)
 
 	// start Java code execution
 	thread.runBlock.Do()
 }
 
-func procreateThread(name string, run func(), exitHook func()) *Thread {
+func precreateThread(name string, run func(), exitHook func()) *Thread {
 	thread := &Thread{
 		name: name,
 		vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE),
 		started: false,
-		cond: sync.NewCond(&sync.Mutex{}),
+		//cond: sync.NewCond(&sync.Mutex{}),
+		ch: make(chan int),
 	}
 
 	thread.runBlock = Block{
@@ -94,8 +96,14 @@ func procreateThread(name string, run func(), exitHook func()) *Thread {
 	return thread
 }
 
+const (
+	_start  = 0
+	_interrupt = 1
+	_timeout = 2
+)
+
 func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *Thread {
-	thread := procreateThread(name, run, exitHook)
+	thread := precreateThread(name, run, exitHook)
 
 	VM_WG.Add(1)
 	go func() {
@@ -103,21 +111,18 @@ func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *
 		thread.id = getGID() // set go routine id as thread id
 		THREAD_MANAGER.register(thread) // register to THREAD_MANAGER
 
-		thread.cond.L.Lock()
-		for !thread.started { // pause here to wait start command
-			LOG.Info("Created thread '%s' #%d but wait to start\n", VM_currentThread().name, VM_currentThread().id)
-			thread.cond.Wait()
+		// pause here to wait start command
+		for !thread.started {
+			LOG.Info("[thread]Created thread '%s' #%d but wait to start\n", VM_currentThread().name, VM_currentThread().id)
+			thread.started = <- thread.ch == _start
 		}
 
-		LOG.Info("Start thread '%s' #%d\n", VM_currentThread().name, VM_currentThread().id)
+		LOG.Info("[thread]Start thread '%s' #%d\n", VM_currentThread().name, VM_currentThread().id)
 		// start Java code execution
 		thread.runBlock.Do()
 
-		// unlock
-		thread.cond.L.Unlock()
-
 		// prepare to exit
-		LOG.Info("Exit thread '%s' %d \n", thread.name, thread.id)
+		LOG.Info("[thread]Exit thread '%s' %d \n", thread.name, thread.id)
 		this.unregister(thread)
 		VM_WG.Done()
 	}()
@@ -135,9 +140,11 @@ type Thread struct {
 	runBlock    Block
 	started     bool
 
+	ch          chan int
+
 	daemon      bool
 
-	cond        *sync.Cond
+	//cond        *sync.Cond
 
 	threadObject JavaLangThread
 }
@@ -149,27 +156,38 @@ func (this *Thread) start()  {
 	}
 
 
-	// ----- prepare java.lang.Thread object ----
-	// this construct object must be run in parent thread
+	if this.threadObject == nil {
+		// ----- prepare java.lang.Thread object ----
+		// this construct object must be run in parent thread
 
-	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
-	this.threadObject = NewJavaLangThread(this.name)
-	// once system classes are initialized, set up the java.lang.Thread object
-	threadConstructor := this.threadObject.Class().GetConstructor("(Ljava/lang/String;)V")
-	VM_invokeMethod(threadConstructor, this.threadObject, NewJavaLangString(this.name))
+		// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
+		this.threadObject = NewJavaLangThread(this.name)
+		// once system classes are initialized, set up the java.lang.Thread object
+		threadConstructor := this.threadObject.Class().GetConstructor("(Ljava/lang/String;)V")
+		VM_invokeMethod(threadConstructor, this.threadObject, NewJavaLangString(this.name))
+	}
 
 	// get daemon
-	this.daemon = this.threadObject.GetInstanceVariableByName("daemon", "Z").(Int).ToBoolean().IsTrue()
+	this.daemon = this.threadObject.GetInstanceVariableByName("daemon", "Z").(Boolean).IsTrue()
 
 	// signal to run thread
-	this.cond.L.Lock()
-	this.started = true
-	this.cond.Signal()
-	this.cond.L.Unlock()
+	this.ch <- _start
 }
 
 func (this *Thread) interrupt()  {
-	// TODO
+	this.ch <- _interrupt
+}
+
+func (this *Thread) sleep(timeout time.Duration) bool {
+	go func() {
+		time.Sleep(timeout)
+
+		this.ch <- _timeout
+	}()
+
+	interrupted := <- this.ch == _interrupt
+
+	return interrupted
 }
 
 /*
@@ -480,6 +498,9 @@ func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
 func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	field := this.method.class.constantPool[index].(*FieldRef).ResolvedField()
 	i := field.index
+	if field.descriptor == "Z" {
+		value = value.(Int).ToBoolean()
+	}
 	objectref.SetInstanceVariable(Int(i), value)
 }
 
@@ -534,11 +555,11 @@ func (this *Frame) clear()  {
 	this.operandStack = make([]Value, 0, this.method.maxStack)
 }
 
-func (this *Frame) peek() Value {
-	operandStackSize := len(this.operandStack)
-	Value := this.operandStack[operandStackSize-1]
-	return Value
-}
+//func (this *Frame) peek() Value {
+//	operandStackSize := len(this.operandStack)
+//	Value := this.operandStack[operandStackSize-1]
+//	return Value
+//}
 
 /*
 Should be called only by VM_invokeMethod(..)

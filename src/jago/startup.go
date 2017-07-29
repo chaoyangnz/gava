@@ -27,7 +27,7 @@ func Startup(initialClassName string, args... string)  {
 			VM_invokeMethod0(initialClassName, MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR, argsArr)
 		},
 		func() {
-
+			THREAD_MANAGER.exitDaemonThreads()
 		}).start()
 	})
 
