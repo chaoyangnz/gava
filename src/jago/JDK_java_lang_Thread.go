@@ -12,7 +12,7 @@ func register_java_lang_Thread() {
 func JDK_jang_lang_Thread_registerNatives()  {}
 
 func JDK_java_lang_Thread_currentThread() JavaLangThread  {
-	return VM_getCurrentThread().threadObject
+	return VM_currentThread().threadObject
 }
 
 func JDK_java_lang_Thread_setPriority0(this Reference, priority Int) {

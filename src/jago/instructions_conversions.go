@@ -36,7 +36,6 @@ func I2L(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	f.push(Long(value))
-	f.nextPc()
 }
 
 /*
@@ -75,7 +74,6 @@ func I2F(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	f.push(Float(value))
-	f.nextPc()
 }
 
 /*
@@ -112,7 +110,6 @@ func I2D(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	f.push(Double(value))
-	f.nextPc()
 }
 
 /*
@@ -152,7 +149,6 @@ func L2I(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 
 	f.push(Int(value)) // truncate to 32 bits
-	f.nextPc()
 }
 
 /*
@@ -191,7 +187,6 @@ func L2F(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 
 	f.push(Float(value))
-	f.nextPc()
 }
 
 /*
@@ -230,7 +225,6 @@ func L2D(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 
 	f.push(Double(value))
-	f.nextPc()
 }
 
 /*
@@ -277,7 +271,6 @@ func F2I(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
 
 	f.push(Int(int32(float32(value))))
-	f.nextPc()
 }
 
 /*
@@ -367,7 +360,6 @@ func F2D(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
 
 	f.push(Double(float64(value))) // TODO ????
-	f.nextPc()
 }
 
 /*
@@ -417,7 +409,6 @@ func D2I(t *Thread, f *Frame, c *Class, m *Method) {
 
 	// round how to?? TODO
 	f.push(Int(value))
-	f.nextPc()
 }
 
 /*
@@ -465,7 +456,6 @@ func D2L(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Double)
 
 	f.push(Long(int64(value)))
-	f.nextPc()
 }
 
 /*
@@ -552,7 +542,6 @@ func I2B(t *Thread, f *Frame, c *Class, m *Method) {
 
 	b := Byte(value) // truncate to 8 bits
 	f.push(Int(b)) // // sign-extended
-	f.nextPc()
 }
 
 /*
@@ -592,7 +581,6 @@ func I2C(t *Thread, f *Frame, c *Class, m *Method) {
 
 	ch := Char(int16(value)) // truncate to 16 bits
 	f.push(Int(ch)) // 0-extended
-	f.nextPc()
 }
 
 /*
@@ -632,5 +620,4 @@ func I2S(t *Thread, f *Frame, c *Class, m *Method) {
 
 	s := Short(value) // truncate to 16 bits
 	f.push(Int(s)) // sign-extended
-	f.nextPc()
 }

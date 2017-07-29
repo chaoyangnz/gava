@@ -37,7 +37,6 @@ two-byte unsigned index.
 func ILOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Int))
-	f.nextPc()
 }
 
 /*
@@ -77,7 +76,6 @@ two-byte unsigned index.
 func LLOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Long))
-	f.nextPc()
 }
 
 /*
@@ -117,7 +115,6 @@ two-byte unsigned index.
 func FLOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Float))
-	f.nextPc()
 }
 
 /*
@@ -156,7 +153,6 @@ two-byte unsigned index.
 func DLOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Double))
-	f.nextPc()
 }
 
 /*
@@ -199,7 +195,6 @@ two-byte unsigned index.
 func ALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.push(f.loadVar(uint(index)).(Reference))
-	f.nextPc()
 }
 
 /*
@@ -242,25 +237,21 @@ Each of the iload_<n> instructions is the same as iload with an index of <n>, ex
 /*26 (0x1A)*/
 func ILOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(0)))
-	f.nextPc()
 }
 
 /*27 (0x1B)*/
 func ILOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(1)))
-	f.nextPc()
 }
 
 /*28 (0x1C)*/
 func ILOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(2)))
-	f.nextPc()
 }
 
 /*29 (0x1D)*/
 func ILOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(intCompatible(f.loadVar(3)))
-	f.nextPc()
 }
 
 /*
@@ -303,25 +294,21 @@ Each of the lload_<n> instructions is the same as lload with an index of <n>, ex
 /*30 (0x1E)*/
 func LLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Long))
-	f.nextPc()
 }
 
 /*31 (0x1F)*/
 func LLOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Long))
-	f.nextPc()
 }
 
 /*32 (0x20)*/
 func LLOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Long))
-	f.nextPc()
 }
 
 /*33 (0x21)*/
 func LLOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(uint(3)).(Long))
-	f.nextPc()
 }
 
 /*
@@ -364,25 +351,21 @@ Each of the fload_<n> instructions is the same as fload with an index of <n>, ex
 /*34 (0x22)*/
 func FLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Float))
-	f.nextPc()
 }
 
 /*35 (0x23)*/
 func FLOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Float))
-	f.nextPc()
 }
 
 /*36 (0x24)*/
 func FLOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Float))
-	f.nextPc()
 }
 
 /*37 (0x25)*/
 func FLOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Float))
-	f.nextPc()
 }
 
 /*
@@ -425,25 +408,21 @@ Each of the dload_<n> instructions is the same as dload with an index of <n>, ex
 /*38 (0x26)*/
 func DLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Double))
-	f.nextPc()
 }
 
 /*39 (0x27)*/
 func DLOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Double))
-	f.nextPc()
 }
 
 /*40 (0x28)*/
 func DLOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Double))
-	f.nextPc()
 }
 
 /*41 (0x29)*/
 func DLOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Double))
-	f.nextPc()
 }
 
 /*
@@ -489,25 +468,21 @@ Each of the aload_<n> instructions is the same as aload with an index of <n>, ex
 /*42 (0x2A)*/
 func ALOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(0).(Reference))
-	f.nextPc()
 }
 
 /*43 (0x2B)*/
 func ALOAD_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(1).(Reference))
-	f.nextPc()
 }
 
 /*44 (0x2C)*/
 func ALOAD_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(2).(Reference))
-	f.nextPc()
 }
 
 /*45 (0x2D)*/
 func ALOAD_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(f.loadVar(3).(Reference))
-	f.nextPc()
 }
 
 /*
@@ -559,7 +534,6 @@ func IALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Int))
-	f.nextPc()
 }
 
 /*
@@ -610,7 +584,6 @@ func LALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Long))
-	f.nextPc()
 }
 
 /*
@@ -661,7 +634,6 @@ func FALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Float))
-	f.nextPc()
 }
 
 /*
@@ -714,7 +686,6 @@ func DALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Double))
-	f.nextPc()
 }
 
 /*
@@ -766,7 +737,6 @@ func AALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "")
 	}
 	f.push(arrayref.GetElement(index).(Reference))
-	f.nextPc()
 }
 
 /*
@@ -832,7 +802,6 @@ func BALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 		b := arrayref.GetElement(index).(Boolean)
 		f.push(Int(b)) // sign-extended
 	}
-	f.nextPc()
 }
 
 /*
@@ -885,7 +854,6 @@ func CALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 	ch := arrayref.GetElement(index).(Char)
 	f.push(Int(ch)) //zero-extended to an int value
-	f.nextPc()
 }
 
 /*
@@ -937,5 +905,4 @@ func SALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 	s := arrayref.GetElement(index).(Short)
 	f.push(Int(s)) // sign-extended to an int value
-	f.nextPc()
 }

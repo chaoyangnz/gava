@@ -18,7 +18,7 @@ func VM_invokeMethod0(className string, methodName string, methodDescriptor stri
 //		Bug("Void method don't need to return, use VM_invokeMethod() instead")
 //	}
 //	VM_invokeMethod(method, params...)
-//	thread := VM_getCurrentThread()
+//	thread := VM_currentThread()
 //	return thread.current().pop()
 //}
 
@@ -26,7 +26,7 @@ func VM_invokeMethod0(className string, methodName string, methodDescriptor stri
 This method is used to run a method and return value (even void method return a void value)
  */
 func VM_invokeMethod(method *Method, params ... Value) Value {
-	thread := VM_getCurrentThread()
+	thread := VM_currentThread()
 	if !method.isNative() {
 		frame := NewStackFrame(method)
 		i := 0
@@ -41,17 +41,25 @@ func VM_invokeMethod(method *Method, params ... Value) Value {
 			}
 		}
 		caller := thread.current()
-		thread.pushFrames(frame)
+		thread.push(frame)
 		thread.Run()
 
-		if method.returnDescriptor != JVM_SIGNATURE_VOID {
-			return caller.pop()
+
+		if frame.exception.IsNull() { // normal return
+			if method.returnDescriptor != JVM_SIGNATURE_VOID {
+				return caller.pop() // if non-normal return, here will return a throwable
+			}
+		} else {
+			// must be exception caught method
+			VM_Throw0(frame.exception, THROWN_BY_RETHROW) // rethrow
+			return VOID
 		}
+
 	} else {
 		if !method.isNative() {
 			Fatal("%s Not a native method", method.Qualifier())
 		}
-		EXEC_LOG.Info("\n%s\t🍎%s", repeat("\t", thread.indexOf(thread.current())), method.Qualifier())
+		EXEC_LOG.Debug("\n%s\t🔸%s", repeat("\t", thread.indexOf(thread.current())), method.Qualifier())
 
 		fun, found := findNative(method.Qualifier())
 
@@ -89,7 +97,7 @@ func VM_invokeMethod(method *Method, params ... Value) Value {
 	return VOID
 }
 
-func VM_getCurrentThread() *Thread {
+func VM_currentThread() *Thread {
 	return THREAD_MANAGER.current()
 }
 
@@ -163,15 +171,24 @@ func VM_intern_String(stringobj JavaLangString) JavaLangString {
 	}
 }
 
+const (
+	THROWN_BY_ATHROW         = "thrown by \"athrow\"" // ATHROW instruction
+	THROWN_BY_RETHROW       = "rethrown"
+	THROWN_BY_VM            = "thrown by VM"
+)
 /*
 The whole project should use panic only here !!!!!
  */
-func VM_Throw0(throwable Reference)  {
+func VM_Throw0(throwable Reference, thrownReason string)  {
+	thread := VM_currentThread()
+	if thread.current() != nil {
+		EXEC_LOG.Info("\n%s🔥Exception %s: %s at %s", repeat("\t", thread.indexOf(thread.current())+1), thrownReason, throwable.Class().name, thread.current().method.Qualifier())
+	}
 	panic(throwable)
 }
 
 func VM_throw(exception string, message string, args ...interface{})  {
-	VM_Throw0(NewThrowable(exception, message, args...))
+	VM_Throw0(NewThrowable(exception, message, args...), THROWN_BY_VM)
 }
 
 func VM_stdoutPrintf(format string, args ...interface{})  {

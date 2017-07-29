@@ -16,23 +16,22 @@ func JSR(t *Thread, f *Frame, c *Class, m *Method) {
 func RET(t *Thread, f *Frame, c *Class, m *Method) {
 	/*index := */f.operandIndex8()
 	// IGNORE
-	f.nextPc()
 }
 
 /*170 (0xAA)*/
 func TABLESWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 	f.operandPadding()
 
-	EXEC_LOG.Debug(" default:")
+	EXEC_LOG.Trace(" default:")
 	defaultOffset := f.operandOffset32()
-	EXEC_LOG.Debug(" low-high: ")
+	EXEC_LOG.Trace(" low-high: ")
 	low := f.operandConst32()
-	EXEC_LOG.Debug(" ~ ")
+	EXEC_LOG.Trace(" ~ ")
 	high := f.operandConst32()
 
 	offsets := make([]int32, high - low + 1)
 	for n:=0; n < int(high - low + 1); n++ {
-		EXEC_LOG.Debug(" %d: ", int(low) + n)
+		EXEC_LOG.Trace(" %d: ", int(low) + n)
 		offsets[n] = f.operandOffset32()
 	}
 
@@ -49,11 +48,11 @@ func TABLESWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 	f.operandPadding()
 
-	EXEC_LOG.Debug(" default: ")
+	EXEC_LOG.Trace(" default: ")
 	defaultOffset := f.operandOffset32()
-	EXEC_LOG.Debug(" pairs: ")
+	EXEC_LOG.Trace(" pairs: ")
 	npairs := f.operandConst32()
-	EXEC_LOG.Debug("\t[")
+	EXEC_LOG.Trace("\t[")
 
 	matches := make([]int32, npairs)
 	offsets := make([]int32, npairs)
@@ -65,7 +64,7 @@ func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 		offset := f.operandOffset32()
 		offsets[n] = offset
 	}
-	EXEC_LOG.Debug("\t]")
+	EXEC_LOG.Trace("\t]")
 
 	key := f.pop().(Int)
 
@@ -89,7 +88,6 @@ func IRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
 	f.passReturn(t.current())
-	f.nextPc()
 }
 
 /*173 (0xAD)*/
@@ -97,7 +95,6 @@ func LRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
 	f.passReturn(t.current())
-	f.nextPc()
 }
 
 /*174 (0xAE)*/
@@ -105,7 +102,6 @@ func FRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
 	f.passReturn(t.current())
-	f.nextPc()
 }
 
 /*175 (0xAF)*/
@@ -113,7 +109,6 @@ func DRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
 	f.passReturn(t.current())
-	f.nextPc()
 }
 
 /*176 (0xB0)*/
@@ -121,12 +116,10 @@ func ARETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
 	f.passReturn(t.current())
-	f.nextPc()
 }
 
 /*177 (0xB1)*/
 func RETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// no return
-	f.nextPc()
 }
