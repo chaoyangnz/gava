@@ -115,7 +115,7 @@ func (this *Thread) interpret(f *Frame, instruction Instruction) {
 				}
 
 				if caught {
-					EXEC_LOG.Info("\n%s💦Exception caught: %s at %s", repeat("\t", this.indexOf(f)+1), throwable.Class().name, f.method.Qualifier())
+					EXEC_LOG.Info("\n%s💧Exception caught: %s at %s", repeat("\t", this.indexOf(f)+1), throwable.Class().name, f.method.Qualifier())
 					f.jumpPc(handlePc) // move pc
 					f.clear()
 					f.push(throwable)
@@ -141,6 +141,7 @@ func (this *Thread) interceptAfter(frame *Frame)  {
 }
 
 func (this *Thread) handleUncaughtException(throwable Reference)  {
+	EXEC_LOG.Info("\n💥Exception uncaught  in thread \"%s\", thus print stacktrace on stdout", this.name)
 	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 	detailMessageStr := ""
 	if !detailMessage.IsNull() {
