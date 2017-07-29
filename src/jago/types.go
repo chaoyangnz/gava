@@ -201,7 +201,7 @@ func (this *Class) NewObject() ObjectRef {
 	//this.Link()
 
 	object := &Object{}
-	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32())}
+	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32()), monitor: NewMonitor()}
 	object.values = make([]Value, this.maxInstanceVars)
 	// Initialize instance variables
 	class := this
@@ -243,7 +243,7 @@ func (this *Class) NewArray(length Int) ArrayRef {
 	}
 
 	object := &Object{}
-	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32())}
+	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32()), monitor: NewMonitor()}
 	object.values = elements
 
 	return Reference{object}

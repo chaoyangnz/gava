@@ -222,14 +222,21 @@ func INSTANCEOF(t *Thread, f *Frame, c *Class, m *Method) {
 
 /*194 (0xC2)*/
 func MONITORENTER(t *Thread, f *Frame, c *Class, m *Method) {
-	/*objectref := */f.pop()
+	objectref := f.pop().(Reference)
+	if objectref.IsNull() {
+		VM_throw("java/lang/NullPointerException", "")
+	}
 
-	//LOG.Warn("Not implemented for opcode %d\n", opcode)
+	objectref.Monitor().Enter(VM_currentThread())
 }
 
 /*195 (0xC3)*/
 func MONITOREXIT(t *Thread, f *Frame, c *Class, m *Method) {
-	/*objectref := */f.pop()
+	objectref := f.pop().(Reference)
 
-	//LOG.Warn("Not implemented for opcode %d\n", opcode)
+	if objectref.IsNull() {
+		VM_throw("java/lang/NullPointerException", "")
+	}
+
+	objectref.Monitor().Exit(VM_currentThread())
 }
