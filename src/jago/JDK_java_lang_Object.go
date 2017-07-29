@@ -6,6 +6,7 @@ func register_java_lang_Object() {
 	register("java/lang/Object.getClass()Ljava/lang/Class;", JDK_java_lang_Object_getClass)
 	register("java/lang/Object.clone()Ljava/lang/Object;", JDK_java_lang_Object_clone)
 	register("java/lang/Object.notifyAll()V", JDK_java_lang_Object_notifyAll)
+	register("java/lang/Object.wait(J)V", JDK_java_lang_Object_wait)
 }
 
 // private static void registerNatives()
@@ -29,5 +30,9 @@ func JDK_java_lang_Object_clone(this Reference) Reference {
 }
 
 func JDK_java_lang_Object_notifyAll(this Reference) {
+	// DO NOTHING
+}
+
+func JDK_java_lang_Object_wait(this ObjectRef, timeout Long) {
 	// DO NOTHING
 }

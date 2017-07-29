@@ -14,7 +14,7 @@ const MISC_LOG_FILE  = "log/misc.log"
 const EXEC_LOG_FILE = "log/execution.log"
 const CLASSLOAD_LOG_FILE = "log/classload.log"
 
-var LOG = NewLog("misc", INFO, MISC_LOG_FILE)
+var LOG = NewLog("misc", DEBUG, MISC_LOG_FILE)
 var EXEC_LOG = NewLog("execution", INFO, EXEC_LOG_FILE)
 var CLASSLOAD_LOG = NewLog("classload", INFO, CLASSLOAD_LOG_FILE)
 
