@@ -36,7 +36,6 @@ The istore opcode can be used in conjunction with the wide instruction (§wide) 
 func ISTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Int))
-	f.nextPc()
 }
 
 /*
@@ -73,7 +72,6 @@ The lstore opcode can be used in conjunction with the wide instruction (§wide) 
 func LSTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Long))
-	f.nextPc()
 }
 
 /*
@@ -114,7 +112,6 @@ two-byte unsigned index.
 func FSTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Float))
-	f.nextPc()
 }
 
 /*
@@ -155,7 +152,6 @@ two-byte unsigned index.
 func DSTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
 	f.storeVar(uint(index), f.pop().(Double))
-	f.nextPc()
 }
 
 /*
@@ -204,7 +200,6 @@ func ASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	case Reference: f.storeVar(uint(index), value.(Reference))
 	case ReturnAddress: f.storeVar(uint(index), value.(ReturnAddress))
 	}
-	f.nextPc()
 }
 
 /*
@@ -248,13 +243,11 @@ Each of the istore_<n> instructions is the same as istore with an index of <n>, 
 /*59 (0x3B)*/
 func ISTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Int))
-	f.nextPc()
 }
 
 /*60 (0x3C)*/
 func ISTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Int))
-	f.nextPc()
 }
 
 
@@ -262,13 +255,11 @@ func ISTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 /*61 (0x3D)*/
 func ISTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, assertIntCompatible(f.pop()))
-	f.nextPc()
 }
 
 /*62 (0x3E)*/
 func ISTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, assertIntCompatible(f.pop()))
-	f.nextPc()
 }
 
 /*
@@ -311,25 +302,21 @@ Each of the lstore_<n> instructions is the same as lstore with an index of <n>, 
 /*63 (0x3F)*/
 func LSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Long))
-	f.nextPc()
 }
 
 /*64 (0x40)*/
 func LSTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Long))
-	f.nextPc()
 }
 
 /*65 (0x41)*/
 func LSTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, f.pop().(Long))
-	f.nextPc()
 }
 
 /*66 (0x42)*/
 func LSTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, f.pop().(Long))
-	f.nextPc()
 }
 
 /*
@@ -373,25 +360,21 @@ Each of the fstore_<n> instructions is the same as fstore with an index of <n>, 
 /*67 (0x43)*/
 func FSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Float))
-	f.nextPc()
 }
 
 /*68 (0x44)*/
 func FSTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Float))
-	f.nextPc()
 }
 
 /*69 (0x45)*/
 func FSTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, f.pop().(Float))
-	f.nextPc()
 }
 
 /*70 (0x46)*/
 func FSTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, f.pop().(Float))
-	f.nextPc()
 }
 
 /*
@@ -435,25 +418,21 @@ Each of the dstore_<n> instructions is the same as dstore with an index of <n>, 
 /*71 (0x47)*/
 func DSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Double))
-	f.nextPc()
 }
 
 /*72 (0x48)*/
 func DSTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Double))
-	f.nextPc()
 }
 
 /*73 (0x49)*/
 func DSTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(2, f.pop().(Double))
-	f.nextPc()
 }
 
 /*74 (0x4A)*/
 func DSTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(3, f.pop().(Double))
-	f.nextPc()
 }
 
 /*
@@ -506,7 +485,6 @@ func ASTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	case Reference: f.storeVar(0, value.(Reference))
 	case ReturnAddress: f.storeVar(0, value.(ReturnAddress))
 	}
-	f.nextPc()
 }
 
 /*76 (0x4C)*/
@@ -516,7 +494,6 @@ func ASTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	case Reference: f.storeVar(1, value.(Reference))
 	case ReturnAddress: f.storeVar(1, value.(ReturnAddress))
 	}
-	f.nextPc()
 }
 
 /*77 (0x4D)*/
@@ -526,7 +503,6 @@ func ASTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	case Reference: f.storeVar(2, value.(Reference))
 	case ReturnAddress: f.storeVar(2, value.(ReturnAddress))
 	}
-	f.nextPc()
 }
 
 /*78 (0x4E)*/
@@ -536,7 +512,6 @@ func ASTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	case Reference: f.storeVar(3, value.(Reference))
 	case ReturnAddress: f.storeVar(3, value.(ReturnAddress))
 	}
-	f.nextPc()
 }
 
 /*79 (0x4F)*/
@@ -546,7 +521,6 @@ func IASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, value)
 	//TODO check component type and boundary
-	f.nextPc()
 }
 
 /*80 (0x50)*/
@@ -556,7 +530,6 @@ func LASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, value)
 	//TODO check component type and boundary
-	f.nextPc()
 }
 
 /*81 (0x51)*/
@@ -566,7 +539,6 @@ func FASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, value)
 	//TODO check component type and boundary
-	f.nextPc()
 }
 
 /*82 (0x52)*/
@@ -576,7 +548,6 @@ func DASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, value)
 	//TODO check component type and boundary
-	f.nextPc()
 }
 
 /*83 (0x53)*/
@@ -586,7 +557,6 @@ func AASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, value)
 	//TODO check component type, boundary and subtypes
-	f.nextPc()
 }
 
 /*84 (0x54)*/
@@ -596,7 +566,6 @@ func BASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, Byte(value))
 	//TODO check component type and boundary
-	f.nextPc()
 }
 
 /*85 (0x55)*/
@@ -607,7 +576,6 @@ func CASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, Char(value))
 	//TODO check component type and boundary
-	f.nextPc()
 }
 
 /*86 (0x56)*/
@@ -617,5 +585,4 @@ func SASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	arrayref := f.pop().(ArrayRef)
 	arrayref.SetElement(index, Short(value))
 	//TODO check component type and boundary
-	f.nextPc()
 }

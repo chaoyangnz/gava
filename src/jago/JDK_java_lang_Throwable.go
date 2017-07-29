@@ -10,7 +10,7 @@ func register_java_lang_Throwable() {
 }
 
 func JDK_jang_lang_Throwable_fillInStackTrace(this Reference, dummy Int) Reference {
-	thread := VM_getCurrentThread()
+	thread := VM_currentThread()
 
 	size := len(thread.vmStack) - this.Class().inheritanceDepth() // skip how many frames
 	//backtrace := NewArray("[Ljava/lang/String;", Int(size))

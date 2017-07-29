@@ -42,8 +42,6 @@ func LCMP(t *Thread, f *Frame, c *Class, m *Method) {
 	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
-
-	f.nextPc()
 }
 
 /*
@@ -106,8 +104,6 @@ func FCMPL(t *Thread, f *Frame, c *Class, m *Method) {
 	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
-
-	f.nextPc()
 }
 
 /*150 (0x96)*/
@@ -124,8 +120,6 @@ func FCMPG(t *Thread, f *Frame, c *Class, m *Method) {
 	} else if value1 < value2 {
 		f.push(Int(-1))
 	}
-
-	f.nextPc()
 }
 
 /*
@@ -189,7 +183,6 @@ func DCMPL(t *Thread, f *Frame, c *Class, m *Method) {
 		f.push(Int(-1))
 	}
 
-	f.nextPc()
 }
 
 /*152 (0x98)*/
@@ -207,7 +200,6 @@ func DCMPG(t *Thread, f *Frame, c *Class, m *Method) {
 		f.push(Int(-1))
 	}
 
-	f.nextPc()
 }
 
 /*
@@ -269,8 +261,6 @@ func IFEQ(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value == 0 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -281,8 +271,6 @@ func IFNE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value != 0 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -293,8 +281,6 @@ func IFLT(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value < 0 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -305,8 +291,6 @@ func IFGE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value >= 0 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -317,8 +301,6 @@ func IFGT(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value > 0 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -329,8 +311,6 @@ func IFLE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value <= 0 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -395,8 +375,6 @@ func IF_ICMPEQ(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1 == value2 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -408,8 +386,6 @@ func IF_ICMPNE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1 != value2 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -421,8 +397,6 @@ func IF_ICMPLT(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1 < value2 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -434,8 +408,6 @@ func IF_ICMPGE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1 >= value2 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -447,8 +419,6 @@ func IF_ICMPGT(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1 > value2 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -460,8 +430,6 @@ func IF_ICMPLE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1 <= value2 {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -515,8 +483,6 @@ func IF_ACMPEQ(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value1.IsEqual(value2) {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -528,7 +494,5 @@ func IF_ACMPNE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if !value1.IsEqual(value2) {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }

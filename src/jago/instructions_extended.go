@@ -5,7 +5,7 @@ func WIDE(t *Thread, f *Frame, c *Class, m *Method) {
 	wide_opcode := f.operandUByte()
 
 	instruction := instructions[wide_opcode]
-	EXEC_LOG.Debug("\t%s", instruction.mnemonic)
+	EXEC_LOG.Trace("\t%s", instruction.mnemonic)
 
 	switch instruction.mnemonic {
 	case "iload", "fload", "aload", "lload", "dload":
@@ -45,7 +45,7 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 
 
-	EXEC_LOG.Debug("\t%d\t dim %d:", index, dimensions)
+	EXEC_LOG.Trace("\t%d\t dim %d:", index, dimensions)
 
 	counts := make([]Int, dimensions)
 	for j:= int(dimensions-1); j >= 0; j-- {
@@ -53,7 +53,7 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		if counts[j] < 0 {
 			VM_throw("java/lang/NegativeArraySizeException", "Array size cannot be negative")
 		}
-		EXEC_LOG.Debug("\t%d", counts[j])
+		EXEC_LOG.Trace("\t%d", counts[j])
 	}
 
 	class := c.constantPool[index].(*ClassRef).ResolvedClass()
@@ -62,7 +62,6 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 
 	f.push(newMultiDimensioalArray(counts, class))
-	f.nextPc()
 }
 
 func newMultiDimensioalArray(counts []Int, class *Class) ArrayRef {
@@ -87,8 +86,6 @@ func IFNULL(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if value.IsNull() {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 
@@ -100,8 +97,6 @@ func IFNONNULL(t *Thread, f *Frame, c *Class, m *Method) {
 
 	if !value.IsNull() {
 		f.offsetPc(offset)
-	} else {
-		f.nextPc()
 	}
 }
 

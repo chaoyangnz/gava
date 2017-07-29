@@ -3,7 +3,6 @@ package jago
 /*87 (0x57)*/
 func POP(t *Thread, f *Frame, c *Class, m *Method) {
 	f.pop()
-	f.nextPc()
 }
 
 /*88 (0x58)*/
@@ -16,7 +15,6 @@ func DUP(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	f.push(value)
 	f.push(value)
-	f.nextPc()
 }
 
 /*90 (0x5A)*/
@@ -26,7 +24,6 @@ func DUP_X1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(value1)
 	f.push(value2)
 	f.push(value1)
-	f.nextPc()
 }
 
 /*91 (0x5B)*/
@@ -48,7 +45,6 @@ func DUP2(t *Thread, f *Frame, c *Class, m *Method) {
 		f.push(value2)
 		f.push(value1)
 	}
-	f.nextPc()
 }
 
 /*93 (0x5D)*/
@@ -67,5 +63,4 @@ func SWAP(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop()
 	f.push(value1)
 	f.push(value2)
-	f.nextPc()
 }

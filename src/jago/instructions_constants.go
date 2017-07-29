@@ -3,7 +3,6 @@ package jago
 /*00 (0x00)*/
 func NOP(t *Thread, f *Frame, c *Class, m *Method) {
 
-	f.nextPc()
 }
 
 /*01 (0x01)*/
@@ -38,7 +37,6 @@ The Java Virtual Machine does not mandate a concrete value for NULL.
  */
 func ACONST_NULL(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(NULL)
-	f.nextPc()
 }
 
 /*
@@ -86,43 +84,36 @@ Each of this family of instructions is equivalent to bipush <i> for the respecti
 /*02 (0x02)*/
 func ICONST_M1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(-1))
-	f.nextPc()
 }
 
 /*03 (0x03)*/
 func ICONST_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(0))
-	f.nextPc()
 }
 
 /*04 (0x04)*/
 func ICONST_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(1))
-	f.nextPc()
 }
 
 /*05 (0x05)*/
 func ICONST_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(2))
-	f.nextPc()
 }
 
 /*06 (0x06)*/
 func ICONST_3(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(3))
-	f.nextPc()
 }
 
 /*07 (0x07)*/
 func ICONST_4(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(4))
-	f.nextPc()
 }
 
 /*08 (0x08)*/
 func ICONST_5(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Int(5))
-	f.nextPc()
 }
 
 /*
@@ -156,13 +147,11 @@ Push the long constant <l> (0 or 1) onto the operand stack.
 /*09 (0x09)*/
 func LCONST_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Long(0))
-	f.nextPc()
 }
 
 /*10 (0x0A)*/
 func LCONST_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Long(1))
-	f.nextPc()
 }
 
 /*
@@ -198,19 +187,16 @@ Push the float constant <f> (0.0, 1.0, or 2.0) onto the operand stack.
 /*11 (0x0B)*/
 func FCONST_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Float(0.0))
-	f.nextPc()
 }
 
 /*12 (0x0C)*/
 func FCONST_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Float(1.0))
-	f.nextPc()
 }
 
 /*13 (0x0D)*/
 func FCONST_2(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Float(2.0))
-	f.nextPc()
 }
 
 /*
@@ -244,13 +230,11 @@ Push the double constant <d> (0.0 or 1.0) onto the operand stack.
 /*14 (0x0E)*/
 func DCONST_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Double(0.0))
-	f.nextPc()
 }
 
 /*15 (0x0F)*/
 func DCONST_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(Double(1.0))
-	f.nextPc()
 }
 
 /*
@@ -283,7 +267,6 @@ The immediate byte is sign-extended to an int value. That value is pushed onto t
 func BIPUSH(t *Thread, f *Frame, c *Class, m *Method) {
 	b := f.operandConst8()
 	f.push(Int(b))
-	f.nextPc()
 }
 
 /*
@@ -319,7 +302,6 @@ operand stack.
 func SIPUSH(t *Thread, f *Frame, c *Class, m *Method) {
 	s := Short(f.operandConst16())
 	f.push(Int(s))
-	f.nextPc()
 }
 
 /*
@@ -395,7 +377,6 @@ func LDC(t *Thread, f *Frame, c *Class, m *Method) {
 	default:
 		VM_throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
-	f.nextPc()
 }
 
 /*
@@ -476,7 +457,6 @@ func LDC_W(t *Thread, f *Frame, c *Class, m *Method) {
 	default:
 		VM_throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
-	f.nextPc()
 }
 
 /*
@@ -531,5 +511,4 @@ func LDC2_W(t *Thread, f *Frame, c *Class, m *Method) {
 	default:
 		VM_throw("java/lang/UnknownError", "Not long or double in constant pool")
 	}
-	f.nextPc()
 }

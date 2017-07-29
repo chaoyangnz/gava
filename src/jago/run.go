@@ -59,56 +59,72 @@ type Thread struct {
 
 Only run one single frame
 */
-func (this *Thread) Run()  {
+func (this *Thread) Run() /* this return is throwable if this method is return exceptionally, otherwise nil */{
 	f := this.current()
 	bytecode := f.method.code
 	if f.pc == 0 {
-		EXEC_LOG.Info("\n%s🍏%s", repeat("\t", this.indexOf(f)), f.method.Qualifier())
+		EXEC_LOG.Debug("\n%s🔹%s", repeat("\t", this.indexOf(f)), f.method.Qualifier())
 	}
 
 	for f.pc < len(f.method.code) {
 		pc := f.pc
 		opcode := bytecode[pc]
 		instruction := instructions[opcode]
-		EXEC_LOG.Debug("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
+		EXEC_LOG.Trace("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
 		this.interceptBefore(f)
-		this.execute(f, instruction)
+		this.interpret(f, instruction)
 		this.interceptAfter(f)
-		// jump instruction can operate pc
-		// some instruction also have variable length: tableswitch...
-		// these instructions will control pc themselves
-		// if instruction operates the stack, we follow it
-		if len(this.vmStack) == 0 || f != this.current() {
+
+		if len(this.vmStack) == 0 || f != this.current() || !f.exception.IsNull() {
+			// 1) normal return and it's the last method
+			// 2) call another method
+			// 3) current method throws exception but has not caught this exception. To be rethrow in its caller
 			break
 		}
-		if pc == f.pc {
-			Bug("Dead loop or forget to call nextPc() for instruction %s", instruction.mnemonic)
+		if pc == f.pc { // not jump
+			f.nextPc()
 		}
+		// otherwise normal jump or exception handle in current method: just go to!
+		// jump instruction can operate pc; some instruction also have variable length: tableswitch...
+		// these instructions will control pc themselves, if instruction operates the stack, we follow it
 	}
 }
 
-func (this *Thread) execute(f *Frame, instruction Instruction) {
-	defer func() { // handle exception here !!!
+func (this *Thread) interpret(f *Frame, instruction Instruction) {
+	defer func() { // try catch exception here !!!
 		r := recover()
 		if r != nil {
 			throwable, ok := r.(Reference)
 			if ok {
 				// try catch exception
-				for i := len(this.vmStack)-1; i >= 0; i-- {
-					frame := this.vmStack[i]
-					if caught, handlePc := frame.tryCatch(throwable); caught {
-						frame.jumpPc(handlePc) // move pc
-						LOG.Trace("exception handler found in %s for throwable %s", frame.method.Signature(), throwable.Class().Name())
-						frame.clear()
-						frame.push(throwable)
-						return
-					} else {
-						this.pop()
+				caught := false
+				handlePc := -1
+				for _, exception := range f.method.exceptions {
+					if f.pc >= exception.startPc && f.pc < exception.endPc {
+						if exception.catchType == 0 { // catch-all
+							caught, handlePc = true, exception.handlerPc
+							break
+						} else {
+							catchType := f.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
+							if catchType.IsAssignableFrom(throwable.Class()) {
+								caught, handlePc = true, exception.handlerPc
+								break
+							}
+						}
 					}
 				}
 
-				// handle uncaught exception
-				this.handleUncaughtException(throwable)
+				if caught {
+					EXEC_LOG.Info("\n%s💦Exception caught: %s at %s", repeat("\t", this.indexOf(f)+1), throwable.Class().name, f.method.Qualifier())
+					f.jumpPc(handlePc) // move pc
+					f.clear()
+					f.push(throwable)
+					return
+				} else {
+					// set exception here
+					f.exception = throwable
+					this.pop()
+				}
 			}
 		}
 	}()
@@ -124,30 +140,13 @@ func (this *Thread) interceptAfter(frame *Frame)  {
 
 }
 
-func (this *Frame) tryCatch(throwable Reference) (bool, int) {
-	for _, exception := range this.method.exceptions {
-		if this.pc >= exception.startPc && this.pc < exception.endPc {
-			if exception.catchType == 0 { // catch-all
-				return true, exception.handlerPc
-			} else {
-				catchType := this.method.class.constantPool[int32(exception.catchType)].(*ClassRef).ResolvedClass()
-				if catchType.IsAssignableFrom(throwable.Class()) {
-					return true, exception.handlerPc
-				}
-			}
-		}
-	}
-
-	return false, -1
-}
-
 func (this *Thread) handleUncaughtException(throwable Reference)  {
 	detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 	detailMessageStr := ""
 	if !detailMessage.IsNull() {
 		detailMessageStr = detailMessage.toNativeString()
 	}
-	VM_stderrPrintf("\nException in thread \"%s\" #%d %s : %s\n", this.name, this.id, throwable.Class().Name(), detailMessageStr)
+	VM_stderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", this.name, this.id, throwable.Class().Name(), detailMessageStr)
 
 	stacktrace := throwable.GetExtra()
 	if stacktrace != nil {
@@ -165,15 +164,19 @@ type Frame struct {
 	// otherwise, it is a snapshot one since the last time
 	pc int
 	pos int // operand pos: internal use only. For an instruction, initially it always starts from pc. Each time read an operand, it advanced.
-
 	// long and double will occupy two variable indexes
 	localVariables      []Value
 	// operand stack
 	// a value of type `long` or `double` contributes two units to the indexOf and a value of any other type contributes one unit
 	// but here we use long and double only use one unit. There is not any violation
 	operandStack        []Value
+
+	exception    Reference
 }
 
+/*
+Should be called only by Run() method
+ */
 func (this *Frame) nextPc()  {
 	opcode := this.method.code[this.pc]
 	this.pc += JVM_OPCODE_LENGTH_INITIALIZER[opcode]
@@ -181,16 +184,17 @@ func (this *Frame) nextPc()  {
 }
 
 func (this *Frame) offsetPc(offset int16)  {
-	this.pc += int(offset)
-	this.pos = this.pc + 1
+	this.jumpPc(this.pc + int(offset))
 }
 
 func (this *Frame) offsetPc32(offset int32)  {
-	this.pc += int(offset)
-	this.pos = this.pc + 1
+	this.jumpPc(this.pc + int(offset))
 }
 
 func (this *Frame) jumpPc(to int)  {
+	if this.pc == to {
+		VM_throw("java/lang/InternalError", "Dead loop with empty body has been detected. Possibly you write: for(;;){} or while(true){}")
+	}
 	this.pc = to
 	this.pos = this.pc + 1
 }
@@ -238,7 +242,7 @@ func (this *Frame) operandPadding() {
 
 func (this *Frame) operandConst8() int8 {
 	constant := int8(this.method.code[this.pos])
-	EXEC_LOG.Debug("\t%d", constant)
+	EXEC_LOG.Trace("\t%d", constant)
 	this.pos += 1
 	return constant
 }
@@ -247,7 +251,7 @@ func (this *Frame) operandConst16() int16 {
 	constbyte1 := this.method.code[this.pos]
 	constbyte2 := this.method.code[this.pos+1]
 	constant := int16(uint16(constbyte1) << 8 | uint16(constbyte2))
-	EXEC_LOG.Debug("\t%d", constant)
+	EXEC_LOG.Trace("\t%d", constant)
 	this.pos += 2
 	return constant
 }
@@ -258,14 +262,14 @@ func (this *Frame) operandConst32() int32 {
 	constbyte3 := this.method.code[this.pos+2]
 	constbyte4 := this.method.code[this.pos+3]
 	constant := int32((uint32(constbyte1) << 24) | (uint32(constbyte2) << 16) | (uint32(constbyte3) << 8) | uint32(constbyte4))
-	EXEC_LOG.Debug("\t%d", constant)
+	EXEC_LOG.Trace("\t%d", constant)
 	this.pos += 4
 	return constant
 }
 
 func (this *Frame) operandIndex8() uint8 {
 	index := uint8(this.method.code[this.pos])
-	EXEC_LOG.Debug("\t♯%d", index)
+	EXEC_LOG.Trace("\t♯%d", index)
 	this.pos += 1
 	return index
 }
@@ -274,7 +278,7 @@ func (this *Frame) operandIndex16() uint16 {
 	indexbyte1 := this.method.code[this.pos]
 	indexbyte2 := this.method.code[this.pos+1]
 	index := (uint16(indexbyte1) << 8) | uint16(indexbyte2)
-	EXEC_LOG.Debug("\t♯%d", index)
+	EXEC_LOG.Trace("\t♯%d", index)
 	this.pos += 2
 	return index
 }
@@ -284,7 +288,7 @@ func (this *Frame) operandOffset16() int16 {
 	offsetbyte2 := this.method.code[this.pos+1]
 
 	offset := int16((uint16(offsetbyte1) << 8) | uint16(offsetbyte2))
-	EXEC_LOG.Debug("\t»%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
+	EXEC_LOG.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
 	this.pos += 2
 	return offset
 }
@@ -296,7 +300,7 @@ func (this *Frame) operandOffset32() int32 {
 	offsetbyte4 := this.method.code[this.pos+3]
 
 	offset := int32((uint32(offsetbyte1) << 24) | (uint32(offsetbyte2) << 16) | (uint32(offsetbyte3) << 8) | uint32(offsetbyte4))
-	EXEC_LOG.Debug("\t»%d (%s)", this.pc + int(offset), numberWithSign(offset))
+	EXEC_LOG.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(offset))
 
 	this.pos += 4
 	return offset
@@ -437,6 +441,9 @@ func (this *Frame) peek() Value {
 	return Value
 }
 
+/*
+Should be called only by VM_invokeMethod(..)
+ */
 func (this *Thread) push(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
@@ -460,12 +467,6 @@ func (this *Thread) current() *Frame {
 		return nil
 	}
 	return this.vmStack[size-1]
-}
-
-func (this *Thread) pushFrames(stackFrames ...*Frame)  {
-	for _, stackFrame := range stackFrames {
-		this.push(stackFrame)
-	}
 }
 
 func (this *Thread) indexOf(frame *Frame) int {
