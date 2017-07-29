@@ -29,10 +29,22 @@ func JDK_java_lang_Object_clone(this Reference) Reference {
 	return VM_clone(this)
 }
 
-func JDK_java_lang_Object_notifyAll(this Reference) {
-	// DO NOTHING
+func JDK_java_lang_Object_wait(this Reference, timeout Long) {
+	// TODO timeout
+	monitor := this.Monitor()
+	if !monitor.HasOwner(VM_currentThread()) {
+		VM_throw("java/lang/IllegalMonitorStateException", "Cannot wait() when not holding a monitor")
+	}
+
+	monitor.Wait()
 }
 
-func JDK_java_lang_Object_wait(this ObjectRef, timeout Long) {
-	// DO NOTHING
+func JDK_java_lang_Object_notifyAll(this Reference) {
+	monitor := this.Monitor()
+	if !monitor.HasOwner(VM_currentThread()) {
+		VM_throw("java/lang/IllegalMonitorStateException", "Cannot notifyAll() when not holding a monitor")
+	}
+
+	monitor.NotifyAll()
 }
+

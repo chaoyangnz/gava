@@ -79,12 +79,13 @@ func (this Int) ToBoolean() Boolean {
 type ObjectHeader struct {
 	hashCode Int
 	class        *Class
+	monitor      *Monitor
+	extra       interface{} // for vm use
 }
 
 type Object struct {
 	header       ObjectHeader
 	values      []Value
-	extra       interface{} // for vm use
 }
 
 type ObjectRef interface {
@@ -145,11 +146,14 @@ func (this Reference) assertObject()  {
 func (this Reference) Class() *Class {
 	return this.oop.header.class
 }
+func (this Reference) Monitor() *Monitor {
+	return this.oop.header.monitor
+}
 func (this Reference) GetExtra() interface{} {
-	return this.oop.extra
+	return this.oop.header.extra
 }
 func (this Reference) SetExtra(extra interface{}) {
-	this.oop.extra = extra
+	this.oop.header.extra = extra
 }
 func (this Reference) GetInstanceVariable(index Int) Value {
 	return this.oop.values[index]
