@@ -141,4 +141,3 @@ func case0()  {
 	classfile.Print()
 }
 
-

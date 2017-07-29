@@ -185,7 +185,7 @@ func NewJavaLangThread(name string) JavaLangThread {
 
 	// ThreadGroup just need to set its name; no parent
 	jThreadGroup := NewObject("java/lang/ThreadGroup")
-	jThreadGroup.SetInstanceVariableByName("name", "Ljava/lang/String;", NewJavaLangString(name))
+	jThreadGroup.SetInstanceVariableByName("name", "Ljava/lang/String;", NewJavaLangString("main"))
 
 	jThread.SetInstanceVariableByName("name", "Ljava/lang/String;", NewJavaLangString(name))
 	jThread.SetInstanceVariableByName("group", "Ljava/lang/ThreadGroup;", jThreadGroup)

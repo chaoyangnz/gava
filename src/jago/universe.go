@@ -1,9 +1,6 @@
 package jago
 
-import (
-	//"reflect"
-	"github.com/jtolds/gls"
-)
+import "github.com/orcaman/concurrent-map"
 
 var SYS_CLASS_PATH = "jdk/classes:example/classes"
 var EXT_CLASS_PATH = []string{"ext"}
@@ -23,7 +20,8 @@ var STRING_TABLE = map[string]JavaLangString{}
 
 var BOOTSTRAP_CLASSLOADER = NewClassLoader(SYS_CLASS_PATH, nil)
 
-var THREAD_MANAGER = &ThreadManager{gls.NewContextManager()}
+const MAX_THREADS = 1000
+var THREAD_MANAGER = &ThreadManager{cmap.New()}
 
 
 

@@ -30,8 +30,8 @@ func JDK_java_lang_Thread_start0(this Reference) {
 	name := this.GetInstanceVariableByName("name", "Ljava/lang/String;").(JavaLangString).toNativeString()
 	runMethod := this.Class().GetMethod("run", "()V")
 
-	THREAD_MANAGER.NewThread(name, func(thread *Thread) {
+	THREAD_MANAGER.NewThread(name, func() {
 		VM_invokeMethod(runMethod, this)
-	})//.start()
+	}, func(){}).start()
 }
 

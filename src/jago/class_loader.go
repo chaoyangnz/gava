@@ -4,11 +4,12 @@ import (
 	"unsafe"
 	"strings"
 	"math"
+	"github.com/orcaman/concurrent-map"
 )
 
 type ClassLoader struct {
 	classPath     *ClassPath
-	classCache    map[string]*Class
+	classCache    cmap.ConcurrentMap
 	parent        *ClassLoader
 	depth         int // current load indexOf
 }
@@ -16,7 +17,7 @@ type ClassLoader struct {
 func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
 	return &ClassLoader{
 		NewClassPath(str),
-		make(map[string]*Class),
+		cmap.New(),//make(map[string]*Class),
 		parent,
 		0}
 }
@@ -46,8 +47,8 @@ func (this *ClassLoader) CreateClass(className string, triggerReason *ClassTrigg
 }
 
 func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool, triggerReason *ClassTriggerReason) *Class {
-	if class, found := this.classCache[className]; found {
-		return class
+	if class, found := this.classCache.Get(className); found {
+		return class.(*Class)
 	}
 
 	CLASSLOAD_LOG.Debug(repeat("\t", this.depth) + "↳ %s ", className)
@@ -89,7 +90,7 @@ func (this *ClassLoader) defineArrayClass(className string) *Class {
 			superClassName: "java/lang/Object",
 			interfaceNames: []string{"java/io/Serializable", "java/lang/Cloneable"}}
 
-	this.classCache[className] = arrayClass
+	this.classCache.Set(className, arrayClass)
 
 	arrayClass.accessFlags = 0
 	arrayClass.superClass = this.internalCreateClass("java/lang/Object", false, TRIGGER_BY_AS_SUPERCLASS)
@@ -196,7 +197,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	class.accessFlags = uint16(classfile.accessFlags)
 	class.name = classfile.cpUtf8(classfile.constantPool[classfile.thisClass].(*ConstantClassInfo).nameIndex)
 	// add to classcache
-	this.classCache[class.name] = class
+	this.classCache.Set(class.name, class)
 
 	if classfile.superClass == 0 {
 		class.superClassName = ""
