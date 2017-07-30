@@ -12,13 +12,6 @@ type (
 	u8 uint64
 )
 
-func NewClassFile(bytes []byte) *ClassFile {
-	classfile := &ClassFile{}
-	classfile.read(bytes)
-
-	return classfile
-}
-
 var bigEndian = binary.BigEndian
 
 type ClassReader struct {
@@ -211,7 +204,7 @@ func (this *ClassFile) readConstantPool(reader *ClassReader) {
 			cpInfo = &ConstantInvokeDynamicInfo{tag: tag}
 		default:
 			// ignore
-			VM_throw("java/lang/ClassFormatError", "Not a supported constant tag: %s", tag)
+			VM.Throw("java/lang/ClassFormatError", "Not a supported constant tag: %s", tag)
 		}
 		cpInfo.readInfo(reader)
 		this.constantPool[i] = cpInfo

@@ -4,23 +4,22 @@ import (
 	"reflect"
 )
 
-var NATIVE_METHODS = map[string]reflect.Value {
+type NativeMethodRegistry map[string]reflect.Value
+
+func (this NativeMethodRegistry) RegisterNative(qualifier string, function interface{})  {
+	this[qualifier] = reflect.ValueOf(function)
 }
 
-func register(qualifier string, function interface{})  {
-	NATIVE_METHODS[qualifier] = reflect.ValueOf(function)
+func (this NativeMethodRegistry) unregister(qualifier string, function interface{})  {
+	delete(this, qualifier)
 }
 
-func unregister(qualifier string, function interface{})  {
-	delete(NATIVE_METHODS, qualifier)
-}
-
-func findNative(qualifier string) (reflect.Value, bool) {
-	fun, found := NATIVE_METHODS[qualifier]
+func (this NativeMethodRegistry) FindNative(qualifier string) (reflect.Value, bool) {
+	fun, found := this[qualifier]
 	return fun, found
 }
 
-func RegisterNatives()  {
+func (this NativeMethodRegistry) RegisterNatives()  {
 	register_java_lang_System()
 	register_java_lang_Object()
 	register_java_lang_Class()

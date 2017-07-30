@@ -2,22 +2,22 @@ package jago
 
 
 func register_sun_misc_Unsafe() {
-	register("sun/misc/Unsafe.registerNatives()V", JDK_sun_misc_Unsafe_registerNatives)
-	register("sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I", JDK_sun_misc_Unsafe_arrayBaseOffset)
-	register("sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I", JDK_sun_misc_Unsafe_arrayIndexScale)
-	register("sun/misc/Unsafe.addressSize()I", JDK_sun_misc_Unsafe_addressSize)
-	register("sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J", JDK_sun_misc_Unsafe_objectFieldOffset)
-	register("sun/misc/Unsafe.compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z", JDK_sun_misc_Unsafe_compareAndSwapObject)
-	register("sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I", JDK_sun_misc_Unsafe_getIntVolatile)
-	register("sun/misc/Unsafe.getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object;", JDK_sun_misc_Unsafe_getObjectVolatile)
-	register("sun/misc/Unsafe.putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V", JDK_sun_misc_Unsafe_putObjectVolatile)
+	VM.RegisterNative("sun/misc/Unsafe.registerNatives()V", JDK_sun_misc_Unsafe_registerNatives)
+	VM.RegisterNative("sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I", JDK_sun_misc_Unsafe_arrayBaseOffset)
+	VM.RegisterNative("sun/misc/Unsafe.arrayIndexScale(Ljava/lang/Class;)I", JDK_sun_misc_Unsafe_arrayIndexScale)
+	VM.RegisterNative("sun/misc/Unsafe.addressSize()I", JDK_sun_misc_Unsafe_addressSize)
+	VM.RegisterNative("sun/misc/Unsafe.objectFieldOffset(Ljava/lang/reflect/Field;)J", JDK_sun_misc_Unsafe_objectFieldOffset)
+	VM.RegisterNative("sun/misc/Unsafe.compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z", JDK_sun_misc_Unsafe_compareAndSwapObject)
+	VM.RegisterNative("sun/misc/Unsafe.getIntVolatile(Ljava/lang/Object;J)I", JDK_sun_misc_Unsafe_getIntVolatile)
+	VM.RegisterNative("sun/misc/Unsafe.getObjectVolatile(Ljava/lang/Object;J)Ljava/lang/Object;", JDK_sun_misc_Unsafe_getObjectVolatile)
+	VM.RegisterNative("sun/misc/Unsafe.putObjectVolatile(Ljava/lang/Object;JLjava/lang/Object;)V", JDK_sun_misc_Unsafe_putObjectVolatile)
 
-	register("sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z", JDK_sun_misc_Unsafe_compareAndSwapInt)
-	register("sun/misc/Unsafe.compareAndSwapLong(Ljava/lang/Object;JJJ)Z", JDK_sun_misc_Unsafe_compareAndSwapLong)
-	register("sun/misc/Unsafe.allocateMemory(J)J", JDK_sun_misc_Unsafe_allocateMemory)
-	register("sun/misc/Unsafe.putLong(JJ)V", JDK_sun_misc_Unsafe_putLong)
-	register("sun/misc/Unsafe.getByte(J)B", JDK_sun_misc_Unsafe_getByte)
-	register("sun/misc/Unsafe.freeMemory(J)V", JDK_sun_misc_Unsafe_freeMemory)
+	VM.RegisterNative("sun/misc/Unsafe.compareAndSwapInt(Ljava/lang/Object;JII)Z", JDK_sun_misc_Unsafe_compareAndSwapInt)
+	VM.RegisterNative("sun/misc/Unsafe.compareAndSwapLong(Ljava/lang/Object;JJJ)Z", JDK_sun_misc_Unsafe_compareAndSwapLong)
+	VM.RegisterNative("sun/misc/Unsafe.allocateMemory(J)J", JDK_sun_misc_Unsafe_allocateMemory)
+	VM.RegisterNative("sun/misc/Unsafe.putLong(JJ)V", JDK_sun_misc_Unsafe_putLong)
+	VM.RegisterNative("sun/misc/Unsafe.getByte(J)B", JDK_sun_misc_Unsafe_getByte)
+	VM.RegisterNative("sun/misc/Unsafe.freeMemory(J)V", JDK_sun_misc_Unsafe_freeMemory)
 
 }
 
@@ -46,10 +46,10 @@ func JDK_sun_misc_Unsafe_objectFieldOffset(this Reference, fieldObject JavaLangR
 
 func JDK_sun_misc_Unsafe_compareAndSwapObject(this Reference, obj Reference, offset Long, expected Reference, newVal Reference) Boolean {
 	if obj.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 
-	slots := obj.oop.values
+	slots := obj.oop.slots
 	current := slots[offset]
 	if current == expected {
 		slots[offset] = newVal
@@ -61,10 +61,10 @@ func JDK_sun_misc_Unsafe_compareAndSwapObject(this Reference, obj Reference, off
 
 func JDK_sun_misc_Unsafe_compareAndSwapInt(this Reference, obj Reference, offset Long, expected Int, newVal Int) Boolean {
 	if obj.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 
-	slots := obj.oop.values
+	slots := obj.oop.slots
 	current := slots[offset]
 	if current == expected {
 		slots[offset] = newVal
@@ -76,10 +76,10 @@ func JDK_sun_misc_Unsafe_compareAndSwapInt(this Reference, obj Reference, offset
 
 func JDK_sun_misc_Unsafe_compareAndSwapLong(this Reference, obj Reference, offset Long, expected Long, newVal Long) Boolean {
 	if obj.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 
-	slots := obj.oop.values
+	slots := obj.oop.slots
 	current := slots[offset]
 	if current == expected {
 		slots[offset] = newVal
@@ -91,20 +91,20 @@ func JDK_sun_misc_Unsafe_compareAndSwapLong(this Reference, obj Reference, offse
 
 func JDK_sun_misc_Unsafe_getIntVolatile(this Reference, obj Reference, offset Long) Int {
 	if obj.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 
-	slots := obj.oop.values
+	slots := obj.oop.slots
 	return slots[offset].(Int)
 }
 
 func JDK_sun_misc_Unsafe_getObjectVolatile(this Reference, obj Reference, offset Long) Reference {
-	slots := obj.oop.values
+	slots := obj.oop.slots
 	return slots[offset].(Reference)
 }
 
 func JDK_sun_misc_Unsafe_putObjectVolatile(this Reference, obj Reference, offset Long, val Reference)  {
-	slots := obj.oop.values
+	slots := obj.oop.slots
 	slots[offset] = val
 }
 

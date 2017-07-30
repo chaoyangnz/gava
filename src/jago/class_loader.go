@@ -14,14 +14,6 @@ type ClassLoader struct {
 	depth         int // current load indexOf
 }
 
-func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
-	return &ClassLoader{
-		NewClassPath(str),
-		cmap.New(),//make(map[string]*Class),
-		parent,
-		0}
-}
-
 type ClassTriggerReason struct {
 	code string
 	desc string
@@ -64,7 +56,7 @@ func (this *ClassLoader) internalCreateClass(className string, requireInitialize
 	// attach a java.lang.Class object
 	// set classloader
 	class.classLoader = this
-	class.classObject = NewJavaLangClass(class)
+	class.classObject = VM.NewJavaLangClass(class)
 
 	// eager linkage
 	this.link(class)
@@ -138,12 +130,12 @@ func (this *ClassLoader) defineArrayClass(className string) *Class {
 		}
 	case JVM_SIGNATURE_CLASS:
 		{
-			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[2:len(className)-1], TRIGGER_BY_AS_ARRAY_COMPONENT)
+			arrayClass.componentType = VM.CreateClass(className[2:len(className)-1], TRIGGER_BY_AS_ARRAY_COMPONENT)
 			arrayClass.elementType = arrayClass.componentType
 		}
 	case JVM_SIGNATURE_ARRAY:
 		{
-			arrayClass.componentType = BOOTSTRAP_CLASSLOADER.CreateClass(className[1:], TRIGGER_BY_AS_ARRAY_COMPONENT)
+			arrayClass.componentType = VM.CreateClass(className[1:], TRIGGER_BY_AS_ARRAY_COMPONENT)
 			arrayClass.elementType = arrayClass.componentType.(*Class).elementType
 		}
 	}
@@ -177,7 +169,7 @@ func (this *ClassLoader) loadClass(className string) *Class  {
 func (this *ClassLoader) findClass(className string) *Class  {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {
-		VM_throw("java/lang/ClassNotFoundException", className)
+		VM.Throw("java/lang/ClassNotFoundException", className)
 	}
 
 	//If L creates C directly, we say that L defines C
@@ -186,7 +178,8 @@ func (this *ClassLoader) findClass(className string) *Class  {
 }
 
 func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
-	classfile := NewClassFile(bytecode)
+	classfile := &ClassFile{}
+	classfile.read(bytecode)
 
 	class := &Class{}
 
@@ -506,7 +499,7 @@ func (this *ClassLoader) initialize(class *Class) {
 			this.initialize(class.superClass)
 		}
 		CLASSLOAD_LOG.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
-		VM_invokeMethod(clinit)
+		VM.InvokeMethod(clinit)
 		//}
 	}
 

@@ -20,11 +20,11 @@ func tid2str(tid uint64) string {
 	return fmt.Sprintf("%v", tid)
 }
 
-func (this *ThreadManager) register(thread *Thread)  {
+func (this *ThreadManager) RegisterThread(thread *Thread)  {
 	this.threads.Set(tid2str(thread.id), thread)
 }
 
-func (this *ThreadManager) unregister(thread *Thread)  {
+func (this *ThreadManager) UnregisterThread(thread *Thread)  {
 	this.threads.Remove(tid2str(thread.id))
 }
 
@@ -52,13 +52,13 @@ func (this *ThreadManager) current() *Thread {
 func (this *ThreadManager) RunBootstrapThread(run func()) {
 	thread := precreateThread("bootstrap", run, func(){})
 	thread.id = getGID()
-	THREAD_MANAGER.register(thread) // register to THREAD_MANAGER
+	VM.RegisterThread(thread) // RegisterThread to THREAD_MANAGER
 	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
-	thread.threadObject = NewJavaLangThread(thread.name)
+	thread.threadObject = VM.NewJavaLangThread(thread.name)
 	thread.threadObject.SetExtra(thread)
 
 	thread.started = true
-	LOG.Info("[thread]Start to run bootstrap thread %s #%d\n", VM_currentThread().name, VM_currentThread().id)
+	LOG.Info("[thread]Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 
 	// start Java code execution
 	thread.runBlock.Do()
@@ -83,10 +83,10 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM_stderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, vmName2JavaName(throwable.Class().Name()), detailMessageStr)
+			VM.StderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, vmName2JavaName(throwable.Class().Name()), detailMessageStr)
 
 			printStackTrace(throwable)
-			VM_stderrPrintf("\n")
+			VM.StderrPrintf("\n")
 		},
 		func() {
 			exitHook()
@@ -100,7 +100,7 @@ func printStackTrace(throwable Reference)  {
 	stacktrace := throwable.GetExtra()
 	if stacktrace != nil {
 		for _, stacktraceelement := range stacktrace.([]string) {
-			VM_stderrPrintf("\t at %s\n", stacktraceelement)
+			VM.StderrPrintf("\t at %s\n", stacktraceelement)
 		}
 	}
 
@@ -112,10 +112,10 @@ func printStackTrace(throwable Reference)  {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM_stderrPrintf("Caused by: %s: %s\n", vmName2JavaName(cause.Class().Name()), detailMessageStr)
+			VM.StderrPrintf("Caused by: %s: %s\n", vmName2JavaName(cause.Class().Name()), detailMessageStr)
 			printStackTrace(cause)
 		} else {
-			VM_stderrPrintf("\t... 1 more")
+			VM.StderrPrintf("\t... 1 more")
 		}
 
 	}
@@ -129,22 +129,22 @@ func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *
 	VM_WG.Add(1)
 	go func() {
 		// prepare the thread environment
-		thread.id = getGID() // set go routine id as thread id
-		THREAD_MANAGER.register(thread) // register to THREAD_MANAGER
+		thread.id = getGID()      // set go routine id as thread id
+		VM.RegisterThread(thread) // RegisterThread to THREAD_MANAGER
 
 		// pause here to wait start command
 		for !thread.started {
-			LOG.Info("[thread]Created thread '%s' #%d but wait to start\n", VM_currentThread().name, VM_currentThread().id)
+			LOG.Info("[thread]Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
 			thread.started = <- thread.ch == _start
 		}
 
-		LOG.Info("[thread]Start thread '%s' #%d\n", VM_currentThread().name, VM_currentThread().id)
+		LOG.Info("[thread]Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 		// start Java code execution
 		thread.runBlock.Do()
 
 		// prepare to exit
 		LOG.Info("[thread]Exit thread '%s' %d \n", thread.name, thread.id)
-		this.unregister(thread)
+		this.UnregisterThread(thread)
 		VM_WG.Done()
 	}()
 
@@ -196,11 +196,11 @@ func (this *Thread) start()  {
 		// this construct object must be run in parent thread
 
 		// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
-		this.threadObject = NewJavaLangThread(this.name)
+		this.threadObject = VM.NewJavaLangThread(this.name)
 
 		// once system classes are initialized, set up the java.lang.Thread object
 		threadConstructor := this.threadObject.Class().GetConstructor("(Ljava/lang/String;)V")
-		VM_invokeMethod(threadConstructor, this.threadObject, NewJavaLangString(this.name))
+		VM.InvokeMethod(threadConstructor, this.threadObject, VM.NewJavaLangString(this.name))
 	}
 	this.threadObject.attatchThread(this)
 
@@ -254,6 +254,16 @@ func (this *Thread) sleep(millis int64) bool {
 	}()
 
 	return <- this.ch == _interrupt
+}
+
+func (this *Thread) NewStackFrame(method *Method) *Frame {
+	stackFrame := &Frame{
+		method: method,
+		pc: 0,
+		pos: 1, // all opcode is 1 byte, then operand starts with 1
+		localVariables: make([]Value, method.maxLocals), // local variables have no initial values
+		operandStack: make([]Value, 0, method.maxStack)}
+	return stackFrame
 }
 
 /*
@@ -376,20 +386,10 @@ func (this *Frame) offsetPc32(offset int32)  {
 
 func (this *Frame) jumpPc(to int)  {
 	if this.pc == to {
-		VM_throw("java/lang/InternalError", "Dead loop with empty body has been detected. Possibly you write: for(;;){} or while(true){}")
+		VM.Throw("java/lang/InternalError", "Dead loop with empty body has been detected. Possibly you write: for(;;){} or while(true){}")
 	}
 	this.pc = to
 	this.pos = this.pc + 1
-}
-
-func NewStackFrame(method *Method) *Frame {
-	stackFrame := &Frame{
-		method: method,
-		pc: 0,
-		pos: 1, // all opcode is 1 byte, then operand starts with 1
-		localVariables: make([]Value, method.maxLocals), // local variables have no initial values
-		operandStack: make([]Value, 0, method.maxStack)}
-	return stackFrame
 }
 
 func (this *Frame) loadVar(index uint) Value {
@@ -633,7 +633,7 @@ Should be called only by VM_invokeMethod(..)
 func (this *Thread) push(stackFrame *Frame)  {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
-		VM_throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
+		VM.Throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
 	}
 	this.vmStack = this.vmStack[:size+1]
 	this.vmStack[size] = stackFrame
