@@ -75,8 +75,8 @@ COMMANDS:
 
 GLOBAL OPTIONS:
    --classpath value, --cp value  application classpath separated by colon
-   --log:execution value          log level of instruction execution, options: info, debug, trace
-   --log:classload value          log level of class loading, options: info, debug, trace
+   --log:thread value          log level of instruction execution, options: info, debug, trace
+   --log:classloader value          log level of class loading, options: info, debug, trace
    --help, -h                     show help
    --version, -v                  print the version
 ```
@@ -84,7 +84,7 @@ GLOBAL OPTIONS:
 ## Run a calendar program
 
 ```bash
-❯ jago --log:execution info -cp . example/Calendar 8 2017
+❯ jago --log:thread info -cp . example/Calendar 8 2017
     _                   
    (_) __ _  __ _  ___  
    | |/ _` |/ _` |/ _ \ 
@@ -93,7 +93,7 @@ GLOBAL OPTIONS:
  |__/       |___/     
 
 
-Command: jago --log:execution info -cp . example/Calendar 8 2017 
+Command: jago --log:thread info -cp . example/Calendar 8 2017 
 
 Add new classpath: .
 ------------------------------------------------------------
@@ -110,7 +110,7 @@ Add new classpath: .
 ## Run a pyramid program
 
 ```bash
-❯ jago --log:execution info -cp . example/Pyramid        
+❯ jago --log:thread info -cp . example/Pyramid        
     _                   
    (_) __ _  __ _  ___  
    | |/ _` |/ _` |/ _ \ 
@@ -119,7 +119,7 @@ Add new classpath: .
  |__/       |___/     
 
 
-Command: jago --log:execution info -cp . example/Pyramid 
+Command: jago --log:thread info -cp . example/Pyramid 
 
 Add new classpath: .
 ------------------------------------------------------------
@@ -141,7 +141,7 @@ Pyramid of numbers in Java :
 ## run a program traversing a tree in the level order
 
 ```bash
-❯ jago --log:execution info -cp . example/TreeLevelOrderTraverse
+❯ jago --log:thread info -cp . example/TreeLevelOrderTraverse
     _                   
    (_) __ _  __ _  ___  
    | |/ _` |/ _` |/ _ \ 
@@ -150,7 +150,7 @@ Pyramid of numbers in Java :
  |__/       |___/     
 
 
-Command: jago --log:execution info -cp . example/TreeLevelOrderTraverse 
+Command: jago --log:thread info -cp . example/TreeLevelOrderTraverse 
 
 Add a new classpath: .
 ------------------------------------------------------------
@@ -186,7 +186,7 @@ Add a new classpath: .
 ## Run a program with exception
 
 ```bash
-❯ jago --log:execution info -cp . test/test_athrow
+❯ jago --log:thread info -cp . test/test_athrow
     _                   
    (_) __ _  __ _  ___  
    | |/ _` |/ _` |/ _ \ 
@@ -195,7 +195,7 @@ Add a new classpath: .
  |__/       |___/     
 
 
-Command: jago --log:execution info -cp . test/test_athrow 
+Command: jago --log:thread info -cp . test/test_athrow 
 
 Add new classpath: .
 ------------------------------------------------------------
@@ -214,38 +214,38 @@ Exception in thread "main" test/Exception2: this is exception 2
 
 - Print pyramid
 ```
-jago --log:execution debug --log:classload debug example.Pyramid
+jago --log:thread debug --log:classloader debug example.Pyramid
 ```
 - Show Calendar
 ```bash
-jago --log:execution debug --log:classload debug example.Calendar 8 2017
+jago --log:thread debug --log:classloader debug example.Calendar 8 2017
 ```
 
 - Tree Traverse
 ```bash
-jago --log:execution debug --log:classload debug example.TreeInOrderTraverse
+jago --log:thread debug --log:classloader debug example.TreeInOrderTraverse
 ```
 ```bash
-jago --log:execution debug --log:classload debug example.TreeLevelOrderTraverse
+jago --log:thread debug --log:classloader debug example.TreeLevelOrderTraverse
 ```
 - Exception handling
 ```bash
-jago --log:execution debug --log:classload debug test.test_athrow
+jago --log:thread debug --log:classloader debug test.test_athrow
 ```
 
 - Print system properties
 ```bash
-jago --log:execution debug --log:classload debug test.test_system_properties
+jago --log:thread debug --log:classloader debug test.test_system_properties
 ```
 
 - Multi-threading
 ```bash
-jago --log:execution debug --log:classload debug test.test_thread
+jago --log:thread debug --log:classloader debug test.test_thread
 ```
 
 - Thread sleep and interrupt
 ```bash
-jago --log:execution debug --log:classload debug test.test_thread
+jago --log:thread debug --log:classloader debug test.test_thread
 ```
 
 - Java monitor lock
