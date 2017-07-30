@@ -7,6 +7,7 @@ import (
 	"github.com/orcaman/concurrent-map"
 	"fmt"
 	"time"
+	"sync"
 )
 
 var thread_id_key = gls.GenSym()
@@ -30,9 +31,10 @@ func (this *ThreadManager) unregister(thread *Thread)  {
 func (this *ThreadManager) exitDaemonThreads()  {
 	for _, t := range this.threads.Items() {
 		thread := t.(*Thread)
+		jt := thread.threadObject.(Reference)
+		jt.IsNull()
 		if thread.daemon {
-			LOG.Info("[thread]Thread '%s' interrupt \n", thread.name)
-			//thread.interrupt()
+			thread.interrupt()
 		}
 	}
 }
@@ -53,6 +55,7 @@ func (this *ThreadManager) RunBootstrapThread(run func()) {
 	THREAD_MANAGER.register(thread) // register to THREAD_MANAGER
 	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
 	thread.threadObject = NewJavaLangThread(thread.name)
+	thread.threadObject.SetExtra(thread)
 
 	thread.started = true
 	LOG.Info("[thread]Start to run bootstrap thread %s #%d\n", VM_currentThread().name, VM_currentThread().id)
@@ -67,6 +70,7 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 		vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE),
 		started: false,
 		//cond: sync.NewCond(&sync.Mutex{}),
+		l: &sync.Mutex{},
 		ch: make(chan int),
 	}
 
@@ -79,14 +83,10 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM_stderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, throwable.Class().Name(), detailMessageStr)
+			VM_stderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, vmName2JavaName(throwable.Class().Name()), detailMessageStr)
 
-			stacktrace := throwable.GetExtra()
-			if stacktrace != nil {
-				for _, stacktraceelement := range stacktrace.([]string) {
-					VM_stderrPrintf("\t at %s\n", stacktraceelement)
-				}
-			}
+			printStackTrace(throwable)
+			VM_stderrPrintf("\n")
 		},
 		func() {
 			exitHook()
@@ -96,11 +96,27 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 	return thread
 }
 
-const (
-	_start  = 0
-	_interrupt = 1
-	_timeout = 2
-)
+func printStackTrace(throwable Reference)  {
+	stacktrace := throwable.GetExtra()
+	if stacktrace != nil {
+		for _, stacktraceelement := range stacktrace.([]string) {
+			VM_stderrPrintf("\t at %s\n", stacktraceelement)
+		}
+	}
+
+	cause := throwable.GetInstanceVariableByName("cause", "Ljava/lang/Throwable;").(Reference)
+	if !cause.IsNull() && throwable != cause {
+		detailMessage := cause.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
+		detailMessageStr := ""
+		if !detailMessage.IsNull() {
+			detailMessageStr = detailMessage.toNativeString()
+		}
+		VM_stderrPrintf("Caused by: %s: %s\n", vmName2JavaName(cause.Class().Name()), detailMessageStr)
+		printStackTrace(cause)
+	}
+}
+
+
 
 func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *Thread {
 	thread := precreateThread(name, run, exitHook)
@@ -133,16 +149,30 @@ func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *
 // We choose fix-sized stack size
 const DEFAULT_VM_STACK_SIZE  = 512
 
+const (
+	_start         = 1
+	_interrupt     = 2
+	_sleep_timeout = 3
+)
+
 type Thread struct {
 	id          uint64
 	name        string
 	vmStack     []*Frame
 	runBlock    Block
-	started     bool
+
 
 	ch          chan int
 
 	daemon      bool
+
+	l           sync.Locker // look after these state variable
+	sleeping    bool
+	parking     bool
+	waiting     bool
+
+	interrupted bool
+	started     bool
 
 	//cond        *sync.Cond
 
@@ -162,10 +192,12 @@ func (this *Thread) start()  {
 
 		// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
 		this.threadObject = NewJavaLangThread(this.name)
+
 		// once system classes are initialized, set up the java.lang.Thread object
 		threadConstructor := this.threadObject.Class().GetConstructor("(Ljava/lang/String;)V")
 		VM_invokeMethod(threadConstructor, this.threadObject, NewJavaLangString(this.name))
 	}
+	this.threadObject.attatchThread(this)
 
 	// get daemon
 	this.daemon = this.threadObject.GetInstanceVariableByName("daemon", "Z").(Boolean).IsTrue()
@@ -175,19 +207,48 @@ func (this *Thread) start()  {
 }
 
 func (this *Thread) interrupt()  {
-	this.ch <- _interrupt
+	select {
+	case this.ch <- _interrupt:
+		LOG.Info("[thread]Thread '%s' interrupt \n", this.name)
+	default: // no receivers
+	}
+
+	this.interrupted = true
+
+	//if this.sleeping {
+	//	//this.interrupted = true
+	//	this.sleeping = false
+	//	this.ch <- _interrupt
+	//	return
+	//}
+	//
+	//if this.waiting {
+	//	//this.interrupted = true
+	//	this.waiting = false
+	//	this.ch <- _interrupt
+	//	return
+	//}
 }
 
-func (this *Thread) sleep(timeout time.Duration) bool {
-	go func() {
-		time.Sleep(timeout)
+func (this *Thread) sleep(millis int64) bool {
+	if this.interrupted {
+		this.interrupted = false
+		return true
+	}
 
-		this.ch <- _timeout
+	this.sleeping = true
+
+	go func() {
+		time.Sleep(time.Duration(millis) * time.Millisecond)
+
+		this.ch <- _sleep_timeout
+
+		if this.sleeping { // not interrupted
+			this.sleeping = false
+		}
 	}()
 
-	interrupted := <- this.ch == _interrupt
-
-	return interrupted
+	return <- this.ch == _interrupt
 }
 
 /*
@@ -491,13 +552,13 @@ func (this *Frame) passReturn(caller *Frame)  {
 }
 
 func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
-	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().index
+	i := this.method.class.constantPool[index].(*FieldRef).ResolvedField().slot
 	return objectref.GetInstanceVariable(Int(i))
 }
 
 func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	field := this.method.class.constantPool[index].(*FieldRef).ResolvedField()
-	i := field.index
+	i := field.slot
 	if field.descriptor == "Z" {
 		value = value.(Int).ToBoolean()
 	}

@@ -111,8 +111,10 @@ type Class struct {
 	methods             []*Method
 
 	maxInstanceVars     int
+	instanceVarFields   []*Field
 	maxStaticVars       int
 	staticVars          []Value
+	staticVarFields     []*Field
 
 	sourceFile          string
 
@@ -208,7 +210,7 @@ func (this *Class) NewObject() ObjectRef {
 	for class != nil {
 		for _, field := range class.fields {
 			if !field.IsStatic() {
-				object.values[field.index] = field.defaultValue()
+				object.values[field.slot] = field.defaultValue()
 			}
 		}
 		class = class.superClass
@@ -372,11 +374,19 @@ type Field struct {
 	index of instanceFields or staticFields
 	for instance fields, it is the global index considering superclass hierarchy
 	 */
-	index       int
+	slot                int
 }
 
 func (this *Field) IsStatic() bool {
 	return (this.accessFlags & JVM_ACC_STATIC) > 0
+}
+
+func (this *Field) Signature() string {
+	return this.name + ":" + this.descriptor
+}
+
+func (this *Field) Qualifier() string {
+	return this.class.name + "." + this.Signature()
 }
 
 func  (this *Field) defaultValue() Value {
@@ -429,6 +439,10 @@ func (this *Method) isStatic() bool {
 
 func (this *Method) isNative() bool {
 	return (this.accessFlags & JVM_ACC_NATIVE) > 0
+}
+
+func (this *Method) isSynchronized() bool {
+	return (this.accessFlags & JVM_ACC_SYNCHRONIZED) > 0
 }
 
 func (this *Method) Signature() string  {

@@ -22,10 +22,6 @@ func NewClassLoader(str string, parent *ClassLoader) *ClassLoader {
 		0}
 }
 
-const (
-
-)
-
 type ClassTriggerReason struct {
 	code string
 	desc string
@@ -442,20 +438,31 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	maxInstanceVars := 0  // include all the ancestry
 	maxStaticVars := 0
 
+	instanceVarFields := make([]*Field, 0)
+	staticVarFields := make([]*Field, 0)
+
+
 	if class.superClass != nil {
 		maxInstanceVars = class.superClass.maxInstanceVars
+
+		instanceVarFields = append(instanceVarFields, class.superClass.instanceVarFields...)
 	}
 	for _, field := range class.fields {
 		if field.IsStatic() {
-			field.index = maxStaticVars
+			field.slot = maxStaticVars
+			staticVarFields = append(staticVarFields, field)
 			maxStaticVars++
 		} else {
-			field.index = maxInstanceVars
+			field.slot = maxInstanceVars
+			instanceVarFields = append(instanceVarFields, field)
 			maxInstanceVars++
 		}
 	}
 	class.maxInstanceVars = maxInstanceVars
 	class.maxStaticVars = maxStaticVars
+
+	class.instanceVarFields = instanceVarFields
+	class.staticVarFields = staticVarFields
 
 	// resolve interfaces
 	class.interfaces = make([]*Class, len(class.interfaceNames))
@@ -516,7 +523,7 @@ func (this *ClassLoader) prepare(class *Class)  {
 	class.staticVars = make([]Value, class.maxStaticVars)
 	for _, field := range class.fields {
 		if field.IsStatic() {
-			class.staticVars[field.index] = field.defaultValue()
+			class.staticVars[field.slot] = field.defaultValue()
 		}
 	}
 }

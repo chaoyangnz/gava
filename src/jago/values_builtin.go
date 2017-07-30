@@ -91,7 +91,19 @@ func NewJavaLangString(str string) JavaLangString {
 	return VM_intern_String(object.(Reference))
 }
 
-type JavaLangClass interface {ObjectRef}
+type JavaLangClass interface {
+	ObjectRef
+	attachType(type0 Type)
+	retrieveType() Type
+}
+
+func (this Reference) attachType(type0 Type)  {
+	this.SetExtra(type0)
+}
+func (this Reference) retrieveType() Type {
+	return this.GetExtra().(Type)
+}
+
 type JavaLangReflectField interface {ObjectRef}
 type JavaLangReflectConstructor interface{ObjectRef}
 type JavaLangReflectMethod interface {ObjectRef}
@@ -99,9 +111,9 @@ type JavaLangClassLoader interface{ObjectRef}
 
 // if need to attach extra *Class, do it yourself!!
 func NewJavaLangClass(_type Type) JavaLangClass {
-	object := NewObject(JAVA_LANG_CLASS)
+	object := NewObject(JAVA_LANG_CLASS).(JavaLangClass)
 
-	object.SetExtra(_type) // attach Class to it
+	object.attachType(_type) // attach Class to it
 
 	return object
 }
@@ -131,7 +143,7 @@ func NewJavaLangReflectField(field *Field) JavaLangReflectField {
 
 	fieldObject.SetInstanceVariableByName("type", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, VM_getTypeClass(field.descriptor))
 	fieldObject.SetInstanceVariableByName("modifiers", JVM_SIGNATURE_INT, Int(field.accessFlags))
-	fieldObject.SetInstanceVariableByName("slot", JVM_SIGNATURE_INT, Int(field.index))
+	fieldObject.SetInstanceVariableByName("slot", JVM_SIGNATURE_INT, Int(field.slot))
 	fieldObject.SetInstanceVariableByName("signature", JVM_SIGNATURE_CLASS + JAVA_LANG_STRING + JVM_SIGNATURE_ENDCLASS, NewJavaLangString(field.descriptor))
 
 	annotations := NewArray("[B", 0) //TODO
@@ -178,7 +190,19 @@ func NewJavaLangReflectConstructor(method *Method) JavaLangReflectConstructor {
 	return constructorObject
 }
 
-type JavaLangThread interface {ObjectRef}
+type JavaLangThread interface {
+	ObjectRef
+	attatchThread(thread *Thread)
+	retrieveThread() *Thread
+}
+
+func (this Reference) attatchThread(thread *Thread)  {
+	this.SetExtra(thread)
+}
+
+func (this Reference) retrieveThread() *Thread  {
+	return this.GetExtra().(*Thread)
+}
 
 func NewJavaLangThread(name string) JavaLangThread {
 	jThread := NewObject(JAVA_LANG_THREAD)
@@ -189,10 +213,10 @@ func NewJavaLangThread(name string) JavaLangThread {
 
 	jThread.SetInstanceVariableByName("name", "Ljava/lang/String;", NewJavaLangString(name))
 	jThread.SetInstanceVariableByName("group", "Ljava/lang/ThreadGroup;", jThreadGroup)
-	jThread.SetInstanceVariableByName("priority", "I", Int(1))
+	jThread.SetInstanceVariableByName("priority", "I", Int(5))
 	// no initialization here
 
-	return jThread
+	return jThread.(JavaLangThread)
 }
 
 func NewThrowable(exception string, message string, args ...interface{}) Reference {

@@ -88,13 +88,18 @@ type Object struct {
 	values      []Value
 }
 
-type ObjectRef interface {
+type Ref interface {
 	Value
 	IsNull() bool
 	IsEqual(reference Reference) bool
 	Class() *Class
 	GetExtra() interface{}
 	SetExtra(extra interface{})
+	Monitor() *Monitor
+}
+
+type ObjectRef interface {
+	Ref
 
 	GetInstanceVariable(index Int) Value
 	SetInstanceVariable(index Int, value Value)
@@ -103,12 +108,7 @@ type ObjectRef interface {
 }
 
 type ArrayRef interface {
-	Value
-	IsNull() bool
-	IsEqual(reference Reference) bool
-	Class() *Class
-	GetExtra() interface{}
-	SetExtra(extra interface{})
+	Ref
 
 	Elements() []Value
 	Length() Int
@@ -170,7 +170,7 @@ func (this Reference) GetInstanceVariableByName(name string, descriptor string) 
 	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}
-	return objectref.values[field.index]
+	return objectref.values[field.slot]
 }
 func (this Reference) SetInstanceVariableByName(name string, descriptor string, value Value) {
 	this.assertObject()
@@ -183,7 +183,7 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}
-	objectref.values[field.index] = value
+	objectref.values[field.slot] = value
 }
 
 func (this Reference) dump() {
@@ -191,7 +191,7 @@ func (this Reference) dump() {
 		LOG.Debug("Dump object (%s): {", this.Class().Name())
 		for _, field := range this.Class().fields {
 			if !field.IsStatic() {
-				value := this.GetInstanceVariable(Int(field.index))
+				value := this.GetInstanceVariable(Int(field.slot))
 				LOG.Debug("\t%s: %v", field.name, value)
 			}
 		}

@@ -38,7 +38,7 @@ func RegisterNatives()  {
 
 	register_java_security_AccessController()
 
-
+	register_java_lang_reflect_Array()
 
 	register_sun_misc_VM()
 	register_sun_misc_Unsafe()

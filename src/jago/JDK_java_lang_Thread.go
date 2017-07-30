@@ -6,6 +6,8 @@ func register_java_lang_Thread() {
 	register("java/lang/Thread.setPriority0(I)V", JDK_java_lang_Thread_setPriority0)
 	register("java/lang/Thread.isAlive()Z", JDK_java_lang_Thread_isAlive)
 	register("java/lang/Thread.start0()V", JDK_java_lang_Thread_start0)
+	register("java/lang/Thread.sleep(J)V", JDK_java_lang_Thread_sleep)
+	register("java/lang/Thread.interrupt0()V", JDK_java_lang_Thread_interrupt0)
 }
 
 // private static void registerNatives()
@@ -39,5 +41,18 @@ func JDK_java_lang_Thread_start0(this Reference) {
 
 	thread.threadObject = this
 	thread.start()
+}
+
+func JDK_java_lang_Thread_sleep(millis Long)  {
+	thread := VM_currentThread()
+	interrupted := thread.sleep(int64(millis))
+	if interrupted {
+		VM_throw("java/lang/InterruptedException", "sleep interrupted")
+	}
+}
+
+func JDK_java_lang_Thread_interrupt0(this JavaLangThread) {
+	thread := this.GetExtra().(*Thread)
+	thread.interrupt()
 }
 

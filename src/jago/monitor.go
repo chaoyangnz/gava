@@ -1,14 +1,21 @@
 package jago
 
-import "sync"
+import (
+	"sync"
+	"github.com/orcaman/concurrent-map"
+	"time"
+)
 
 type Monitor struct {
 	object     *Object
-	owner      *Thread // *rtda.Thread
+	owner      *Thread
 	l          sync.Locker
 	lock       sync.Locker
 	entryCount int
-	cond       *sync.Cond
+
+	ch         chan int
+
+	waits   cmap.ConcurrentMap
 }
 
 func NewMonitor(obj *Object) *Monitor {
@@ -16,16 +23,20 @@ func NewMonitor(obj *Object) *Monitor {
 	m.object = obj
 	m.l = &sync.Mutex{}
 	m.lock = &sync.Mutex{}
-	m.cond = sync.NewCond(m.lock)
+	m.ch = make(chan int)
+	m.waits = cmap.New()
 	return m
 }
 
-func (self *Monitor) Enter(thread *Thread) {
+func (self *Monitor) Enter() {
+	thread := VM_currentThread()
 	LOG.Info("[monitor] thread '%s' #%d enter monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+
 	self.l.Lock()
 	if self.owner == thread {
 		self.entryCount++
 		self.l.Unlock()
+		self.waits.SetIfAbsent(tid2str(thread.id), thread)
 		return
 	} else {
 		self.l.Unlock()
@@ -36,11 +47,14 @@ func (self *Monitor) Enter(thread *Thread) {
 	self.l.Lock()
 	self.owner = thread
 	self.entryCount = 1
+	self.waits.Remove(tid2str(thread.id))
 	self.l.Unlock()
 }
 
-func (self *Monitor) Exit(thread *Thread) {
+func (self *Monitor) Exit() {
+	thread := VM_currentThread()
 	LOG.Info("[monitor] thread '%s' #%d exit monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+
 	self.l.Lock()
 	var _unlock bool
 	if self.owner == thread {
@@ -65,27 +79,69 @@ func (self *Monitor) HasOwner(thread *Thread) bool {
 	return isOwner
 }
 
-func (self *Monitor) Wait() {
+const _notify  = 1
+const _wait_timeout = 2
+
+func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	thread := VM_currentThread()
 	LOG.Info("[monitor] thread '%s' #%d wait on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+
+	if thread.interrupted {
+		thread.interrupted = false
+		return true
+	}
+
+	// here current thread must acquire lock
+	thread.waiting = true
+
 	self.l.Lock()
-	oldEntryCount := self.entryCount
-	oldOwner := self.owner
-	self.entryCount = 0
-	self.owner = nil
+	self.Exit()// temporarily release owner
 	self.l.Unlock()
 
-	self.cond.Wait()
+	go func() {
+		time.Sleep(time.Duration(millis) * time.Millisecond)
+
+		self.ch <- _wait_timeout
+
+		if thread.waiting { // not interrupted
+			thread.waiting = false
+		}
+	}()
+
+	for {
+		select {
+		case ch := <- self.ch:
+			if ch ==_notify || ch == _wait_timeout {
+				thread.waiting = false
+				interrupted = false
+				break
+			}
+		case ch := <-self.owner.ch:
+			if ch == _interrupt {
+				thread.waiting = false
+				thread.interrupted = false
+				interrupted = true
+				return
+			}
+		}
+	}
+
+
 	LOG.Info("[monitor] thread '%s' #%d wait end on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	self.l.Lock()
-	self.entryCount = oldEntryCount
-	self.owner = oldOwner
+	self.Enter()// again compete to acquire owner
 	self.l.Unlock()
+
+	return
 }
 
 func (self *Monitor) NotifyAll() {
 	thread := VM_currentThread()
 	LOG.Info("[monitor] thread '%s' #%d notifyAll on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
-	self.cond.Broadcast()
+
+	if !self.waits.IsEmpty() {
+		self.ch <- _notify
+	}
+
 }

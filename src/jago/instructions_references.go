@@ -7,7 +7,7 @@ func GETSTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 	fieldref := c.constantPool[index].(*FieldRef)
 	field := fieldref.ResolvedField()
 
-	f.push(field.class.staticVars[field.index])
+	f.push(field.class.staticVars[field.slot])
 }
 
 /*179 (0xB3)*/
@@ -18,7 +18,7 @@ func PUTSTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 	fieldref := c.constantPool[index].(*FieldRef)
 	field := fieldref.ResolvedField()
 
-	field.class.staticVars[field.index] = value
+	field.class.staticVars[field.slot] = value
 }
 
 /*180 (0xB4)*/
@@ -227,7 +227,7 @@ func MONITORENTER(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/NullPointerException", "")
 	}
 
-	objectref.Monitor().Enter(VM_currentThread())
+	objectref.Monitor().Enter()
 }
 
 /*195 (0xC3)*/
@@ -238,5 +238,5 @@ func MONITOREXIT(t *Thread, f *Frame, c *Class, m *Method) {
 		VM_throw("java/lang/NullPointerException", "")
 	}
 
-	objectref.Monitor().Exit(VM_currentThread())
+	objectref.Monitor().Exit()
 }
