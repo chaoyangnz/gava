@@ -224,6 +224,8 @@ jago --log:execution debug --log:classload debug example.Calendar 8 2017
 - Tree Traverse
 ```bash
 jago --log:execution debug --log:classload debug example.TreeInOrderTraverse
+```
+```bash
 jago --log:execution debug --log:classload debug example.TreeLevelOrderTraverse
 ```
 - Exception handling
