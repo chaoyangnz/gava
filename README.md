@@ -1,6 +1,6 @@
 # Jago
 
-A simplified Java interpreter written in Go language. This project is to learn JVM specification in depth and try to understand the
+A simplified Java virtual machine written in Go language. This project is to learn JVM specification in depth and try to understand the
 under-the-water mechanism when a Java program runs.
 
 Basically, I only refer to "Java Virtual Machine Specification" and then compose how we should design one. 
@@ -10,7 +10,7 @@ demonstrate the idea. For the educational purpose, it is enough.
 # Roadmap
 
 - Java class parser
-- Interpreter
+- Interpreter engine
 - Bridge JNI native method
 - multi-threading support
 - monitor, sleep, wait, notify support
@@ -213,7 +213,7 @@ Exception in thread "main" test/Exception2: this is exception 2
 # Showcases with example programs
 
 - Print pyramid
-```bash
+````
 jago --log:execution debug --log:classload debug example.Pyramid
 ```
 - Show Calendar
