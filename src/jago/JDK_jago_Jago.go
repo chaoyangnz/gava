@@ -1,15 +1,15 @@
 package jago
 
 func register_jago_Jago() {
-	register("jago/Jago.print(Ljava/lang/String;)V", JDK_jago_Jago_print)
-	register("jago/Jago.print(D)V", JDK_jago_Jago_printDouble)
+	VM.RegisterNative("jago/Jago.print(Ljava/lang/String;)V", JDK_jago_Jago_print)
+	VM.RegisterNative("jago/Jago.print(D)V", JDK_jago_Jago_printDouble)
 }
 
 func JDK_jago_Jago_print(str JavaLangString) {
-	VM_stdoutPrintf("%s", str.toNativeString())
+	VM.StdoutPrintf("%s", str.toNativeString())
 }
 
 func JDK_jago_Jago_printDouble(d Double)  {
-	VM_stdoutPrintf("%v", d)
+	VM.StdoutPrintf("%v", d)
 }
 

@@ -1,7 +1,7 @@
 package jago
 
 func register_sun_reflect_NativeConstructorAccessorImpl() {
-	register("sun/reflect/NativeConstructorAccessorImpl.newInstance0(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;)Ljava/lang/Object;", JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0)
+	VM.RegisterNative("sun/reflect/NativeConstructorAccessorImpl.newInstance0(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;)Ljava/lang/Object;", JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0)
 }
 
 func JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor JavaLangReflectConstructor, args ArrayRef) ObjectRef {
@@ -11,13 +11,13 @@ func JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor Java
 
 	method := class.GetConstructor(descriptor)
 
-	objeref := class.NewObject()
+	objeref := VM.NewObject(class)
 	allArgs := []Value {objeref}
 	if !args.IsNull() {
-		allArgs = append(allArgs, args.(Reference).oop.values...)
+		allArgs = append(allArgs, args.(Reference).oop.slots...)
 	}
 
-	VM_invokeMethod(method, allArgs...)
+	VM.InvokeMethod(method, allArgs...)
 
 	return objeref
 }

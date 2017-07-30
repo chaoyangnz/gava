@@ -375,7 +375,7 @@ func LDC(t *Thread, f *Frame, c *Class, m *Method) {
 	case *MethodTypeConstant, *MethodHandleConstant:
 		// TODO
 	default:
-		VM_throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
+		VM.Throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
 }
 
@@ -455,7 +455,7 @@ func LDC_W(t *Thread, f *Frame, c *Class, m *Method) {
 	case *MethodTypeConstant, *MethodHandleConstant:
 		// TODO
 	default:
-		VM_throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
+		VM.Throw("java/lang/UnknownError", "Must be a run-time constant of type int or float, or a reference to a string literal, or a symbolic reference to a class, method type, or method handle")
 	}
 }
 
@@ -509,6 +509,6 @@ func LDC2_W(t *Thread, f *Frame, c *Class, m *Method) {
 	case *DoubleConstant:
 		f.push(cpInfo.(*DoubleConstant).value)
 	default:
-		VM_throw("java/lang/UnknownError", "Not long or double in constant pool")
+		VM.Throw("java/lang/UnknownError", "Not long or double in constant pool")
 	}
 }

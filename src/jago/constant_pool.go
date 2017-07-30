@@ -21,7 +21,7 @@ func (this *ClassRef) ResolvedClass() *Class {
 }
 
 func (this *ClassRef) resolve()  {
-	this.class = BOOTSTRAP_CLASSLOADER.CreateClass(this.className, TRIGGER_BY_RESOLVE_CLASS_REF)
+	this.class = VM.CreateClass(this.className, TRIGGER_BY_RESOLVE_CLASS_REF)
 }
 
 type MemberRef struct {
@@ -41,7 +41,7 @@ func (this *MemberRef) ResolvedClass() *Class {
 }
 
 func (this *MemberRef) resolve() {
-	this.class = BOOTSTRAP_CLASSLOADER.CreateClass(this.className, TRIGGER_BY_RESOLVE_CLASS_REF)
+	this.class = VM.CreateClass(this.className, TRIGGER_BY_RESOLVE_CLASS_REF)
 	//this.class.Link()
 }
 
@@ -118,7 +118,7 @@ func (this *StringConstant) ResolvedString() ObjectRef {
 }
 
 func (this *StringConstant) resolve() {
-	this.jstring = NewJavaLangString(this.value)
+	this.jstring = VM.NewJavaLangString(this.value)
 }
 
 

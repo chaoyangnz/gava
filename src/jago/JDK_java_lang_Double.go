@@ -3,8 +3,8 @@ package jago
 import "math"
 
 func register_java_lang_Double() {
-	register("java/lang/Double.doubleToRawLongBits(D)J", JDK_jang_lang_Double_doubleToRawLongBits)
-	register("java/lang/Double.longBitsToDouble(J)D", JDK_jang_lang_Double_longBitsToDouble)
+	VM.RegisterNative("java/lang/Double.doubleToRawLongBits(D)J", JDK_jang_lang_Double_doubleToRawLongBits)
+	VM.RegisterNative("java/lang/Double.longBitsToDouble(J)D", JDK_jang_lang_Double_longBitsToDouble)
 }
 
 // public static native int floatToRawIntBits(float value)

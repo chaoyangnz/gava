@@ -7,8 +7,8 @@ import (
 )
 
 func register_java_io_FieOutputStream() {
-	register("java/io/FileOutputStream.initIDs()V", JDK_java_io_FileOutputStream_initIDs)
-	register("java/io/FileOutputStream.writeBytes([BIIZ)V", JDK_java_io_FileOutputStream_writeBytes)
+	VM.RegisterNative("java/io/FileOutputStream.initIDs()V", JDK_java_io_FileOutputStream_initIDs)
+	VM.RegisterNative("java/io/FileOutputStream.writeBytes([BIIZ)V", JDK_java_io_FileOutputStream_writeBytes)
 }
 
 func JDK_java_io_FileOutputStream_initIDs() {
@@ -16,9 +16,9 @@ func JDK_java_io_FileOutputStream_initIDs() {
 }
 
 func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, off Int, len Int, append Boolean) {
-	bytes := make([]int8, byteArr.Length())
-	for i := 0; i < int(byteArr.Length()); i++ {
-		bytes[i] = int8(byteArr.GetElement(Int(i)).(Byte))
+	bytes := make([]int8, byteArr.ArrayLength())
+	for i := 0; i < int(byteArr.ArrayLength()); i++ {
+		bytes[i] = int8(byteArr.GetArrayElement(Int(i)).(Byte))
 	}
 
 	bytes = bytes[off : off+len]

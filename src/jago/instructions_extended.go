@@ -51,7 +51,7 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	for j:= int(dimensions-1); j >= 0; j-- {
 		counts[j] = f.pop().(Int)
 		if counts[j] < 0 {
-			VM_throw("java/lang/NegativeArraySizeException", "Array size cannot be negative")
+			VM.Throw("java/lang/NegativeArraySizeException", "Array size cannot be negative")
 		}
 		EXEC_LOG.Trace("\t%d", counts[j])
 	}
@@ -61,22 +61,10 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("Non-Array class %s cannot be used to new multi-dimensional array", class.name)
 	}
 
-	f.push(newMultiDimensioalArray(counts, class))
+	f.push(VM.NewMultiDimensioalArray(class, counts))
 }
 
-func newMultiDimensioalArray(counts []Int, class *Class) ArrayRef {
-	count := counts[0]
-	arr := class.NewArray(count)
 
-	if len(counts) > 1 {
-		elements := arr.Elements()
-		for i := range elements {
-			elements[i] = newMultiDimensioalArray(counts[1:], class.componentType.(*Class))
-		}
-	}
-
-	return  arr
-}
 
 /*198 (0xC6)*/
 func IFNULL(t *Thread, f *Frame, c *Class, m *Method) {

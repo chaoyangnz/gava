@@ -49,12 +49,12 @@ func INVOKEVIRTUAL(t *Thread, f *Frame, c *Class, m *Method) {
 	params := f.loadParameters(method)
 	objectref := params[0].(Reference)
 	if objectref.IsNull() {
-		VM_throw("java/lang/NullPointerException", "Cannot call method %s.%s%s on null", method.class.name, method.name, method.descriptor)
+		VM.Throw("java/lang/NullPointerException", "Cannot call method %s.%s%s on null", method.class.name, method.name, method.descriptor)
 	}
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-	f.push(VM_invokeMethod(overridenMethod, params...))
+	f.push(VM.InvokeMethod(overridenMethod, params...))
 }
 
 // like invokevirtual with objectref, but don't find along the inheritance
@@ -65,7 +65,7 @@ func INVOKESPECIAL(t *Thread, f *Frame, c *Class, m *Method) {
 	method := c.constantPool[index].(*MethodRef).ResolvedMethod()
 	params := f.loadParameters(method)
 
-	f.push(VM_invokeMethod(method, params...))
+	f.push(VM.InvokeMethod(method, params...))
 }
 
 /*184 (0xB8)*/
@@ -77,7 +77,7 @@ func INVOKESTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 	method := methodref.ResolvedMethod()
 	params := f.loadParameters(method)
 
-	f.push(VM_invokeMethod(method, params...))
+	f.push(VM.InvokeMethod(method, params...))
 }
 
 /*185 (0xB9)*/
@@ -97,7 +97,7 @@ func INVOKEINTERFACE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	overridenMethod := objectref.Class().FindMethod(method.name, method.descriptor)
 
-	f.push(VM_invokeMethod(overridenMethod, params...))
+	f.push(VM.InvokeMethod(overridenMethod, params...))
 }
 
 /*186 (0xBA)*/
@@ -109,7 +109,7 @@ func INVOKEDYNAMIC(t *Thread, f *Frame, c *Class, m *Method) {
 func NEW(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass()
-	objectref := class.NewObject()
+	objectref := VM.NewObject(class)
 	f.push(objectref)
 }
 
@@ -142,8 +142,8 @@ func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("Invalid atype value")
 	}
 	count := f.pop().(Int)
-	arrayClass := BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, TRIGGER_BY_NEW_INSTANCE)
-	arrayref := arrayClass.NewArray(count)
+	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, TRIGGER_BY_NEW_INSTANCE)
+	arrayref := VM.NewArray(arrayClass, count)
 	f.push(arrayref)
 }
 
@@ -155,29 +155,29 @@ func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	var arrayClass *Class
 	componentType := c.constantPool[index].(*ClassRef).ResolvedClass()
 	if !componentType.IsArray() {
-		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, TRIGGER_BY_NEW_INSTANCE)
+		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, TRIGGER_BY_NEW_INSTANCE)
 	} else {
-		arrayClass = BOOTSTRAP_CLASSLOADER.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), TRIGGER_BY_NEW_INSTANCE)
+		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), TRIGGER_BY_NEW_INSTANCE)
 	}
 
-	arrayref := arrayClass.NewArray(count)
+	arrayref := VM.NewArray(arrayClass, count)
 
 	f.push(arrayref)
 }
 
 /*190 (0xBE)*/
 func ARRAYLENGTH(t *Thread, f *Frame, c *Class, m *Method) {
-	f.push(f.pop().(ArrayRef).Length())
+	f.push(f.pop().(ArrayRef).ArrayLength())
 }
 
 /*191 (0xBF)*/
 func ATHROW(t *Thread, f *Frame, c *Class, m *Method) {
 	throwable := f.pop().(Reference)
 	if throwable.IsNull() {
-		VM_throw("java/lang/NullPointerException", "cannot throw a null throwable")
+		VM.Throw("java/lang/NullPointerException", "cannot throw a null throwable")
 	}
 
-	VM_Throw0(throwable, THROWN_BY_ATHROW)
+	VM.Throw0(throwable, THROWN_BY_ATHROW)
 }
 
 /*192 (0xC0)*/
@@ -196,7 +196,7 @@ func CHECKCAST(t *Thread, f *Frame, c *Class, m *Method) {
 		return
 	}
 
-	VM_throw("java/lang/ClassCastException", "cannot cast from " + objectref.Class().Name() + " to " + class.Name())
+	VM.Throw("java/lang/ClassCastException", "cannot cast from " + objectref.Class().Name() + " to " + class.Name())
 }
 
 /*193 (0xC1)*/
@@ -224,7 +224,7 @@ func INSTANCEOF(t *Thread, f *Frame, c *Class, m *Method) {
 func MONITORENTER(t *Thread, f *Frame, c *Class, m *Method) {
 	objectref := f.pop().(Reference)
 	if objectref.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 
 	objectref.Monitor().Enter()
@@ -235,7 +235,7 @@ func MONITOREXIT(t *Thread, f *Frame, c *Class, m *Method) {
 	objectref := f.pop().(Reference)
 
 	if objectref.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 
 	objectref.Monitor().Exit()

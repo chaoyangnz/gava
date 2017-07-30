@@ -84,8 +84,8 @@ type ObjectHeader struct {
 }
 
 type Object struct {
-	header       ObjectHeader
-	values      []Value
+	header ObjectHeader
+	slots  []Value
 }
 
 type Ref interface {
@@ -110,10 +110,10 @@ type ObjectRef interface {
 type ArrayRef interface {
 	Ref
 
-	Elements() []Value
-	Length() Int
-	GetElement(index Int) Value
-	SetElement(index Int, value Value)
+	ArrayElements() []Value
+	ArrayLength() Int
+	GetArrayElement(index Int) Value
+	SetArrayElement(index Int, value Value)
 }
 
 type Reference struct {
@@ -137,7 +137,7 @@ func (this Reference) IsEqual(reference Reference) bool {
 
 func (this Reference) assertObject()  {
 	if this.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 	if this.Class().IsArray() {
 		Bug("It is not an ObjectRef")
@@ -156,11 +156,11 @@ func (this Reference) SetExtra(extra interface{}) {
 	this.oop.header.extra = extra
 }
 func (this Reference) GetInstanceVariable(index Int) Value {
-	return this.oop.values[index]
+	return this.oop.slots[index]
 }
 func (this Reference) SetInstanceVariable(index Int, value Value) {
 	this.assertObject()
-	this.oop.values[index] = value
+	this.oop.slots[index] = value
 }
 func (this Reference) GetInstanceVariableByName(name string, descriptor string) Value {
 	this.assertObject()
@@ -170,7 +170,7 @@ func (this Reference) GetInstanceVariableByName(name string, descriptor string) 
 	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}
-	return objectref.values[field.slot]
+	return objectref.slots[field.slot]
 }
 func (this Reference) SetInstanceVariableByName(name string, descriptor string, value Value) {
 	this.assertObject()
@@ -183,7 +183,7 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}
-	objectref.values[field.slot] = value
+	objectref.slots[field.slot] = value
 }
 
 func (this Reference) dump() {
@@ -201,30 +201,30 @@ func (this Reference) dump() {
 
 func (this Reference) assertArray()  {
 	if this.IsNull() {
-		VM_throw("java/lang/NullPointerException", "")
+		VM.Throw("java/lang/NullPointerException", "")
 	}
 	if !this.Class().IsArray() {
 		Bug("It is not an ArrayRef")
 	}
 }
-func (this Reference) Elements() []Value  {
+func (this Reference) ArrayElements() []Value  {
 	this.assertArray()
-	return this.oop.values
+	return this.oop.slots
 }
-func (this Reference) Length() Int  {
+func (this Reference) ArrayLength() Int  {
 	this.assertArray()
-	return Int(len(this.oop.values))
+	return Int(len(this.oop.slots))
 }
-func (this Reference) GetElement(index Int) Value {
+func (this Reference) GetArrayElement(index Int) Value {
 	this.assertArray()
-	return this.oop.values[index]
+	return this.oop.slots[index]
 }
-func (this Reference) SetElement(index Int, value Value) {
+func (this Reference) SetArrayElement(index Int, value Value) {
 	this.assertArray()
-	if index >= this.Length() {
-		VM_throw("java/lang/ArrayIndexOutOfBoundsException", "%d exceeded array boundary %d", index, this.Length())
+	if index >= this.ArrayLength() {
+		VM.Throw("java/lang/ArrayIndexOutOfBoundsException", "%d exceeded array boundary %d", index, this.ArrayLength())
 	}
-	this.oop.values[index] = value
+	this.oop.slots[index] = value
 }
 
 func (this Reference) AsObjectRef() ObjectRef {
@@ -234,20 +234,7 @@ func (this Reference) AsArrayRef() ArrayRef {
 	return this
 }
 
-func NewObject(className string) ObjectRef {
-	class := BOOTSTRAP_CLASSLOADER.CreateClass(className, TRIGGER_BY_NEW_INSTANCE)
 
-	return class.NewObject()
-}
-
-/*
-arrayClassName is the full array class, not its component type
- */
-func NewArray(arrayClassName string, length Int) ArrayRef {
-	class := BOOTSTRAP_CLASSLOADER.CreateClass(arrayClassName, TRIGGER_BY_NEW_INSTANCE)
-
-	return class.NewArray(length)
-}
 
 
 

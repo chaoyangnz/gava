@@ -29,7 +29,7 @@ func NewMonitor(obj *Object) *Monitor {
 }
 
 func (self *Monitor) Enter() {
-	thread := VM_currentThread()
+	thread := VM.CurrentThread()
 	LOG.Info("[monitor] thread '%s' #%d enter monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	self.l.Lock()
@@ -52,7 +52,7 @@ func (self *Monitor) Enter() {
 }
 
 func (self *Monitor) Exit() {
-	thread := VM_currentThread()
+	thread := VM.CurrentThread()
 	LOG.Info("[monitor] thread '%s' #%d exit monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	self.l.Lock()
@@ -83,7 +83,7 @@ const _notify  = 1
 const _wait_timeout = 2
 
 func (self *Monitor) Wait(millis int64) (interrupted bool) {
-	thread := VM_currentThread()
+	thread := VM.CurrentThread()
 	LOG.Info("[monitor] thread '%s' #%d wait on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	if thread.interrupted {
@@ -137,7 +137,7 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 }
 
 func (self *Monitor) NotifyAll() {
-	thread := VM_currentThread()
+	thread := VM.CurrentThread()
 	LOG.Info("[monitor] thread '%s' #%d notifyAll on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	if !self.waits.IsEmpty() {

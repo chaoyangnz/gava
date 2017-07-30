@@ -3,7 +3,7 @@ package jago
 import "math"
 
 func register_java_lang_StrictMath()  {
-	register("java/lang/StrictMath.pow(DD)D", JDK_java_lang_StrictMath_pow)
+	VM.RegisterNative("java/lang/StrictMath.pow(DD)D", JDK_java_lang_StrictMath_pow)
 }
 
 // private static void registers()

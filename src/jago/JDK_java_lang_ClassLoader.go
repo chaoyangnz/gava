@@ -1,9 +1,9 @@
 package jago
 
 func register_java_lang_ClassLoader() {
-	register("java/lang/ClassLoader.registerNatives()V", JDK_java_lang_ClassLoader_registerNatives)
-	register("java/lang/ClassLoader.findBuiltinLib(Ljava/lang/String;)Ljava/lang/String;", JDK_java_lang_ClassLoader_findBuiltinLib)
-	register("java/lang/ClassLoader$NativeLibrary.load(Ljava/lang/String;Z)V", JDK_java_lang_ClassLoader_NativeLibrary_load)
+	VM.RegisterNative("java/lang/ClassLoader.registerNatives()V", JDK_java_lang_ClassLoader_registerNatives)
+	VM.RegisterNative("java/lang/ClassLoader.findBuiltinLib(Ljava/lang/String;)Ljava/lang/String;", JDK_java_lang_ClassLoader_findBuiltinLib)
+	VM.RegisterNative("java/lang/ClassLoader$NativeLibrary.load(Ljava/lang/String;Z)V", JDK_java_lang_ClassLoader_NativeLibrary_load)
 }
 
 func JDK_java_lang_ClassLoader_registerNatives() {

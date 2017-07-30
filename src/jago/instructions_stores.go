@@ -519,7 +519,7 @@ func IASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, value)
+	arrayref.SetArrayElement(index, value)
 	//TODO check component type and boundary
 }
 
@@ -528,7 +528,7 @@ func LASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, value)
+	arrayref.SetArrayElement(index, value)
 	//TODO check component type and boundary
 }
 
@@ -537,7 +537,7 @@ func FASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, value)
+	arrayref.SetArrayElement(index, value)
 	//TODO check component type and boundary
 }
 
@@ -546,7 +546,7 @@ func DASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Double)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, value)
+	arrayref.SetArrayElement(index, value)
 	//TODO check component type and boundary
 }
 
@@ -555,7 +555,7 @@ func AASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(ObjectRef)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, value)
+	arrayref.SetArrayElement(index, value)
 	//TODO check component type, boundary and subtypes
 }
 
@@ -564,7 +564,7 @@ func BASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, Byte(value))
+	arrayref.SetArrayElement(index, Byte(value))
 	//TODO check component type and boundary
 }
 
@@ -574,7 +574,7 @@ func CASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
 
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, Char(value))
+	arrayref.SetArrayElement(index, Char(value))
 	//TODO check component type and boundary
 }
 
@@ -583,6 +583,6 @@ func SASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 	index := f.pop().(Int)
 	arrayref := f.pop().(ArrayRef)
-	arrayref.SetElement(index, Short(value))
+	arrayref.SetArrayElement(index, Short(value))
 	//TODO check component type and boundary
 }

@@ -2,7 +2,6 @@ package jago
 
 import (
 	"strings"
-	"hash/fnv"
 )
 
 /*
@@ -33,14 +32,14 @@ type PrimitiveType interface {
 }
 
 type (
-	ByteType struct {}
-	ShortType struct {}
-	CharType struct {}
-	IntType struct {}
-	LongType struct {}
-	FloatType struct {}
-	DoubleType struct {}
-	BooleanType struct {}
+	ByteType struct {classObject JavaLangClass}
+	ShortType struct {classObject JavaLangClass}
+	CharType struct {classObject JavaLangClass}
+	IntType struct {classObject JavaLangClass}
+	LongType struct {classObject JavaLangClass}
+	FloatType struct {classObject JavaLangClass}
+	DoubleType struct {classObject JavaLangClass}
+	BooleanType struct {classObject JavaLangClass}
 
 	ReturnAddressType struct {}
 )
@@ -66,7 +65,7 @@ func (this *LongType) Name() string    {return JVM_SIGNATURE_LONG}
 func (this *FloatType) Name() string   {return JVM_SIGNATURE_FLOAT}
 func (this *DoubleType) Name() string  {return JVM_SIGNATURE_DOUBLE}
 func (this *BooleanType) Name() string {return JVM_SIGNATURE_BOOLEAN}
-func (this *ReturnAddressType) Name() string {return "->"}
+func (this *ReturnAddressType) Name() string {return "&"}
 func (this *ByteType) Descriptor() string    {return JVM_SIGNATURE_BYTE}
 func (this *ShortType) Descriptor() string   {return JVM_SIGNATURE_SHORT}
 func (this *CharType) Descriptor() string    {return JVM_SIGNATURE_CHAR}
@@ -75,23 +74,59 @@ func (this *LongType) Descriptor() string    {return JVM_SIGNATURE_LONG}
 func (this *FloatType) Descriptor() string   {return JVM_SIGNATURE_FLOAT}
 func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
 func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
-func (this *ReturnAddressType) Descriptor() string {return "->"}
-func (this *ByteType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *ShortType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *CharType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *IntType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *LongType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *FloatType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *DoubleType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *BooleanType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-func (this *ReturnAddressType) ClassObject() JavaLangClass    {return NewJavaLangClass(this)}
-
-//type ClassType interface {
-//	Type
-//	ClassObject() JavaLangClass
-//	IsAssignableFrom(ClassType) bool
-//	FindMethod(name string, descriptor string) *Method
-//}
+func (this *ReturnAddressType) Descriptor() string {return "&"}
+func (this *ByteType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *ShortType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *CharType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *IntType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *LongType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *FloatType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *DoubleType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *BooleanType) ClassObject() JavaLangClass    {
+	if this.classObject == nil {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
+	return this.classObject
+}
+func (this *ReturnAddressType) ClassObject() JavaLangClass    {
+	Bug("Why does Java code need to access ReturnAddress??")
+	return NULL // never should be accessed from Java code
+}
 
 type Class struct {
 	// shared
@@ -105,6 +140,11 @@ type Class struct {
 	classObject         JavaLangClass
 	classLoader         *ClassLoader
 
+	// support link and initialization
+	defined     bool
+	linked      bool
+	initialized bool
+
 	// ---- these fields are only for non-array class ----
 	constantPool        []Constant
 	fields              []*Field
@@ -117,11 +157,6 @@ type Class struct {
 	staticVarFields     []*Field
 
 	sourceFile          string
-
-	// support link and initialization
-	defined     bool
-	linked      bool
-	initialized bool
 
 	// ---- these fields are nly for array class -------
 	componentType Type // any type
@@ -140,8 +175,6 @@ func (this *Class) ClassObject() JavaLangClass {
 func (this *Class) Descriptor() string  {
 	return JVM_SIGNATURE_CLASS + this.Name() + JVM_SIGNATURE_ENDCLASS
 }
-
-
 
 func (this *Class) IsInterface() bool  {
 	return this.accessFlags & JVM_ACC_INTERFACE > 0
@@ -197,58 +230,6 @@ func (this *Class) IsAssignableFrom(class *Class) bool  {
 	}
 
 	return false
-}
-
-func (this *Class) NewObject() ObjectRef {
-	//this.Link()
-
-	object := &Object{}
-	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32()), monitor: NewMonitor(object)}
-	object.values = make([]Value, this.maxInstanceVars)
-	// Initialize instance variables
-	class := this
-	for class != nil {
-		for _, field := range class.fields {
-			if !field.IsStatic() {
-				object.values[field.slot] = field.defaultValue()
-			}
-		}
-		class = class.superClass
-	}
-
-	// verify initialization
-	for _, instanceVar := range object.values {
-		if instanceVar == nil {
-			Fatal("Something wrong, unfinished instance variable initialization")
-		}
-	}
-
-	return Reference{object}
-}
-
-func (this *Class) NewArray(length Int) ArrayRef {
-	elements := make([]Value, length)
-	for i, _ := range elements {
-		switch this.componentType.(type) {
-		case *ByteType:       elements[i] = Byte(0)
-		case *ShortType:      elements[i] = Short(0)
-		case *CharType:       elements[i] = Char(0)
-		case *IntType:        elements[i] = Int(0)
-		case *LongType:       elements[i] = Long(0)
-		case *FloatType:      elements[i] = Float(0.0)
-		case *DoubleType:     elements[i] = Long(0.0)
-		case *BooleanType:    elements[i] = FALSE
-		case *Class:          elements[i] = NULL
-		default:
-			Fatal("Not a valid component type")
-		}
-	}
-
-	object := &Object{}
-	object.header = ObjectHeader{class: this, hashCode: Int(fnv.New32a().Sum32()), monitor: NewMonitor(object)}
-	object.values = elements
-
-	return Reference{object}
 }
 
 /**
