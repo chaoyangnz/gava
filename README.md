@@ -275,7 +275,7 @@ The fire symbols 🔥 mean throwing exception (thrown by `athrow` bytecode, reth
 This log file records the class loading process, including what triggers a class loading and when its class initialization method \<clinit\> is invoked.
 The trigger reason can be viewed after a class name.
 
-## log/threads.log
+### log/threads.log
 
 This log file records thread creation/exit information and object monitor enter/exit, thread sleep(), wait(), notify() etc.
 
