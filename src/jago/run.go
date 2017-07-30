@@ -14,6 +14,7 @@ var thread_id_key = gls.GenSym()
 type ThreadManager struct {
 	//contextManager *gls.ContextManager
 	threads cmap.ConcurrentMap // [string]*Thread
+	*Logger
 }
 
 func tid2str(tid uint64) string {
@@ -58,13 +59,15 @@ func (this *ThreadManager) RunBootstrapThread(run func()) {
 	thread.threadObject.SetExtra(thread)
 
 	thread.started = true
-	LOG.Info("[thread]Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
+	VM.ThreadManager.Info("[thread ] Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 
 	// start Java code execution
 	thread.runBlock.Do()
 }
 
 func precreateThread(name string, run func(), exitHook func()) *Thread {
+	logLevel, _ := strconv.Atoi(VM.GetSystemSetting("log.thread.level"))
+	logger := VM.NewLogger("thread", logLevel, "thread-[" + name + "].log")
 	thread := &Thread{
 		name: name,
 		vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE),
@@ -72,12 +75,13 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 		//cond: sync.NewCond(&sync.Mutex{}),
 		l: &sync.Mutex{},
 		ch: make(chan int),
+		Logger: logger,
 	}
 
 	thread.runBlock = Block{
 		func() { run() },
 		func(throwable Reference)  {
-			EXEC_LOG.Info("\n💥Exception uncaught  in thread \"%s\", thus print stacktrace on stdout", thread.name)
+			thread.Info("\n💥Exception uncaught  in thread \"%s\", thus print stacktrace on stdout", thread.name)
 			detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 			detailMessageStr := ""
 			if !detailMessage.IsNull() {
@@ -121,8 +125,6 @@ func printStackTrace(throwable Reference)  {
 	}
 }
 
-
-
 func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *Thread {
 	thread := precreateThread(name, run, exitHook)
 
@@ -134,16 +136,16 @@ func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *
 
 		// pause here to wait start command
 		for !thread.started {
-			LOG.Info("[thread]Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
+			VM.ThreadManager.Info("[thread ] Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
 			thread.started = <- thread.ch == _start
 		}
 
-		LOG.Info("[thread]Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
+		VM.ThreadManager.Info("[thread ] Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 		// start Java code execution
 		thread.runBlock.Do()
 
 		// prepare to exit
-		LOG.Info("[thread]Exit thread '%s' %d \n", thread.name, thread.id)
+		VM.ThreadManager.Info("[thread ] Exit thread '%s' %d \n", thread.name, thread.id)
 		this.UnregisterThread(thread)
 		VM_WG.Done()
 	}()
@@ -181,6 +183,8 @@ type Thread struct {
 
 	//cond        *sync.Cond
 
+	*Logger
+
 	threadObject JavaLangThread
 }
 
@@ -214,25 +218,11 @@ func (this *Thread) start()  {
 func (this *Thread) interrupt()  {
 	select {
 	case this.ch <- _interrupt:
-		LOG.Info("[thread]Thread '%s' interrupt \n", this.name)
+		VM.ThreadManager.Info("[thread ] Thread '%s' interrupt \n", this.name)
 	default: // no receivers
 	}
 
 	this.interrupted = true
-
-	//if this.sleeping {
-	//	//this.interrupted = true
-	//	this.sleeping = false
-	//	this.ch <- _interrupt
-	//	return
-	//}
-	//
-	//if this.waiting {
-	//	//this.interrupted = true
-	//	this.waiting = false
-	//	this.ch <- _interrupt
-	//	return
-	//}
 }
 
 func (this *Thread) sleep(millis int64) bool {
@@ -258,6 +248,7 @@ func (this *Thread) sleep(millis int64) bool {
 
 func (this *Thread) NewStackFrame(method *Method) *Frame {
 	stackFrame := &Frame{
+		thread: this,
 		method: method,
 		pc: 0,
 		pos: 1, // all opcode is 1 byte, then operand starts with 1
@@ -281,14 +272,14 @@ func (this *Thread) ExecuteFrame() /* this return is throwable if this method is
 	f := this.current()
 	bytecode := f.method.code
 	if f.pc == 0 {
-		EXEC_LOG.Debug("\n%s🔹[%s]%s", repeat("\t", this.indexOf(f)),this.name, f.method.Qualifier())
+		this.Debug("\n%s🔹[%s]%s", repeat("\t", this.indexOf(f)),this.name, f.method.Qualifier())
 	}
 
 	for f.pc < len(f.method.code) {
 		pc := f.pc
 		opcode := bytecode[pc]
-		instruction := instructions[opcode]
-		EXEC_LOG.Trace("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
+		instruction := VM.GetInstruction(opcode)
+		this.Trace("\n%s%04d ➢ %-18s", repeat("\t", this.indexOf(f)), int(pc), instruction.mnemonic)
 		this.interceptBefore(f)
 		// each instruction execution can throw exception
 		Block{
@@ -313,7 +304,7 @@ func (this *Thread) ExecuteFrame() /* this return is throwable if this method is
 				}
 
 				if caught {
-					EXEC_LOG.Info("\n%s💧Exception caught: %s at %s", repeat("\t", this.indexOf(f)+1), throwable.Class().name, f.method.Qualifier())
+					this.Info("\n%s💧Exception caught: %s at %s", repeat("\t", this.indexOf(f)/*+1*/), throwable.Class().name, f.method.Qualifier())
 					f.jumpPc(handlePc) // move pc
 					f.clear()
 					f.push(throwable)
@@ -352,6 +343,7 @@ func (this *Thread) interceptAfter(frame *Frame)  {
 }
 
 type Frame struct {
+	thread *Thread
 	method *Method
 	// if this this is current this, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
@@ -425,7 +417,7 @@ func (this *Frame) operandPadding() {
 
 func (this *Frame) operandConst8() int8 {
 	constant := int8(this.method.code[this.pos])
-	EXEC_LOG.Trace("\t%d", constant)
+	this.thread.Trace("\t%d", constant)
 	this.pos += 1
 	return constant
 }
@@ -434,7 +426,7 @@ func (this *Frame) operandConst16() int16 {
 	constbyte1 := this.method.code[this.pos]
 	constbyte2 := this.method.code[this.pos+1]
 	constant := int16(uint16(constbyte1) << 8 | uint16(constbyte2))
-	EXEC_LOG.Trace("\t%d", constant)
+	this.thread.Trace("\t%d", constant)
 	this.pos += 2
 	return constant
 }
@@ -445,14 +437,14 @@ func (this *Frame) operandConst32() int32 {
 	constbyte3 := this.method.code[this.pos+2]
 	constbyte4 := this.method.code[this.pos+3]
 	constant := int32((uint32(constbyte1) << 24) | (uint32(constbyte2) << 16) | (uint32(constbyte3) << 8) | uint32(constbyte4))
-	EXEC_LOG.Trace("\t%d", constant)
+	this.thread.Trace("\t%d", constant)
 	this.pos += 4
 	return constant
 }
 
 func (this *Frame) operandIndex8() uint8 {
 	index := uint8(this.method.code[this.pos])
-	EXEC_LOG.Trace("\t♯%d", index)
+	this.thread.Trace("\t♯%d", index)
 	this.pos += 1
 	return index
 }
@@ -461,7 +453,7 @@ func (this *Frame) operandIndex16() uint16 {
 	indexbyte1 := this.method.code[this.pos]
 	indexbyte2 := this.method.code[this.pos+1]
 	index := (uint16(indexbyte1) << 8) | uint16(indexbyte2)
-	EXEC_LOG.Trace("\t♯%d", index)
+	this.thread.Trace("\t♯%d", index)
 	this.pos += 2
 	return index
 }
@@ -471,7 +463,7 @@ func (this *Frame) operandOffset16() int16 {
 	offsetbyte2 := this.method.code[this.pos+1]
 
 	offset := int16((uint16(offsetbyte1) << 8) | uint16(offsetbyte2))
-	EXEC_LOG.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
+	this.thread.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
 	this.pos += 2
 	return offset
 }
@@ -483,7 +475,7 @@ func (this *Frame) operandOffset32() int32 {
 	offsetbyte4 := this.method.code[this.pos+3]
 
 	offset := int32((uint32(offsetbyte1) << 24) | (uint32(offsetbyte2) << 16) | (uint32(offsetbyte3) << 8) | uint32(offsetbyte4))
-	EXEC_LOG.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(offset))
+	this.thread.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(offset))
 
 	this.pos += 4
 	return offset

@@ -1,7 +1,5 @@
 package jago
 
-var NULL = Reference{nil}
-
 const (
 	JAVA_LANG_STRING = "java/lang/String"
 	JAVA_LANG_CLASS = "java/lang/Class"

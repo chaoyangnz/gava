@@ -22,16 +22,16 @@ func RET(t *Thread, f *Frame, c *Class, m *Method) {
 func TABLESWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 	f.operandPadding()
 
-	EXEC_LOG.Trace(" default:")
+	t.Trace(" default:")
 	defaultOffset := f.operandOffset32()
-	EXEC_LOG.Trace(" low-high: ")
+	t.Trace(" low-high: ")
 	low := f.operandConst32()
-	EXEC_LOG.Trace(" ~ ")
+	t.Trace(" ~ ")
 	high := f.operandConst32()
 
 	offsets := make([]int32, high - low + 1)
 	for n:=0; n < int(high - low + 1); n++ {
-		EXEC_LOG.Trace(" %d: ", int(low) + n)
+		t.Trace(" %d: ", int(low) + n)
 		offsets[n] = f.operandOffset32()
 	}
 
@@ -48,11 +48,11 @@ func TABLESWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 	f.operandPadding()
 
-	EXEC_LOG.Trace(" default: ")
+	t.Trace(" default: ")
 	defaultOffset := f.operandOffset32()
-	EXEC_LOG.Trace(" pairs: ")
+	t.Trace(" pairs: ")
 	npairs := f.operandConst32()
-	EXEC_LOG.Trace("\t[")
+	t.Trace("\t[")
 
 	matches := make([]int32, npairs)
 	offsets := make([]int32, npairs)
@@ -64,7 +64,7 @@ func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 		offset := f.operandOffset32()
 		offsets[n] = offset
 	}
-	EXEC_LOG.Trace("\t]")
+	t.Trace("\t]")
 
 	key := f.pop().(Int)
 

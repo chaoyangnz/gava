@@ -116,6 +116,8 @@ type ArrayRef interface {
 	SetArrayElement(index Int, value Value)
 }
 
+var NULL = Reference{nil}
+
 type Reference struct {
 	oop *Object
 }
@@ -188,14 +190,14 @@ func (this Reference) SetInstanceVariableByName(name string, descriptor string, 
 
 func (this Reference) dump() {
 	if !this.IsNull() {
-		LOG.Debug("Dump object (%s): {", this.Class().Name())
+		VM.Debug("Dump object (%s): {", this.Class().Name())
 		for _, field := range this.Class().fields {
 			if !field.IsStatic() {
 				value := this.GetInstanceVariable(Int(field.slot))
-				LOG.Debug("\t%s: %v", field.name, value)
+				VM.Debug("\t%s: %v", field.name, value)
 			}
 		}
-		LOG.Debug("}\n")
+		VM.Debug("}\n")
 	}
 }
 

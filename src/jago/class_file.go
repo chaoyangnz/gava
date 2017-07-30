@@ -77,7 +77,7 @@ func (this *ClassReader) readAttribute() AttributeInfo {
 	case "LocalVariableTable":
 		attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
-		CLASSLOAD_LOG.All("No reader for attribute: %s, skip\n", attributeName)
+		VM.ClassLoader.All("No reader for attribute: %s, skip\n", attributeName)
 		this.readU1s(uint32(attributeLength)) // just skip out
 	}
 
@@ -259,60 +259,6 @@ func (this *ClassFile) readMethods(reader *ClassReader) {
 		this.methods[i] = methodInfo
 	}
 }
-
-func (this *ClassFile) Print(){
-	LOG.Trace("bytes: %d bytes\n", this.size)
-	LOG.Trace("magic: 0x%X\n", this.magic)
-	LOG.Trace("minor version: %d\n", this.minorVersion)
-	LOG.Trace("major version: %d\n", this.majorVersion)
-
-	LOG.Trace("accessFlags: 0x%04x\n", this.accessFlags)
-	LOG.Trace("thisClass: #%d\n", this.thisClass)
-	LOG.Trace("superClass: #%d\n", this.superClass)
-	LOG.Trace("interfaces: %d\n", len(this.interfaces))
-	for i := 0; i < len(this.interfaces); i++  {
-		LOG.Trace("\t#%d", this.interfaces[i])
-	}
-
-	LOG.Trace("fields: %d\n", len(this.fields))
-	for i := 0; i < len(this.fields); i++  {
-		fieldInfo := this.fields[i]
-		LOG.Trace("\t%s %s\n", this.cpUtf8(fieldInfo.nameIndex), this.cpUtf8(fieldInfo.descriptorIndex))
-	}
-
-	LOG.Trace("methods: %d\n", len(this.methods))
-	for i := 0; i < len(this.methods); i++  {
-		methodInfo := this.methods[i]
-		LOG.Trace("\t%s\n", this.cpUtf8(methodInfo.nameIndex))
-		for j :=0; j < len(methodInfo.attributes); j++ {
-			attribute := methodInfo.attributes[j]
-			this.printAttribute(attribute)
-		}
-	}
-
-	LOG.Trace("attributes: %d\n", len(this.attributes))
-	for j :=0; j < len(this.attributes); j++ {
-		attribute := this.attributes[j]
-		this.printAttribute(attribute)
-	}
-}
-
-func (this *ClassFile) printAttribute(attribute AttributeInfo)  {
-	switch attribute.(type) {
-	case *CodeAttribute:
-		codeAttribute := attribute.(*CodeAttribute)
-		LOG.Trace("\t\tCode: %v\n", codeAttribute.code)
-		LOG.Trace("\t\tMax locals: %d\n", codeAttribute.maxLocals)
-		LOG.Trace("\t\tMax stack: %d\n", codeAttribute.maxStack)
-	case *SourceFileAttribue:
-		sourceFileAttribute := attribute.(*SourceFileAttribue)
-		LOG.Trace("\t\tSourceFile: %v\n", this.cpUtf8(sourceFileAttribute.sourceFileIndex))
-	case *LineNumberTableAttribute:
-		lineNumberTableAttribute := attribute.(*LineNumberTableAttribute)
-		LOG.Trace("\t\tlineNumberTableAttribute: %v\n", lineNumberTableAttribute)
-	}
-}
-
 
 func (this *ClassFile) cpUtf8(index u2) string  {
 	u1s:= this.constantPool[index].(*ConstantUtf8Info).bytes

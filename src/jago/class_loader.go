@@ -12,6 +12,7 @@ type ClassLoader struct {
 	classCache    cmap.ConcurrentMap
 	parent        *ClassLoader
 	depth         int // current load indexOf
+	*Logger
 }
 
 type ClassTriggerReason struct {
@@ -39,10 +40,10 @@ func (this *ClassLoader) internalCreateClass(className string, requireInitialize
 		return class.(*Class)
 	}
 
-	CLASSLOAD_LOG.Debug(repeat("\t", this.depth) + "↳ %s ", className)
-	CLASSLOAD_LOG.Debug("(reason: %s", triggerReason.code)
-	CLASSLOAD_LOG.Trace(" - %s", triggerReason.desc)
-	CLASSLOAD_LOG.Debug(")\n")
+	VM.ClassLoader.Debug(repeat("\t", this.depth) + "↳ %s ", className)
+	VM.ClassLoader.Debug("(reason: %s", triggerReason.code)
+	VM.ClassLoader.Trace(" - %s", triggerReason.desc)
+	VM.ClassLoader.Debug(")\n")
 	this.depth++
 
 	var class *Class
@@ -498,7 +499,7 @@ func (this *ClassLoader) initialize(class *Class) {
 		if class.superClass != nil {
 			this.initialize(class.superClass)
 		}
-		CLASSLOAD_LOG.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
+		VM.ClassLoader.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
 		VM.InvokeMethod(clinit)
 		//}
 	}

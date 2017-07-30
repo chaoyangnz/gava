@@ -67,14 +67,21 @@ type ClassPath struct {
 }
 
 func NewClassPath(classPathStr string) *ClassPath {
-	entries := strings.Split(classPathStr, ":")
+	segs := strings.Split(classPathStr, ":")
+	// filter empty string
+	var entries []string
+	for _, str := range segs {
+		if str != "" {
+			entries = append(entries, str)
+		}
+	}
 	classPath := &ClassPath{make([]ClassPathEntry, len(entries))}
 	for i, entry := range entries {
 		path, err := filepath.Abs(entry)
 		if err != nil {
 			log.Fatal("Not a legal path %s", entry)
 		}
-		if entry[len(entry) - 4:] == JAR_FILE_SUFFIX {
+		if strings.HasSuffix(entry, JAR_FILE_SUFFIX) {
 			classPath.classPathEntries[i] = &JarClassPathEntry{path}
 		} else {
 			classPath.classPathEntries[i] = &DirectoryClassPathEntry{path}
@@ -99,5 +106,5 @@ func (this *ClassPath) ReadClass(className string) ([]byte, error)  {
 		}
 	}
 
-	return nil, NewError("Class cannot be read from classpath: %s", this.String())
+	return nil, errors.New(fmt.Sprintf("Class cannot be read from classpath: %s", this.String()))
 }
