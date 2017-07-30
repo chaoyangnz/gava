@@ -105,14 +105,19 @@ func printStackTrace(throwable Reference)  {
 	}
 
 	cause := throwable.GetInstanceVariableByName("cause", "Ljava/lang/Throwable;").(Reference)
-	if !cause.IsNull() && throwable != cause {
-		detailMessage := cause.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
-		detailMessageStr := ""
-		if !detailMessage.IsNull() {
-			detailMessageStr = detailMessage.toNativeString()
+	if !cause.IsNull() {
+		if throwable != cause {
+			detailMessage := cause.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
+			detailMessageStr := ""
+			if !detailMessage.IsNull() {
+				detailMessageStr = detailMessage.toNativeString()
+			}
+			VM_stderrPrintf("Caused by: %s: %s\n", vmName2JavaName(cause.Class().Name()), detailMessageStr)
+			printStackTrace(cause)
+		} else {
+			VM_stderrPrintf("\t... 1 more")
 		}
-		VM_stderrPrintf("Caused by: %s: %s\n", vmName2JavaName(cause.Class().Name()), detailMessageStr)
-		printStackTrace(cause)
+
 	}
 }
 
