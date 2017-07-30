@@ -260,8 +260,8 @@ jago --log:thread debug --log:classloader debug test.test_thread
 
 # trace the execution
 
-### log/execution.log 
-This log file records the each instruction execution and method call hierarchy. Set the log level to info to view call hierarchy more clearly.
+### log/thread-[name].log 
+This log file records the each instruction execution and method call hierarchy within a thread context. Set the log level to info to view call hierarchy more clearly.
 
 The blue diamond symbols 🔹 mean pure Java methods while the yellow ones 🔸 mean native methods which is implemented within Jago internally.
 
@@ -271,9 +271,14 @@ The fire symbols 🔥 mean throwing exception (thrown by `athrow` bytecode, reth
 - DEBUG: only method call and exception thrown/caught
 - INFO: only exception thrown/caught info
 
-### log/classload.log 
+### log/classloader.log 
 This log file records the class loading process, including what triggers a class loading and when its class initialization method \<clinit\> is invoked.
 The trigger reason can be viewed after a class name.
+
+## log/threads.log
+
+This log file records thread creation/exit information and object monitor enter/exit, thread sleep(), wait(), notify() etc.
+
 ### log/misc.log
 Other trivial logs 
 # Runtime libraries solution (TBD)
