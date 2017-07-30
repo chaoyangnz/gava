@@ -27,6 +27,16 @@ This method is used to run a method and return value (even void method return a 
  */
 func VM_invokeMethod(method *Method, params ... Value) Value {
 	thread := VM_currentThread()
+	if method.isSynchronized() {
+		var monitor *Monitor
+		if method.isStatic() {
+			monitor = method.class.classObject.(Reference).Monitor()
+		} else {
+			monitor = params[0].(Reference).Monitor()
+		}
+		monitor.Enter()
+		defer monitor.Exit()
+	}
 	if !method.isNative() {
 		frame := NewStackFrame(method)
 		i := 0
@@ -118,7 +128,7 @@ func VM_getStaticVariable(class *Class, name string, descriptor string) Value {
 	if field == nil || !field.IsStatic() {
 		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
 	}
-	return class.staticVars[field.index]
+	return class.staticVars[field.slot]
 }
 
 func VM_setStaticVariable(class *Class, name string, descriptor string, value Value)  {
@@ -126,7 +136,7 @@ func VM_setStaticVariable(class *Class, name string, descriptor string, value Va
 	if field == nil || !field.IsStatic() {
 		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
 	}
-	class.staticVars[field.index] = value
+	class.staticVars[field.slot] = value
 }
 
 func VM_currentTimeMillis() Long {

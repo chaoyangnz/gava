@@ -80,3 +80,7 @@ func getGID() uint64 {
 	n, _ := strconv.ParseUint(string(b), 10, 64)
 	return n
 }
+
+func vmName2JavaName(name string) string {
+	return strings.Replace(name, "/", ".", -1)
+}

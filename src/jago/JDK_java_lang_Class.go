@@ -79,7 +79,7 @@ func JDK_java_lang_Class_isAssignableFrom(this JavaLangClass, cls JavaLangClass)
 }
 
 func JDK_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
-	classNameJavaStyle := strings.Replace(this.Class().name, "/", ".", -1)
+	classNameJavaStyle := vmName2JavaName(this.retrieveType().Name())
 
 	return NewJavaLangString(classNameJavaStyle)
 }

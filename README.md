@@ -12,9 +12,10 @@ demonstrate the idea. For the educational purpose, it is enough.
 - Java class parser
 - Interpreter
 - Bridge JNI native method
+- multi-threading support
+- monitor, sleep, wait, notify support
 - NO GC
 - NO JIT
-- NO multi-thread support
 
 # Plan
 

@@ -29,14 +29,17 @@ func JDK_java_lang_Object_clone(this Reference) Reference {
 	return VM_clone(this)
 }
 
-func JDK_java_lang_Object_wait(this Reference, timeout Long) {
+func JDK_java_lang_Object_wait(this Reference, millis Long) {
 	// TODO timeout
 	monitor := this.Monitor()
 	if !monitor.HasOwner(VM_currentThread()) {
 		VM_throw("java/lang/IllegalMonitorStateException", "Cannot wait() when not holding a monitor")
 	}
 
-	monitor.Wait()
+	interrupted := monitor.Wait(int64(millis))
+	if interrupted {
+		VM_throw("java/lang/InterruptedException", "wait interrupted")
+	}
 }
 
 func JDK_java_lang_Object_notifyAll(this Reference) {
