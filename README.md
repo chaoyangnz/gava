@@ -218,7 +218,7 @@ jago --log:execution debug --log:classload debug example/Pyramid
 ```
 - Show Calendar
 ```bash
-jago --log:execution debug --log:classload debug example/Calendar
+jago --log:execution debug --log:classload debug example/Calendar 8 2017
 ```
 
 - Tree Traverse
