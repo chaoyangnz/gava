@@ -214,36 +214,36 @@ Exception in thread "main" test/Exception2: this is exception 2
 
 - Print pyramid
 ```bash
-jago --log:execution debug --log:classload debug example/Pyramid
+jago --log:execution debug --log:classload debug example.Pyramid
 ```
 - Show Calendar
 ```bash
-jago --log:execution debug --log:classload debug example/Calendar 8 2017
+jago --log:execution debug --log:classload debug example.Calendar 8 2017
 ```
 
 - Tree Traverse
 ```bash
-jago --log:execution debug --log:classload debug example/TreeInOrderTraverse
-jago --log:execution debug --log:classload debug example/TreeLevelOrderTraverse
+jago --log:execution debug --log:classload debug example.TreeInOrderTraverse
+jago --log:execution debug --log:classload debug example.TreeLevelOrderTraverse
 ```
 - Exception handling
 ```bash
-jago --log:execution debug --log:classload debug test/test_athrow
+jago --log:execution debug --log:classload debug test.test_athrow
 ```
 
 - Print system properties
 ```bash
-jago --log:execution debug --log:classload debug test/test_system_properties
+jago --log:execution debug --log:classload debug test.test_system_properties
 ```
 
 - Multi-threading
 ```bash
-jago --log:execution debug --log:classload debug test/test_thread
+jago --log:execution debug --log:classload debug test.test_thread
 ```
 
 - Thread sleep and interrupt
 ```bash
-jago --log:execution debug --log:classload debug test/test_thread
+jago --log:execution debug --log:classload debug test.test_thread
 ```
 
 - Java monitor lock
