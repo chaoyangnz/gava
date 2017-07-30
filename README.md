@@ -210,7 +210,7 @@ Exception in thread "main" test/Exception2: this is exception 2
 
 ```
 
-## Example programs and showcases
+# Showcases with example programs
 
 - Print pyramid
 ```bash
