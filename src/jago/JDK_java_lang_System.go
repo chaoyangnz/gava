@@ -126,7 +126,7 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 
 		"user.name":                    user.Name,
 		"user.home":                    user.HomeDir,
-		"user.country":                 "NZ",
+		"user.country":                 "US",
 		"user.language":                "en",
 		"user.timezone":                "",
 		"user.dir":                     user.HomeDir,
