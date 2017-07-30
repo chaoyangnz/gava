@@ -213,7 +213,7 @@ Exception in thread "main" test/Exception2: this is exception 2
 # Showcases with example programs
 
 - Print pyramid
-````
+```
 jago --log:execution debug --log:classload debug example.Pyramid
 ```
 - Show Calendar
