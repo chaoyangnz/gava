@@ -4,8 +4,8 @@ package jago
 func WIDE(t *Thread, f *Frame, c *Class, m *Method) {
 	wide_opcode := f.operandUByte()
 
-	instruction := instructions[wide_opcode]
-	EXEC_LOG.Trace("\t%s", instruction.mnemonic)
+	instruction := VM.GetInstruction(wide_opcode)
+	t.Trace("\t%s", instruction.mnemonic)
 
 	switch instruction.mnemonic {
 	case "iload", "fload", "aload", "lload", "dload":
@@ -45,7 +45,7 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 
 
-	EXEC_LOG.Trace("\t%d\t dim %d:", index, dimensions)
+	t.Trace("\t%d\t dim %d:", index, dimensions)
 
 	counts := make([]Int, dimensions)
 	for j:= int(dimensions-1); j >= 0; j-- {
@@ -53,7 +53,7 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		if counts[j] < 0 {
 			VM.Throw("java/lang/NegativeArraySizeException", "Array size cannot be negative")
 		}
-		EXEC_LOG.Trace("\t%d", counts[j])
+		t.Trace("\t%d", counts[j])
 	}
 
 	class := c.constantPool[index].(*ClassRef).ResolvedClass()

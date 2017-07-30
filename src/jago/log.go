@@ -2,7 +2,6 @@ package jago
 
 import (
 	"fmt"
-	"errors"
 	"os"
 	"bufio"
 	"runtime/debug"
@@ -15,77 +14,78 @@ const (
 	INFO    = 3
 	WARN    = 4
 	ERROR   = 5
-	FATAL   = 6
 )
 
 
+type LoggerFactory struct {}
 
-func NewLog(category string, level int, logfile string) *Log {
-	var _, err = os.Stat(logfile)
+func (this *LoggerFactory) NewLogger(category string, level int, logfile string) *Logger {
+	path := VM.GetSystemSetting("log.base") + "/" + logfile
+	var _, err = os.Stat(path)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
-		os.Create(logfile)
+		os.Create(path)
 	} else {
-		os.Remove(logfile)
-		os.Create(logfile)
+		os.Remove(path)
+		os.Create(path)
 	}
 
-	f, err := os.OpenFile(logfile, os.O_RDWR, 0666)
+	f, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
 		Fatal("File does not exists or cannot be created")
 	}
 
 	w := bufio.NewWriter(f)
 
-	log := &Log{category, level, w}
+	log := &Logger{category, level, w}
 	return log
 }
 
-type Log struct {
+type Logger struct {
 	category string
-	Level    int
+	level    int
 	writer   *bufio.Writer
 }
 
-func (this *Log) _log(format string, args ...interface{}) {
+func (this *Logger) log(format string, args ...interface{}) {
 	fmt.Fprintf(this.writer, format, args...)
 	this.writer.Flush()
 }
 
-func (this *Log)  All(format string, args ...interface{})   {
-	if this.Level <= ALL {
-		this._log(format, args...)
+func (this *Logger)  All(format string, args ...interface{})   {
+	if this.level <= ALL {
+		this.log(format, args...)
 	}
 }
 
-func (this *Log)  Trace(format string, args ...interface{})   {
-	if this.Level <= TRACE {
-		this._log(format, args...)
+func (this *Logger)  Trace(format string, args ...interface{})   {
+	if this.level <= TRACE {
+		this.log(format, args...)
 	}
 }
 
-func (this *Log)   Debug(format string, args ...interface{})   {
-	if this.Level <= DEBUG {
-		this._log(format, args...)
+func (this *Logger)   Debug(format string, args ...interface{})   {
+	if this.level <= DEBUG {
+		this.log(format, args...)
 	}
 }
 
-func (this *Log)  Info(format string, args ...interface{})   {
-	if this.Level <= INFO {
-		this._log(format, args...)
+func (this *Logger)  Info(format string, args ...interface{})   {
+	if this.level <= INFO {
+		this.log(format, args...)
 	}
 }
 
-func (this *Log)  Warn(format string, args ...interface{})   {
-	if this.Level <= WARN {
-		this._log(format, args...)
+func (this *Logger)  Warn(format string, args ...interface{})   {
+	if this.level <= WARN {
+		this.log(format, args...)
 	}
 }
 
-func (this *Log)  Error(format string, args ...interface{})   {
-	if this.Level <= ERROR {
-		this._log(format, args...)
+func (this *Logger)  Error(format string, args ...interface{})   {
+	if this.level <= ERROR {
+		this.log(format, args...)
 	}
 }
 
@@ -112,10 +112,6 @@ func Assert(expression bool, format string, args ...interface{})  {
 		os.Stderr.Write(debug.Stack())
 		os.Exit(4)
 	}
-}
-
-func NewError(format string, args ...interface{}) error {
-	return errors.New(fmt.Sprintf(format, args...))
 }
 
 

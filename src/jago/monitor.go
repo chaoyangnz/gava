@@ -30,7 +30,7 @@ func NewMonitor(obj *Object) *Monitor {
 
 func (self *Monitor) Enter() {
 	thread := VM.CurrentThread()
-	LOG.Info("[monitor] thread '%s' #%d enter monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+	VM.ThreadManager.Info("[monitor] thread '%s' #%d enter monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	self.l.Lock()
 	if self.owner == thread {
@@ -53,7 +53,7 @@ func (self *Monitor) Enter() {
 
 func (self *Monitor) Exit() {
 	thread := VM.CurrentThread()
-	LOG.Info("[monitor] thread '%s' #%d exit monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+	VM.ThreadManager.Info("[monitor] thread '%s' #%d exit  monitor on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	self.l.Lock()
 	var _unlock bool
@@ -84,7 +84,7 @@ const _wait_timeout = 2
 
 func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	thread := VM.CurrentThread()
-	LOG.Info("[monitor] thread '%s' #%d wait on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+	VM.ThreadManager.Info("[monitor] thread '%s' #%d wait on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	if thread.interrupted {
 		thread.interrupted = false
@@ -127,7 +127,7 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	}
 
 
-	LOG.Info("[monitor] thread '%s' #%d wait end on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+	VM.ThreadManager.Info("[monitor] thread '%s' #%d wait end on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	self.l.Lock()
 	self.Enter()// again compete to acquire owner
@@ -138,7 +138,7 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 
 func (self *Monitor) NotifyAll() {
 	thread := VM.CurrentThread()
-	LOG.Info("[monitor] thread '%s' #%d notifyAll on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
+	VM.ThreadManager.Info("[monitor] thread '%s' #%d notifyAll on object %p %s \n", thread.name, thread.id, self.object, self.object.header.class.Name())
 
 	if !self.waits.IsEmpty() {
 		self.ch <- _notify
