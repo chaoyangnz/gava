@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 	"sync"
+	"runtime/debug"
 )
 
 var thread_id_key = gls.GenSym()
@@ -66,7 +67,7 @@ func (this *ThreadManager) RunBootstrapThread(run func()) {
 }
 
 func precreateThread(name string, run func(), exitHook func()) *Thread {
-	logLevel, _ := strconv.Atoi(VM.GetSystemSetting("log.thread.level"))
+	logLevel, _ := strconv.Atoi(VM.GetSystemSetting("log.level.thread"))
 	logger := VM.NewLogger("thread", logLevel, "thread-[" + name + "].log")
 	thread := &Thread{
 		name: name,
@@ -87,10 +88,12 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM.StderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, vmName2JavaName(throwable.Class().Name()), detailMessageStr)
+			VM.StderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, throwable.Class().Name(), detailMessageStr)
 
 			printStackTrace(throwable)
 			VM.StderrPrintf("\n")
+
+			debug.PrintStack()
 		},
 		func() {
 			exitHook()
@@ -116,7 +119,7 @@ func printStackTrace(throwable Reference)  {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM.StderrPrintf("Caused by: %s: %s\n", vmName2JavaName(cause.Class().Name()), detailMessageStr)
+			VM.StderrPrintf("Caused by: %s: %s\n", binaryName2JavaName(cause.Class().Name()).toNativeString(), detailMessageStr)
 			printStackTrace(cause)
 		} else {
 			VM.StderrPrintf("\t... 1 more")
@@ -357,6 +360,7 @@ type Frame struct {
 	operandStack        []Value
 
 	exception    Reference
+	hangReturn   Value  //when no caller, this field is set
 }
 
 /*
@@ -545,7 +549,12 @@ func (this *Frame) passParameters(callee *Frame)  {
 }
 
 func (this *Frame) passReturn(caller *Frame)  {
-	caller.push(this.pop())
+	ret := this.pop()
+	if caller == nil { // class loading call
+		this.hangReturn = ret
+		return
+	}
+	caller.push(ret)
 }
 
 func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
@@ -596,7 +605,12 @@ func (this *Frame) push(value Value)  {
 		value = boolean.ToInt()
 	}
 
+
+
 	operandStackSize := len(this.operandStack)
+	if operandStackSize == cap(this.operandStack) {
+		print("breakpoint")
+	}
 	this.operandStack = this.operandStack[:operandStackSize+1]
 	this.operandStack[operandStackSize] = value
 }

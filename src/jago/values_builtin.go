@@ -60,6 +60,9 @@ func (this Reference) attachType(type0 Type)  {
 	this.SetExtra(type0)
 }
 func (this Reference) retrieveType() Type {
+	if this.GetExtra() == nil {
+		print("break")
+	}
 	return this.GetExtra().(Type)
 }
 

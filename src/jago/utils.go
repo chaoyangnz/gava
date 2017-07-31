@@ -81,6 +81,10 @@ func getGID() uint64 {
 	return n
 }
 
-func vmName2JavaName(name string) string {
-	return strings.Replace(name, "/", ".", -1)
+func binaryName2JavaName(name string) JavaLangString {
+	return VM.NewJavaLangString(strings.Replace(name, "/", ".", -1))
+}
+
+func javaName2BinaryName(name JavaLangString) string {
+	return strings.Replace(name.toNativeString(), ".", "/", -1)
 }

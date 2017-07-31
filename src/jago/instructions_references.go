@@ -142,7 +142,7 @@ func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("Invalid atype value")
 	}
 	count := f.pop().(Int)
-	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.LoadClass(JVM_SIGNATURE_ARRAY + componentDescriptor, TRIGGER_BY_NEW_INSTANCE)
 	arrayref := VM.NewArray(arrayClass, count)
 	f.push(arrayref)
 }
@@ -155,9 +155,9 @@ func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	var arrayClass *Class
 	componentType := c.constantPool[index].(*ClassRef).ResolvedClass()
 	if !componentType.IsArray() {
-		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, TRIGGER_BY_NEW_INSTANCE)
+		arrayClass = VM.LoadClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, TRIGGER_BY_NEW_INSTANCE)
 	} else {
-		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), TRIGGER_BY_NEW_INSTANCE)
+		arrayClass = VM.LoadClass(JVM_SIGNATURE_ARRAY + componentType.Name(), TRIGGER_BY_NEW_INSTANCE)
 	}
 
 	arrayref := VM.NewArray(arrayClass, count)

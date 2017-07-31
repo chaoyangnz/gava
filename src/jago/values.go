@@ -169,6 +169,9 @@ func (this Reference) GetInstanceVariableByName(name string, descriptor string) 
 
 	objectref := this.oop
 	field := objectref.header.class.FindField(name, descriptor)
+	if field == nil {
+		print("break")
+	}
 	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}

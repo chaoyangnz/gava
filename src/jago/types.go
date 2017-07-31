@@ -138,7 +138,7 @@ type Class struct {
 	interfaces          []*Class
 
 	classObject         JavaLangClass
-	classLoader         *ClassLoader
+	//classLoader         JavaLangClassLoader
 
 	// support link and initialization
 	defined     bool

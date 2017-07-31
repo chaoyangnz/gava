@@ -8,6 +8,7 @@ func register_java_lang_Thread() {
 	VM.RegisterNative("java/lang/Thread.start0()V", JDK_java_lang_Thread_start0)
 	VM.RegisterNative("java/lang/Thread.sleep(J)V", JDK_java_lang_Thread_sleep)
 	VM.RegisterNative("java/lang/Thread.interrupt0()V", JDK_java_lang_Thread_interrupt0)
+	VM.RegisterNative("java/lang/Thread.isInterrupted(Z)Z", JDK_java_lang_Thread_isInterrupted)
 }
 
 // private static void registerNatives()
@@ -54,5 +55,19 @@ func JDK_java_lang_Thread_sleep(millis Long)  {
 func JDK_java_lang_Thread_interrupt0(this JavaLangThread) {
 	thread := this.GetExtra().(*Thread)
 	thread.interrupt()
+}
+
+func JDK_java_lang_Thread_isInterrupted(this JavaLangThread, clearInterrupted Boolean) Boolean {
+	interrupted := false
+	if this.retrieveThread().interrupted {
+		interrupted = true
+	}
+	if clearInterrupted.IsTrue() {
+		this.retrieveThread().interrupted = false
+	}
+	if interrupted {
+		return TRUE
+	}
+	return FALSE
 }
 

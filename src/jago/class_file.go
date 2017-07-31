@@ -77,7 +77,7 @@ func (this *ClassReader) readAttribute() AttributeInfo {
 	case "LocalVariableTable":
 		attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
-		VM.ClassLoader.All("No reader for attribute: %s, skip\n", attributeName)
+		VM.BootstrapClassLoader.All("No reader for attribute: %s, skip\n", attributeName)
 		this.readU1s(uint32(attributeLength)) // just skip out
 	}
 
@@ -204,7 +204,7 @@ func (this *ClassFile) readConstantPool(reader *ClassReader) {
 			cpInfo = &ConstantInvokeDynamicInfo{tag: tag}
 		default:
 			// ignore
-			VM.Throw("java/lang/ClassFormatError", "Not a supported constant tag: %s", tag)
+			VM.Throw("java/lang/ClassFormatError", "Not a supported constant tag: %d", tag)
 		}
 		cpInfo.readInfo(reader)
 		this.constantPool[i] = cpInfo
