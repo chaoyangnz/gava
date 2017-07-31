@@ -82,9 +82,9 @@ func (this *Jago) Init()  {
 		"log.level.classloader": strconv.Itoa(DEBUG),
 		"log.level.misc": strconv.Itoa(DEBUG),
 
-		"classpath.system": "jdk/classes:example/classes",
+		"classpath.system": "jdk/classes",
 		"classpath.extension": "",
-		"classpath.application": ".",
+		"classpath.application": "example/classes:.",
 	}
 
 	this.LoggerFactory = &LoggerFactory{}
@@ -323,9 +323,9 @@ func (this *Jago) Init()  {
 	this.StringPool = make(map[string]JavaLangString)
 
 	classloaderLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.classloader"))
-	classpath := VM.GetSystemSetting("classpath.system")
+	systemClasspath := VM.GetSystemSetting("classpath.system")
 	this.BootstrapClassLoader = &BootstrapClassLoader{
-		NewClassPath(classpath),
+		NewClassPath(systemClasspath),
 		0,
 		this.NewLogger("classloader", classloaderLogLevel, "classloader.log"),
 	}
