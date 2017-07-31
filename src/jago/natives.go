@@ -24,6 +24,7 @@ func (this NativeMethodRegistry) RegisterNatives()  {
 	register_java_lang_Object()
 	register_java_lang_Class()
 	register_java_lang_ClassLoader()
+	register_java_lang_Package()
 
 	register_java_lang_String()
 	register_java_lang_Float()
@@ -43,6 +44,7 @@ func (this NativeMethodRegistry) RegisterNatives()  {
 	register_sun_misc_Unsafe()
 	register_sun_reflect_Reflection()
 	register_sun_reflect_NativeConstructorAccessorImpl()
+	register_sun_misc_URLClassPath()
 
 	register_java_io_FileDescriptor()
 	register_java_io_FieInputStream()
@@ -50,4 +52,6 @@ func (this NativeMethodRegistry) RegisterNatives()  {
 	register_java_io_UnixFileSystem()
 
 	register_java_util_concurrent_atomic_AtomicLong()
+
+	register_java_util_zip_ZipFile()
 }

@@ -38,14 +38,35 @@ func (this SystemSettings) GetSystemSetting(key string) string {
 	return this[key]
 }
 
+type ClassAndLoader struct {
+	class       *Class
+	classLoader JavaLangClassLoader
+}
+
+type ClassCache struct {
+	cmap.ConcurrentMap
+}
+
+func (this ClassCache) GetCachedClass(className string) (*ClassAndLoader, bool)  {
+	if classAndLoader, ok := this.Get(className); ok {
+		return classAndLoader.(*ClassAndLoader), true
+	}
+	return nil, false
+}
+
+func (this ClassCache) CacheClass(class *Class, classLoader JavaLangClassLoader) {
+	this.Set(class.Name(), &ClassAndLoader{class, classLoader})
+}
+
 var VM *Jago = &Jago{}
 
 type Jago struct {
 	SystemSettings
 	NativeMethodRegistry
 	InstructionRegistry
+	ClassCache
 	StringPool
-	*ClassLoader
+	*BootstrapClassLoader //bootstrap classloader
 	*ThreadManager
 	*Heap
 	*API
@@ -56,10 +77,10 @@ type Jago struct {
 func (this *Jago) Init()  {
 	this.SystemSettings = map[string]string {
 		"log.base": "log",
-		"log.threads.level": strconv.Itoa(DEBUG),
-		"log.thread.level": strconv.Itoa(DEBUG),
-		"log.classloader.level": strconv.Itoa(DEBUG),
-		"log.misc.level": strconv.Itoa(DEBUG),
+		"log.level.threads": strconv.Itoa(DEBUG),
+		"log.level.thread": strconv.Itoa(DEBUG),
+		"log.level.classloader": strconv.Itoa(DEBUG),
+		"log.level.misc": strconv.Itoa(DEBUG),
 
 		"classpath.system": "jdk/classes:example/classes",
 		"classpath.extension": "",
@@ -292,28 +313,26 @@ func (this *Jago) Init()  {
 	this.NativeMethodRegistry = natives
 	this.NativeMethodRegistry.RegisterNatives()
 
-	threadsLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.threads.level"))
+	threadsLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.threads"))
 	this.ThreadManager = &ThreadManager{cmap.New(), this.NewLogger("threads", threadsLogLevel, "threads.log")}
 
 	this.Heap = &Heap{}
 
+	this.ClassCache = ClassCache{cmap.New()}
+
 	this.StringPool = make(map[string]JavaLangString)
 
-	classloaderLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.classloader.level"))
-	classpath := VM.GetSystemSetting("classpath.system") + ":" +
-				 VM.GetSystemSetting("classpath.extension") + ":" +
-				 VM.GetSystemSetting("classpath.application")
-	this.ClassLoader = &ClassLoader{
+	classloaderLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.classloader"))
+	classpath := VM.GetSystemSetting("classpath.system")
+	this.BootstrapClassLoader = &BootstrapClassLoader{
 		NewClassPath(classpath),
-		cmap.New(), //make(map[string]*Class),
-		nil,
 		0,
 		this.NewLogger("classloader", classloaderLogLevel, "classloader.log"),
 	}
 
 	this.API = &API{}
 
-	miscLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.misc.level"))
+	miscLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.misc"))
 	this.Logger = this.LoggerFactory.NewLogger("misc", miscLogLevel, "misc.log")
 
 
@@ -330,6 +349,12 @@ func (this *Jago) Startup(initialClassName string, args... string)  {
 		// welcome to the Java world
 		// the Java journey starts here
 		VM.InvokeMethodOf("java/lang/System", "initializeSystemClass", "()V")
+
+		// Use AppClassLoader to load initial class
+		systemClassLoaderObject := VM.InvokeMethodOf("java/lang/ClassLoader", "getSystemClassLoader", "()Ljava/lang/ClassLoader;").(JavaLangClassLoader)
+		loadClassMethod := systemClassLoaderObject.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
+		initialClassObject := VM.InvokeMethod(loadClassMethod, systemClassLoaderObject, binaryName2JavaName(initialClassName)).(JavaLangClass)
+		initialClassObject.SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", systemClassLoaderObject)
 
 		// initial a thread
 		VM.NewThread("main", func() {

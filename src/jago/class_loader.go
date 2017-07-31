@@ -4,13 +4,10 @@ import (
 	"unsafe"
 	"strings"
 	"math"
-	"github.com/orcaman/concurrent-map"
 )
 
-type ClassLoader struct {
+type BootstrapClassLoader struct {
 	classPath     *ClassPath
-	classCache    cmap.ConcurrentMap
-	parent        *ClassLoader
 	depth         int // current load indexOf
 	*Logger
 }
@@ -31,32 +28,34 @@ var (
 	TRIGGER_BY_ACCESS_MEMBER      = &ClassTriggerReason{"AM", "access field or method"}
 )
 
-func (this *ClassLoader) CreateClass(className string, triggerReason *ClassTriggerReason) *Class {
-	return this.internalCreateClass(className, true, triggerReason)
+func (this *BootstrapClassLoader) LoadClass(className string, triggerReason *ClassTriggerReason) *Class {
+	return this.internalLoadClass(className, true, triggerReason)
 }
 
-func (this *ClassLoader) internalCreateClass(className string, requireInitialize bool, triggerReason *ClassTriggerReason) *Class {
-	if class, found := this.classCache.Get(className); found {
-		return class.(*Class)
+func (this *BootstrapClassLoader) internalLoadClass(className string, requireInitialize bool, triggerReason *ClassTriggerReason) *Class {
+
+	if classAndLoader, found := VM.GetCachedClass(className); found {
+		return classAndLoader.class
 	}
 
-	VM.ClassLoader.Debug(repeat("\t", this.depth) + "↳ %s ", className)
-	VM.ClassLoader.Debug("(reason: %s", triggerReason.code)
-	VM.ClassLoader.Trace(" - %s", triggerReason.desc)
-	VM.ClassLoader.Debug(")\n")
+	VM.BootstrapClassLoader.Debug(repeat("\t", this.depth) + "↳ %s ", className)
+	VM.BootstrapClassLoader.Debug("(reason: %s", triggerReason.code)
+	VM.BootstrapClassLoader.Trace(" - %s", triggerReason.desc)
+	VM.BootstrapClassLoader.Debug(")\n")
 	this.depth++
 
 	var class *Class
 	if string(className[0]) == JVM_SIGNATURE_ARRAY {
-		class = this.defineArrayClass(className)
+		class = this.createArrayClass(className)
 	} else {
-		clazz := this.loadClass(className)
+		bytecode := this.findClass(className)
+		clazz := this.defineClass(bytecode)
 		class = clazz
 	}
 
+	// attach a java.lang.ClassLoader object, for native bootstrap ClassLoader, its java.lang.ClassLoader is null
+	//class.classLoader = NULL
 	// attach a java.lang.Class object
-	// set classloader
-	class.classLoader = this
 	class.classObject = VM.NewJavaLangClass(class)
 
 	// eager linkage
@@ -72,20 +71,20 @@ func (this *ClassLoader) internalCreateClass(className string, requireInitialize
 	return class
 }
 
-func (this *ClassLoader) defineArrayClass(className string) *Class {
+func (this *BootstrapClassLoader) createArrayClass(className string) *Class {
 
 	arrayClass := &Class{
 			name: className,
 			superClassName: "java/lang/Object",
 			interfaceNames: []string{"java/io/Serializable", "java/lang/Cloneable"}}
 
-	this.classCache.Set(className, arrayClass)
+	VM.CacheClass(arrayClass, NULL)
 
 	arrayClass.accessFlags = 0
-	arrayClass.superClass = this.internalCreateClass("java/lang/Object", false, TRIGGER_BY_AS_SUPERCLASS)
+	arrayClass.superClass = this.internalLoadClass("java/lang/Object", false, TRIGGER_BY_AS_SUPERCLASS)
 	arrayClass.interfaces = []*Class{
-		this.internalCreateClass("java/io/Serializable", false, TRIGGER_BY_AS_SUPER_INTERFACE),
-		this.internalCreateClass("java/lang/Cloneable", false, TRIGGER_BY_AS_SUPER_INTERFACE)}
+		this.internalLoadClass("java/io/Serializable", false, TRIGGER_BY_AS_SUPER_INTERFACE),
+		this.internalLoadClass("java/lang/Cloneable", false, TRIGGER_BY_AS_SUPER_INTERFACE)}
 
 	componentDescriptor := string(className[1])
 	switch componentDescriptor {
@@ -131,12 +130,12 @@ func (this *ClassLoader) defineArrayClass(className string) *Class {
 		}
 	case JVM_SIGNATURE_CLASS:
 		{
-			arrayClass.componentType = VM.CreateClass(className[2:len(className)-1], TRIGGER_BY_AS_ARRAY_COMPONENT)
+			arrayClass.componentType = VM.LoadClass(className[2:len(className)-1], TRIGGER_BY_AS_ARRAY_COMPONENT)
 			arrayClass.elementType = arrayClass.componentType
 		}
 	case JVM_SIGNATURE_ARRAY:
 		{
-			arrayClass.componentType = VM.CreateClass(className[1:], TRIGGER_BY_AS_ARRAY_COMPONENT)
+			arrayClass.componentType = VM.LoadClass(className[1:], TRIGGER_BY_AS_ARRAY_COMPONENT)
 			arrayClass.elementType = arrayClass.componentType.(*Class).elementType
 		}
 	}
@@ -157,28 +156,16 @@ func (this *ClassLoader) defineArrayClass(className string) *Class {
 	return arrayClass
 }
 
-func (this *ClassLoader) loadClass(className string) *Class  {
-	class := this.findClass(className)
-
-	// TODO delegation
-
-	// set classloader
-	class.classLoader = this
-	return class
-}
-
-func (this *ClassLoader) findClass(className string) *Class  {
+func (this *BootstrapClassLoader) findClass(className string) []byte {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {
 		VM.Throw("java/lang/ClassNotFoundException", className)
 	}
 
-	//If L creates C directly, we say that L defines C
-	class := this.defineClass(bytecode)
-	return class
+	return bytecode
 }
 
-func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
+func (this *BootstrapClassLoader) defineClass(bytecode []byte) *Class  {
 	classfile := &ClassFile{}
 	classfile.read(bytecode)
 
@@ -187,7 +174,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	class.accessFlags = uint16(classfile.accessFlags)
 	class.name = classfile.cpUtf8(classfile.constantPool[classfile.thisClass].(*ConstantClassInfo).nameIndex)
 	// add to classcache
-	this.classCache.Set(class.name, class)
+	VM.CacheClass(class, NULL)
 
 	if classfile.superClass == 0 {
 		class.superClassName = ""
@@ -424,7 +411,7 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 
 	// resolve super class
 	if class.superClassName != "" {
-		class.superClass = this.internalCreateClass(class.superClassName, false, TRIGGER_BY_AS_SUPERCLASS)
+		class.superClass = this.internalLoadClass(class.superClassName, false, TRIGGER_BY_AS_SUPERCLASS)
 	}
 
 	// calculate static variables and instance variable count
@@ -461,13 +448,13 @@ func (this *ClassLoader) defineClass(bytecode []byte) *Class  {
 	// resolve interfaces
 	class.interfaces = make([]*Class, len(class.interfaceNames))
 	for i, interfaceName := range class.interfaceNames {
-		class.interfaces[i] = this.internalCreateClass(interfaceName, false, TRIGGER_BY_AS_SUPER_INTERFACE)
+		class.interfaces[i] = this.internalLoadClass(interfaceName, false, TRIGGER_BY_AS_SUPER_INTERFACE)
 	}
 
 	return class
 }
 
-func (this *ClassLoader) link(class *Class)  {
+func (this *BootstrapClassLoader) link(class *Class)  {
 	if class.linked {
 		return
 	}
@@ -480,7 +467,7 @@ func (this *ClassLoader) link(class *Class)  {
 }
 
 // invoke <clinit> to execute initialization code
-func (this *ClassLoader) initialize(class *Class) {
+func (this *BootstrapClassLoader) initialize(class *Class) {
 	if class.initialized {
 		return
 	}
@@ -499,7 +486,7 @@ func (this *ClassLoader) initialize(class *Class) {
 		if class.superClass != nil {
 			this.initialize(class.superClass)
 		}
-		VM.ClassLoader.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
+		VM.BootstrapClassLoader.Debug(repeat("\t", this.depth-1) + "⇉ %s \n", clinit.Qualifier())
 		VM.InvokeMethod(clinit)
 		//}
 	}
@@ -507,12 +494,12 @@ func (this *ClassLoader) initialize(class *Class) {
 	class.initialized = true
 }
 
-func (this *ClassLoader) verify(class *Class) {
+func (this *BootstrapClassLoader) verify(class *Class) {
 	//TODO
 }
 
 // initialize static variables to default values: no need to execute code
-func (this *ClassLoader) prepare(class *Class)  {
+func (this *BootstrapClassLoader) prepare(class *Class)  {
 	// Initialize static variables
 	class.staticVars = make([]Value, class.maxStaticVars)
 	for _, field := range class.fields {

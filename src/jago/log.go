@@ -92,15 +92,14 @@ func (this *Logger)  Error(format string, args ...interface{})   {
 func Fatal(format string, args ...interface{})   {
 	fmt.Fprintf(os.Stderr, "VM internal error: ")
 	fmt.Fprintf(os.Stderr, format+ "\n\n ------------------------\n", args...)
-	os.Stderr.Write(debug.Stack())
+	debug.PrintStack()
 	os.Exit(2)
 }
 
 func Bug(format string, args ...interface{})   {
 	fmt.Fprintf(os.Stderr, "VM implmentation bug: ")
 	fmt.Fprintf(os.Stderr, format + "\n\n ------------------------\n", args...)
-
-	os.Stderr.Write(debug.Stack())
+	debug.PrintStack()
 	os.Exit(3)
 }
 

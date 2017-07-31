@@ -9,10 +9,10 @@ import (
 
 type API struct {}
 
-func (this *API) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ... Value)  {
-	class := VM.CreateClass(className, TRIGGER_BY_ACCESS_MEMBER)
+func (this *API) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ... Value) Value {
+	class := VM.LoadClass(className, TRIGGER_BY_ACCESS_MEMBER)
 	method := class.GetMethod(methodName, methodDescriptor)
-	this.InvokeMethod(method, params...)
+	return this.InvokeMethod(method, params...)
 }
 
 /*
@@ -43,13 +43,16 @@ func (this *API) InvokeMethod(method *Method, params ... Value) Value {
 				i += 1
 			}
 		}
-		caller := thread.current()
+		caller := thread.current() // can be nil, when VM directly call a method
 		thread.push(frame)
 		thread.ExecuteFrame()
 
 
 		if frame.exception.IsNull() { // normal return
 			if method.returnDescriptor != JVM_SIGNATURE_VOID {
+				if caller == nil {
+					return frame.hangReturn
+				}
 				return caller.pop() // if non-normal return, here will return a throwable
 			}
 		} else {
@@ -105,7 +108,7 @@ func (this *API) CurrentThread() *Thread {
 }
 
 func (this *API) GetClass(name string) *Class {
-	return VM.CreateClass(name, TRIGGER_BY_JAVA_REFLECTION)
+	return VM.LoadClass(name, TRIGGER_BY_JAVA_REFLECTION)
 }
 
 func (this *API) GetInstanceVariable(objref ObjectRef, name string, descriptor string) Value {
@@ -174,7 +177,12 @@ The whole project should use panic only here !!!!!
 func (this *API) Throw0(throwable Reference, thrownReason string)  {
 	thread := this.CurrentThread()
 	if thread.current() != nil {
-		thread.Info("\n%s🔥Exception %s: %s at %s", repeat("\t", thread.indexOf(thread.current())/*+1*/), thrownReason, throwable.Class().name, thread.current().method.Qualifier())
+		thread.Info("\n%s🔥Exception %s: %s at %s %s",
+			repeat("\t", thread.indexOf(thread.current())/*+1*/),
+			thrownReason,
+			throwable.Class().name,
+			thread.current().method.Qualifier(),
+			thread.current().getSourceFileAndLineNumber())
 	}
 	panic(throwable)
 }
@@ -196,11 +204,11 @@ func (this *API) GetTypeClass(descriptor string) JavaLangClass {
 	switch string(descriptor[0]) {
 	case JVM_SIGNATURE_CLASS: {
 		fieldTypeClassName := descriptor[1:len(descriptor)-1]
-		typeClass = VM.CreateClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		typeClass = VM.LoadClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 	}
 	case JVM_SIGNATURE_ARRAY: {
 		fieldTypeClassName := descriptor
-		typeClass = VM.CreateClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		typeClass = VM.LoadClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 	}
 	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
 	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
