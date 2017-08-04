@@ -19,6 +19,8 @@ func register_sun_misc_Unsafe() {
 	VM.RegisterNative("sun/misc/Unsafe.getByte(J)B", JDK_sun_misc_Unsafe_getByte)
 	VM.RegisterNative("sun/misc/Unsafe.freeMemory(J)V", JDK_sun_misc_Unsafe_freeMemory)
 
+	VM.RegisterNative("sun/misc/Unsafe.ensureClassInitialized(Ljava/lang/Class;)V", JDK_sun_misc_Unsafe_ensureClassInitialized)
+
 }
 
 // private static void registerNatives()
@@ -124,5 +126,12 @@ func JDK_sun_misc_Unsafe_getByte(this Reference, address Long) Byte {
 
 func JDK_sun_misc_Unsafe_freeMemory(this Reference, size Long)  {
 	// do nothing
+}
+
+func JDK_sun_misc_Unsafe_ensureClassInitialized(this Reference, class JavaLangClass)  {
+	// LOCK ???
+	if class.retrieveType().(*Class).initialized.state != INITIALIZED {
+		VM.Throw("java/lang/AssertionError", "Class has not been initialized")
+	}
 }
 

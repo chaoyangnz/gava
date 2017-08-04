@@ -13,11 +13,11 @@ func JDK_sun_reflect_Reflection_getCallerClass() JavaLangClass {
 	if len(vmStack) == 1 {
 		return NULL
 	} else {
-		return vmStack[len(vmStack)-2].method.class.classObject
+		return vmStack[len(vmStack)-2].method.class.ClassObject()
 	}
 }
 
 func JDK_sun_reflect_Reflection_getClassAccessFlags(classObj JavaLangClass) Int {
-	return Int(u16toi32(classObj.GetExtra().(*Class).accessFlags))
+	return Int(u16toi32(classObj.retrieveType().(*Class).accessFlags))
 }
 

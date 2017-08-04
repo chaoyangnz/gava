@@ -37,7 +37,7 @@ func JDK_jang_lang_Throwable_fillInStackTrace(this Reference, dummy Int) Referen
 		backtrace[depth-1-i] = fmt.Sprintf("%s.%s%s", javaClassName , frame.method.name, frame.getSourceFileAndLineNumber())
 	}
 
-	this.SetExtra(backtrace)
+	this.oop.header.vmBackTrace = backtrace
 
 	return this
 }

@@ -87,35 +87,35 @@ func LOOKUPSWITCH(t *Thread, f *Frame, c *Class, m *Method) {
 func IRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
-	f.passReturn(t.current())
+	f.passReturn(t.currentFrame())
 }
 
 /*173 (0xAD)*/
 func LRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
-	f.passReturn(t.current())
+	f.passReturn(t.currentFrame())
 }
 
 /*174 (0xAE)*/
 func FRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
-	f.passReturn(t.current())
+	f.passReturn(t.currentFrame())
 }
 
 /*175 (0xAF)*/
 func DRETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
-	f.passReturn(t.current())
+	f.passReturn(t.currentFrame())
 }
 
 /*176 (0xB0)*/
 func ARETURN(t *Thread, f *Frame, c *Class, m *Method) {
 	t.pop()
 	// return value
-	f.passReturn(t.current())
+	f.passReturn(t.currentFrame())
 }
 
 /*177 (0xB1)*/

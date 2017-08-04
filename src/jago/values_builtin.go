@@ -48,8 +48,6 @@ func (this Reference) toNativeString() string  {
 	return string(runes)
 }
 
-
-
 type JavaLangClass interface {
 	ObjectRef
 	attachType(type0 Type)
@@ -57,10 +55,17 @@ type JavaLangClass interface {
 }
 
 func (this Reference) attachType(type0 Type)  {
-	this.SetExtra(type0)
+	var C *Class
+	if c, ok := type0.(*Class); ok {
+		C = c
+	}
+	VM.Info(":::%s *Class *c=%p attach to classobject jc=%p\n", type0.Name(), C, this.oop)
+	this.oop.header.vmType = type0
 }
+
 func (this Reference) retrieveType() Type {
-	return this.GetExtra().(Type)
+
+	return this.oop.header.vmType
 }
 
 type JavaLangReflectField interface {ObjectRef}
@@ -83,11 +88,11 @@ type JavaLangThread interface {
 }
 
 func (this Reference) attatchThread(thread *Thread)  {
-	this.SetExtra(thread)
+	this.oop.header.vmThread = thread
 }
 
 func (this Reference) retrieveThread() *Thread  {
-	return this.GetExtra().(*Thread)
+	return this.oop.header.vmThread
 }
 
 
