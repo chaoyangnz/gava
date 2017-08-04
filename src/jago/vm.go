@@ -7,26 +7,6 @@ import (
 	"strconv"
 )
 
-type StringPool map[string]JavaLangString
-
-func (this StringPool) GetStringInPool(str string) (JavaLangString, bool) {
-	strObj, found := this[str];
-	if strObj == nil {
-		strObj = NULL
-	}
-	return strObj, found
-}
-
-func (this StringPool) InternString(stringobj JavaLangString) JavaLangString {
-	str := stringobj.toNativeString()
-
-	if strObj, found := this[str]; found {
-		return strObj
-	} else {
-		this[str] = stringobj
-		return stringobj
-	}
-}
 
 type SystemSettings map[string]string
 
@@ -37,9 +17,6 @@ func (this SystemSettings) SetSystemSetting(key string, value string)  {
 func (this SystemSettings) GetSystemSetting(key string) string {
 	return this[key]
 }
-
-
-
 
 
 

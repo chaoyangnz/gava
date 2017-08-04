@@ -7,6 +7,57 @@ import (
 	"sync"
 )
 
+/*
+|--------------------------------------------------------------------------
+| String pool in method area
+|--------------------------------------------------------------------------
+|
+| String pool is actually a table and its key is internal native string
+| associating with the Java heap String object (java.lang.String)
+| Here, only intern() method is provided. All the String objects generated
+| when implementation the VM are interned.
+|
+| The String objects in Java code can be interned by calling String.intern()
+| method manually.
+*/
+
+
+type StringPool map[string]JavaLangString
+
+func (this StringPool) GetStringInPool(str string) (JavaLangString, bool) {
+	strObj, found := this[str];
+	if strObj == nil {
+		strObj = NULL
+	}
+	return strObj, found
+}
+
+func (this StringPool) InternString(stringobj JavaLangString) JavaLangString {
+	str := stringobj.toNativeString()
+
+	if strObj, found := this[str]; found {
+		return strObj
+	} else {
+		this[str] = stringobj
+		return stringobj
+	}
+}
+
+/*
+|--------------------------------------------------------------------------
+| Method Area structure
+|--------------------------------------------------------------------------
+|
+| Method Area includes all the classes (internal representation) defined and
+| initiated by some Class Loaders.
+|
+| By default, it contains a Bootstrap Class Loader which is implemented within
+| VM rather than in Java code.
+|
+| All its methods are related to class loading, linking and initialization.
+| Please refer to JVM Specification: 5. Loading, Linking, and Initializing
+*/
+
 type NL struct {
 	N string // binary class name, NO L; for non-array class
 	L *Object
