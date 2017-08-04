@@ -71,6 +71,7 @@ func JDK_java_io_UnixFileSystem_getLength(this Reference, file Reference) Long {
 	path := file.GetInstanceVariableByName("path", "Ljava/lang/String;").(JavaLangString).toNativeString()
 	fileInfo, err := os.Stat(path)
 	if err == nil {
+		VM.ExecutionEngine.ioLogger.Info("📒    %s - length %d \n", path, fileInfo.Size())
 		return Long(fileInfo.Size())
 	}
 	VM.Throw("java/io/IOException", "Cannot get file length: %s", path)

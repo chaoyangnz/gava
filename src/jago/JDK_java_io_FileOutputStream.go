@@ -2,7 +2,6 @@ package jago
 
 import (
 	"os"
-	"unsafe"
 	"bufio"
 )
 
@@ -15,7 +14,7 @@ func JDK_java_io_FileOutputStream_initIDs() {
 	// TODO
 }
 
-func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, off Int, len Int, append Boolean) {
+func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, offset Int, length Int, append Boolean) {
 
 	var file *os.File
 
@@ -47,17 +46,18 @@ func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, o
 		file.Chmod(os.ModeAppend)
 	}
 
-	bytes := make([]int8, byteArr.ArrayLength())
+	bytes := make([]byte, byteArr.ArrayLength())
 	for i := 0; i < int(byteArr.ArrayLength()); i++ {
-		bytes[i] = int8(byteArr.GetArrayElement(Int(i)).(Byte))
+		bytes[i] = byte(int8(byteArr.GetArrayElement(Int(i)).(Byte)))
 	}
 
-	bytes = bytes[off : off+len]
-	ptr := unsafe.Pointer(&bytes)
+	bytes = bytes[offset: offset+length]
+	//ptr := unsafe.Pointer(&bytes)
 
 	f := bufio.NewWriter(file)
 	defer f.Flush()
-	_, err := f.Write(*((*[]byte)(ptr)))
+	nsize, err := f.Write(bytes)
+	VM.ExecutionEngine.ioLogger.Info("🅹 ⤇ %s - buffer size: %d, offset: %d, len: %d, actual write: %d \n", file.Name(), byteArr.ArrayLength(), offset, length, nsize)
 	if err == nil {
 		return
 	}

@@ -32,7 +32,7 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	if !path.IsNull() {
 		f, err := os.Open(path.toNativeString())
 		if err != nil {
-			VM.Throw("java/lang/IOException", "Cannot open file: %s")
+			VM.Throw("java/io/IOException", "Cannot open file: %s")
 		}
 		file = f
 	} else if !fileDescriptor.IsNull() {
@@ -47,22 +47,22 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	}
 
 	if file == nil {
-		VM.Throw("java/lang/IOException", "File cannot open")
+		VM.Throw("java/io/IOException", "File cannot open")
 	}
 
+	bytes := make([]byte, length)
 
-
-	bytes := make([]byte, byteArr.ArrayLength())
-
-	nsize, err := file.ReadAt(bytes, int64(offset))
-	//VM.StdoutPrintf("buffer size: %d, offset: %d, len: %d, actual write: %d \n", len(bytes), offset, length, nsize)
+	file.Seek(int64(offset), 0)
+	nsize, err := file.Read(bytes)
+	VM.ExecutionEngine.ioLogger.Info("🅹 ⤆ %s - buffer size: %d, offset: %d, len: %d, actual read: %d \n", file.Name(), byteArr.ArrayLength(), offset, length, nsize)
 	if err == nil || nsize == int(length) {
 		for i := 0; i < int(length); i++ {
 			byteArr.SetArrayElement(offset + Int(i), Byte(bytes[i]))
 		}
 		return Int(nsize)
 	}
-	VM.Throw("java/lang/IOException", "Cannot read from file: %s", path.toNativeString())
+
+	VM.Throw("java/io/IOException", err.Error())
 	return -1
 }
 
@@ -81,13 +81,13 @@ func JDK_java_io_FileInputStream_close0(this Reference)  {
 	} else {
 		f, err := os.Open(path.toNativeString())
 		if err != nil {
-			VM.Throw("java/lang/IOException", "Cannot open file: %s", path)
+			VM.Throw("java/io/IOException", "Cannot open file: %s", path)
 		}
 		file = f
 	}
 
-	/*err := */file.Close()
-	//if err != nil {
-	//	VM.Throw("java/lang/IOException", "Cannot close file: %s", path)
-	//}
+	err := file.Close()
+	if err != nil {
+		VM.Throw("java/io/IOException", "Cannot close file: %s", path)
+	}
 }

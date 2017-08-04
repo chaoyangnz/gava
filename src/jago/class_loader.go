@@ -36,22 +36,6 @@ func (this *BootstrapClassLoader) LoadClass(N string, triggerReason *ClassTrigge
 	return C
 }
 
-func (this *MethodArea) LoadClassUd(N string, L JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
-	if C, ok := VM.GetInitiatedClass(N, L); ok {
-		return C
-	}
-	loadClassMethod := L.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
-	VM.Info("==before java.lang.ClassLoader#loadClass %s in LoadClassUd \n", N)
-	javaname := binaryName2JavaName(N)
-	classObject := VM.InvokeMethod(loadClassMethod, L, javaname).(JavaLangClass)
-
-	VM.Info("==after java.lang.ClassLoader#loadClass %s %s in LoadClassUd jc=%p \n", N, classObject.Class().name, classObject.(Reference).oop)
-	C := classObject.retrieveType().(*Class)
-	//
-	//VM.SetInitiatedClass(N, L, C)
-	return C
-}
-
 /*
 @throw java.lang.ClassNotFoundException
  */
