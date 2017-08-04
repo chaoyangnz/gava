@@ -11,9 +11,10 @@ demonstrate the idea. For the educational purpose, it is enough.
 
 - Java class parser
 - Interpreter engine
-- Bridge JNI native method
+- Class loader delegation
 - multi-threading support
 - monitor, sleep, wait, notify support
+- Bridge JDK native methods
 - NO GC
 - NO JIT
 
