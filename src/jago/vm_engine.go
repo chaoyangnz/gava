@@ -1,9 +1,7 @@
 package jago
 
 import (
-	//"os"
 	"strconv"
-	"github.com/jtolds/gls"
 	"github.com/orcaman/concurrent-map"
 	"fmt"
 	"time"
@@ -11,7 +9,20 @@ import (
 	"reflect"
 )
 
-var thread_id_key = gls.GenSym()
+/*
+|--------------------------------------------------------------------------
+| Execution Engine
+|--------------------------------------------------------------------------
+|
+| This part is the runtime component of a VM. It is related to the threads
+| creation, VM Stack, Stack Frames, invoking methods and executes the code
+| bytecode instruction one by one.
+|
+| Other things include exception handling, thread exits and many more.
+| The startup of a VM largely depends this module.
+|
+*/
+
 type ExecutionEngine struct {
 	//contextManager *gls.ContextManager
 	InstructionRegistry

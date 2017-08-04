@@ -5,6 +5,20 @@ import (
 	"fmt"
 )
 
+
+/*
+|--------------------------------------------------------------------------
+| Heap structure
+|--------------------------------------------------------------------------
+|
+| Heap stores all the Java objects. Here, its major functionality includes
+| factories of instantiation of many well-know class: java.lang.Object,
+| java.lang.Class, java.lang.String, java.lang.Thread, java.lang.Throwable,
+| and Array, because these classes are necessary when bootstrapping the VM.
+|
+*/
+
+
 type Heap struct {
 
 }
