@@ -51,8 +51,7 @@ type Jago struct {
 	*ExecutionEngine
 	*MethodArea
 	*Heap
-
-	*API
+	*OS
 
 	*LoggerFactory
 	*Logger
@@ -61,10 +60,11 @@ type Jago struct {
 func (this *Jago) Init()  {
 	this.SystemSettings = map[string]string {
 		"log.base": "log",
-		"log.level.threads": strconv.Itoa(DEBUG),
-		"log.level.thread": strconv.Itoa(DEBUG),
-		"log.level.classloader": strconv.Itoa(DEBUG),
-		"log.level.misc": strconv.Itoa(DEBUG),
+		"log.level.threads":        strconv.Itoa(DEBUG),
+		"log.level.thread":         strconv.Itoa(DEBUG),
+		"log.level.classloader":    strconv.Itoa(DEBUG),
+		"log.level.io":             strconv.Itoa(DEBUG),
+		"log.level.misc":           strconv.Itoa(DEBUG),
 
 		"classpath.system": "jdk/classes",
 		"classpath.extension": "",
@@ -293,13 +293,14 @@ func (this *Jago) Init()  {
 	}
 	natives := make(map[string]reflect.Value)
 
-
 	threadsLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.threads"))
+	ioLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.io"))
 	this.ExecutionEngine = &ExecutionEngine{
 		instructions,
 		natives,
 		cmap.New(),
-		this.NewLogger("threads", threadsLogLevel, "threads.log")}
+		this.NewLogger("threads", threadsLogLevel, "threads.log"),
+		this.NewLogger("io", ioLogLevel, "io.log")}
 	this.RegisterNatives()
 
 	this.Heap = &Heap{}
@@ -316,7 +317,7 @@ func (this *Jago) Init()  {
 		},
 	}
 
-	this.API = &API{}
+	this.OS = &OS{}
 
 	miscLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.misc"))
 	this.Logger = this.LoggerFactory.NewLogger("misc", miscLogLevel, "misc.log")

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 	"sync"
+	"reflect"
 )
 
 var thread_id_key = gls.GenSym()
@@ -16,7 +17,8 @@ type ExecutionEngine struct {
 	InstructionRegistry
 	NativeMethodRegistry
 	threads cmap.ConcurrentMap // [string]*Thread
-	*Logger
+	threadsLogger *Logger
+	ioLogger *Logger
 }
 
 func tid2str(tid uint64) string {
@@ -42,7 +44,7 @@ func (this *ExecutionEngine) exitDaemonThreads()  {
 	}
 }
 
-func (this *ExecutionEngine) current() *Thread {
+func (this *ExecutionEngine) CurrentThread() *Thread {
 	gid := getGID()
 	if t, ok := this.threads.Get(tid2str(gid)); ok {
 		return t.(*Thread)
@@ -61,7 +63,7 @@ func (this *ExecutionEngine) RunBootstrapThread(run func()) {
 	thread.threadObject.attatchThread(thread)
 
 	thread.started = true
-	VM.ExecutionEngine.Info("[thread ] Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
+	VM.ExecutionEngine.threadsLogger.Info("[thread ] Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 
 	// start Java code execution
 	thread.runBlock.Do()
@@ -140,21 +142,162 @@ func (this *ExecutionEngine) NewThread(name string, run func(), exitHook func())
 
 		// pause here to wait start command
 		for !thread.started {
-			VM.ExecutionEngine.Info("[thread ] Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
+			VM.ExecutionEngine.threadsLogger.Info("[thread ] Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
 			thread.started = <- thread.ch == _start
 		}
 
-		VM.ExecutionEngine.Info("[thread ] Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
+		VM.ExecutionEngine.threadsLogger.Info("[thread ] Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 		// start Java code execution
 		thread.runBlock.Do()
 
 		// prepare to exit
-		VM.ExecutionEngine.Info("[thread ] Exit thread '%s' %d \n", thread.name, thread.id)
+		VM.ExecutionEngine.threadsLogger.Info("[thread ] Exit thread '%s' %d \n", thread.name, thread.id)
 		this.UnregisterThread(thread)
 		VM_WG.Done()
 	}()
 
 	return thread
+}
+
+func (this *ExecutionEngine) CallerClass() *Class {
+	f := VM.CurrentThread().currentFrame()
+	var D *Class
+	if f != nil {
+		D = f.method.class
+	} else {
+		D = nil
+	}
+	return D
+}
+
+func (this *ExecutionEngine) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ... Value) Value {
+	D := VM.CallerClass()
+	class := VM.CreateClass(className, D, TRIGGER_BY_ACCESS_MEMBER)
+	method := class.GetMethod(methodName, methodDescriptor)
+	return this.InvokeMethod(method, params...)
+}
+
+/*
+This method is used to run a method and return value (even void method return a void value)
+ */
+func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Value {
+	thread := this.CurrentThread()
+	if method.isSynchronized() {
+		var monitor *Monitor
+		if method.isStatic() {
+			monitor = method.class.ClassObject().(Reference).Monitor()
+		} else {
+			monitor = params[0].(Reference).Monitor()
+		}
+		monitor.Enter()
+		defer monitor.Exit()
+	}
+	if method.isStatic() {
+		VM.initialize(method.class)
+	}
+	if !method.isNative() {
+		frame := thread.NewFrame(method)
+		i := 0
+		for _, param := range params {
+			frame.storeVar(uint(i), param)
+
+			switch param.(type) {
+			case Long, Double:
+				i += 2
+			default:
+				i += 1
+			}
+		}
+		caller := thread.currentFrame() // can be nil, when VM directly call a method
+		thread.push(frame)
+		thread.ExecuteFrame()
+
+
+		if frame.exception.IsNull() { // normal return
+			if method.returnDescriptor != JVM_SIGNATURE_VOID {
+				//if caller == nil ||  // directly call in bootstrap when stack is empty
+				//   len(caller.operandStack) == cap(caller.operandStack)  {  // class loading call: loadClass(..)Ljava/lang/Class {
+				//	return frame.hangReturn
+				//}
+				if frame.hangReturn != nil {
+					ret := frame.hangReturn
+					frame.hangReturn = nil // clear
+					return ret
+				}
+				return caller.pop() // if non-normal return, here will return a throwable
+			}
+		} else {
+			// must be exception caught method
+			this.Throw0(frame.exception, THROWN_BY_RETHROW) // rethrow
+			return VOID
+		}
+
+	} else {
+		if !method.isNative() {
+			Fatal("%s Not a native method", method.Qualifier())
+		}
+		thread.Debug("\n%s\t🔸[%s]%s", repeat("\t", thread.indexOf(thread.currentFrame())), thread.name, method.Qualifier())
+
+		fun, found := VM.FindNative(method.Qualifier())
+
+		staticDesc := ""
+		if method.isStatic() {
+			staticDesc = "static"
+		}
+		if !found {
+			Fatal( "native method %s %s is not implemented.", staticDesc, method.Qualifier())
+		}
+
+		if len(params) != fun.Type().NumIn() {
+			Fatal( "The size of parameters is not adapted for native method %s %s.", staticDesc, method.Qualifier())
+		}
+		in := make([]reflect.Value, len(params))
+		for k, param := range params {
+			in[k] = reflect.ValueOf(param)
+			if in[k].Kind() == reflect.Invalid {
+				Bug("Native method loadParameters is nil, bug!")
+			}
+		}
+		result := fun.Call(in)
+
+		if  method.returnDescriptor != JVM_SIGNATURE_VOID {
+			if len(result) != 0 {
+				if ret, ok := result[0].Interface().(Value); ok {
+					return ret
+				}
+			} else {
+				Bug("native return wrong type or size")
+			}
+		}
+	}
+
+	return VOID
+}
+
+const (
+	THROWN_BY_ATHROW        = "thrown by \"athrow\"" // ATHROW instruction
+	THROWN_BY_RETHROW       = "rethrown"
+	THROWN_BY_VM            = "thrown by VM"
+)
+
+/*
+The whole project should use panic only here !!!!!
+ */
+func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string)  {
+	thread := this.CurrentThread()
+	if thread.currentFrame() != nil {
+		thread.Info("\n%s🔥Exception %s: %s at %s %s",
+			repeat("\t", thread.indexOf(thread.currentFrame()) /*+1*/),
+			thrownReason,
+			throwable.Class().name,
+			thread.currentFrame().method.Qualifier(),
+			thread.currentFrame().getSourceFileAndLineNumber())
+	}
+	panic(throwable)
+}
+
+func (this *ExecutionEngine) Throw(exception string, message string, args ...interface{})  {
+	this.Throw0(VM.NewThrowable(exception, message, args...), THROWN_BY_VM)
 }
 
 // We choose fix-sized stack size
@@ -222,7 +365,7 @@ func (this *Thread) start()  {
 func (this *Thread) interrupt()  {
 	select {
 	case this.ch <- _interrupt:
-		VM.ExecutionEngine.Info("[thread ] Thread '%s' interrupt \n", this.name)
+		VM.ExecutionEngine.threadsLogger.Info("[thread ] Thread '%s' interrupt \n", this.name)
 	default: // no receivers
 	}
 
@@ -250,7 +393,7 @@ func (this *Thread) sleep(millis int64) bool {
 	return <- this.ch == _interrupt
 }
 
-func (this *Thread) NewStackFrame(method *Method) *Frame {
+func (this *Thread) NewFrame(method *Method) *Frame {
 	stackFrame := &Frame{
 		thread: this,
 		method: method,
@@ -273,7 +416,7 @@ func (this *Thread) NewStackFrame(method *Method) *Frame {
 Only run one single frame
 */
 func (this *Thread) ExecuteFrame() /* this return is throwable if this method is return exceptionally, otherwise nil */{
-	f := this.current()
+	f := this.currentFrame()
 	bytecode := f.method.code
 	if f.pc == 0 {
 		this.Debug("\n%s🔹[%s]%s", repeat("\t", this.indexOf(f)),this.name, f.method.Qualifier())
@@ -323,7 +466,7 @@ func (this *Thread) ExecuteFrame() /* this return is throwable if this method is
 		}.Do()
 		this.interceptAfter(f)
 
-		if len(this.vmStack) == 0 || f != this.current() || !f.exception.IsNull() {
+		if len(this.vmStack) == 0 || f != this.currentFrame() || !f.exception.IsNull() {
 			// 1) normal return and it's the last method
 			// 2) call another method
 			// 3) current method throws exception but has not caught this exception. To be rethrow in its caller
@@ -651,7 +794,7 @@ func (this *Thread) pop()  {
 	this.vmStack = this.vmStack[:size-1]
 }
 
-func (this *Thread) current() *Frame {
+func (this *Thread) currentFrame() *Frame {
 	size := len(this.vmStack)
 	if size == 0 {
 		return nil

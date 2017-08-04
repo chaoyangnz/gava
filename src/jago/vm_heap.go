@@ -109,8 +109,7 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 		return strObj
 	}
 
-	class := VM.CreateClass0(JAVA_LANG_STRING, NULL, TRIGGER_BY_NEW_INSTANCE)
-	object := VM.NewObject(class)
+	object := VM.NewObjectOfName(JAVA_LANG_STRING)
 
 	// convert rune (int32) to Java char (UTF-16 with surrogate)
 	chars := []Char{}
@@ -145,9 +144,7 @@ func (this *Heap) NewJavaLangClass(type0 Type) JavaLangClass {
 	var classObject JavaLangClass = type0.ClassObject()
 	if classObject == nil || classObject.IsNull() {
 
-		classClass := VM.CreateClass0(JAVA_LANG_CLASS, NULL, TRIGGER_BY_NEW_INSTANCE)
-		classObject = VM.NewObject(classClass).(JavaLangClass)
-
+		classObject = VM.NewObjectOfName(JAVA_LANG_CLASS).(JavaLangClass)
 
 		switch type0.(type) {
 		case *BooleanType: type0.(*BooleanType).classObject = classObject
@@ -278,4 +275,51 @@ func (this *Heap) NewJavaLangReflectConstructor(method *Method) JavaLangReflectC
 
 	//constructorObject.SetExtra(method)
 	return constructorObject
+}
+
+func (this *Heap) GetInstanceVariable(objref ObjectRef, name string, descriptor string) Value {
+	return objref.GetInstanceVariableByName(name, descriptor)
+}
+
+func (this *Heap) SetInstanceVariable(objref ObjectRef, name string, descriptor string, value Value)  {
+	objref.SetInstanceVariableByName(name, descriptor, value)
+}
+
+func (this *Heap) GetStaticVariable(class *Class, name string, descriptor string) Value {
+	field := class.FindField(name, descriptor)
+	if field == nil || !field.IsStatic() {
+		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
+	}
+	return class.staticVars[field.slot]
+}
+
+func (this *Heap) SetStaticVariable(class *Class, name string, descriptor string, value Value)  {
+	field := class.FindField(name, descriptor)
+	if field == nil || !field.IsStatic() {
+		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
+	}
+	class.staticVars[field.slot] = value
+}
+
+func (this *Heap) IHashCode(ref Reference) Int {
+	if ref.IsNull() {
+		return Int(0)
+	}
+	return ref.oop.header.hashCode
+}
+
+func (this *Heap) Clone(obj Reference) Reference {
+
+	var clone Reference
+	if !obj.Class().IsArray() {
+		clone = VM.NewObject(obj.Class()).(Reference)
+	} else {
+		clone = VM.NewArray(obj.Class(), obj.ArrayLength()).(Reference)
+	}
+
+	for i,value := range obj.oop.slots {
+		clone.oop.slots[i] = value
+	}
+
+	return clone
 }

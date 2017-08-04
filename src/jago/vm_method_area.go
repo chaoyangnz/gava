@@ -79,37 +79,8 @@ func (this *MethodArea) CreateClass0(N string, Ld JavaLangClassLoader, triggerRe
 		C = this.createArrayClass(N, Ld, triggerReason)
 	}
 
-	VM.link(C)
+	VM.link(C) // eagerly link
 
-	return C
-
-
-	//var class *Class
-	//
-	//if N[:1] == JVM_SIGNATURE_ARRAY {
-	//
-	//
-	//	class = VM.createArrayClass(N, Ld)
-	//	class.classObject = VM.NewJavaLangClass(class)
-	//} else if !Ld.IsNull() {
-	//
-	//	loadClassMethod := Ld.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
-	//	classObject := VM.InvokeMethod(loadClassMethod, Ld, binaryName2JavaName(N)).(JavaLangClass)
-	//
-	//	class = classObject.retrieveType().(*Class)
-	//} else {
-	//	class = VM.LoadClass(N, Ld)
-	//}
-	//
-	//this.SetInitiatedClass(N, Ld, class)
-
-	//depth--
-
-	// initialize only all the super class and interface prepared
-	// now can initialize together
-	//if depth == 0 {
-	//	this.initialize(C)
-	//}
 	return C
 }
 
@@ -122,6 +93,22 @@ func (this *MethodArea) CreateClass(N string, D *Class, triggerReason *ClassTrig
 	}
 
 	return this.CreateClass0(N, Ld, triggerReason)
+}
+
+func (this *MethodArea) LoadClassUd(N string, L JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
+	if C, ok := VM.GetInitiatedClass(N, L); ok {
+		return C
+	}
+	loadClassMethod := L.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
+	VM.Info("==before java.lang.ClassLoader#loadClass %s in LoadClassUd \n", N)
+	javaname := binaryName2JavaName(N)
+	classObject := VM.InvokeMethod(loadClassMethod, L, javaname).(JavaLangClass)
+
+	VM.Info("==after java.lang.ClassLoader#loadClass %s %s in LoadClassUd jc=%p \n", N, classObject.Class().name, classObject.(Reference).oop)
+	C := classObject.retrieveType().(*Class)
+	//
+	//VM.SetInitiatedClass(N, L, C)
+	return C
 }
 
 func componentAndElementTypeName(arrayClassName string) (string, string, int) {
@@ -161,7 +148,7 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 		// the class is C. No array class creation is neccessry
 	}
 
-	if C, ok := VM.GetDefinedClass(N, NULL); ok {
+	if C, ok := VM.GetDefinedClass(N, NULL); ok { // this lookup is not mentioned in jvms
 		return C
 	}
 
@@ -651,7 +638,7 @@ func (this *MethodArea) initializePrimitives()  {
 
 // invoke <clinit> to execute initialization code
 func (this *MethodArea) initialize(class *Class) {
-	thread := VM.current()
+	thread := VM.CurrentThread()
 
 	LC := class.LC
 	LOCK := LC.L
@@ -718,4 +705,37 @@ func (this *MethodArea) prepare(class *Class)  {
 		}
 	}
 }
+
+
+func (this *MethodArea) GetClass(name string) *Class {
+	return VM.CreateClass(name, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION)
+}
+
+func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
+	var typeClass JavaLangClass
+	switch string(descriptor[0]) {
+	case JVM_SIGNATURE_CLASS: {
+		fieldTypeClassName := descriptor[1:len(descriptor)-1]
+		typeClass = VM.CreateClass(fieldTypeClassName, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+	}
+	case JVM_SIGNATURE_ARRAY: {
+		fieldTypeClassName := descriptor
+		typeClass = VM.CreateClass(fieldTypeClassName, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+	}
+	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
+	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
+	case JVM_SIGNATURE_CHAR: typeClass = CHAR_TYPE.ClassObject()
+	case JVM_SIGNATURE_INT: typeClass = INT_TYPE.ClassObject()
+	case JVM_SIGNATURE_LONG: typeClass = LONG_TYPE.ClassObject()
+	case JVM_SIGNATURE_FLOAT: typeClass = FLOAT_TYPE.ClassObject()
+	case JVM_SIGNATURE_DOUBLE: typeClass = DOUBLE_TYPE.ClassObject()
+	case JVM_SIGNATURE_BOOLEAN: typeClass = BOOLEAN_TYPE.ClassObject()
+	default:
+		Fatal("type %s is not a unsupported type", descriptor)
+	}
+
+	return typeClass
+}
+
+
 

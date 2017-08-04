@@ -48,14 +48,12 @@ func (this Reference) toNativeString() string  {
 	return string(runes)
 }
 
-
-
 type JavaLangClass interface {
 	ObjectRef
 	attachType(type0 Type)
 	retrieveType() Type
 }
-//
+
 func (this Reference) attachType(type0 Type)  {
 	var C *Class
 	if c, ok := type0.(*Class); ok {
@@ -64,16 +62,8 @@ func (this Reference) attachType(type0 Type)  {
 	VM.Info(":::%s *Class *c=%p attach to classobject jc=%p\n", type0.Name(), C, this.oop)
 	this.oop.header.vmType = type0
 }
-func (this Reference) retrieveType() Type {
-	if this.oop.header.vmType == nil {
-		VM.Info(":::retrieve %s, jc=%p\n", this.Class().name, this.oop)
 
-		for _, class := range VM.DefinedClasses {
-			if class.classObject.IsEqual(this) {
-				return class
-			}
-		}
-	}
+func (this Reference) retrieveType() Type {
 
 	return this.oop.header.vmType
 }

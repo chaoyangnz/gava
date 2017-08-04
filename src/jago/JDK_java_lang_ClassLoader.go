@@ -60,7 +60,7 @@ func JDK_java_lang_ClassLoader_defineClass1(this JavaLangClassLoader, className 
 	}
 
 	C := VM.deriveClass(javaName2BinaryName(className), this, bytes, TRIGGER_BY_JAVA_CLASSLOADER)
-	VM.link(C)
+	//VM.link(C)
 
 	// associate JavaLangClass object
 	//class.classObject = VM.NewJavaLangClass(class)
