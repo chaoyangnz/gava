@@ -55,7 +55,7 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	bytes := make([]byte, byteArr.ArrayLength())
 
 	nsize, err := file.ReadAt(bytes, int64(offset))
-	VM.StdoutPrintf("buffer size: %d, offset: %d, len: %d, actual write: %d \n", len(bytes), offset, length, nsize)
+	//VM.StdoutPrintf("buffer size: %d, offset: %d, len: %d, actual write: %d \n", len(bytes), offset, length, nsize)
 	if err == nil || nsize == int(length) {
 		for i := 0; i < int(length); i++ {
 			byteArr.SetArrayElement(offset + Int(i), Byte(bytes[i]))

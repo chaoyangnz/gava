@@ -55,15 +55,27 @@ type JavaLangClass interface {
 	attachType(type0 Type)
 	retrieveType() Type
 }
-
+//
 func (this Reference) attachType(type0 Type)  {
-	this.SetExtra(type0)
+	var C *Class
+	if c, ok := type0.(*Class); ok {
+		C = c
+	}
+	VM.Info(":::%s *Class *c=%p attach to classobject jc=%p\n", type0.Name(), C, this.oop)
+	this.oop.header.vmType = type0
 }
 func (this Reference) retrieveType() Type {
-	if this.GetExtra() == nil {
-		print("break")
+	if this.oop.header.vmType == nil {
+		VM.Info(":::retrieve %s, jc=%p\n", this.Class().name, this.oop)
+
+		for _, class := range VM.DefinedClasses {
+			if class.classObject.IsEqual(this) {
+				return class
+			}
+		}
 	}
-	return this.GetExtra().(Type)
+
+	return this.oop.header.vmType
 }
 
 type JavaLangReflectField interface {ObjectRef}
@@ -86,11 +98,11 @@ type JavaLangThread interface {
 }
 
 func (this Reference) attatchThread(thread *Thread)  {
-	this.SetExtra(thread)
+	this.oop.header.vmThread = thread
 }
 
 func (this Reference) retrieveThread() *Thread  {
-	return this.GetExtra().(*Thread)
+	return this.oop.header.vmThread
 }
 
 

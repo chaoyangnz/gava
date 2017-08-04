@@ -9,8 +9,20 @@ import (
 
 type API struct {}
 
+func (this *API) CallerClass() *Class {
+	f := VM.current().current()
+	var D *Class
+	if f != nil {
+		D = f.method.class
+	} else {
+		D = nil
+	}
+	return D
+}
+
 func (this *API) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ... Value) Value {
-	class := VM.LoadClass(className, TRIGGER_BY_ACCESS_MEMBER)
+	D := VM.CallerClass()
+	class := VM.CreateClass(className, D, TRIGGER_BY_ACCESS_MEMBER)
 	method := class.GetMethod(methodName, methodDescriptor)
 	return this.InvokeMethod(method, params...)
 }
@@ -23,12 +35,15 @@ func (this *API) InvokeMethod(method *Method, params ... Value) Value {
 	if method.isSynchronized() {
 		var monitor *Monitor
 		if method.isStatic() {
-			monitor = method.class.classObject.(Reference).Monitor()
+			monitor = method.class.ClassObject().(Reference).Monitor()
 		} else {
 			monitor = params[0].(Reference).Monitor()
 		}
 		monitor.Enter()
 		defer monitor.Exit()
+	}
+	if method.isStatic() {
+		VM.initialize(method.class)
 	}
 	if !method.isNative() {
 		frame := thread.NewStackFrame(method)
@@ -50,8 +65,14 @@ func (this *API) InvokeMethod(method *Method, params ... Value) Value {
 
 		if frame.exception.IsNull() { // normal return
 			if method.returnDescriptor != JVM_SIGNATURE_VOID {
-				if caller == nil {
-					return frame.hangReturn
+				//if caller == nil ||  // directly call in bootstrap when stack is empty
+				//   len(caller.operandStack) == cap(caller.operandStack)  {  // class loading call: loadClass(..)Ljava/lang/Class {
+				//	return frame.hangReturn
+				//}
+				if frame.hangReturn != nil {
+					ret := frame.hangReturn
+					frame.hangReturn = nil // clear
+					return ret
 				}
 				return caller.pop() // if non-normal return, here will return a throwable
 			}
@@ -108,7 +129,7 @@ func (this *API) CurrentThread() *Thread {
 }
 
 func (this *API) GetClass(name string) *Class {
-	return VM.LoadClass(name, TRIGGER_BY_JAVA_REFLECTION)
+	return VM.CreateClass(name, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION)
 }
 
 func (this *API) GetInstanceVariable(objref ObjectRef, name string, descriptor string) Value {
@@ -204,11 +225,11 @@ func (this *API) GetTypeClass(descriptor string) JavaLangClass {
 	switch string(descriptor[0]) {
 	case JVM_SIGNATURE_CLASS: {
 		fieldTypeClassName := descriptor[1:len(descriptor)-1]
-		typeClass = VM.LoadClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		typeClass = VM.CreateClass(fieldTypeClassName, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 	}
 	case JVM_SIGNATURE_ARRAY: {
 		fieldTypeClassName := descriptor
-		typeClass = VM.LoadClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		typeClass = VM.CreateClass(fieldTypeClassName, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 	}
 	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
 	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
@@ -224,6 +245,7 @@ func (this *API) GetTypeClass(descriptor string) JavaLangClass {
 
 	return typeClass
 }
+
 
 
 

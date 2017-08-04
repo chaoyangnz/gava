@@ -22,36 +22,54 @@ func JDK_java_lang_ClassLoader_NativeLibrary_load(this JavaLangClassLoader, name
 	// DO NOTHING
 }
 
-func JDK_java_lang_ClassLoader_findLoadedClass0(this Reference, className JavaLangString) JavaLangClass {
+func JDK_java_lang_ClassLoader_findLoadedClass0(this JavaLangClassLoader, className JavaLangString) JavaLangClass {
 	name := javaName2BinaryName(className)
-	if classAndLoader, ok := VM.GetCachedClass(name); ok {
-		return classAndLoader.class.classObject
+	var C JavaLangClass = NULL
+	if class, ok := VM.GetInitiatedClass(name, this); ok {
+		C = class.ClassObject()
 	}
-	return NULL
+	if C.IsNull() {
+		VM.Info("  ***findLoadedClass0() %s fail [%s] \n", name, this.Class().name)
+	} else {
+		VM.Info("  ***findLoadedClass0() %s success [%s] \n", name, this.Class().name)
+	}
+	return C
 }
 
 func JDK_java_lang_ClassLoader_findBootstrapClass(this JavaLangClassLoader, className JavaLangString) JavaLangClass {
-	if classAndLoader, ok := VM.GetCachedClass(className.toNativeString()); ok {
-		if classAndLoader.classLoader.IsNull() {
-			return classAndLoader.class.classObject
+	name := javaName2BinaryName(className)
+	var C JavaLangClass = NULL
+	if class, ok := VM.GetDefinedClass(name, NULL); ok {
+		C = class.ClassObject()
+		VM.Info("  ***findBootstrapClass() %s success [%s] *c=%p jc=%p \n", name, this.Class().name, class, class.classObject.(Reference).oop)
+	} else {
+		c := VM.CreateClass0(name, NULL, TRIGGER_BY_CHECK_OBJECT_TYPE)
+		if c != nil {
+			C = c.ClassObject()
 		}
 	}
-	return NULL
+
+	return C
 }
 
-func JDK_java_lang_ClassLoader_defineClass1(this Reference, className JavaLangString, byteArrRef ArrayRef, offset Int, length Int, pd Reference, source JavaLangString) JavaLangClass {
+func JDK_java_lang_ClassLoader_defineClass1(this JavaLangClassLoader, className JavaLangString, byteArrRef ArrayRef, offset Int, length Int, pd Reference, source JavaLangString) JavaLangClass {
 	byteArr := byteArrRef.ArrayElements()[offset : offset+length]
 	bytes := make([]byte, length)
 	for i, b := range byteArr {
 		bytes[i] = byte(b.(Byte))
 	}
 
-	class := VM.defineClass(bytes)
-	class.classObject = VM.NewJavaLangClass(class)
-	class.sourceFile = source.toNativeString()
-	VM.link(class)
-	VM.initialize(class)
+	C := VM.deriveClass(javaName2BinaryName(className), this, bytes, TRIGGER_BY_JAVA_CLASSLOADER)
+	VM.link(C)
 
-	return class.classObject
+	// associate JavaLangClass object
+	//class.classObject = VM.NewJavaLangClass(class)
+	//// specify its defining classloader
+	C.ClassObject().SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", this)
+	VM.Info("  ==after java.lang.ClassLoader#defineClass1  %s *c=%p (derived) jc=%p \n",  C.name, C, C.ClassObject().(Reference).oop)
+
+	C.sourceFile = source.toNativeString()
+
+	return C.ClassObject()
 }
 

@@ -48,7 +48,7 @@ func JDK_java_lang_Class_desiredAssertionStatus0(clazz JavaLangClass) Boolean {
 
 
 func JDK_java_lang_Class_getDeclaredFields0(this JavaLangClass, publicOnly Boolean) ArrayRef {
-	class := this.GetExtra().(*Class)
+	class := this.retrieveType().(*Class)
 	fields := class.GetDeclaredFields(publicOnly.IsTrue())
 	fieldObjectArr := VM.NewArrayOfName("[Ljava/lang/reflect/Field;", Int(len(fields)))
 	for i, field := range fields {
@@ -59,7 +59,7 @@ func JDK_java_lang_Class_getDeclaredFields0(this JavaLangClass, publicOnly Boole
 }
 
 func JDK_java_lang_Class_isPrimitive(this JavaLangClass) Boolean {
-	type_ := this.GetExtra().(Type)
+	type_ := this.retrieveType()
 	if _, ok := type_.(*Class); ok {
 		return FALSE
 	}
@@ -67,8 +67,8 @@ func JDK_java_lang_Class_isPrimitive(this JavaLangClass) Boolean {
 }
 
 func JDK_java_lang_Class_isAssignableFrom(this JavaLangClass, cls JavaLangClass) Boolean {
-	thisClass := this.GetExtra().(*Class)
-	clsClass := cls.GetExtra().(*Class)
+	thisClass := this.retrieveType().(*Class)
+	clsClass := cls.retrieveType().(*Class)
 
 	assignable := FALSE
 	if thisClass.IsAssignableFrom(clsClass) {
@@ -83,18 +83,18 @@ func JDK_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
 
 func JDK_java_lang_Class_forName0(name JavaLangString, initialize Boolean, loader JavaLangClassLoader, caller JavaLangClass) JavaLangClass {
 	className := javaName2BinaryName(name)
-	return VM.LoadClass(className, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+	return VM.CreateClass(className, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 }
 
 func JDK_java_lang_Class_isInterface(this JavaLangClass) Boolean {
-	if this.GetExtra().(*Class).IsInterface() {
+	if this.retrieveType().(*Class).IsInterface() {
 		return TRUE
 	}
 	return FALSE
 }
 
 func JDK_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly Boolean) ArrayRef {
-	class := this.GetExtra().(*Class)
+	class := this.retrieveType().(*Class)
 
 	constructors := class.GetConstructors(publicOnly.IsTrue())
 
@@ -107,11 +107,11 @@ func JDK_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly
 }
 
 func JDK_java_lang_Class_getModifiers(this JavaLangClass) Int {
-	return Int(u16toi32((this.GetExtra().(*Class).accessFlags)))
+	return Int(u16toi32((this.retrieveType().(*Class).accessFlags)))
 }
 
 func JDK_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
-	class := this.GetExtra().(*Class)
+	class := this.retrieveType().(*Class)
 	if class.name == "java/lang/Object" {
 		return NULL
 	}
@@ -119,7 +119,7 @@ func JDK_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {
 }
 
 func JDK_java_lang_Class_isArray(this JavaLangClass) Boolean {
-	type0 := this.GetExtra().(Type)
+	type0 := this.retrieveType().(Type)
 	switch type0.(type) {
 	case *Class:
 		if type0.(*Class).IsArray() {
@@ -130,7 +130,7 @@ func JDK_java_lang_Class_isArray(this JavaLangClass) Boolean {
 }
 
 func JDK_java_lang_Class_getComponentType(this JavaLangClass) JavaLangClass {
-	class := this.GetExtra().(*Class)
+	class := this.retrieveType().(*Class)
 	if !class.IsArray() {
 		Fatal("%s is not array type", this.Class().name)
 	}
