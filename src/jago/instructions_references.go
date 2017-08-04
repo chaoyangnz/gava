@@ -6,6 +6,7 @@ func GETSTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 
 	fieldref := c.constantPool[index].(*FieldRef)
 	field := fieldref.ResolvedField()
+	VM.initialize(field.class)
 
 	f.push(field.class.staticVars[field.slot])
 }
@@ -17,6 +18,7 @@ func PUTSTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 
 	fieldref := c.constantPool[index].(*FieldRef)
 	field := fieldref.ResolvedField()
+	VM.initialize(field.class)
 
 	field.class.staticVars[field.slot] = value
 }
@@ -75,6 +77,8 @@ func INVOKESTATIC(t *Thread, f *Frame, c *Class, m *Method) {
 	methodref := c.constantPool[index].(*MethodRef)
 
 	method := methodref.ResolvedMethod()
+	// here, its initialization is invoked in VM.InvokeMethod(..)
+	VM.initialize(method.class)
 	params := f.loadParameters(method)
 
 	f.push(VM.InvokeMethod(method, params...))
@@ -109,6 +113,7 @@ func INVOKEDYNAMIC(t *Thread, f *Frame, c *Class, m *Method) {
 func NEW(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex16()
 	class := c.constantPool[index].(*ClassRef).ResolvedClass()
+	VM.initialize(class)
 	objectref := VM.NewObject(class)
 	f.push(objectref)
 }
@@ -142,7 +147,7 @@ func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("Invalid atype value")
 	}
 	count := f.pop().(Int)
-	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, c, TRIGGER_BY_NEW_INSTANCE)
 	arrayref := VM.NewArray(arrayClass, count)
 	f.push(arrayref)
 }
@@ -155,9 +160,9 @@ func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	var arrayClass *Class
 	componentType := c.constantPool[index].(*ClassRef).ResolvedClass()
 	if !componentType.IsArray() {
-		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, TRIGGER_BY_NEW_INSTANCE)
+		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, c, TRIGGER_BY_NEW_INSTANCE)
 	} else {
-		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), TRIGGER_BY_NEW_INSTANCE)
+		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), c, TRIGGER_BY_NEW_INSTANCE)
 	}
 
 	arrayref := VM.NewArray(arrayClass, count)

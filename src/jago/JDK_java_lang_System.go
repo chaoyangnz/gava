@@ -101,11 +101,11 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 		"java.runtime.version":        "1.8.0_152-ea-b05",
 
 		"java.class.version":          "52.0",
-		"java.class.path":              classpath,
+		"java.class.path":              "/Users/Chao/GoglandProjects/jago/jdk/classes:/Users/Chao/GoglandProjects/jago/example/classes", // app classloader path
 
 		"java.io.tmpdir":               classpath, //TODO
 		"java.library.path":            classpath, //TODO
-		"java.ext.dirs":                classpath, //TODO
+		"java.ext.dirs":                "", //TODO
 		"java.endorsed.dirs":           classpath, //TODO
 		"java.awt.graphicsenv":        "sun.awt.CGraphicsEnvironment",
 		"java.awt.printerjob":         "sun.lwawt.macosx.CPrinterJob",
