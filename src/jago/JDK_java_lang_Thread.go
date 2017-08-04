@@ -53,7 +53,7 @@ func JDK_java_lang_Thread_sleep(millis Long)  {
 }
 
 func JDK_java_lang_Thread_interrupt0(this JavaLangThread) {
-	thread := this.GetExtra().(*Thread)
+	thread := this.retrieveThread()
 	thread.interrupt()
 }
 

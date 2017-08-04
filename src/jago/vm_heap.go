@@ -10,7 +10,7 @@ type Heap struct {
 }
 
 func (this *Heap) NewObjectOfName(className string) ObjectRef {
-	class := VM.LoadClass(className, TRIGGER_BY_NEW_INSTANCE)
+	class := VM.CreateClass(className, VM.CallerClass(), TRIGGER_BY_NEW_INSTANCE)
 
 	return this.NewObject(class)
 }
@@ -19,7 +19,7 @@ func (this *Heap) NewObjectOfName(className string) ObjectRef {
 arrayClassName is the full array class, not its component type
  */
 func (this *Heap) NewArrayOfName(arrayClassName string, length Int) ArrayRef {
-	arrayClass := VM.LoadClass(arrayClassName, TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.CreateClass(arrayClassName, VM.CallerClass(), TRIGGER_BY_NEW_INSTANCE)
 
 	return this.NewArray(arrayClass, length)
 }
@@ -34,26 +34,26 @@ func (this *Heap) NewObject(class *Class) ObjectRef  {
 	// Initialize instance variables
 	clazz := class
 	for clazz != nil {
-	for _, field := range clazz.fields {
-	if !field.IsStatic() {
-	object.slots[field.slot] = field.defaultValue()
-	}
-	}
+		for _, field := range clazz.fields {
+			if !field.IsStatic() {
+				object.slots[field.slot] = field.defaultValue()
+			}
+		}
 	clazz = clazz.superClass
 	}
 
 	// verify initialization
 	for _, instanceVar := range object.slots {
-	if instanceVar == nil {
-	Fatal("Something wrong, unfinished instance variable initialization")
-	}
+		if instanceVar == nil {
+			Fatal("Something wrong, unfinished instance variable initialization")
+		}
 	}
 
 	return Reference{object}
 }
 
 func (this *Heap) NewArrayOfComponent(arrayComponentType Type, length Int) ArrayRef {
-	arrayClass := VM.LoadClass(JVM_SIGNATURE_ARRAY + arrayComponentType.Descriptor(), TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + arrayComponentType.Descriptor(), VM.CallerClass(), TRIGGER_BY_NEW_INSTANCE)
 
 	return this.NewArray(arrayClass, length).(Reference)
 }
@@ -108,7 +108,9 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 	if strObj, found := VM.GetStringInPool(str); found {
 		return strObj
 	}
-	object := VM.NewObjectOfName(JAVA_LANG_STRING)
+
+	class := VM.CreateClass0(JAVA_LANG_STRING, NULL, TRIGGER_BY_NEW_INSTANCE)
+	object := VM.NewObject(class)
 
 	// convert rune (int32) to Java char (UTF-16 with surrogate)
 	chars := []Char{}
@@ -140,11 +142,39 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 }
 
 func (this *Heap) NewJavaLangClass(type0 Type) JavaLangClass {
-	object := VM.NewObjectOfName(JAVA_LANG_CLASS).(JavaLangClass)
+	var classObject JavaLangClass = type0.ClassObject()
+	if classObject == nil || classObject.IsNull() {
 
-	object.attachType(type0) // attach Class to it
+		classClass := VM.CreateClass0(JAVA_LANG_CLASS, NULL, TRIGGER_BY_NEW_INSTANCE)
+		classObject = VM.NewObject(classClass).(JavaLangClass)
 
-	return object
+
+		switch type0.(type) {
+		case *BooleanType: type0.(*BooleanType).classObject = classObject
+		case *ByteType: type0.(*ByteType).classObject = classObject
+		case *ShortType: type0.(*ShortType).classObject = classObject
+		case *IntType: type0.(*IntType).classObject = classObject
+		case *LongType: type0.(*LongType).classObject = classObject
+		case *FloatType: type0.(*FloatType).classObject = classObject
+		case *DoubleType: type0.(*DoubleType).classObject = classObject
+		case *Class:
+			type0.(*Class).classObject = classObject
+			VM.Info(">>> create java.lang.Class for %s *c=%p and jc=%p \n", type0.Name(), type0.(*Class), classObject.(Reference).oop)
+		}
+
+		classObject.attachType(type0) // attach Class to it
+
+
+		//if classClass, ok := VM.GetDefinedClass(JAVA_LANG_CLASS, NULL); ok {
+		//	classObject = VM.NewObject(classClass).(JavaLangClass)
+		//
+		//	classObject.attachType(type0) // attach Class to it
+		//} else {
+		//	Bug("New java.lang.Class when java.lang.Class not loaded")
+		//}
+	}
+
+	return classObject
 }
 
 func (this *Heap) NewJavaLangThread(name string) JavaLangThread {
@@ -198,7 +228,7 @@ Field(Class<?> declaringClass,
 */
 func (this *Heap) NewJavaLangReflectField(field *Field) JavaLangReflectField {
 	fieldObject := VM.NewObjectOfName(JAVA_LANG_REFLECT_FIELD)
-	fieldObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, field.class.classObject)
+	fieldObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, field.class.ClassObject())
 	fieldObject.SetInstanceVariableByName("name", JVM_SIGNATURE_CLASS + JAVA_LANG_STRING + JVM_SIGNATURE_ENDCLASS, VM.NewJavaLangString(field.name))
 
 	fieldObject.SetInstanceVariableByName("type", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, VM.GetTypeClass(field.descriptor))
@@ -209,7 +239,7 @@ func (this *Heap) NewJavaLangReflectField(field *Field) JavaLangReflectField {
 	annotations := VM.NewArrayOfName("[B", 0) //TODO
 	fieldObject.SetInstanceVariableByName("annotations", "[B", annotations)
 
-	fieldObject.SetExtra(field)
+	//fieldObject.SetExtra(field)
 	return fieldObject
 }
 
@@ -226,7 +256,7 @@ Constructor(Class<T> declaringClass,
 */
 func (this *Heap) NewJavaLangReflectConstructor(method *Method) JavaLangReflectConstructor {
 	constructorObject := VM.NewObjectOfName(JAVA_LANG_REFLECT_CONSTRUCTOR)
-	constructorObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, method.class.classObject)
+	constructorObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, method.class.ClassObject())
 
 	parameterTypes := VM.NewArrayOfName("[Ljava/lang/Class;", Int(len(method.parameterDescriptors)))
 	for i, parameterDescriptor := range method.parameterDescriptors {
@@ -246,6 +276,6 @@ func (this *Heap) NewJavaLangReflectConstructor(method *Method) JavaLangReflectC
 	parameterAnnotations := VM.NewArrayOfName("[B", 0) //TODO
 	constructorObject.SetInstanceVariableByName("parameterAnnotations", "[B", parameterAnnotations)
 
-	constructorObject.SetExtra(method)
+	//constructorObject.SetExtra(method)
 	return constructorObject
 }

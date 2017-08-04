@@ -80,7 +80,11 @@ type ObjectHeader struct {
 	hashCode Int
 	class        *Class
 	monitor      *Monitor
-	extra       interface{} // for vm use
+
+	// extra data for internal use only
+	vmThread   *Thread // for java.lang.Thread object use
+	vmType     Type  // for java.lang.Class object use
+	vmBackTrace []string
 }
 
 type Object struct {
@@ -93,8 +97,6 @@ type Ref interface {
 	IsNull() bool
 	IsEqual(reference Reference) bool
 	Class() *Class
-	GetExtra() interface{}
-	SetExtra(extra interface{})
 	Monitor() *Monitor
 }
 
@@ -151,12 +153,7 @@ func (this Reference) Class() *Class {
 func (this Reference) Monitor() *Monitor {
 	return this.oop.header.monitor
 }
-func (this Reference) GetExtra() interface{} {
-	return this.oop.header.extra
-}
-func (this Reference) SetExtra(extra interface{}) {
-	this.oop.header.extra = extra
-}
+
 func (this Reference) GetInstanceVariable(index Int) Value {
 	return this.oop.slots[index]
 }
@@ -169,9 +166,6 @@ func (this Reference) GetInstanceVariableByName(name string, descriptor string) 
 
 	objectref := this.oop
 	field := objectref.header.class.FindField(name, descriptor)
-	if field == nil {
-		print("break")
-	}
 	if field.IsStatic() {
 		Fatal("not a instance variable")
 	}

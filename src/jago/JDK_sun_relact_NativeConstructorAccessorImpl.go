@@ -6,7 +6,8 @@ func register_sun_reflect_NativeConstructorAccessorImpl() {
 
 func JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor JavaLangReflectConstructor, args ArrayRef) ObjectRef {
 
-	class := constructor.GetInstanceVariableByName("clazz", "Ljava/lang/Class;").(JavaLangClass).GetExtra().(*Class)
+	classObject := constructor.GetInstanceVariableByName("clazz", "Ljava/lang/Class;").(JavaLangClass)
+	class := classObject.retrieveType().(*Class)
 	descriptor := constructor.GetInstanceVariableByName("signature", "Ljava/lang/String;").(JavaLangString).toNativeString()
 
 	method := class.GetConstructor(descriptor)

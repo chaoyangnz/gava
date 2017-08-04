@@ -2,6 +2,7 @@ package jago
 
 import (
 	"strings"
+	"sync"
 )
 
 /*
@@ -25,10 +26,6 @@ type Type interface {
 	Name() string
 	Descriptor() string
 	ClassObject() JavaLangClass
-}
-
-type PrimitiveType interface {
-	Type
 }
 
 type (
@@ -76,56 +73,44 @@ func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
 func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
 func (this *ReturnAddressType) Descriptor() string {return "&"}
 func (this *ByteType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *ShortType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *CharType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *IntType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *LongType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *FloatType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *DoubleType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *BooleanType) ClassObject() JavaLangClass    {
-	if this.classObject == nil {
-		this.classObject = VM.NewJavaLangClass(this)
-	}
 	return this.classObject
 }
 func (this *ReturnAddressType) ClassObject() JavaLangClass    {
 	Bug("Why does Java code need to access ReturnAddress??")
 	return NULL // never should be accessed from Java code
+}
+
+const (
+	FAILED          = -1
+	UNINITIALIZED   = 0
+	INITIALIZING    = 1
+	INITIALIZED     = 2
+)
+
+type InitializeSate struct {
+	state   int
+	thread *Thread
 }
 
 type Class struct {
@@ -143,7 +128,9 @@ type Class struct {
 	// support link and initialization
 	defined     bool
 	linked      bool
-	initialized bool
+
+	initialized *InitializeSate
+	LC          *sync.Cond
 
 	// ---- these fields are only for non-array class ----
 	constantPool        []Constant

@@ -8,12 +8,13 @@ import (
 	"fmt"
 	"time"
 	"sync"
-	"runtime/debug"
 )
 
 var thread_id_key = gls.GenSym()
-type ThreadManager struct {
+type ExecutionEngine struct {
 	//contextManager *gls.ContextManager
+	InstructionRegistry
+	NativeMethodRegistry
 	threads cmap.ConcurrentMap // [string]*Thread
 	*Logger
 }
@@ -22,15 +23,15 @@ func tid2str(tid uint64) string {
 	return fmt.Sprintf("%v", tid)
 }
 
-func (this *ThreadManager) RegisterThread(thread *Thread)  {
+func (this *ExecutionEngine) RegisterThread(thread *Thread)  {
 	this.threads.Set(tid2str(thread.id), thread)
 }
 
-func (this *ThreadManager) UnregisterThread(thread *Thread)  {
+func (this *ExecutionEngine) UnregisterThread(thread *Thread)  {
 	this.threads.Remove(tid2str(thread.id))
 }
 
-func (this *ThreadManager) exitDaemonThreads()  {
+func (this *ExecutionEngine) exitDaemonThreads()  {
 	for _, t := range this.threads.Items() {
 		thread := t.(*Thread)
 		jt := thread.threadObject.(Reference)
@@ -41,7 +42,7 @@ func (this *ThreadManager) exitDaemonThreads()  {
 	}
 }
 
-func (this *ThreadManager) current() *Thread {
+func (this *ExecutionEngine) current() *Thread {
 	gid := getGID()
 	if t, ok := this.threads.Get(tid2str(gid)); ok {
 		return t.(*Thread)
@@ -51,16 +52,16 @@ func (this *ThreadManager) current() *Thread {
 	return nil
 }
 
-func (this *ThreadManager) RunBootstrapThread(run func()) {
+func (this *ExecutionEngine) RunBootstrapThread(run func()) {
 	thread := precreateThread("bootstrap", run, func(){})
 	thread.id = getGID()
 	VM.RegisterThread(thread) // RegisterThread to THREAD_MANAGER
 	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
 	thread.threadObject = VM.NewJavaLangThread(thread.name)
-	thread.threadObject.SetExtra(thread)
+	thread.threadObject.attatchThread(thread)
 
 	thread.started = true
-	VM.ThreadManager.Info("[thread ] Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
+	VM.ExecutionEngine.Info("[thread ] Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 
 	// start Java code execution
 	thread.runBlock.Do()
@@ -93,7 +94,7 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 			printStackTrace(throwable)
 			VM.StderrPrintf("\n")
 
-			debug.PrintStack()
+			//debug.PrintStack()
 		},
 		func() {
 			exitHook()
@@ -104,9 +105,9 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 }
 
 func printStackTrace(throwable Reference)  {
-	stacktrace := throwable.GetExtra()
+	stacktrace := throwable.oop.header.vmBackTrace
 	if stacktrace != nil {
-		for _, stacktraceelement := range stacktrace.([]string) {
+		for _, stacktraceelement := range stacktrace {
 			VM.StderrPrintf("\t at %s\n", stacktraceelement)
 		}
 	}
@@ -128,7 +129,7 @@ func printStackTrace(throwable Reference)  {
 	}
 }
 
-func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *Thread {
+func (this *ExecutionEngine) NewThread(name string, run func(), exitHook func()) *Thread {
 	thread := precreateThread(name, run, exitHook)
 
 	VM_WG.Add(1)
@@ -139,16 +140,16 @@ func (this *ThreadManager) NewThread(name string, run func(), exitHook func()) *
 
 		// pause here to wait start command
 		for !thread.started {
-			VM.ThreadManager.Info("[thread ] Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
+			VM.ExecutionEngine.Info("[thread ] Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
 			thread.started = <- thread.ch == _start
 		}
 
-		VM.ThreadManager.Info("[thread ] Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
+		VM.ExecutionEngine.Info("[thread ] Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
 		// start Java code execution
 		thread.runBlock.Do()
 
 		// prepare to exit
-		VM.ThreadManager.Info("[thread ] Exit thread '%s' %d \n", thread.name, thread.id)
+		VM.ExecutionEngine.Info("[thread ] Exit thread '%s' %d \n", thread.name, thread.id)
 		this.UnregisterThread(thread)
 		VM_WG.Done()
 	}()
@@ -221,7 +222,7 @@ func (this *Thread) start()  {
 func (this *Thread) interrupt()  {
 	select {
 	case this.ch <- _interrupt:
-		VM.ThreadManager.Info("[thread ] Thread '%s' interrupt \n", this.name)
+		VM.ExecutionEngine.Info("[thread ] Thread '%s' interrupt \n", this.name)
 	default: // no receivers
 	}
 
@@ -550,7 +551,9 @@ func (this *Frame) passParameters(callee *Frame)  {
 
 func (this *Frame) passReturn(caller *Frame)  {
 	ret := this.pop()
-	if caller == nil { // class loading call
+
+	if caller == nil ||  // directly call in bootstrap when stack is empty
+		len(caller.operandStack) == cap(caller.operandStack)  {  // class loading call: loadClass(..)Ljava/lang/Class
 		this.hangReturn = ret
 		return
 	}
@@ -605,12 +608,7 @@ func (this *Frame) push(value Value)  {
 		value = boolean.ToInt()
 	}
 
-
-
 	operandStackSize := len(this.operandStack)
-	if operandStackSize == cap(this.operandStack) {
-		print("breakpoint")
-	}
 	this.operandStack = this.operandStack[:operandStackSize+1]
 	this.operandStack[operandStackSize] = value
 }

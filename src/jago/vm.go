@@ -38,38 +38,22 @@ func (this SystemSettings) GetSystemSetting(key string) string {
 	return this[key]
 }
 
-type ClassAndLoader struct {
-	class       *Class
-	classLoader JavaLangClassLoader
-}
 
-type ClassCache struct {
-	cmap.ConcurrentMap
-}
 
-func (this ClassCache) GetCachedClass(className string) (*ClassAndLoader, bool)  {
-	if classAndLoader, ok := this.Get(className); ok {
-		return classAndLoader.(*ClassAndLoader), true
-	}
-	return nil, false
-}
 
-func (this ClassCache) CacheClass(class *Class, classLoader JavaLangClassLoader) {
-	this.Set(class.Name(), &ClassAndLoader{class, classLoader})
-}
+
 
 var VM *Jago = &Jago{}
 
 type Jago struct {
 	SystemSettings
-	NativeMethodRegistry
-	InstructionRegistry
-	ClassCache
-	StringPool
-	*BootstrapClassLoader //bootstrap classloader
-	*ThreadManager
+
+	*ExecutionEngine
+	*MethodArea
 	*Heap
+
 	*API
+
 	*LoggerFactory
 	*Logger
 }
@@ -307,35 +291,35 @@ func (this *Jago) Init()  {
 		///*254 (0xFE)*/    Instruction{"impdep1", IMPDEP1},
 		///*255 (0xFF)*/    Instruction{"impdep2", IMPDEP2},
 	}
-	this.InstructionRegistry = instructions
-
 	natives := make(map[string]reflect.Value)
-	this.NativeMethodRegistry = natives
-	this.NativeMethodRegistry.RegisterNatives()
+
 
 	threadsLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.threads"))
-	this.ThreadManager = &ThreadManager{cmap.New(), this.NewLogger("threads", threadsLogLevel, "threads.log")}
+	this.ExecutionEngine = &ExecutionEngine{
+		instructions,
+		natives,
+		cmap.New(),
+		this.NewLogger("threads", threadsLogLevel, "threads.log")}
+	this.RegisterNatives()
 
 	this.Heap = &Heap{}
 
-	this.ClassCache = ClassCache{cmap.New()}
-
-	this.StringPool = make(map[string]JavaLangString)
-
 	classloaderLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.classloader"))
 	systemClasspath := VM.GetSystemSetting("classpath.system")
-	this.BootstrapClassLoader = &BootstrapClassLoader{
-		NewClassPath(systemClasspath),
-		0,
-		this.NewLogger("classloader", classloaderLogLevel, "classloader.log"),
+	this.MethodArea = &MethodArea{
+		make(map[NL]*Class),
+		make(map[NL]*Class),
+		make(map[string]JavaLangString),
+		&BootstrapClassLoader{
+							NewClassPath(systemClasspath),
+							this.NewLogger("classloader", classloaderLogLevel, "classloader.log"),
+		},
 	}
 
 	this.API = &API{}
 
 	miscLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.misc"))
 	this.Logger = this.LoggerFactory.NewLogger("misc", miscLogLevel, "misc.log")
-
-
 }
 
 const MAIN_METHOD_NAME = "main"
@@ -346,15 +330,19 @@ func (this *Jago) Startup(initialClassName string, args... string)  {
 
 	// bootstrap thread don't run in a new go routine, just in Go startup routine
 	VM.RunBootstrapThread(func() {
+		this.initializePrimitives()
 		// welcome to the Java world
 		// the Java journey starts here
 		VM.InvokeMethodOf("java/lang/System", "initializeSystemClass", "()V")
 
 		// Use AppClassLoader to load initial class
 		systemClassLoaderObject := VM.InvokeMethodOf("java/lang/ClassLoader", "getSystemClassLoader", "()Ljava/lang/ClassLoader;").(JavaLangClassLoader)
-		loadClassMethod := systemClassLoaderObject.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
-		initialClassObject := VM.InvokeMethod(loadClassMethod, systemClassLoaderObject, binaryName2JavaName(initialClassName)).(JavaLangClass)
-		initialClassObject.SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", systemClassLoaderObject)
+		//loadClassMethod := systemClassLoaderObject.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
+		initialClass := VM.CreateClass0(initialClassName, systemClassLoaderObject, TRIGGER_BY_ACCESS_MEMBER)
+		//initialClassObject := VM.InvokeMethod(loadClassMethod, systemClassLoaderObject, binaryName2JavaName(initialClassName)).(JavaLangClass)
+		//initialClassObject.SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", systemClassLoaderObject)
+
+		mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
 
 		// initial a thread
 		VM.NewThread("main", func() {
@@ -363,7 +351,7 @@ func (this *Jago) Startup(initialClassName string, args... string)  {
 			for i, arg := range args {
 				argsArr.SetArrayElement(Int(i), VM.NewJavaLangString(arg))
 			}
-			VM.InvokeMethodOf(initialClassName, MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR, argsArr)
+			VM.InvokeMethod(mainMethod, argsArr)
 		},
 		func() {
 			VM.exitDaemonThreads()
@@ -372,6 +360,8 @@ func (this *Jago) Startup(initialClassName string, args... string)  {
 
 	VM_WG.Wait()
 }
+
+
 
 
 
