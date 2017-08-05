@@ -130,7 +130,7 @@ func JDK_sun_misc_Unsafe_freeMemory(this Reference, size Long)  {
 
 func JDK_sun_misc_Unsafe_ensureClassInitialized(this Reference, class JavaLangClass)  {
 	// LOCK ???
-	if class.retrieveType().(*Class).initialized.state != INITIALIZED {
+	if class.retrieveType().(*Class).initialized != INITIALIZED {
 		VM.Throw("java/lang/AssertionError", "Class has not been initialized")
 	}
 }

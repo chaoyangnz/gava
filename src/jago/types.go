@@ -72,28 +72,53 @@ func (this *FloatType) Descriptor() string   {return JVM_SIGNATURE_FLOAT}
 func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
 func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
 func (this *ReturnAddressType) Descriptor() string {return "&"}
+
 func (this *ByteType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *ShortType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *CharType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *IntType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *LongType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *FloatType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *DoubleType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *BooleanType) ClassObject() JavaLangClass    {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 func (this *ReturnAddressType) ClassObject() JavaLangClass    {
@@ -129,7 +154,9 @@ type Class struct {
 	defined     bool
 	linked      bool
 
-	initialized *InitializeSate
+	// these 3 flag is closely related class initialization
+	initialized int
+	T           *Thread
 	LC          *sync.Cond
 
 	// ---- these fields are only for non-array class ----
@@ -156,6 +183,9 @@ func (this *Class) Name() string {
 }
 
 func (this *Class) ClassObject() JavaLangClass {
+	if this.classObject == nil || this.classObject.IsNull() {
+		this.classObject = VM.NewJavaLangClass(this)
+	}
 	return this.classObject
 }
 
