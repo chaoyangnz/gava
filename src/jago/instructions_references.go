@@ -148,6 +148,7 @@ func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	}
 	count := f.pop().(Int)
 	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, c, TRIGGER_BY_NEW_INSTANCE)
+	//VM.initialize(arrayClass) // not mentioned in jvms
 	arrayref := VM.NewArray(arrayClass, count)
 	f.push(arrayref)
 }
@@ -164,6 +165,8 @@ func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	} else {
 		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), c, TRIGGER_BY_NEW_INSTANCE)
 	}
+
+	//VM.initialize(arrayClass) // not mentioned in jvms
 
 	arrayref := VM.NewArray(arrayClass, count)
 

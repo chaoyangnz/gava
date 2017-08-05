@@ -308,8 +308,8 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 	}
 
 	VM.SetInitiatedClass(N, L, C)
-	C.initialized = &InitializeSate{UNINITIALIZED, nil}
-	C.classObject = VM.NewJavaLangClass(C)
+	C.defined = true
+	C.initialized = UNINITIALIZED
 
 	depth--
 
@@ -656,8 +656,8 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	VM.SetDefinedClass(N, L, C)
 	VM.SetInitiatedClass(N, L, C)
 
-	C.initialized = &InitializeSate{UNINITIALIZED, nil}
-	C.classObject = VM.NewJavaLangClass(C)
+	C.defined = true
+	C.initialized = UNINITIALIZED
 
 	depth--
 
@@ -676,17 +676,6 @@ func (this *MethodArea) link(class *Class)  {
 	// So SymbolRef all implements a method PrimitiveType resolve()
 }
 
-func (this *MethodArea) initializePrimitives()  {
-	BYTE_TYPE.classObject = VM.NewJavaLangClass(BYTE_TYPE)
-	SHORT_TYPE.classObject = VM.NewJavaLangClass(SHORT_TYPE)
-	CHAR_TYPE.classObject = VM.NewJavaLangClass(CHAR_TYPE)
-	INT_TYPE.classObject = VM.NewJavaLangClass(INT_TYPE)
-	LONG_TYPE.classObject = VM.NewJavaLangClass(LONG_TYPE)
-	FLOAT_TYPE.classObject = VM.NewJavaLangClass(FLOAT_TYPE)
-	DOUBLE_TYPE.classObject = VM.NewJavaLangClass(DOUBLE_TYPE)
-	BOOLEAN_TYPE.classObject = VM.NewJavaLangClass(BOOLEAN_TYPE)
-}
-
 // invoke <clinit> to execute initialization code
 func (this *MethodArea) initialize(class *Class) {
 	thread := VM.CurrentThread()
@@ -696,20 +685,20 @@ func (this *MethodArea) initialize(class *Class) {
 	LOCK.Lock()
 
 	for {
-		state := class.initialized.state
+		state := class.initialized
 		if state == INITIALIZED {
 			LOCK.Unlock()
 			return
 		} else if state == INITIALIZING {
-			if class.initialized.thread == thread {
+			if class.T == thread {
 				LOCK.Unlock()
 				return
 			} else {
 				LC.Wait()
 			}
 		} else if state == UNINITIALIZED {
-			class.initialized.state = INITIALIZING
-			class.initialized.thread = thread
+			class.initialized = INITIALIZING
+			class.T = thread
 			LOCK.Unlock()
 
 			// initialize its supper class and interfaces first
@@ -733,7 +722,8 @@ func (this *MethodArea) initialize(class *Class) {
 			}
 
 			LOCK.Lock()
-			class.initialized.state = INITIALIZED
+			class.initialized = INITIALIZED
+			class.T = nil
 			LC.Broadcast()
 			LOCK.Unlock()
 

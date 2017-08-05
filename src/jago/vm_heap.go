@@ -155,35 +155,23 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 }
 
 func (this *Heap) NewJavaLangClass(type0 Type) JavaLangClass {
-	var classObject JavaLangClass = type0.ClassObject()
-	if classObject == nil || classObject.IsNull() {
 
-		classObject = VM.NewObjectOfName(JAVA_LANG_CLASS).(JavaLangClass)
+	classObject := VM.NewObjectOfName(JAVA_LANG_CLASS).(JavaLangClass)
 
-		switch type0.(type) {
-		case *BooleanType: type0.(*BooleanType).classObject = classObject
-		case *ByteType: type0.(*ByteType).classObject = classObject
-		case *ShortType: type0.(*ShortType).classObject = classObject
-		case *IntType: type0.(*IntType).classObject = classObject
-		case *LongType: type0.(*LongType).classObject = classObject
-		case *FloatType: type0.(*FloatType).classObject = classObject
-		case *DoubleType: type0.(*DoubleType).classObject = classObject
-		case *Class:
-			type0.(*Class).classObject = classObject
-			VM.Info(">>> create java.lang.Class for %s *c=%p and jc=%p \n", type0.Name(), type0.(*Class), classObject.(Reference).oop)
-		}
-
-		classObject.attachType(type0) // attach Class to it
-
-
-		//if classClass, ok := VM.GetDefinedClass(JAVA_LANG_CLASS, NULL); ok {
-		//	classObject = VM.NewObject(classClass).(JavaLangClass)
-		//
-		//	classObject.attachType(type0) // attach Class to it
-		//} else {
-		//	Bug("New java.lang.Class when java.lang.Class not loaded")
-		//}
+	switch type0.(type) {
+	case *BooleanType: type0.(*BooleanType).classObject = classObject
+	case *ByteType: type0.(*ByteType).classObject = classObject
+	case *ShortType: type0.(*ShortType).classObject = classObject
+	case *IntType: type0.(*IntType).classObject = classObject
+	case *LongType: type0.(*LongType).classObject = classObject
+	case *FloatType: type0.(*FloatType).classObject = classObject
+	case *DoubleType: type0.(*DoubleType).classObject = classObject
+	case *Class:
+		type0.(*Class).classObject = classObject
+		VM.Info(">>> create java.lang.Class for %s *c=%p and jc=%p \n", type0.Name(), type0.(*Class), classObject.(Reference).oop)
 	}
+
+	classObject.attachType(type0) // attach Class to it
 
 	return classObject
 }

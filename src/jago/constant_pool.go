@@ -21,7 +21,8 @@ func (this *ClassRef) ResolvedClass() *Class {
 }
 
 func (this *ClassRef) resolve()  {
-	this.class = VM.CreateClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
+	this.class = VM.resolveClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
+	//this.class = VM.CreateClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 }
 
 type MemberRef struct {
