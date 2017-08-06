@@ -44,6 +44,9 @@ func repeat(str string, times int) string {
 	return strings.Repeat(str, times)
 }
 
+/*
+A Java try {} catch() {} finally {} block
+ */
 type Block struct {
 	try     func()
 	catch   func(throwable Reference) // throwable never be nil
