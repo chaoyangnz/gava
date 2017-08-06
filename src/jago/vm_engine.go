@@ -506,12 +506,14 @@ type Frame struct {
 	// if this this is current this, the pc is for the pc of this thread;
 	// otherwise, it is a snapshot one since the last time
 	pc int
-	pos int // operand pos: internal use only. For an instruction, initially it always starts from pc. Each time read an operand, it advanced.
-	// long and double will occupy two variable indexes
+	// operand pos: internal use only. For an instruction, initially it always starts from pc.
+	// Each time read an operand, it advanced.
+	pos int
+	// long and double will occupy two variable indexes. Must follow!! because local variables are operated by index
 	localVariables      []Value
 	// operand stack
-	// a value of type `long` or `double` contributes two units to the indexOf and a value of any other type contributes one unit
-	// but here we use long and double only use one unit. There is not any violation
+	// As per jvms, a value of type `long` or `double` contributes two units to the indices and a value of any other type contributes one unit
+	// But here we use long and double only use one unit. There is not any violation, because operand stack is never operated by index
 	operandStack        []Value
 
 	exception    Reference
@@ -707,7 +709,10 @@ func (this *Frame) passReturn(caller *Frame)  {
 	ret := this.pop()
 
 	if caller == nil ||  // directly call in bootstrap when stack is empty
-		len(caller.operandStack) == cap(caller.operandStack)  {  // class loading call: loadClass(..)Ljava/lang/Class
+	   // not invoked by normal invokexxxx instruction, e.g.
+	   // 1) class loading call: loadClass(..)Ljava/lang/Class
+	   // 2) class initialisation: <clinit>
+		len(caller.operandStack) == cap(caller.operandStack)  {
 		this.hangReturn = ret
 		return
 	}
@@ -722,7 +727,7 @@ func (this *Frame) getField(objectref ObjectRef, index uint16) Value {
 func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	field := this.method.class.constantPool[index].(*FieldRef).ResolvedField()
 	i := field.slot
-	if field.descriptor == "Z" {
+	if field.descriptor == JVM_SIGNATURE_BOOLEAN {
 		value = value.(Int).ToBoolean()
 	}
 	objectref.SetInstanceVariable(Int(i), value)
