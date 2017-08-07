@@ -1,8 +1,11 @@
 package jago
 
 import (
-	"hash/fnv"
 	"fmt"
+	"unsafe"
+	"hash/fnv"
+	"strconv"
+	"time"
 )
 
 
@@ -38,12 +41,27 @@ func (this *Heap) NewArrayOfName(arrayClassName string, length Int) ArrayRef {
 	return this.NewArray(arrayClass, length)
 }
 
+func hashcode(object *Object) Int {
+	h := fnv.New32a()
+	address := uintptr(unsafe.Pointer(object))
+
+	h.Write([]byte(strconv.Itoa(int(address))))
+
+	ts := time.Now().UnixNano()
+	h.Write([]byte(strconv.Itoa(int(ts))))
+
+	return Int(h.Sum32())
+}
+
 func (this *Heap) NewObject(class *Class) ObjectRef  {
 	if class.IsArray() {
 		VM.Throw("java/lang/IllegalArgumentException", "Class %s must be an Non-Array class", class.name)
 	}
 	object := &Object{}
-	object.header = ObjectHeader{class: class, hashCode: Int(fnv.New32a().Sum32()), monitor: NewMonitor(object)}
+	object.header = ObjectHeader{
+		class: class,
+		hashCode: hashcode(object),
+		monitor: NewMonitor(object)}
 	object.slots = make([]Value, class.maxInstanceVars)
 	// Initialize instance variables
 	clazz := class
@@ -94,7 +112,10 @@ func (this *Heap) NewArray(arrayClass *Class, length Int) ArrayRef {
 	}
 
 	object := &Object{}
-	object.header = ObjectHeader{class: arrayClass, hashCode: Int(fnv.New32a().Sum32()), monitor: NewMonitor(object)}
+	object.header = ObjectHeader{
+		class: arrayClass,
+		hashCode: hashcode(object),
+		monitor: NewMonitor(object)}
 	object.slots = elements
 
 	return Reference{object}
