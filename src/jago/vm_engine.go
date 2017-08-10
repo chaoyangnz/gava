@@ -170,7 +170,7 @@ func (this *ExecutionEngine) NewThread(name string, run func(), exitHook func())
 	return thread
 }
 
-func (this *ExecutionEngine) CallerClass() *Class {
+func (this *ExecutionEngine) CurrentClass() *Class {
 	f := VM.CurrentThread().currentFrame()
 	var D *Class
 	if f != nil {
@@ -182,8 +182,7 @@ func (this *ExecutionEngine) CallerClass() *Class {
 }
 
 func (this *ExecutionEngine) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ... Value) Value {
-	D := VM.CallerClass()
-	class := VM.CreateClass(className, D, TRIGGER_BY_ACCESS_MEMBER)
+	class := VM.ResolveClass(className, TRIGGER_BY_ACCESS_MEMBER)
 	method := class.GetMethod(methodName, methodDescriptor)
 	return this.InvokeMethod(method, params...)
 }

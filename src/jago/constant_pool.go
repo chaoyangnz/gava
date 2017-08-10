@@ -42,7 +42,7 @@ func (this *MemberRef) ResolvedClass() *Class {
 }
 
 func (this *MemberRef) resolve() {
-	this.class = VM.CreateClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
+	this.class = VM.resolveClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 	//this.class.Link()
 }
 

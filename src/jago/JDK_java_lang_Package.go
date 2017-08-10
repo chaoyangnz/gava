@@ -7,9 +7,9 @@ func register_java_lang_Package()  {
 }
 
 func JDK_java_lang_Package_getSystemPackage0(vmPackageName JavaLangString) JavaLangString {
-	for classCacheKey, class := range VM.MethodArea.DefinedClasses {
+	for nl, class := range VM.MethodArea.DefinedClasses {
 
-		if classCacheKey.L == nil && strings.HasPrefix(class.Name(), vmPackageName.toNativeString()) {
+		if nl.L == nil && strings.HasPrefix(class.Name(), vmPackageName.toNativeString()) {
 			return vmPackageName
 		}
 	}

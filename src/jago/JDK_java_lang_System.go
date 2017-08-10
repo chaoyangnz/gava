@@ -25,17 +25,17 @@ func JDK_java_lang_System_registerNatives() {}
 
 // private static void setIn0(InputStream is)
 func JDK_java_lang_System_setIn0(is ObjectRef) {
-	VM.SetStaticVariable(VM.GetClass("java/lang/System"), "in", "Ljava/io/InputStream;", is)
+	VM.SetStaticVariable(VM.ResolveClass("java/lang/System", TRIGGER_BY_ACCESS_MEMBER), "in", "Ljava/io/InputStream;", is)
 }
 
 // private static void setOut0(PrintStream ps)
 func JDK_java_lang_System_setOut0(ps ObjectRef)  {
-	VM.SetStaticVariable(VM.GetClass("java/lang/System"), "out", "Ljava/io/PrintStream;", ps)
+	VM.SetStaticVariable(VM.ResolveClass("java/lang/System", TRIGGER_BY_ACCESS_MEMBER), "out", "Ljava/io/PrintStream;", ps)
 }
 
 // private static void setErr0(PrintStream ps)
 func JDK_java_lang_System_setErr0(ps ObjectRef)  {
-	VM.SetStaticVariable(VM.GetClass("java/lang/System"), "err", "Ljava/io/PrintStream;", ps)
+	VM.SetStaticVariable(VM.ResolveClass("java/lang/System", TRIGGER_BY_ACCESS_MEMBER), "err", "Ljava/io/PrintStream;", ps)
 }
 
 // public static long currentTimeMillis()

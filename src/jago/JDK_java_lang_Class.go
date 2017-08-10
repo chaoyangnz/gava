@@ -83,7 +83,7 @@ func JDK_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
 
 func JDK_java_lang_Class_forName0(name JavaLangString, initialize Boolean, loader JavaLangClassLoader, caller JavaLangClass) JavaLangClass {
 	className := javaName2BinaryName(name)
-	return VM.CreateClass(className, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+	return VM.ResolveClass(className, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 }
 
 func JDK_java_lang_Class_isInterface(this JavaLangClass) Boolean {

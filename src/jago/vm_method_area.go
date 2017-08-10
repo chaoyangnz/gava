@@ -7,6 +7,23 @@ import (
 	"sync"
 )
 
+type ClassTriggerReason struct {
+	code string
+	desc string
+}
+
+var (
+	TRIGGER_BY_JAVA_REFLECTION    = &ClassTriggerReason{"JR", "java reflection from name"}
+	TRIGGER_BY_JAVA_CLASSLOADER   = &ClassTriggerReason{"JR", "user defined classloader except bootstrap classloader"}
+	TRIGGER_BY_CHECK_OBJECT_TYPE  = &ClassTriggerReason{"CT", "check java object type"}
+	TRIGGER_BY_AS_SUPERCLASS      = &ClassTriggerReason{"SC", "as superclass"}
+	TRIGGER_BY_AS_SUPERINTERFACE  = &ClassTriggerReason{"SI", "as superinterface"}
+	TRIGGER_BY_AS_ARRAY_COMPONENT = &ClassTriggerReason{"AC", "as array component"}
+	TRIGGER_BY_RESOLVE_CLASS_REF  = &ClassTriggerReason{"RR", "revolve symbol_ref in constant pool"}
+	TRIGGER_BY_NEW_INSTANCE       = &ClassTriggerReason{"NI", "new instance"}
+	TRIGGER_BY_ACCESS_MEMBER      = &ClassTriggerReason{"AM", "access field or method"}
+)
+
 /*
 |--------------------------------------------------------------------------
 | String pool in method area
@@ -70,14 +87,14 @@ type MethodArea struct {
 	*BootstrapClassLoader //bootstrap classloader
 }
 
-func (this MethodArea) GetInitiatedClass(className string, classLoader JavaLangClassLoader) (*Class, bool)  {
+func (this MethodArea) getInitiatedClass(className string, classLoader JavaLangClassLoader) (*Class, bool)  {
 	if class, ok := this.InitiatedClasses[NL{className, classLoader.(Reference).oop}]; ok {
 		return class, true
 	}
 	return nil, false
 }
 
-func (this MethodArea) SetInitiatedClass(className string, classLoader JavaLangClassLoader, class *Class) {
+func (this MethodArea) setInitiatedClass(className string, classLoader JavaLangClassLoader, class *Class) {
 	VM.Info("-> Set initiated class (%s, %p): %p \n", className, classLoader.(Reference).oop, class)
 	this.InitiatedClasses[NL{className, classLoader.(Reference).oop}] = class
 }
@@ -89,7 +106,7 @@ func (this MethodArea) GetDefinedClass(className string, classLoader JavaLangCla
 	return nil, false
 }
 
-func (this MethodArea) GetDefiningClassLoader(class *Class) JavaLangClassLoader {
+func (this MethodArea) getDefiningClassLoader(class *Class) JavaLangClassLoader {
 	for cn, cl := range this.DefinedClasses {
 		if cl == class && cn.N == class.name {
 			return Reference{cn.L}
@@ -98,7 +115,7 @@ func (this MethodArea) GetDefiningClassLoader(class *Class) JavaLangClassLoader 
 	return NULL
 }
 
-func (this MethodArea) GetInitiatingClassLoader(class *Class) JavaLangClassLoader {
+func (this MethodArea) getInitiatingClassLoader(class *Class) JavaLangClassLoader {
 	for cn, cl := range this.InitiatedClasses {
 		if cl == class && cn.N == class.name {
 			return Reference{cn.L}
@@ -107,7 +124,7 @@ func (this MethodArea) GetInitiatingClassLoader(class *Class) JavaLangClassLoade
 	return NULL
 }
 
-func (this MethodArea) SetDefinedClass(className string, classLoader JavaLangClassLoader, class *Class) {
+func (this MethodArea) setDefinedClass(className string, classLoader JavaLangClassLoader, class *Class) {
 	VM.Info("-> Set defined class (%s, %p): %p \n", className, classLoader.(Reference).oop, class)
 	this.DefinedClasses[NL{className, classLoader.(Reference).oop}] = class
 }
@@ -116,7 +133,7 @@ func (this MethodArea) SetDefinedClass(className string, classLoader JavaLangCla
 
 var depth = 0
 
-func (this *MethodArea) CreateClass0(N string, Ld JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
+func (this *MethodArea) createClass(N string, Ld JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
 	var C *Class
 	if N[:1] != JVM_SIGNATURE_ARRAY {
 		if Ld.IsNull() {
@@ -124,7 +141,7 @@ func (this *MethodArea) CreateClass0(N string, Ld JavaLangClassLoader, triggerRe
 			C = VM.LoadClass(N, triggerReason)
 		} else {
 			// user-defined classloader
-			C = VM.LoadClassUd(N, Ld, triggerReason)
+			C = VM.loadClassUd(N, Ld, triggerReason)
 		}
 	} else {
 		C = this.createArrayClass(N, Ld, triggerReason)
@@ -135,19 +152,11 @@ func (this *MethodArea) CreateClass0(N string, Ld JavaLangClassLoader, triggerRe
 	return C
 }
 
-func (this *MethodArea) CreateClass(N string, D *Class, triggerReason *ClassTriggerReason) *Class {
-	var Ld JavaLangClassLoader
-	if D == nil {
-		Ld = NULL
-	} else {
-		Ld = VM.GetDefiningClassLoader(D)
-	}
-
-	return this.CreateClass0(N, Ld, triggerReason)
-}
-
-func (this *MethodArea) LoadClassUd(N string, L JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
-	if C, ok := VM.GetInitiatedClass(N, L); ok {
+/*
+Load class using user-defined class loader
+ */
+func (this *MethodArea) loadClassUd(N string, L JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
+	if C, ok := VM.getInitiatedClass(N, L); ok {
 		return C
 	}
 	loadClassMethod := L.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
@@ -193,7 +202,7 @@ func componentAndElementTypeName(arrayClassName string) (string, string, int) {
 }
 
 func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
-	if C, ok := VM.GetInitiatedClass(N, L); ok {
+	if C, ok := VM.getInitiatedClass(N, L); ok {
 		return C //???
 		// TODO If L has already been recorded as an intiating loader of an array class with the same component type as N,
 		// the class is C. No array class creation is neccessry
@@ -224,10 +233,10 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 		interfaceNames: []string{"java/io/Serializable", "java/lang/Cloneable"},
 		LC: sync.NewCond(&sync.Mutex{})}
 
-	C.superClass = VM.CreateClass0("java/lang/Object", NULL, TRIGGER_BY_AS_SUPERCLASS)
+	C.superClass = VM.createClass("java/lang/Object", NULL, TRIGGER_BY_AS_SUPERCLASS)
 	C.interfaces = []*Class{
-		VM.CreateClass0("java/io/Serializable", NULL, TRIGGER_BY_AS_SUPERINTERFACE),
-		VM.CreateClass0("java/lang/Cloneable", NULL, TRIGGER_BY_AS_SUPERINTERFACE)}
+		VM.createClass("java/io/Serializable", NULL, TRIGGER_BY_AS_SUPERINTERFACE),
+		VM.createClass("java/lang/Cloneable", NULL, TRIGGER_BY_AS_SUPERINTERFACE)}
 
 
 	componentDescriptor := string(N[1])
@@ -283,14 +292,14 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 	case JVM_SIGNATURE_CLASS:
 		{
 			componentTypeName := N[2:len(N)-1]
-			C.componentType = VM.CreateClass0(componentTypeName, L, TRIGGER_BY_AS_ARRAY_COMPONENT)
+			C.componentType = VM.createClass(componentTypeName, L, TRIGGER_BY_AS_ARRAY_COMPONENT)
 			C.elementType = C.componentType
 			C.dimensions = 1
 		}
 	case JVM_SIGNATURE_ARRAY:
 		{
 			componentTypeName := N[2:len(N)-1]
-			componentArrayClass := VM.CreateClass0(componentTypeName, L, TRIGGER_BY_AS_ARRAY_COMPONENT)
+			componentArrayClass := VM.createClass(componentTypeName, L, TRIGGER_BY_AS_ARRAY_COMPONENT)
 			C.componentType = componentArrayClass
 			C.elementType = componentArrayClass.elementType
 			C.dimensions = componentArrayClass.dimensions + 1
@@ -301,13 +310,13 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 	case *Class:
 		componentClass := C.componentType.(*Class)
 		C.accessFlags = componentClass.accessFlags
-		VM.SetDefinedClass(N, VM.GetDefiningClassLoader(componentClass), C)
+		VM.setDefinedClass(N, VM.getDefiningClassLoader(componentClass), C)
 	default:
 		C.accessFlags = JVM_ACC_PUBLIC
-		VM.SetDefinedClass(N, NULL, C)
+		VM.setDefinedClass(N, NULL, C)
 	}
 
-	VM.SetInitiatedClass(N, L, C)
+	VM.setInitiatedClass(N, L, C)
 	C.defined = true
 	C.initialized = UNINITIALIZED
 
@@ -318,7 +327,13 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 
 // jvms 5.4.3.1
 func (this *MethodArea) resolveClass(N string, D *Class, triggerReason *ClassTriggerReason) *Class {
-	C := VM.CreateClass(N, D, triggerReason)
+	var Ld JavaLangClassLoader
+	if D == nil {
+		Ld = NULL
+	} else {
+		Ld = VM.getDefiningClassLoader(D)
+	}
+	C := this.createClass(N, Ld, triggerReason)
 	if C.IsArray() {
 		_, elementTypeName, _ := componentAndElementTypeName(C.Name())
 		 if elementTypeName[:1] == JVM_SIGNATURE_CLASS { // cannot be array for an element type
@@ -333,7 +348,7 @@ func (this *MethodArea) resolveClass(N string, D *Class, triggerReason *ClassTri
 // jvms 5.3.5
 func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []byte, triggerReason *ClassTriggerReason) *Class  {
 
-	if _, ok := VM.GetInitiatedClass(N, L); ok {
+	if _, ok := VM.getInitiatedClass(N, L); ok {
 		VM.Throw("java/lang/LinkageError", "Classloader %s is an initiating loader of class %s", L.Class().Name(), N)
 	}
 
@@ -653,8 +668,8 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	C.staticVarFields = staticVarFields
 
 	// marks C as having L as its defining class loader and records that L is an initiating loader of C
-	VM.SetDefinedClass(N, L, C)
-	VM.SetInitiatedClass(N, L, C)
+	VM.setDefinedClass(N, L, C)
+	VM.setInitiatedClass(N, L, C)
 
 	C.defined = true
 	C.initialized = UNINITIALIZED
@@ -747,9 +762,11 @@ func (this *MethodArea) prepare(class *Class)  {
 	}
 }
 
-
-func (this *MethodArea) GetClass(name string) *Class {
-	return VM.CreateClass(name, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION)
+/*
+Always use current class's class loader to resolve class
+ */
+func (this *MethodArea) ResolveClass(N string, reason *ClassTriggerReason) *Class {
+	return VM.resolveClass(N, VM.CurrentClass(), reason)
 }
 
 func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
@@ -757,11 +774,11 @@ func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
 	switch string(descriptor[0]) {
 	case JVM_SIGNATURE_CLASS: {
 		fieldTypeClassName := descriptor[1:len(descriptor)-1]
-		typeClass = VM.CreateClass(fieldTypeClassName, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 	}
 	case JVM_SIGNATURE_ARRAY: {
 		fieldTypeClassName := descriptor
-		typeClass = VM.CreateClass(fieldTypeClassName, VM.CallerClass(), TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 	}
 	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
 	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
@@ -776,6 +793,46 @@ func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
 	}
 
 	return typeClass
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Bootstrap class loader implemented in VM internally
+|--------------------------------------------------------------------------
+|
+| The system class path is initialized when VM startup.
+*/
+
+type BootstrapClassLoader struct {
+	classPath     *ClassPath
+	*Logger
+}
+
+func (this *BootstrapClassLoader) LoadClass(N string, triggerReason *ClassTriggerReason) *Class {
+	if C, ok := VM.getInitiatedClass(N, NULL); ok {
+		return C
+	}
+
+	// search for a purported representation of C, typically, a class or interface will be represented using a file in a hierachical file system
+	bytecode := this.findClass(N)
+
+	C := VM.deriveClass(N, NULL, bytecode, triggerReason)
+
+	//this.depth--
+	return C
+}
+
+/*
+@throw java.lang.ClassNotFoundException
+ */
+func (this *BootstrapClassLoader) findClass(className string) []byte {
+	bytecode, err := this.classPath.ReadClass(className)
+	if err != nil {
+		VM.Throw("java/lang/ClassNotFoundException", className)
+	}
+
+	return bytecode
 }
 
 

@@ -133,23 +133,24 @@ const (
 /*188 (0xBC)*/
 func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	atype := f.operandConst8()
-	var componentDescriptor string
+	var componentType Type
 	switch atype {
-	case T_CHAR: componentDescriptor = JVM_SIGNATURE_CHAR
-	case T_BYTE: componentDescriptor = JVM_SIGNATURE_BYTE
-	case T_SHORT: componentDescriptor = JVM_SIGNATURE_SHORT
-	case T_INT: componentDescriptor = JVM_SIGNATURE_INT
-	case T_LONG: componentDescriptor = JVM_SIGNATURE_LONG
-	case T_FLOAT: componentDescriptor = JVM_SIGNATURE_FLOAT
-	case T_DOUBLE: componentDescriptor = JVM_SIGNATURE_DOUBLE
-	case T_BOOLEAN: componentDescriptor = JVM_SIGNATURE_BOOLEAN
+	case T_CHAR: componentType = CHAR_TYPE
+	case T_BYTE: componentType = BYTE_TYPE
+	case T_SHORT: componentType = SHORT_TYPE
+	case T_INT: componentType = INT_TYPE
+	case T_LONG: componentType = LONG_TYPE
+	case T_FLOAT: componentType = FLOAT_TYPE
+	case T_DOUBLE: componentType = DOUBLE_TYPE
+	case T_BOOLEAN: componentType = BOOLEAN_TYPE
 	default:
 		Fatal("Invalid atype value")
 	}
 	count := f.pop().(Int)
-	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, c, TRIGGER_BY_NEW_INSTANCE)
+	//arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + componentDescriptor, c, TRIGGER_BY_NEW_INSTANCE)
 	//VM.initialize(arrayClass) // not mentioned in jvms
-	arrayref := VM.NewArray(arrayClass, count)
+	//arrayref := VM.NewArray(arrayClass, count)
+	arrayref := VM.NewArrayOfComponent(componentType, count)
 	f.push(arrayref)
 }
 
@@ -158,17 +159,18 @@ func ANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex16()
 	count := f.pop().(Int)
 
-	var arrayClass *Class
+	//var arrayClass *Class
 	componentType := c.constantPool[index].(*ClassRef).ResolvedClass()
-	if !componentType.IsArray() {
-		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, c, TRIGGER_BY_NEW_INSTANCE)
-	} else {
-		arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), c, TRIGGER_BY_NEW_INSTANCE)
-	}
-
-	//VM.initialize(arrayClass) // not mentioned in jvms
-
-	arrayref := VM.NewArray(arrayClass, count)
+	//if !componentType.IsArray() {
+	//	arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + JVM_SIGNATURE_CLASS + componentType.Name() + JVM_SIGNATURE_ENDCLASS, c, TRIGGER_BY_NEW_INSTANCE)
+	//} else {
+	//	arrayClass = VM.CreateClass(JVM_SIGNATURE_ARRAY + componentType.Name(), c, TRIGGER_BY_NEW_INSTANCE)
+	//}
+	//
+	////VM.initialize(arrayClass) // not mentioned in jvms
+	//
+	//arrayref := VM.NewArray(arrayClass, count)
+	arrayref := VM.NewArrayOfComponent(componentType, count)
 
 	f.push(arrayref)
 }
