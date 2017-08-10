@@ -7,7 +7,7 @@ Basically, I only refer to "Java Virtual Machine Specification" and then compose
 I have to say many implementation details are naive and I make it as simplified as possible so as to
 demonstrate the idea. For the educational purpose, it is enough.
 
-The Ebook about how it works internal is in progress: https://www.gitbook.com/book/richdyang/go-my-jvm
+The Ebook about how it works internally is in progress: https://www.gitbook.com/book/richdyang/go-my-jvm
 
 # Roadmap
 
