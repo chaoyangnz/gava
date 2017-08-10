@@ -246,7 +246,7 @@ jago --log:thread debug --log:classloader debug test.test_thread
 
 - Thread sleep and interrupt
 ```bash
-jago --log:thread debug --log:classloader debug test.test_thread
+jago --log:thread debug --log:classloader debug example.Multithread
 ```
 
 - Java monitor lock

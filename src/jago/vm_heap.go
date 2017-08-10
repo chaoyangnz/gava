@@ -27,7 +27,7 @@ type Heap struct {
 }
 
 func (this *Heap) NewObjectOfName(className string) ObjectRef {
-	class := VM.CreateClass(className, VM.CallerClass(), TRIGGER_BY_NEW_INSTANCE)
+	class := VM.ResolveClass(className, TRIGGER_BY_NEW_INSTANCE)
 
 	return this.NewObject(class)
 }
@@ -36,7 +36,7 @@ func (this *Heap) NewObjectOfName(className string) ObjectRef {
 arrayClassName is the full array class, not its component type
  */
 func (this *Heap) NewArrayOfName(arrayClassName string, length Int) ArrayRef {
-	arrayClass := VM.CreateClass(arrayClassName, VM.CallerClass(), TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.ResolveClass(arrayClassName, TRIGGER_BY_NEW_INSTANCE)
 
 	return this.NewArray(arrayClass, length)
 }
@@ -85,7 +85,7 @@ func (this *Heap) NewObject(class *Class) ObjectRef  {
 }
 
 func (this *Heap) NewArrayOfComponent(arrayComponentType Type, length Int) ArrayRef {
-	arrayClass := VM.CreateClass(JVM_SIGNATURE_ARRAY + arrayComponentType.Descriptor(), VM.CallerClass(), TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.ResolveClass(JVM_SIGNATURE_ARRAY + arrayComponentType.Descriptor(), TRIGGER_BY_NEW_INSTANCE)
 
 	return this.NewArray(arrayClass, length).(Reference)
 }

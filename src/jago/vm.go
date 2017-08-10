@@ -99,7 +99,7 @@ func (this *Jago) Startup(initialClassName string, args... string)  {
 		// Use AppClassLoader to load initial class
 		systemClassLoaderObject := VM.InvokeMethodOf("java/lang/ClassLoader", "getSystemClassLoader", "()Ljava/lang/ClassLoader;").(JavaLangClassLoader)
 		//loadClassMethod := systemClassLoaderObject.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
-		initialClass := VM.CreateClass0(initialClassName, systemClassLoaderObject, TRIGGER_BY_ACCESS_MEMBER)
+		initialClass := VM.createClass(initialClassName, systemClassLoaderObject, TRIGGER_BY_ACCESS_MEMBER)
 		//initialClassObject := VM.InvokeMethod(loadClassMethod, systemClassLoaderObject, binaryName2JavaName(initialClassName)).(JavaLangClass)
 		//initialClassObject.SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", systemClassLoaderObject)
 

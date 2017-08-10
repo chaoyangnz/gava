@@ -21,7 +21,7 @@ func JDK_java_lang_Object_getClass(this Reference) JavaLangClass {
 }
 
 func JDK_java_lang_Object_clone(this Reference) Reference {
-	cloneable := VM.CreateClass("java/lang/Cloneable", VM.CallerClass(), TRIGGER_BY_CHECK_OBJECT_TYPE)
+	cloneable := VM.ResolveClass("java/lang/Cloneable", TRIGGER_BY_CHECK_OBJECT_TYPE)
 	if !cloneable.IsAssignableFrom(this.Class()) {
 		VM.Throw("java/lang/CloneNotSupportedException", "Not implement java.lang.Cloneable")
 	}

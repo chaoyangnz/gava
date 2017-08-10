@@ -25,7 +25,7 @@ func JDK_java_lang_ClassLoader_NativeLibrary_load(this JavaLangClassLoader, name
 func JDK_java_lang_ClassLoader_findLoadedClass0(this JavaLangClassLoader, className JavaLangString) JavaLangClass {
 	name := javaName2BinaryName(className)
 	var C JavaLangClass = NULL
-	if class, ok := VM.GetInitiatedClass(name, this); ok {
+	if class, ok := VM.getInitiatedClass(name, this); ok {
 		C = class.ClassObject()
 	}
 	if C.IsNull() {
@@ -43,7 +43,7 @@ func JDK_java_lang_ClassLoader_findBootstrapClass(this JavaLangClassLoader, clas
 		C = class.ClassObject()
 		VM.Info("  ***findBootstrapClass() %s success [%s] *c=%p jc=%p \n", name, this.Class().name, class, class.classObject.(Reference).oop)
 	} else {
-		c := VM.CreateClass0(name, NULL, TRIGGER_BY_CHECK_OBJECT_TYPE)
+		c := VM.createClass(name, NULL, TRIGGER_BY_CHECK_OBJECT_TYPE)
 		if c != nil {
 			C = c.ClassObject()
 		}
