@@ -24,7 +24,7 @@ func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, o
 	if !path.IsNull() {
 		f, err := os.Open(path.toNativeString())
 		if err != nil {
-			VM.Throw("java/lang/IOException", "Cannot open file: %s")
+			VM.Throw("java/lang/IOException", "Cannot open file: %s", path.toNativeString())
 		}
 		file = f
 	} else if !fileDescriptor.IsNull() {

@@ -7,6 +7,7 @@ func register_java_lang_Object() {
 	VM.RegisterNative("java/lang/Object.clone()Ljava/lang/Object;", JDK_java_lang_Object_clone)
 	VM.RegisterNative("java/lang/Object.notifyAll()V", JDK_java_lang_Object_notifyAll)
 	VM.RegisterNative("java/lang/Object.wait(J)V", JDK_java_lang_Object_wait)
+	VM.RegisterNative("java/lang/Object.notify()V", JDK_java_lang_Object_notifyAll)
 }
 
 // private static void registerNatives()
