@@ -54,4 +54,5 @@ func (this NativeMethodRegistry) RegisterNatives()  {
 	register_java_util_concurrent_atomic_AtomicLong()
 
 	register_java_util_zip_ZipFile()
+	register_java_util_TimeZone()
 }

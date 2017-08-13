@@ -18,7 +18,7 @@ func JDK_java_io_FileInputStream_initIDs() {
 func JDK_java_io_FileInputStream_open0(this Reference, name JavaLangString) {
 	_, error := os.Open(name.toNativeString())
 	if error != nil {
-		VM.Throw("java/io/IOException", "Cannot open file: %s", name)
+		VM.Throw("java/io/IOException", "Cannot open file: %s", name.toNativeString())
 	}
 }
 
@@ -32,7 +32,7 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	if !path.IsNull() {
 		f, err := os.Open(path.toNativeString())
 		if err != nil {
-			VM.Throw("java/io/IOException", "Cannot open file: %s")
+			VM.Throw("java/io/IOException", "Cannot open file: %s", path.toNativeString())
 		}
 		file = f
 	} else if !fileDescriptor.IsNull() {
@@ -81,7 +81,7 @@ func JDK_java_io_FileInputStream_close0(this Reference)  {
 	} else {
 		f, err := os.Open(path.toNativeString())
 		if err != nil {
-			VM.Throw("java/io/IOException", "Cannot open file: %s", path)
+			VM.Throw("java/io/IOException", "Cannot open file: %s", path.toNativeString())
 		}
 		file = f
 	}
