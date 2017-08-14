@@ -71,7 +71,7 @@ func (this *ExecutionEngine) RunBootstrapThread(run func()) {
 	VM.RegisterThread(thread) // RegisterThread to THREAD_MANAGER
 	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
 	thread.threadObject = VM.NewJavaLangThread(thread.name)
-	thread.threadObject.attatchThread(thread)
+	thread.threadObject.attachThread(thread)
 
 	thread.started = true
 	VM.ExecutionEngine.threadsLogger.Info("[thread ] Start to run bootstrap thread %s #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
@@ -118,7 +118,7 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 }
 
 func printStackTrace(throwable Reference)  {
-	stacktrace := throwable.oop.header.vmBackTrace
+	stacktrace := throwable.retrieveStacktrace()
 	if stacktrace != nil {
 		for _, stacktraceelement := range stacktrace {
 			VM.StderrPrintf("\t at %s\n", stacktraceelement)
@@ -296,12 +296,13 @@ The whole project should use panic only here !!!!!
 func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string)  {
 	thread := this.CurrentThread()
 	if thread.currentFrame() != nil {
-		thread.Info("\n%s🔥Exception %s: %s at %s %s",
+		thread.Info("\n%s🔥Exception %s: %s at %s (%s:%s)",
 			repeat("\t", thread.indexOf(thread.currentFrame()) /*+1*/),
 			thrownReason,
 			throwable.Class().name,
 			thread.currentFrame().method.Qualifier(),
-			thread.currentFrame().getSourceFileAndLineNumber())
+			thread.currentFrame().getSourceFile(),
+			thread.currentFrame().getLineNumber())
 	}
 	panic(throwable)
 }
@@ -363,7 +364,7 @@ func (this *Thread) start()  {
 		threadConstructor := this.threadObject.Class().GetConstructor("(Ljava/lang/String;)V")
 		VM.InvokeMethod(threadConstructor, this.threadObject, VM.NewJavaLangString(this.name))
 	}
-	this.threadObject.attatchThread(this)
+	this.threadObject.attachThread(this)
 
 	// get daemon
 	this.daemon = this.threadObject.GetInstanceVariableByName("daemon", "Z").(Boolean).IsTrue()
@@ -732,11 +733,15 @@ func (this *Frame) putField(objectref ObjectRef, index uint16, value Value) {
 	objectref.SetInstanceVariable(Int(i), value)
 }
 
-func (this *Frame) getSourceFileAndLineNumber() string {
+func (this *Frame) getSourceFile() string {
 	sourceFile := this.method.class.sourceFile
 	if sourceFile == "" {
 		sourceFile = "<Unknow>"
 	}
+	return sourceFile
+}
+
+func (this *Frame) getLineNumber() int {
 	lineNumber := -1
 	lineNumbers := this.method.lineNumbers
 	for i := len(lineNumbers)-1; i >= 0; i-- {
@@ -747,11 +752,7 @@ func (this *Frame) getSourceFileAndLineNumber() string {
 		}
 	}
 
-	linenum := ""
-	if lineNumber >= 0 {
-		linenum = strconv.FormatInt(int64(lineNumber), 10)
-	}
-	return "(" + sourceFile + ":" + linenum + ")"
+	return lineNumber
 }
 
 func (this *Frame) push(value Value)  {
