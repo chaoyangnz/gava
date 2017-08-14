@@ -258,13 +258,11 @@ jago --log:thread debug --log:classloader debug example.WaitInterrupt
 ```
 
 - Java monitor lock with `synchronized`
-- Thread sleep and interrupt
 ```bash
 jago --log:thread debug --log:classloader debug example.Counter
 ```
 
-- Java wait() and notify(), notifyAll()
-- Thread sleep and interrupt
+- Java wait() and `notify()`, `notifyAll()`
 ```bash
 jago --log:thread debug --log:classloader debug example.ProducerConsumer
 ```
