@@ -68,7 +68,7 @@ func JDK_java_lang_ClassLoader_defineClass1(this JavaLangClassLoader, className 
 	C.ClassObject().SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", this)
 	VM.Info("  ==after java.lang.ClassLoader#defineClass1  %s *c=%p (derived) jc=%p \n",  C.name, C, C.ClassObject().(Reference).oop)
 
-	C.sourceFile = source.toNativeString()
+	//C.sourceFile = source.toNativeString() + C.Name() + ".java"
 
 	return C.ClassObject()
 }
