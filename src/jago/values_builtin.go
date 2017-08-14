@@ -83,17 +83,40 @@ type JavaLangClassLoader interface{ObjectRef}
 
 type JavaLangThread interface {
 	ObjectRef
-	attatchThread(thread *Thread)
+	attachThread(thread *Thread)
 	retrieveThread() *Thread
 }
 
-func (this Reference) attatchThread(thread *Thread)  {
+func (this Reference) attachThread(thread *Thread)  {
 	this.oop.header.vmThread = thread
 }
 
 func (this Reference) retrieveThread() *Thread  {
 	return this.oop.header.vmThread
 }
+
+
+type JavaLangThrowable interface {
+	ObjectRef
+	attachStacktrace(stacktrace []StackTraceElement)
+	retrieveStacktrace() []StackTraceElement
+}
+
+func (this Reference) attachStacktrace(stacktrace []StackTraceElement)  {
+	this.oop.header.vmBackTrace = stacktrace
+}
+
+func (this Reference) retrieveStacktrace() []StackTraceElement {
+	return this.oop.header.vmBackTrace
+}
+
+type StackTraceElement struct {
+	declaringClass string
+	methodName string
+	fileName string
+	lineNumber int
+}
+
 
 
 

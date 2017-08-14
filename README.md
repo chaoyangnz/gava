@@ -244,19 +244,29 @@ jago --log:thread debug --log:classloader debug test.test_system_properties
 jago --log:thread debug --log:classloader debug test.test_thread
 ```
 
-- Thread sleep and interrupt
 ```bash
 jago --log:thread debug --log:classloader debug example.Multithread
 ```
 
-- Java monitor lock
+- Thread sleep or wait and interrupt
 ```bash
-// TODO
+jago --log:thread debug --log:classloader debug example.SleepInterrupt
+```
+
+```bash
+jago --log:thread debug --log:classloader debug example.WaitInterrupt
+```
+
+- Java monitor lock with `synchronized`
+- Thread sleep and interrupt
+```bash
+jago --log:thread debug --log:classloader debug example.Counter
 ```
 
 - Java wait() and notify(), notifyAll()
+- Thread sleep and interrupt
 ```bash
-// TODO
+jago --log:thread debug --log:classloader debug example.ProducerConsumer
 ```
 
 # trace the execution

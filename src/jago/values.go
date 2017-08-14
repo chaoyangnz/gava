@@ -84,7 +84,7 @@ type ObjectHeader struct {
 	// extra data for internal use only
 	vmThread   *Thread // for java.lang.Thread object use
 	vmType     Type  // for java.lang.Class object use
-	vmBackTrace []string
+	vmBackTrace []StackTraceElement
 }
 
 type Object struct {
