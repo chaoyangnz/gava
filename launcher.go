@@ -23,6 +23,7 @@ func main()  {
 	app.Description = "A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc."
 
 	var classpath string
+	var nologo bool = false
 	var log_thread string
 	var log_classloader string
 	app.Flags = []cli.Flag {
@@ -31,6 +32,11 @@ func main()  {
 			Value: "",
 			Usage: "application classpath separated by colon",
 			Destination: &classpath,
+		},
+		cli.BoolFlag{
+			Name: "nologo, nl",
+			Usage: "don't show logo",
+			Destination: &nologo,
 		},
 		cli.StringFlag{
 			Name: "log:thread",
@@ -46,8 +52,7 @@ func main()  {
 		},
 	}
 
-	fmt.Printf("    _                   \r\n   (_) __ _  __ _  ___  \r\n   | |/ _` |/ _` |/ _ \\ \r\n   | | (_| | (_| | (_) |   version %s\r\n  _/ |\\__,_|\\__, |\\___/    \r\n |__/       |___/     \n\n\n", app.Version)
-	fmt.Printf("Command: %s \n", strings.Join(os.Args, " "))
+
 
 
 
@@ -55,6 +60,11 @@ func main()  {
 		//fmt.Println(" ┬┌─┐┌─┐┌─┐")
 		//fmt.Println(" │├─┤│ ┬│ │")
 		//fmt.Println("└┘┴ ┴└─┘└─┘")
+
+		if !nologo {
+			fmt.Printf("    _                   \r\n   (_) __ _  __ _  ___  \r\n   | |/ _` |/ _` |/ _ \\ \r\n   | | (_| | (_| | (_) |   version %s\r\n  _/ |\\__,_|\\__, |\\___/    \r\n |__/       |___/     \n", app.Version)
+		}
+		fmt.Printf("\n\nCommand: %s \n", strings.Join(os.Args, " "))
 
 		args := c.Args()
 		if c.NArg() < 1 {

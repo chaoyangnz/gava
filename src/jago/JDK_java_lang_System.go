@@ -77,7 +77,16 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 
 	classpath := VM.GetSystemSetting("classpath.system") + ":" +
 				 VM.GetSystemSetting("classpath.extension") + ":" +
-				 VM.GetSystemSetting("classpath.application")
+				 VM.GetSystemSetting("classpath.application") + ":."
+
+	paths := strings.Split(classpath, ":")
+	abs_paths := []string{}
+	for _, seg := range paths {
+		abs_path, _ := filepath.Abs(seg)
+		abs_paths = append(abs_paths, abs_path)
+	}
+	classpath = strings.Join(abs_paths, ":")
+
 	m := map[string]string {
 		"java.version":                "1.8.0_152-ea",
 		"java.home":                    currentPath,
@@ -101,7 +110,7 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 		"java.runtime.version":        "1.8.0_152-ea-b05",
 
 		"java.class.version":          "52.0",
-		"java.class.path":              "/Users/Chao/GoglandProjects/jago/jdk/classes:/Users/Chao/GoglandProjects/jago/example/classes", // app classloader path
+		"java.class.path":              classpath,//"/Users/Chao/GoglandProjects/jago/jdk/classes:/Users/Chao/GoglandProjects/jago/example/classes", // app classloader path
 
 		"java.io.tmpdir":               classpath, //TODO
 		"java.library.path":            classpath, //TODO
