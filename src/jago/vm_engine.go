@@ -7,6 +7,7 @@ import (
 	"time"
 	"sync"
 	"reflect"
+	"strings"
 )
 
 /*
@@ -82,7 +83,7 @@ func (this *ExecutionEngine) RunBootstrapThread(run func()) {
 
 func precreateThread(name string, run func(), exitHook func()) *Thread {
 	logLevel, _ := strconv.Atoi(VM.GetSystemSetting("log.level.thread"))
-	logger := VM.NewLogger("thread", logLevel, "thread-[" + name + "].log")
+	logger := VM.NewLogger("thread", logLevel, "thread-" + name + ".log")
 	thread := &Thread{
 		name: name,
 		vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE),
@@ -102,7 +103,7 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM.StderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, throwable.Class().Name(), detailMessageStr)
+			VM.StderrPrintf("\nException in thread \"%s\" #%d %s: %s\n", thread.name, thread.id, strings.Replace(throwable.Class().Name(), "/", ".", -1), detailMessageStr)
 
 			printStackTrace(throwable)
 			VM.StderrPrintf("\n")
@@ -121,7 +122,7 @@ func printStackTrace(throwable Reference)  {
 	stacktrace := throwable.retrieveStacktrace()
 	if stacktrace != nil {
 		for _, stacktraceelement := range stacktrace {
-			VM.StderrPrintf("\t at %s\n", stacktraceelement)
+			VM.StderrPrintf("	at %s\n", stacktraceelement.toString())
 		}
 	}
 

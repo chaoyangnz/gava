@@ -1,5 +1,7 @@
 package jago
 
+import "fmt"
+
 const (
 	JAVA_LANG_STRING = "java/lang/String"
 	JAVA_LANG_CLASS = "java/lang/Class"
@@ -115,6 +117,10 @@ type StackTraceElement struct {
 	methodName string
 	fileName string
 	lineNumber int
+}
+
+func (this StackTraceElement) toString() string {
+	return fmt.Sprintf("%s.%s(%s:%d)", this.declaringClass, this.methodName, this.fileName, this.lineNumber)
 }
 
 

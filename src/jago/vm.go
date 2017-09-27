@@ -36,16 +36,16 @@ type Jago struct {
 
 func (this *Jago) Init()  {
 	this.SystemSettings = map[string]string {
-		"log.base": "log",
+		"log.base": "/Users/Chao/GoglandProjects/jago/log",
 		"log.level.threads":        strconv.Itoa(DEBUG),
 		"log.level.thread":         strconv.Itoa(DEBUG),
 		"log.level.classloader":    strconv.Itoa(DEBUG),
 		"log.level.io":             strconv.Itoa(DEBUG),
 		"log.level.misc":           strconv.Itoa(DEBUG),
 
-		"classpath.system": "jdk/classes",
+		"classpath.system": "/Users/Chao/GoglandProjects/jago/jdk/classes",
 		"classpath.extension": "",
-		"classpath.application": "example/classes:.",
+		"classpath.application": "",
 	}
 
 	this.LoggerFactory = &LoggerFactory{}
