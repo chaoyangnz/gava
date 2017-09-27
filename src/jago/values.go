@@ -4,14 +4,14 @@ package jago
 Value system:
 
 <Value>
-	|- Byte
-	|- Short
-	|- Char
-	|- Int
-	|- Long
-	|- Float
-	|- Double
-	|- Boolean
+	|- Byte     -> int8
+	|- Short    -> int16
+	|- Char     -> uint16
+	|- Int      -> int32
+	|- Long     -> int64
+	|- Float    -> float32
+	|- Double   -> float64
+	|- Boolean  -> int8
 	|- <ObjectRef>                     \
 	    |- <JavaLangString>             \
 	    |- <JavaLangThread>              \
@@ -82,9 +82,9 @@ type ObjectHeader struct {
 	monitor      *Monitor
 
 	// extra data for internal use only
-	vmThread   *Thread // for java.lang.Thread object use
-	vmType     Type  // for java.lang.Class object use
-	vmBackTrace []StackTraceElement
+	vmThread   *Thread // for java.lang.Thread object use only
+	vmType     Type  // for java.lang.Class object use only
+	vmBackTrace []StackTraceElement // for java.lang.Throwable use only
 }
 
 type Object struct {
