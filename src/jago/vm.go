@@ -35,6 +35,7 @@ type Jago struct {
 }
 
 func (this *Jago) Init()  {
+	jdk_path := "/Users/Chao/GoglandProjects/jago/jdk/classes"//filepath.Abs(filepath.Dir(os.Args[0]) + "../jdk/classes")
 	this.SystemSettings = map[string]string {
 		"log.base": "log",
 		"log.level.threads":        strconv.Itoa(DEBUG),
@@ -43,9 +44,9 @@ func (this *Jago) Init()  {
 		"log.level.io":             strconv.Itoa(DEBUG),
 		"log.level.misc":           strconv.Itoa(DEBUG),
 
-		"classpath.system": "jdk/classes",
+		"classpath.system": jdk_path,
 		"classpath.extension": "",
-		"classpath.application": "example/classes:.",
+		"classpath.application": "",
 	}
 
 	this.LoggerFactory = &LoggerFactory{}
