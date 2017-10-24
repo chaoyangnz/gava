@@ -20,7 +20,7 @@ The Ebook about how it works internally is in progress: https://www.gitbook.com/
 - NO GC
 - NO JIT
 
-![](demo.gif){:height="100%" width="100%"}
+![](demo.gif){:height="50%" width="50%"}
 
 # How to run
 
