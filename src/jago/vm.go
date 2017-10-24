@@ -37,11 +37,11 @@ type Jago struct {
 func (this *Jago) Init()  {
 	this.SystemSettings = map[string]string {
 		"log.base": "/Users/Chao/GoglandProjects/jago/log",
-		"log.level.threads":        strconv.Itoa(DEBUG),
-		"log.level.thread":         strconv.Itoa(DEBUG),
-		"log.level.classloader":    strconv.Itoa(DEBUG),
-		"log.level.io":             strconv.Itoa(DEBUG),
-		"log.level.misc":           strconv.Itoa(DEBUG),
+		"log.level.threads":        strconv.Itoa(WARN),
+		"log.level.thread":         strconv.Itoa(WARN),
+		"log.level.classloader":    strconv.Itoa(WARN),
+		"log.level.io":             strconv.Itoa(WARN),
+		"log.level.misc":           strconv.Itoa(WARN),
 
 		"classpath.system": "/Users/Chao/GoglandProjects/jago/jdk/classes",
 		"classpath.extension": "",

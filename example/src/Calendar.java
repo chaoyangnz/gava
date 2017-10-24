@@ -67,7 +67,7 @@ public class Calendar {
 
         // print calendar header
         System.out.println("   " + months[month] + " " + year);
-        System.out.println(" S  M Tu  W Th  F  S");
+        System.out.println(" S  M Tu  W Th  F  Sa");
 
         // starting day
         int d = day(month, 1, year);
