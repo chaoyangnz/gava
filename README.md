@@ -20,7 +20,7 @@ The Ebook about how it works internally is in progress: https://www.gitbook.com/
 - NO GC
 - NO JIT
 
-<img src='demo.gif' width='300'/>
+<img src='demo.gif' width='500'/>
 
 # How to run
 
