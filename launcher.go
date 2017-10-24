@@ -86,22 +86,26 @@ func main()  {
 		}
 
 		switch log_thread {
+		case "error":  jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.ERROR))
+		case "warn":  jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.WARN))
 		case "info": jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.INFO))
 		case "debug": jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.DEBUG))
 		case "trace":  jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.TRACE))
 		default:
 			if log_thread != "" {
-				fmt.Printf("Invalid log:execution option: %s\n", log_thread)
+				fmt.Printf("Invalid log:thread option: %s\n", log_thread)
 			}
 		}
 
 		switch log_classloader {
+		case "error": jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.ERROR))
+		case "warn": jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.WARN))
 		case "info": jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.INFO))
 		case "debug": jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.DEBUG))
 		case "trace":  jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.TRACE))
 		default:
 			if log_classloader != "" {
-				fmt.Printf("Invalid log:classload option: %s\n", log_classloader)
+				fmt.Printf("Invalid log:classloader option: %s\n", log_classloader)
 			}
 		}
 

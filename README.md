@@ -20,19 +20,7 @@ The Ebook about how it works internally is in progress: https://www.gitbook.com/
 - NO GC
 - NO JIT
 
-# Plan
-
-- week01: class file reader refine
-- week02: runtime structure (vm stack, stack frame)
-- week03: type system and class loader
-- week04: method area and heap object creation
-- week05: instruction (1) constants, comparision, conversion
-- week06: instruction (2) loads, stores, stack
-- week07: instruction (3) reference, control, math
-- week08: native methods (1) System, Object, Class, ClassLoader, Array, String
-- week09: native methods (2) Throwable, StackTraceElement and exception handling
-- week10: native methods (3) file io - FileInputStream, FileOutputStream
-- week11: create test case
+![](demo.gif)
 
 # How to run
 

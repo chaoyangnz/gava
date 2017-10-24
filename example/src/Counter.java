@@ -14,12 +14,11 @@ public class Counter {
         thread2.start();
     }
 
-//    synchronized
+    synchronized
     void performTask () {
         int temp = counter;
         counter++;
-        System.out.println(Thread.currentThread()
-                .getName() + " - before: "+temp+" after:" + counter);
+        System.out.println(Thread.currentThread().getName() + " - before: "+temp+" after:" + counter);
 
         try {
             Thread.sleep(1000);
