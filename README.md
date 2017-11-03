@@ -1,11 +1,13 @@
 # Jago
 
 A simplified Java virtual machine written in Go language. This project is to learn JVM specification in depth and try to understand the
-under-the-water mechanism when a Java program runs.
+behind-the-scene behaviour when a Java program runs.
 
-Basically, I only refer to "Java Virtual Machine Specification" and then compose how we should design one. 
-I have to say many implementation details are naive and I make it as simplified as possible so as to
+I only refer to "Java Virtual Machine Specification" and then figure out how we should design one.
+I ignore some production-level features and make it as simplified as possible so as to
 demonstrate the idea. For the educational purpose, it is enough.
+
+If you have no time to read OpenJDK source code or always guess the JVM behaviour when you need to tune your program, then your right here to be the lord of your universe.
 
 The Ebook about how it works internally is in progress: https://www.gitbook.com/book/richdyang/go-my-jvm
 
