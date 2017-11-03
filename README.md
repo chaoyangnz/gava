@@ -11,14 +11,14 @@ The Ebook about how it works internally is in progress: https://www.gitbook.com/
 
 # Roadmap
 
-- Java class parser
-- Interpreter engine
-- Class loader delegation
-- multi-threading support
-- monitor, sleep, wait, notify support
-- Bridge JDK native methods
-- NO GC
-- NO JIT
+- [x] Java class parser
+- [x] Interpreter engine
+- [x] Class loader delegation
+- [x] multi-threading support
+- [x] monitor, sleep, wait, notify support
+- [x] Bridge JDK native methods
+- [ ] GC
+- [ ] JIT
 
 <img src='demo.gif' width='500'/>
 
