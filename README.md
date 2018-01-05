@@ -30,8 +30,7 @@ The Ebook about how it works internally is in progress: https://www.gitbook.com/
 
 ```bash
 ❯ cd ~/jago
-❯ export GOPATH=`pwd`
-❯ export PATH=$PATH:`pwd`/bin
+❯ export JAGO_HOME=`pwd`
 ❯ ./build.sh
 ```
 
@@ -281,7 +280,4 @@ The trigger reason can be viewed after a class name.
 This log file records thread creation/exit information and object monitor enter/exit, thread sleep(), wait(), notify() etc.
 
 ### log/misc.log
-Other trivial logs 
-# Runtime libraries solution (TBD)
-
-![](Jago-jdk.png)
+Other trivial logs
