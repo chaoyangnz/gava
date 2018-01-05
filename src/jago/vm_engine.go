@@ -25,7 +25,6 @@ import (
 */
 
 type ExecutionEngine struct {
-	//contextManager *gls.ContextManager
 	InstructionRegistry
 	NativeMethodRegistry
 	threads cmap.ConcurrentMap // [string]*Thread
