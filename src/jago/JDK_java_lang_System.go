@@ -110,7 +110,7 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 		"java.runtime.version":        "1.8.0_152-ea-b05",
 
 		"java.class.version":          "52.0",
-		"java.class.path":              classpath,//"/Users/Chao/GoglandProjects/jago/jdk/classes:/Users/Chao/GoglandProjects/jago/example/classes", // app classloader path
+		"java.class.path":              classpath, // app classloader path
 
 		"java.io.tmpdir":               classpath, //TODO
 		"java.library.path":            classpath, //TODO

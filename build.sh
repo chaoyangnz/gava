@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export JAGO_HOME=`pwd`
+
 export GOPATH=`pwd`
 go get github.com/urfave/cli
 go build -o bin/jago
