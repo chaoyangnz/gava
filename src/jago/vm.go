@@ -5,6 +5,8 @@ import (
 	"sync"
 	"reflect"
 	"strconv"
+	"os"
+	"path"
 )
 
 
@@ -35,15 +37,16 @@ type Jago struct {
 }
 
 func (this *Jago) Init()  {
+	jago_home := os.Getenv("JAGO_HOME")
 	this.SystemSettings = map[string]string {
-		"log.base": "/Users/Chao/GoglandProjects/jago/log",
+		"log.base": path.Join(jago_home, "log"),
 		"log.level.threads":        strconv.Itoa(WARN),
 		"log.level.thread":         strconv.Itoa(WARN),
 		"log.level.classloader":    strconv.Itoa(WARN),
 		"log.level.io":             strconv.Itoa(WARN),
 		"log.level.misc":           strconv.Itoa(WARN),
 
-		"classpath.system": "/Users/Chao/GoglandProjects/jago/jdk/classes",
+		"classpath.system": path.Join(jago_home, "jdk/classes"),
 		"classpath.extension": "",
 		"classpath.application": "",
 	}

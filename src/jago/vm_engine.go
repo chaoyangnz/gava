@@ -297,7 +297,7 @@ The whole project should use panic only here !!!!!
 func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string)  {
 	thread := this.CurrentThread()
 	if thread.currentFrame() != nil {
-		thread.Info("\n%s🔥Exception %s: %s at %s (%s:%s)",
+		thread.Info("\n%s🔥Exception %s: %s at %s (%s:%d)",
 			repeat("\t", thread.indexOf(thread.currentFrame()) /*+1*/),
 			thrownReason,
 			throwable.Class().name,
