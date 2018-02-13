@@ -4,6 +4,7 @@ export JAGO_HOME=`pwd`
 
 export GOPATH=`pwd`
 go get github.com/urfave/cli
+go get github.com/orcaman/concurrent-map
 go build -o bin/jago
 chmod +x bin/jago
 
