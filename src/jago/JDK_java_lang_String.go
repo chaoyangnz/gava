@@ -7,4 +7,3 @@ func register_java_lang_String() {
 func JDK_jang_lang_String_intern(this JavaLangString) JavaLangString {
 	return VM.InternString(this)
 }
-

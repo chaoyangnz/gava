@@ -541,7 +541,7 @@ func I2B(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	b := Byte(value) // truncate to 8 bits
-	f.push(Int(b)) // // sign-extended
+	f.push(Int(b))   // // sign-extended
 }
 
 /*
@@ -580,7 +580,7 @@ func I2C(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	ch := Char(int16(value)) // truncate to 16 bits
-	f.push(Int(ch)) // 0-extended
+	f.push(Int(ch))          // 0-extended
 }
 
 /*
@@ -619,5 +619,5 @@ func I2S(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
 
 	s := Short(value) // truncate to 16 bits
-	f.push(Int(s)) // sign-extended
+	f.push(Int(s))    // sign-extended
 }

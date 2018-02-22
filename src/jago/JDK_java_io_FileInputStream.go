@@ -38,9 +38,12 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	} else if !fileDescriptor.IsNull() {
 		fd := fileDescriptor.GetInstanceVariableByName("fd", "I").(Int)
 		switch fd {
-		case 0: file = os.Stdin
-		case 1: file = os.Stdout
-		case 2: file = os.Stderr
+		case 0:
+			file = os.Stdin
+		case 1:
+			file = os.Stdout
+		case 2:
+			file = os.Stderr
 		default:
 			file = os.NewFile(uintptr(fd), "")
 		}
@@ -57,7 +60,7 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	VM.ExecutionEngine.ioLogger.Info("🅹 ⤆ %s - buffer size: %d, offset: %d, len: %d, actual read: %d \n", file.Name(), byteArr.ArrayLength(), offset, length, nsize)
 	if err == nil || nsize == int(length) {
 		for i := 0; i < int(length); i++ {
-			byteArr.SetArrayElement(offset + Int(i), Byte(bytes[i]))
+			byteArr.SetArrayElement(offset+Int(i), Byte(bytes[i]))
 		}
 		return Int(nsize)
 	}
@@ -66,7 +69,7 @@ func JDK_java_io_FileInputStream_readBytes(this Reference, byteArr ArrayRef, off
 	return -1
 }
 
-func JDK_java_io_FileInputStream_close0(this Reference)  {
+func JDK_java_io_FileInputStream_close0(this Reference) {
 	var file *os.File
 
 	fileDescriptor := this.GetInstanceVariableByName("fd", "Ljava/io/FileDescriptor;").(Reference)
@@ -74,9 +77,12 @@ func JDK_java_io_FileInputStream_close0(this Reference)  {
 	if !fileDescriptor.IsNull() {
 		fd := fileDescriptor.GetInstanceVariableByName("fd", "I").(Int)
 		switch fd {
-		case 0: file = os.Stdin
-		case 1: file = os.Stdout
-		case 2: file = os.Stderr
+		case 0:
+			file = os.Stdin
+		case 1:
+			file = os.Stdout
+		case 2:
+			file = os.Stderr
 		}
 	} else {
 		f, err := os.Open(path.toNativeString())

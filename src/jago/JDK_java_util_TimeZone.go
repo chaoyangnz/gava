@@ -2,7 +2,7 @@ package jago
 
 import "time"
 
-func register_java_util_TimeZone()  {
+func register_java_util_TimeZone() {
 	VM.RegisterNative("java/util/TimeZone.getSystemTimeZoneID(Ljava/lang/String;)Ljava/lang/String;", JDK_java_util_TimeZone_getSystemTimeZoneID)
 }
 

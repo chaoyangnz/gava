@@ -197,8 +197,10 @@ func ASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 
 	value := f.pop()
 	switch value.(type) {
-	case Reference: f.storeVar(uint(index), value.(Reference))
-	case ReturnAddress: f.storeVar(uint(index), value.(ReturnAddress))
+	case Reference:
+		f.storeVar(uint(index), value.(Reference))
+	case ReturnAddress:
+		f.storeVar(uint(index), value.(ReturnAddress))
 	}
 }
 
@@ -249,8 +251,6 @@ func ISTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 func ISTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(1, f.pop().(Int))
 }
-
-
 
 /*61 (0x3D)*/
 func ISTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
@@ -482,8 +482,10 @@ Each of the astore_<n> instructions is the same as astore with an index of <n>, 
 func ASTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
-	case Reference: f.storeVar(0, value.(Reference))
-	case ReturnAddress: f.storeVar(0, value.(ReturnAddress))
+	case Reference:
+		f.storeVar(0, value.(Reference))
+	case ReturnAddress:
+		f.storeVar(0, value.(ReturnAddress))
 	}
 }
 
@@ -491,8 +493,10 @@ func ASTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 func ASTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
-	case Reference: f.storeVar(1, value.(Reference))
-	case ReturnAddress: f.storeVar(1, value.(ReturnAddress))
+	case Reference:
+		f.storeVar(1, value.(Reference))
+	case ReturnAddress:
+		f.storeVar(1, value.(ReturnAddress))
 	}
 }
 
@@ -500,8 +504,10 @@ func ASTORE_1(t *Thread, f *Frame, c *Class, m *Method) {
 func ASTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
-	case Reference: f.storeVar(2, value.(Reference))
-	case ReturnAddress: f.storeVar(2, value.(ReturnAddress))
+	case Reference:
+		f.storeVar(2, value.(Reference))
+	case ReturnAddress:
+		f.storeVar(2, value.(ReturnAddress))
 	}
 }
 
@@ -509,8 +515,10 @@ func ASTORE_2(t *Thread, f *Frame, c *Class, m *Method) {
 func ASTORE_3(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop()
 	switch value.(type) {
-	case Reference: f.storeVar(3, value.(Reference))
-	case ReturnAddress: f.storeVar(3, value.(ReturnAddress))
+	case Reference:
+		f.storeVar(3, value.(Reference))
+	case ReturnAddress:
+		f.storeVar(3, value.(ReturnAddress))
 	}
 }
 

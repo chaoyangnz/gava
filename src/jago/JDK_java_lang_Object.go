@@ -11,9 +11,9 @@ func register_java_lang_Object() {
 }
 
 // private static void registerNatives()
-func JDK_jang_lang_Object_registerNatives()  {}
+func JDK_jang_lang_Object_registerNatives() {}
 
-func JDK_java_lang_Object_hashCode(this Reference) Int  {
+func JDK_java_lang_Object_hashCode(this Reference) Int {
 	return VM.IHashCode(this)
 }
 
@@ -51,4 +51,3 @@ func JDK_java_lang_Object_notifyAll(this Reference) {
 
 	monitor.NotifyAll()
 }
-

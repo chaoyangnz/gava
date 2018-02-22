@@ -13,9 +13,9 @@ type Monitor struct {
 	lock       sync.Locker
 	entryCount int
 
-	ch         chan int
+	ch chan int
 
-	waits   cmap.ConcurrentMap
+	waits cmap.ConcurrentMap
 }
 
 func NewMonitor(obj *Object) *Monitor {
@@ -43,7 +43,6 @@ func (self *Monitor) Enter() {
 	self.l.Unlock()
 
 	self.lock.Lock()
-
 
 	self.l.Lock()
 	self.owner = thread
@@ -84,7 +83,7 @@ func (self *Monitor) HasOwner(thread *Thread) bool {
 	return isOwner
 }
 
-const _notify  = 1
+const _notify = 1
 const _wait_timeout = 2
 
 func (self *Monitor) Wait(millis int64) (interrupted bool) {
@@ -99,7 +98,7 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	// here current thread must acquire lock
 	thread.waiting = true
 
-	self.Exit()// temporarily release owner
+	self.Exit() // temporarily release owner
 
 	if millis != 0 {
 		go func() {
@@ -114,8 +113,8 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	}
 
 	select {
-	case ch := <- self.ch:
-		if ch ==_notify || ch == _wait_timeout {
+	case ch := <-self.ch:
+		if ch == _notify || ch == _wait_timeout {
 			thread.waiting = false
 			interrupted = false
 			break
@@ -131,7 +130,7 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 
 	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d wait end of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
 
-	self.Enter()// again compete to acquire owner
+	self.Enter() // again compete to acquire owner
 
 	return
 }

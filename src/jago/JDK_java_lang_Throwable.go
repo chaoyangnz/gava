@@ -55,5 +55,3 @@ func JDK_jang_lang_Throwable_getStackTraceElement(this JavaLangThrowable, i Int)
 
 	return ste
 }
-
-

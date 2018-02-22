@@ -27,27 +27,27 @@ import (
 type ExecutionEngine struct {
 	InstructionRegistry
 	NativeMethodRegistry
-	threads cmap.ConcurrentMap // [string]*Thread
+	threads       cmap.ConcurrentMap // [string]*Thread
 	threadsLogger *Logger
-	ioLogger *Logger
+	ioLogger      *Logger
 }
 
 func tid2str(tid uint64) string {
 	return fmt.Sprintf("%v", tid)
 }
 
-func (this *ExecutionEngine) RegisterThread(thread *Thread)  {
+func (this *ExecutionEngine) RegisterThread(thread *Thread) {
 	this.threads.Set(tid2str(thread.id), thread)
 }
 
-func (this *ExecutionEngine) UnregisterThread(thread *Thread)  {
+func (this *ExecutionEngine) UnregisterThread(thread *Thread) {
 	this.threads.Remove(tid2str(thread.id))
 }
 
-func (this *ExecutionEngine) exitDaemonThreads()  {
+func (this *ExecutionEngine) exitDaemonThreads() {
 	for _, t := range this.threads.Items() {
 		thread := t.(*Thread)
-		jt := thread.threadObject.(Reference)
+		jt := thread.threadObject
 		jt.IsNull()
 		if thread.daemon {
 			thread.interrupt()
@@ -66,7 +66,7 @@ func (this *ExecutionEngine) CurrentThread() *Thread {
 }
 
 func (this *ExecutionEngine) RunBootstrapThread(run func()) {
-	thread := precreateThread("bootstrap", run, func(){})
+	thread := precreateThread("bootstrap", run, func() {})
 	thread.id = getGID()
 	VM.RegisterThread(thread) // RegisterThread to THREAD_MANAGER
 	// this java.lang.Thread object hasn't been initialized, defer after System.initializeSystemClasses(..)
@@ -82,20 +82,20 @@ func (this *ExecutionEngine) RunBootstrapThread(run func()) {
 
 func precreateThread(name string, run func(), exitHook func()) *Thread {
 	logLevel, _ := strconv.Atoi(VM.GetSystemSetting("log.level.thread"))
-	logger := VM.NewLogger("thread", logLevel, "thread-" + name + ".log")
+	logger := VM.NewLogger("thread", logLevel, "thread-"+name+".log")
 	thread := &Thread{
-		name: name,
+		name:    name,
 		vmStack: make([]*Frame, 0, DEFAULT_VM_STACK_SIZE),
 		started: false,
 		//cond: sync.NewCond(&sync.Mutex{}),
-		l: &sync.Mutex{},
-		ch: make(chan int),
+		l:      &sync.Mutex{},
+		ch:     make(chan int),
 		Logger: logger,
 	}
 
 	thread.runBlock = Block{
 		func() { run() },
-		func(throwable Reference)  {
+		func(throwable Reference) {
 			thread.Info("\n💥Exception uncaught  in thread \"%s\", thus print stacktrace on stdout", thread.name)
 			detailMessage := throwable.GetInstanceVariableByName("detailMessage", "Ljava/lang/String;").(JavaLangString)
 			detailMessageStr := ""
@@ -117,7 +117,7 @@ func precreateThread(name string, run func(), exitHook func()) *Thread {
 	return thread
 }
 
-func printStackTrace(throwable Reference)  {
+func printStackTrace(throwable Reference) {
 	stacktrace := throwable.retrieveStacktrace()
 	if stacktrace != nil {
 		for _, stacktraceelement := range stacktrace {
@@ -154,7 +154,7 @@ func (this *ExecutionEngine) NewThread(name string, run func(), exitHook func())
 		// pause here to wait start command
 		for !thread.started {
 			VM.ExecutionEngine.threadsLogger.Info("[thread ] Created thread '%s' #%d but wait to start\n", VM.CurrentThread().name, VM.CurrentThread().id)
-			thread.started = <- thread.ch == _start
+			thread.started = <-thread.ch == _start
 		}
 
 		VM.ExecutionEngine.threadsLogger.Info("[thread ] Start thread '%s' #%d\n", VM.CurrentThread().name, VM.CurrentThread().id)
@@ -195,7 +195,7 @@ func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Valu
 	if method.isSynchronized() {
 		var monitor *Monitor
 		if method.isStatic() {
-			monitor = method.class.ClassObject().(Reference).Monitor()
+			monitor = method.class.ClassObject().Monitor()
 		} else {
 			monitor = params[0].(Reference).Monitor()
 		}
@@ -222,16 +222,15 @@ func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Valu
 		thread.push(frame)
 		thread.ExecuteFrame()
 
-
 		if frame.exception.IsNull() { // normal return
 			if method.returnDescriptor != JVM_SIGNATURE_VOID {
 				//if caller == nil ||  // directly call in bootstrap when stack is empty
 				//   len(caller.operandStack) == cap(caller.operandStack)  {  // class loading call: loadClass(..)Ljava/lang/Class {
-				//	return frame.hangReturn
+				//	return frame.danglingReturn
 				//}
-				if frame.hangReturn != nil {
-					ret := frame.hangReturn
-					frame.hangReturn = nil // clear
+				if frame.danglingReturn != nil {
+					ret := frame.danglingReturn
+					frame.danglingReturn = nil // clear
 					return ret
 				}
 				return caller.pop() // if non-normal return, here will return a throwable
@@ -255,11 +254,11 @@ func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Valu
 			staticDesc = "static"
 		}
 		if !found {
-			Fatal( "native method %s %s is not implemented.", staticDesc, method.Qualifier())
+			Fatal("native method %s %s is not implemented.", staticDesc, method.Qualifier())
 		}
 
 		if len(params) != fun.Type().NumIn() {
-			Fatal( "The size of parameters is not adapted for native method %s %s.", staticDesc, method.Qualifier())
+			Fatal("The size of parameters is not adapted for native method %s %s.", staticDesc, method.Qualifier())
 		}
 		in := make([]reflect.Value, len(params))
 		for k, param := range params {
@@ -270,7 +269,7 @@ func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Valu
 		}
 		result := fun.Call(in)
 
-		if  method.returnDescriptor != JVM_SIGNATURE_VOID {
+		if method.returnDescriptor != JVM_SIGNATURE_VOID {
 			if len(result) != 0 {
 				if ret, ok := result[0].Interface().(Value); ok {
 					return ret
@@ -285,15 +284,15 @@ func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Valu
 }
 
 const (
-	THROWN_BY_ATHROW        = "thrown by \"athrow\"" // ATHROW instruction
-	THROWN_BY_RETHROW       = "rethrown"
-	THROWN_BY_VM            = "thrown by VM"
+	THROWN_BY_ATHROW  = "thrown by \"athrow\"" // ATHROW instruction
+	THROWN_BY_RETHROW = "rethrown"
+	THROWN_BY_VM      = "thrown by VM"
 )
 
 /*
 The whole project should use panic only here !!!!!
  */
-func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string)  {
+func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string) {
 	thread := this.CurrentThread()
 	if thread.currentFrame() != nil {
 		thread.Info("\n%s🔥Exception %s: %s at %s (%s:%d)",
@@ -307,12 +306,12 @@ func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string)  {
 	panic(throwable)
 }
 
-func (this *ExecutionEngine) Throw(exception string, message string, args ...interface{})  {
+func (this *ExecutionEngine) Throw(exception string, message string, args ...interface{}) {
 	this.Throw0(VM.NewThrowable(exception, message, args...), THROWN_BY_VM)
 }
 
 // We choose fix-sized stack size
-const DEFAULT_VM_STACK_SIZE  = 512
+const DEFAULT_VM_STACK_SIZE = 512
 
 const (
 	_start         = 1
@@ -321,20 +320,19 @@ const (
 )
 
 type Thread struct {
-	id          uint64
-	name        string
-	vmStack     []*Frame
-	runBlock    Block
+	id       uint64
+	name     string
+	vmStack  []*Frame
+	runBlock Block
 
+	ch chan int
 
-	ch          chan int
+	daemon bool
 
-	daemon      bool
-
-	l           sync.Locker // look after these state variable
-	sleeping    bool
-	parking     bool
-	waiting     bool
+	l        sync.Locker // look after these state variable
+	sleeping bool
+	parking  bool
+	waiting  bool
 
 	interrupted bool
 	started     bool
@@ -347,13 +345,12 @@ type Thread struct {
 }
 
 // start thread
-func (this *Thread) start()  {
+func (this *Thread) start() {
 	if this.started {
 		return
 	}
 
-
-	if this.threadObject == nil {
+	if this.threadObject.IsNull() {
 		// ----- prepare java.lang.Thread object ----
 		// this construct object must be run in parent thread
 
@@ -373,7 +370,7 @@ func (this *Thread) start()  {
 	this.ch <- _start
 }
 
-func (this *Thread) interrupt()  {
+func (this *Thread) interrupt() {
 	select {
 	case this.ch <- _interrupt:
 		VM.ExecutionEngine.threadsLogger.Info("[thread ] Thread '%s' interrupt \n", this.name)
@@ -401,17 +398,17 @@ func (this *Thread) sleep(millis int64) bool {
 		}
 	}()
 
-	return <- this.ch == _interrupt
+	return <-this.ch == _interrupt
 }
 
 func (this *Thread) NewFrame(method *Method) *Frame {
 	stackFrame := &Frame{
-		thread: this,
-		method: method,
-		pc: 0,
-		pos: 1, // all opcode is 1 byte, then operand starts with 1
+		thread:         this,
+		method:         method,
+		pc:             0,
+		pos:            1,                               // all opcode is 1 byte, then operand starts with 1
 		localVariables: make([]Value, method.maxLocals), // local variables have no initial values
-		operandStack: make([]Value, 0, method.maxStack)}
+		operandStack:   make([]Value, 0, method.maxStack)}
 	return stackFrame
 }
 
@@ -426,11 +423,11 @@ func (this *Thread) NewFrame(method *Method) *Frame {
 
 Only run one single frame
 */
-func (this *Thread) ExecuteFrame() /* this return is throwable if this method is return exceptionally, otherwise nil */{
+func (this *Thread) ExecuteFrame() /* this return is throwable if this method is return exceptionally, otherwise nil */ {
 	f := this.currentFrame()
 	bytecode := f.method.code
 	if f.pc == 0 {
-		this.Debug("\n%s🔹[%s]%s", repeat("\t", this.indexOf(f)),this.name, f.method.Qualifier())
+		this.Debug("\n%s🔹[%s]%s", repeat("\t", this.indexOf(f)), this.name, f.method.Qualifier())
 	}
 
 	for f.pc < len(f.method.code) {
@@ -462,7 +459,7 @@ func (this *Thread) ExecuteFrame() /* this return is throwable if this method is
 				}
 
 				if caught {
-					this.Info("\n%s💧Exception caught: %s at %s", repeat("\t", this.indexOf(f)/*+1*/), throwable.Class().name, f.method.Qualifier())
+					this.Info("\n%s💧Exception caught: %s at %s", repeat("\t", this.indexOf(f) /*+1*/), throwable.Class().name, f.method.Qualifier())
 					f.jumpPc(handlePc) // move pc
 					f.clear()
 					f.push(throwable)
@@ -492,11 +489,11 @@ func (this *Thread) ExecuteFrame() /* this return is throwable if this method is
 	}
 }
 
-func (this *Thread) interceptBefore(frame *Frame)  {
+func (this *Thread) interceptBefore(frame *Frame) {
 
 }
 
-func (this *Thread) interceptAfter(frame *Frame)  {
+func (this *Thread) interceptAfter(frame *Frame) {
 
 }
 
@@ -510,34 +507,34 @@ type Frame struct {
 	// Each time read an operand, it advanced.
 	pos int
 	// long and double will occupy two variable indexes. Must follow!! because local variables are operated by index
-	localVariables      []Value
+	localVariables []Value
 	// operand stack
 	// As per jvms, a value of type `long` or `double` contributes two units to the indices and a value of any other type contributes one unit
 	// But here we use long and double only use one unit. There is not any violation, because operand stack is never operated by index
-	operandStack        []Value
+	operandStack []Value
 
-	exception    Reference
-	hangReturn   Value  //when no caller, this field is set
+	exception      Reference
+	danglingReturn Value //when no caller, this field is set
 }
 
 /*
 Should be called only by Run() method
  */
-func (this *Frame) nextPc()  {
+func (this *Frame) nextPc() {
 	opcode := this.method.code[this.pc]
 	this.pc += JVM_OPCODE_LENGTH_INITIALIZER[opcode]
 	this.pos = this.pc + 1
 }
 
-func (this *Frame) offsetPc(offset int16)  {
+func (this *Frame) offsetPc(offset int16) {
 	this.jumpPc(this.pc + int(offset))
 }
 
-func (this *Frame) offsetPc32(offset int32)  {
+func (this *Frame) offsetPc32(offset int32) {
 	this.jumpPc(this.pc + int(offset))
 }
 
-func (this *Frame) jumpPc(to int)  {
+func (this *Frame) jumpPc(to int) {
 	if this.pc == to {
 		VM.Throw("java/lang/InternalError", "Dead loop with empty body has been detected. Possibly you write: for(;;){} or while(true){}")
 	}
@@ -550,7 +547,7 @@ func (this *Frame) loadVar(index uint) Value {
 	return value
 }
 
-func (this *Frame) storeVar(index uint, value Value)  {
+func (this *Frame) storeVar(index uint, value Value) {
 	switch value.(type) {
 	case Long, Double:
 		this.localVariables[index+1] = value //occupy two places
@@ -567,10 +564,10 @@ padding operand start pos to multiply of 4
  */
 func (this *Frame) operandPadding() {
 	var start int
-	for i:= 0; i <=3; i++ {
-		if (this.pos+i) % 4 == 0 {
-			start = this.pos +i
-			break;
+	for i := 0; i <= 3; i++ {
+		if (this.pos+i)%4 == 0 {
+			start = this.pos + i
+			break
 		}
 	}
 	this.pos = start
@@ -586,7 +583,7 @@ func (this *Frame) operandConst8() int8 {
 func (this *Frame) operandConst16() int16 {
 	constbyte1 := this.method.code[this.pos]
 	constbyte2 := this.method.code[this.pos+1]
-	constant := int16(uint16(constbyte1) << 8 | uint16(constbyte2))
+	constant := int16(uint16(constbyte1)<<8 | uint16(constbyte2))
 	this.thread.Trace("\t%d", constant)
 	this.pos += 2
 	return constant
@@ -624,7 +621,7 @@ func (this *Frame) operandOffset16() int16 {
 	offsetbyte2 := this.method.code[this.pos+1]
 
 	offset := int16((uint16(offsetbyte1) << 8) | uint16(offsetbyte2))
-	this.thread.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(int32(offset)))
+	this.thread.Trace("\t»%d (%s)", this.pc+int(offset), numberWithSign(int32(offset)))
 	this.pos += 2
 	return offset
 }
@@ -636,7 +633,7 @@ func (this *Frame) operandOffset32() int32 {
 	offsetbyte4 := this.method.code[this.pos+3]
 
 	offset := int32((uint32(offsetbyte1) << 24) | (uint32(offsetbyte2) << 16) | (uint32(offsetbyte3) << 8) | uint32(offsetbyte4))
-	this.thread.Trace("\t»%d (%s)", this.pc + int(offset), numberWithSign(offset))
+	this.thread.Trace("\t»%d (%s)", this.pc+int(offset), numberWithSign(offset))
 
 	this.pos += 4
 	return offset
@@ -661,13 +658,13 @@ func (this *Frame) loadParameters(callee *Method) []Value {
 	}
 	params := make([]Value, parameterCount)
 	// (objectref) (arg1, arg2 ...) ->
-	for i := parameterCount-1; i >= 0; i-- {
+	for i := parameterCount - 1; i >= 0; i-- {
 		param := this.pop()
 
 		if callee.isNative() {
-			if !callee.isStatic()  {
-				if (i != 0) {
-					index := i-1
+			if !callee.isStatic() {
+				if i != 0 {
+					index := i - 1
 					if callee.parameterDescriptors[index] == JVM_SIGNATURE_BOOLEAN { //Boolean
 						param = param.(Int).ToBoolean() // Int -> Boolean
 					}
@@ -689,7 +686,7 @@ func (this *Frame) loadParameters(callee *Method) []Value {
 /*
 Parameters are passed in a reversed order from operand stack in JVM
  */
-func (this *Frame) passParameters(callee *Frame)  {
+func (this *Frame) passParameters(callee *Frame) {
 	method := callee.method
 	start := len(method.parameterDescriptors) - 1
 	end := 0
@@ -697,7 +694,7 @@ func (this *Frame) passParameters(callee *Frame)  {
 		start += 1
 		end += 1
 	}
-	for i := start ;i >= end; i-- {
+	for i := start; i >= end; i-- {
 		callee.storeVar(uint(i), this.pop())
 	}
 	if !method.isStatic() {
@@ -705,15 +702,15 @@ func (this *Frame) passParameters(callee *Frame)  {
 	}
 }
 
-func (this *Frame) passReturn(caller *Frame)  {
+func (this *Frame) passReturn(caller *Frame) {
 	ret := this.pop()
 
-	if caller == nil ||  // directly call in bootstrap when stack is empty
-	   // not invoked by normal invokexxxx instruction, e.g.
-	   // 1) class loading call: loadClass(..)Ljava/lang/Class
-	   // 2) class initialisation: <clinit>
-		len(caller.operandStack) == cap(caller.operandStack)  {
-		this.hangReturn = ret
+	if caller == nil || // directly call in bootstrap when stack is empty
+	// not invoked by normal invokeXXXX instruction, e.g.
+	// 1) class loading call: loadClass(..)Ljava/lang/Class
+	// 2) class initialisation: <clinit>
+		len(caller.operandStack) == cap(caller.operandStack) {
+		this.danglingReturn = ret
 		return
 	}
 	caller.push(ret)
@@ -744,7 +741,7 @@ func (this *Frame) getSourceFile() string {
 func (this *Frame) getLineNumber() int {
 	lineNumber := -1
 	lineNumbers := this.method.lineNumbers
-	for i := len(lineNumbers)-1; i >= 0; i-- {
+	for i := len(lineNumbers) - 1; i >= 0; i-- {
 		entry := lineNumbers[i]
 		if this.pc >= entry.startPc {
 			lineNumber = int(entry.lineNumber)
@@ -755,7 +752,7 @@ func (this *Frame) getLineNumber() int {
 	return lineNumber
 }
 
-func (this *Frame) push(value Value)  {
+func (this *Frame) push(value Value) {
 	if value == nil { // check not-null
 		Bug("Operand stack should never contain nil")
 	}
@@ -780,7 +777,7 @@ func (this *Frame) pop() Value {
 	return Value
 }
 
-func (this *Frame) clear()  {
+func (this *Frame) clear() {
 	this.operandStack = make([]Value, 0, this.method.maxStack)
 }
 
@@ -793,7 +790,7 @@ func (this *Frame) clear()  {
 /*
 Should be called only by VM_invokeMethod(..)
  */
-func (this *Thread) push(stackFrame *Frame)  {
+func (this *Thread) push(stackFrame *Frame) {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {
 		VM.Throw("java/lang/StackOverflowError", "Exceed the maximum stack size")
@@ -802,7 +799,7 @@ func (this *Thread) push(stackFrame *Frame)  {
 	this.vmStack[size] = stackFrame
 }
 
-func (this *Thread) pop()  {
+func (this *Thread) pop() {
 	size := len(this.vmStack)
 	if size == 0 {
 		return

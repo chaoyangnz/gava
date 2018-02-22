@@ -8,16 +8,15 @@ import (
 )
 
 const (
-	ALL     = 0
-	TRACE   = 1
-	DEBUG	= 2
-	INFO    = 3
-	WARN    = 4
-	ERROR   = 5
+	ALL   = 0
+	TRACE = 1
+	DEBUG = 2
+	INFO  = 3
+	WARN  = 4
+	ERROR = 5
 )
 
-
-type LoggerFactory struct {}
+type LoggerFactory struct{}
 
 func (this *LoggerFactory) NewLogger(category string, level int, logfile string) *Logger {
 	path := VM.GetSystemSetting("log.base") + "/" + logfile
@@ -53,64 +52,61 @@ func (this *Logger) log(format string, args ...interface{}) {
 	this.writer.Flush()
 }
 
-func (this *Logger)  All(format string, args ...interface{})   {
+func (this *Logger) All(format string, args ...interface{}) {
 	if this.level <= ALL {
 		this.log(format, args...)
 	}
 }
 
-func (this *Logger)  Trace(format string, args ...interface{})   {
+func (this *Logger) Trace(format string, args ...interface{}) {
 	if this.level <= TRACE {
 		this.log(format, args...)
 	}
 }
 
-func (this *Logger)   Debug(format string, args ...interface{})   {
+func (this *Logger) Debug(format string, args ...interface{}) {
 	if this.level <= DEBUG {
 		this.log(format, args...)
 	}
 }
 
-func (this *Logger)  Info(format string, args ...interface{})   {
+func (this *Logger) Info(format string, args ...interface{}) {
 	if this.level <= INFO {
 		this.log(format, args...)
 	}
 }
 
-func (this *Logger)  Warn(format string, args ...interface{})   {
+func (this *Logger) Warn(format string, args ...interface{}) {
 	if this.level <= WARN {
 		this.log(format, args...)
 	}
 }
 
-func (this *Logger)  Error(format string, args ...interface{})   {
+func (this *Logger) Error(format string, args ...interface{}) {
 	if this.level <= ERROR {
 		this.log(format, args...)
 	}
 }
 
-func Fatal(format string, args ...interface{})   {
+func Fatal(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, "VM internal error: ")
-	fmt.Fprintf(os.Stderr, format+ "\n\n ------------------------\n", args...)
+	fmt.Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
 	debug.PrintStack()
 	os.Exit(2)
 }
 
-func Bug(format string, args ...interface{})   {
+func Bug(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, "VM implmentation bug: ")
-	fmt.Fprintf(os.Stderr, format + "\n\n ------------------------\n", args...)
+	fmt.Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
 	debug.PrintStack()
 	os.Exit(3)
 }
 
-
-func Assert(expression bool, format string, args ...interface{})  {
+func Assert(expression bool, format string, args ...interface{}) {
 	if !expression {
 		fmt.Fprintf(os.Stderr, "VM runtime assertion violation: ")
-		fmt.Fprintf(os.Stderr, format+ "\n\n ------------------------\n", args...)
+		fmt.Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
 		os.Stderr.Write(debug.Stack())
 		os.Exit(4)
 	}
 }
-
-

@@ -12,13 +12,14 @@ Value system:
 	|- Float    -> float32
 	|- Double   -> float64
 	|- Boolean  -> int8
-	|- <ObjectRef>                     \
-	    |- <JavaLangString>             \
-	    |- <JavaLangThread>              \
-	    |- <JavaLangClass>                Reference ( -> *Object)
-	    |- <JavaLangClassLoader>         /
-	    |- ...                          /
-	|- <ArrayRef>                      /
+	|- Reference ( -> *Object)
+		|= : ObjectRef
+		|= : ArrayRef
+	    |= : JavaLangString
+	    |= : JavaLangThread
+	    |= : JavaLangClass
+	    |= : JavaLangClassLoader
+	    |= : ...
 
 ObjectRef and ArrayRef are only reference value holding a pointer to real heap object <Object> or <Array>.
 The reference itself will be never nil, but its containing pointer can be nil, which means the reference is `NULL` in Java.
@@ -32,32 +33,32 @@ type (
 	Short int16
 	Char uint16
 	Int int32
-    Long int64
-    Float float32
-    Double float64
-	Boolean Byte  // for boolean array, store as byte array. For other instruction, regarded as int
+	Long int64
+	Float float32
+	Double float64
+	Boolean Byte // for boolean array, store as byte array. For other instruction, regarded as int
 
 	ReturnAddress uint32
 )
 
-type Void struct {} // void value has not type
-func (this Void) Type() Type {return nil}
+type Void struct{} // void value has not type
+func (this Void) Type() Type { return nil }
 
 var (
-	TRUE = Boolean(1)
+	TRUE  = Boolean(1)
 	FALSE = Boolean(0)
 
 	VOID = Void{}
 )
 
-func (this Byte) Type() Type   { return BYTE_TYPE }
-func (this Short) Type() Type  { return SHORT_TYPE }
-func (this Char) Type() Type   { return CHAR_TYPE }
-func (this Int) Type() Type    { return INT_TYPE }
-func (this Long) Type() Type   { return LONG_TYPE }
-func (this Float) Type() Type  { return FLOAT_TYPE }
-func (this Double) Type() Type { return DOUBLE_TYPE }
-func (this Boolean) Type() Type { return BOOLEAN_TYPE }
+func (this Byte) Type() Type          { return BYTE_TYPE }
+func (this Short) Type() Type         { return SHORT_TYPE }
+func (this Char) Type() Type          { return CHAR_TYPE }
+func (this Int) Type() Type           { return INT_TYPE }
+func (this Long) Type() Type          { return LONG_TYPE }
+func (this Float) Type() Type         { return FLOAT_TYPE }
+func (this Double) Type() Type        { return DOUBLE_TYPE }
+func (this Boolean) Type() Type       { return BOOLEAN_TYPE }
 func (this ReturnAddress) Type() Type { return RETURN_ADDRESS_TYPE }
 
 func (this Boolean) IsTrue() bool {
@@ -78,12 +79,12 @@ func (this Int) ToBoolean() Boolean {
 
 type ObjectHeader struct {
 	hashCode Int
-	class        *Class
-	monitor      *Monitor
+	class    *Class
+	monitor  *Monitor
 
 	// extra data for internal use only
-	vmThread   *Thread // for java.lang.Thread object use only
-	vmType     Type  // for java.lang.Class object use only
+	vmThread    *Thread             // for java.lang.Thread object use only
+	vmType      Type                // for java.lang.Class object use only
 	vmBackTrace []StackTraceElement // for java.lang.Throwable use only
 }
 
@@ -92,42 +93,20 @@ type Object struct {
 	slots  []Value
 }
 
-type Ref interface {
-	Value
-	IsNull() bool
-	IsEqual(reference Reference) bool
-	Class() *Class
-	Monitor() *Monitor
-}
-
-type ObjectRef interface {
-	Ref
-
-	GetInstanceVariable(index Int) Value
-	SetInstanceVariable(index Int, value Value)
-	GetInstanceVariableByName(name string, descriptor string) Value
-	SetInstanceVariableByName(name string, descriptor string, value Value)
-}
-
-type ArrayRef interface {
-	Ref
-
-	ArrayElements() []Value
-	ArrayLength() Int
-	GetArrayElement(index Int) Value
-	SetArrayElement(index Int, value Value)
-}
-
 var NULL = Reference{nil}
 
 type Reference struct {
 	oop *Object
 }
 
-func (this Reference) Type() Type       {
+type ObjectRef = Reference
+type ArrayRef = Reference
+
+func (this Reference) Type() Type {
 	return this.Class()
 }
-func (this Reference) IsNull() bool {return this.oop == nil}
+func (this Reference) IsNull() bool  { return this.oop == nil }
+func (this Reference) IsArray() bool { return this.oop != nil && this.oop.header.class.IsArray() }
 func (this Reference) IsEqual(reference Reference) bool {
 	if this.IsNull() && reference.IsNull() {
 		return true
@@ -138,15 +117,6 @@ func (this Reference) IsEqual(reference Reference) bool {
 	return false
 }
 
-
-func (this Reference) assertObject()  {
-	if this.IsNull() {
-		VM.Throw("java/lang/NullPointerException", "")
-	}
-	if this.Class().IsArray() {
-		Bug("It is not an ObjectRef")
-	}
-}
 func (this Reference) Class() *Class {
 	return this.oop.header.class
 }
@@ -154,7 +124,17 @@ func (this Reference) Monitor() *Monitor {
 	return this.oop.header.monitor
 }
 
+func (this Reference) assertObject() {
+	if this.IsNull() {
+		VM.Throw("java/lang/NullPointerException", "")
+	}
+	if this.Class().IsArray() {
+		Bug("It is not an ObjectRef")
+	}
+}
+
 func (this Reference) GetInstanceVariable(index Int) Value {
+	this.assertObject()
 	return this.oop.slots[index]
 }
 func (this Reference) SetInstanceVariable(index Int, value Value) {
@@ -198,7 +178,7 @@ func (this Reference) dump() {
 	}
 }
 
-func (this Reference) assertArray()  {
+func (this Reference) assertArray() {
 	if this.IsNull() {
 		VM.Throw("java/lang/NullPointerException", "")
 	}
@@ -206,11 +186,11 @@ func (this Reference) assertArray()  {
 		Bug("It is not an ArrayRef")
 	}
 }
-func (this Reference) ArrayElements() []Value  {
+func (this Reference) ArrayElements() []Value {
 	this.assertArray()
 	return this.oop.slots
 }
-func (this Reference) ArrayLength() Int  {
+func (this Reference) ArrayLength() Int {
 	this.assertArray()
 	return Int(len(this.oop.slots))
 }
@@ -225,15 +205,3 @@ func (this Reference) SetArrayElement(index Int, value Value) {
 	}
 	this.oop.slots[index] = value
 }
-
-func (this Reference) AsObjectRef() ObjectRef {
-	return this
-}
-func (this Reference) AsArrayRef() ArrayRef {
-	return this
-}
-
-
-
-
-

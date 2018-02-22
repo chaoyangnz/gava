@@ -6,45 +6,44 @@ import (
 )
 
 type (
-	u1 uint8
-	u2 uint16
-	u4 uint32
-	u8 uint64
+	u1 = uint8
+	u2 = uint16
+	u4 = uint32
+	u8 = uint64
 )
 
 var bigEndian = binary.BigEndian
 
 type ClassReader struct {
-	bytecode []uint8
+	bytecode  []uint8
 	classfile *ClassFile
 }
 
 func (this *ClassReader) readU4() u4 {
 	value := bigEndian.Uint32(this.bytecode[:4])
 	this.bytecode = this.bytecode[4:]
-	return u4(value)
+	return value
 }
 
 func (this *ClassReader) readU2() u2 {
 	value := bigEndian.Uint16(this.bytecode[:2])
 	this.bytecode = this.bytecode[2:]
-	return u2(value)
+	return value
 }
 
 func (this *ClassReader) readU1() u1 {
-	return u1(this.readU1s(1)[0])
+	return this.readU1s(1)[0]
 }
 
 func (this *ClassReader) readU1s(length uint32) []u1 {
 	bytes := this.bytecode[:length]
 	this.bytecode = this.bytecode[length:]
-	return *(*[]u1)(unsafe.Pointer(&bytes))
+	return bytes
 }
 
 func (this *ClassReader) length() int {
 	return len(this.bytecode)
 }
-
 
 // read all attributes for class, field or method or attribute
 func (this *ClassReader) readAttributes() (u2, []AttributeInfo) {
@@ -58,7 +57,7 @@ func (this *ClassReader) readAttributes() (u2, []AttributeInfo) {
 }
 
 func u1sToString(u1s []u1) string {
-	return string(*(*[]byte)(unsafe.Pointer(&u1s)))
+	return string(*(*[]byte)(&u1s))
 }
 
 // read any attribute
@@ -78,7 +77,7 @@ func (this *ClassReader) readAttribute() AttributeInfo {
 		attributeInfo = &LocalVariableTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	default:
 		VM.BootstrapClassLoader.All("No reader for attribute: %s, skip\n", attributeName)
-		this.readU1s(uint32(attributeLength)) // just skip out
+		this.readU1s(attributeLength) // just skip out
 	}
 
 	if attributeInfo != nil {
@@ -109,29 +108,27 @@ ClassFile {
 }
 */
 type ClassFile struct {
-	size 	            int
-	magic               u4
-	minorVersion        u2
-	majorVersion        u2
-	constantPoolCount   u2
-	constantPool        []ConstantPoolInfo
-	accessFlags         u2
-	thisClass           u2
-	superClass          u2
-	interfaceCount      u2
-	interfaces          []u2
-	fieldsCount         u2
-	fields              []FieldInfo
-	methodsCount        u2
-	methods             []MethodInfo
-	attributeCount      u2
-	attributes          []AttributeInfo
+	magic             u4
+	minorVersion      u2
+	majorVersion      u2
+	constantPoolCount u2
+	constantPool      []ConstantPoolInfo
+	accessFlags       u2
+	thisClass         u2
+	superClass        u2
+	interfaceCount    u2
+	interfaces        []u2
+	fieldsCount       u2
+	fields            []FieldInfo
+	methodsCount      u2
+	methods           []MethodInfo
+	attributeCount    u2
+	attributes        []AttributeInfo
 }
 
-func (this *ClassFile) read(bytes []byte)  {
+func (this *ClassFile) read(bytes []byte) {
 	reader := &ClassReader{bytes, this}
 
-	this.size = len(bytes)
 	this.readMagic(reader)
 	this.readMinorVersion(reader)
 	this.readMajorVersion(reader)
@@ -260,12 +257,11 @@ func (this *ClassFile) readMethods(reader *ClassReader) {
 	}
 }
 
-func (this *ClassFile) cpUtf8(index u2) string  {
-	u1s:= this.constantPool[index].(*ConstantUtf8Info).bytes
+func (this *ClassFile) cpUtf8(index u2) string {
+	u1s := this.constantPool[index].(*ConstantUtf8Info).bytes
 	bytes := *(*[]byte)(unsafe.Pointer(&u1s))
 	return string(bytes)
 }
-
 
 /*
 cp_info {
@@ -376,7 +372,6 @@ func (this *ConstantIntegerInfo) readInfo(reader *ClassReader) {
 	this.bytes = reader.readU4()
 }
 
-
 /*
 CONSTANT_Float_info {
     u1 tag;
@@ -391,7 +386,6 @@ type ConstantFloatInfo struct {
 func (this *ConstantFloatInfo) readInfo(reader *ClassReader) {
 	this.bytes = reader.readU4()
 }
-
 
 /*
 CONSTANT_Long_info {
@@ -429,7 +423,6 @@ func (this *ConstantDoubleInfo) readInfo(reader *ClassReader) {
 	this.lowBytes = reader.readU4()
 }
 
-
 /*
 CONSTANT_NameAndType_info {
     u1 tag;
@@ -448,7 +441,6 @@ func (this *ConstantNameAndTypeInfo) readInfo(reader *ClassReader) {
 	this.descriptorIndex = reader.readU2()
 }
 
-
 /*
 CONSTANT_Utf8_info {
     u1 tag;
@@ -457,16 +449,15 @@ CONSTANT_Utf8_info {
 }
  */
 type ConstantUtf8Info struct {
-	tag     u1
-	length  u2
-	bytes   []u1 //u2 length
+	tag    u1
+	length u2
+	bytes  []u1 //u2 length
 }
 
 func (this *ConstantUtf8Info) readInfo(reader *ClassReader) {
 	this.length = reader.readU2()
 	this.bytes = reader.readU1s(uint32(this.length))
 }
-
 
 /*
 CONSTANT_MethodHandle_info {
@@ -553,7 +544,6 @@ type MethodInfo struct {
 	attributes      []AttributeInfo
 }
 
-
 /*
 attribute_info {
     u2 attribute_name_index;
@@ -589,11 +579,11 @@ type CodeAttribute struct {
 	maxStack             u2
 	maxLocals            u2
 	codeLength           u4
-	code                 []u1                   //u4 code_length
+	code                 []u1 //u4 code_length
 	exceptionTableLength u2
-	exceptionTable       []ExceptionTableEntry  //u2 exception_table_length
+	exceptionTable       []ExceptionTableEntry //u2 exception_table_length
 	attributesCount      u2
-	attributes           []AttributeInfo        //u2 attributes_count
+	attributes           []AttributeInfo //u2 attributes_count
 }
 
 func (this *CodeAttribute) readInfo(reader *ClassReader) {
@@ -680,11 +670,11 @@ type LocalVariableTableAttribute struct {
 }
 
 type LocalVariableTableEntry struct {
-	startPc             u2
-	length              u2
-	nameIndex           u2
-	descriptorIndex     u2
-	index               u2
+	startPc         u2
+	length          u2
+	nameIndex       u2
+	descriptorIndex u2
+	index           u2
 }
 
 func (this *LocalVariableTableAttribute) readInfo(reader *ClassReader) {
@@ -712,13 +702,12 @@ SourceFile_attribute {
 type SourceFileAttribue struct {
 	attributeNameIndex u2
 	attributeLength    u4
-	sourceFileIndex u2
+	sourceFileIndex    u2
 }
 
 func (this *SourceFileAttribue) readInfo(reader *ClassReader) {
 	this.sourceFileIndex = reader.readU2()
 }
-
 
 /*
 RuntimeVisibleAnnotations_attribute {
@@ -730,10 +719,10 @@ RuntimeVisibleAnnotations_attribute {
  */
 
 type RuntimeVisibleAnnotationsAttribute struct {
-	attributeNameIndex  u2
-	attributeLength     u2
-	numAnnotations      u2
-	annotations         []Annotation
+	attributeNameIndex u2
+	attributeLength    u2
+	numAnnotations     u2
+	annotations        []Annotation
 }
 
 /*
@@ -746,10 +735,10 @@ annotation {
 }
  */
 type Annotation struct {
-	typeIndex   u2
+	typeIndex u2
 	elementValuePairs []struct {
 		element_name_index u2
-		value ElementValue
+		value              ElementValue
 	}
 }
 
@@ -775,15 +764,15 @@ element_value {
  */
 
 type ElementValue struct {
-	tag u1
+	tag               u1
 	const_value_index u2
-	enum_const_value struct{
-		type_name_index u2
+	enum_const_value struct {
+		type_name_index  u2
 		const_name_index u2
 	}
 	class_info_index u2
 	array_value struct {
 		num_values u2
-		values  []ElementValue
+		values     []ElementValue
 	}
 }

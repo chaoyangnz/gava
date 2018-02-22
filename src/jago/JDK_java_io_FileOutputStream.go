@@ -15,7 +15,6 @@ func JDK_java_io_FileOutputStream_initIDs() {
 }
 
 func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, offset Int, length Int, append Boolean) {
-
 	var file *os.File
 
 	fileDescriptor := this.GetInstanceVariableByName("fd", "Ljava/io/FileDescriptor;").(Reference)
@@ -30,9 +29,12 @@ func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, o
 	} else if !fileDescriptor.IsNull() {
 		fd := fileDescriptor.GetInstanceVariableByName("fd", "I").(Int)
 		switch fd {
-		case 0: file = os.Stdin
-		case 1: file = os.Stdout
-		case 2: file = os.Stderr
+		case 0:
+			file = os.Stdin
+		case 1:
+			file = os.Stdout
+		case 2:
+			file = os.Stderr
 		default:
 			file = os.NewFile(uintptr(fd), "")
 		}

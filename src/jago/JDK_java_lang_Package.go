@@ -2,7 +2,7 @@ package jago
 
 import "strings"
 
-func register_java_lang_Package()  {
+func register_java_lang_Package() {
 	VM.RegisterNative("java/lang/Package.getSystemPackage0(Ljava/lang/String;)Ljava/lang/String;", JDK_java_lang_Package_getSystemPackage0)
 }
 

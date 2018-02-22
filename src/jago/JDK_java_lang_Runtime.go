@@ -9,4 +9,3 @@ func register_java_lang_Runtime() {
 func JDK_jang_lang_Runtime_availableProcessors(this Reference) Int {
 	return Int(runtime.NumCPU())
 }
-

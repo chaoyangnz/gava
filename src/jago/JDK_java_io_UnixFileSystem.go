@@ -63,7 +63,7 @@ func IsHidden(filename string) (bool, error) {
 	return false, nil
 }
 
-func JDK_java_io_UnixFileSystem_canonicalize0(this Reference, path JavaLangString) JavaLangString  {
+func JDK_java_io_UnixFileSystem_canonicalize0(this Reference, path JavaLangString) JavaLangString {
 	return VM.NewJavaLangString(filepath.Clean(path.toNativeString()))
 }
 

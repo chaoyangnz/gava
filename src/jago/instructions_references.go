@@ -120,14 +120,14 @@ func NEW(t *Thread, f *Frame, c *Class, m *Method) {
 
 // array component type
 const (
-	T_BOOLEAN	    = 4
-	T_CHAR	        = 5
-	T_FLOAT	        = 6
-	T_DOUBLE	    = 7
-	T_BYTE	        = 8
-	T_SHORT	        = 9
-	T_INT	        = 10
-	T_LONG	        = 11
+	T_BOOLEAN = 4
+	T_CHAR    = 5
+	T_FLOAT   = 6
+	T_DOUBLE  = 7
+	T_BYTE    = 8
+	T_SHORT   = 9
+	T_INT     = 10
+	T_LONG    = 11
 )
 
 /*188 (0xBC)*/
@@ -135,14 +135,22 @@ func NEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 	atype := f.operandConst8()
 	var componentType Type
 	switch atype {
-	case T_CHAR: componentType = CHAR_TYPE
-	case T_BYTE: componentType = BYTE_TYPE
-	case T_SHORT: componentType = SHORT_TYPE
-	case T_INT: componentType = INT_TYPE
-	case T_LONG: componentType = LONG_TYPE
-	case T_FLOAT: componentType = FLOAT_TYPE
-	case T_DOUBLE: componentType = DOUBLE_TYPE
-	case T_BOOLEAN: componentType = BOOLEAN_TYPE
+	case T_CHAR:
+		componentType = CHAR_TYPE
+	case T_BYTE:
+		componentType = BYTE_TYPE
+	case T_SHORT:
+		componentType = SHORT_TYPE
+	case T_INT:
+		componentType = INT_TYPE
+	case T_LONG:
+		componentType = LONG_TYPE
+	case T_FLOAT:
+		componentType = FLOAT_TYPE
+	case T_DOUBLE:
+		componentType = DOUBLE_TYPE
+	case T_BOOLEAN:
+		componentType = BOOLEAN_TYPE
 	default:
 		Fatal("Invalid atype value")
 	}
@@ -206,7 +214,7 @@ func CHECKCAST(t *Thread, f *Frame, c *Class, m *Method) {
 		return
 	}
 
-	VM.Throw("java/lang/ClassCastException", "cannot cast from " + objectref.Class().Name() + " to " + class.Name())
+	VM.Throw("java/lang/ClassCastException", "cannot cast from "+objectref.Class().Name()+" to "+class.Name())
 }
 
 /*193 (0xC1)*/
@@ -222,7 +230,7 @@ func INSTANCEOF(t *Thread, f *Frame, c *Class, m *Method) {
 	S := objectref.Class()
 	T := c.constantPool[index].(*ClassRef).ResolvedClass()
 	// TODO ???
-	if(T.IsAssignableFrom(S)) {
+	if T.IsAssignableFrom(S) {
 		f.push(Int(1))
 		return
 	}

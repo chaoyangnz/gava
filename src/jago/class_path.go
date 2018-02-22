@@ -11,7 +11,7 @@ import (
 )
 
 const CLASS_FILE_SUFFIX = ".class"
-const JAR_FILE_SUFFIX  = ".jar"
+const JAR_FILE_SUFFIX = ".jar"
 
 type ClassPathEntry interface {
 	readClass(className string) ([]byte, error)
@@ -19,26 +19,26 @@ type ClassPathEntry interface {
 }
 
 type DirectoryClassPathEntry struct {
-	directory    string
+	directory string
 }
 
 func (this *DirectoryClassPathEntry) String() string {
 	return this.directory
 }
 
-func (this *DirectoryClassPathEntry) readClass(className string) ([]byte, error)  {
-	return ioutil.ReadFile(filepath.Join(this.directory, className + CLASS_FILE_SUFFIX))
+func (this *DirectoryClassPathEntry) readClass(className string) ([]byte, error) {
+	return ioutil.ReadFile(filepath.Join(this.directory, className+CLASS_FILE_SUFFIX))
 }
 
 type JarClassPathEntry struct {
-	jarFile      string
+	jarFile string
 }
 
-func (this *JarClassPathEntry) String() string  {
+func (this *JarClassPathEntry) String() string {
 	return this.jarFile
 }
 
-func (this *JarClassPathEntry) readClass(className string) ([]byte, error)  {
+func (this *JarClassPathEntry) readClass(className string) ([]byte, error) {
 	r, err := zip.OpenReader(this.jarFile)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (this *JarClassPathEntry) readClass(className string) ([]byte, error)  {
 }
 
 type ClassPath struct {
-	classPathEntries  []ClassPathEntry
+	classPathEntries []ClassPathEntry
 }
 
 func NewClassPath(classPathStr string) *ClassPath {
@@ -90,7 +90,7 @@ func NewClassPath(classPathStr string) *ClassPath {
 	return classPath
 }
 
-func (this *ClassPath) String() string  {
+func (this *ClassPath) String() string {
 	entries := make([]string, len(this.classPathEntries))
 	for i, entry := range this.classPathEntries {
 		entries[i] = entry.String()
@@ -98,7 +98,7 @@ func (this *ClassPath) String() string  {
 	return strings.Join(entries, ":")
 }
 
-func (this *ClassPath) ReadClass(className string) ([]byte, error)  {
+func (this *ClassPath) ReadClass(className string) ([]byte, error) {
 	for _, entry := range this.classPathEntries {
 		bytecode, err := entry.readClass(className)
 		if err == nil {

@@ -65,8 +65,8 @@ func (tcf Block) Do() {
 				} else {
 					// otherwise, the whole project has non-throwable panic,
 					// But some 3rd-party package can panic other non-throwable
-					Bug("Jago project has never non-throwable panic. " +
-						"There is some 3rd-party package doing a non-throwable panic, check it. " +
+					Bug("Jago project has never non-throwable panic. "+
+						"There is some 3rd-party package doing a non-throwable panic, check it. "+
 						"Original panic: \n%v", r)
 				}
 			}

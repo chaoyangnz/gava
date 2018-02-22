@@ -9,10 +9,9 @@ import (
 	"path"
 )
 
-
 type SystemSettings map[string]string
 
-func (this SystemSettings) SetSystemSetting(key string, value string)  {
+func (this SystemSettings) SetSystemSetting(key string, value string) {
 	this[key] = value
 }
 
@@ -20,9 +19,7 @@ func (this SystemSettings) GetSystemSetting(key string) string {
 	return this[key]
 }
 
-
-
-var VM *Jago = &Jago{}
+var VM = &Jago{}
 
 type Jago struct {
 	SystemSettings
@@ -36,23 +33,22 @@ type Jago struct {
 	*Logger
 }
 
-func (this *Jago) Init()  {
+func (this *Jago) Init() {
 	jago_home := os.Getenv("JAGO_HOME")
-	this.SystemSettings = map[string]string {
-		"log.base": path.Join(jago_home, "log"),
-		"log.level.threads":        strconv.Itoa(WARN),
-		"log.level.thread":         strconv.Itoa(WARN),
-		"log.level.classloader":    strconv.Itoa(WARN),
-		"log.level.io":             strconv.Itoa(WARN),
-		"log.level.misc":           strconv.Itoa(WARN),
+	this.SystemSettings = map[string]string{
+		"log.base":              path.Join(jago_home, "log"),
+		"log.level.threads":     strconv.Itoa(WARN),
+		"log.level.thread":      strconv.Itoa(WARN),
+		"log.level.classloader": strconv.Itoa(WARN),
+		"log.level.io":          strconv.Itoa(WARN),
+		"log.level.misc":        strconv.Itoa(WARN),
 
-		"classpath.system": path.Join(jago_home, "jdk/classes"),
-		"classpath.extension": "",
+		"classpath.system":      path.Join(jago_home, "jdk/classes"),
+		"classpath.extension":   "",
 		"classpath.application": "",
 	}
 
 	this.LoggerFactory = &LoggerFactory{}
-
 
 	natives := make(map[string]reflect.Value)
 
@@ -76,8 +72,8 @@ func (this *Jago) Init()  {
 		make(map[NL]*Class),
 		make(map[string]JavaLangString),
 		&BootstrapClassLoader{
-							NewClassPath(systemClasspath),
-							this.NewLogger("classloader", classloaderLogLevel, "classloader.log"),
+			NewClassPath(systemClasspath),
+			this.NewLogger("classloader", classloaderLogLevel, "classloader.log"),
 		},
 	}
 
@@ -91,7 +87,8 @@ const MAIN_METHOD_NAME = "main"
 const MAIN_METHOD_DESCRIPTOR = "([Ljava/lang/String;)V"
 
 var VM_WG = &sync.WaitGroup{}
-func (this *Jago) Startup(initialClassName string, args... string)  {
+
+func (this *Jago) Startup(initialClassName string, args ... string) {
 
 	// bootstrap thread don't run in a new go routine, just in Go startup routine
 	VM.RunBootstrapThread(func() {
@@ -101,34 +98,23 @@ func (this *Jago) Startup(initialClassName string, args... string)  {
 
 		// Use AppClassLoader to load initial class
 		systemClassLoaderObject := VM.InvokeMethodOf("java/lang/ClassLoader", "getSystemClassLoader", "()Ljava/lang/ClassLoader;").(JavaLangClassLoader)
-		//loadClassMethod := systemClassLoaderObject.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
 		initialClass := VM.createClass(initialClassName, systemClassLoaderObject, TRIGGER_BY_ACCESS_MEMBER)
-		//initialClassObject := VM.InvokeMethod(loadClassMethod, systemClassLoaderObject, binaryName2JavaName(initialClassName)).(JavaLangClass)
-		//initialClassObject.SetInstanceVariableByName("classLoader", "Ljava/lang/ClassLoader;", systemClassLoaderObject)
-
 		mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
 
 		// initial a thread
-		VM.NewThread("main", func() {
-			// As per jvm specification, initial main method needs to initialize initial class
-			argsArr := VM.NewArrayOfName("[Ljava/lang/String;", Int(len(args)))
-			for i, arg := range args {
-				argsArr.SetArrayElement(Int(i), VM.NewJavaLangString(arg))
-			}
-			VM.InvokeMethod(mainMethod, argsArr)
-		},
-		func() {
-			VM.exitDaemonThreads()
-		}).start()
+		VM.NewThread("main",
+			func() {
+				// As per jvm specification, initial main method needs to initialize initial class
+				argsArr := VM.NewArrayOfName("[Ljava/lang/String;", Int(len(args)))
+				for i, arg := range args {
+					argsArr.SetArrayElement(Int(i), VM.NewJavaLangString(arg))
+				}
+				VM.InvokeMethod(mainMethod, argsArr)
+			},
+			func() {
+				VM.exitDaemonThreads()
+			}).start()
 	})
 
 	VM_WG.Wait()
 }
-
-
-
-
-
-
-
-

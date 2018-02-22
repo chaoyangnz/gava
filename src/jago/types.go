@@ -29,130 +29,131 @@ type Type interface {
 }
 
 type (
-	ByteType struct {classObject JavaLangClass}
-	ShortType struct {classObject JavaLangClass}
-	CharType struct {classObject JavaLangClass}
-	IntType struct {classObject JavaLangClass}
-	LongType struct {classObject JavaLangClass}
-	FloatType struct {classObject JavaLangClass}
-	DoubleType struct {classObject JavaLangClass}
-	BooleanType struct {classObject JavaLangClass}
+	ByteType struct{ classObject JavaLangClass }
+	ShortType struct{ classObject JavaLangClass }
+	CharType struct{ classObject JavaLangClass }
+	IntType struct{ classObject JavaLangClass }
+	LongType struct{ classObject JavaLangClass }
+	FloatType struct{ classObject JavaLangClass }
+	DoubleType struct{ classObject JavaLangClass }
+	BooleanType struct{ classObject JavaLangClass }
 
-	ReturnAddressType struct {}
+	ReturnAddressType struct{}
 )
+
 // their singletons
 var (
-	BYTE_TYPE = &ByteType{}
-	CHAR_TYPE = &CharType{}
-	SHORT_TYPE = &ShortType{}
-	INT_TYPE = &IntType{}
-	LONG_TYPE = &LongType{}
-	FLOAT_TYPE = &FloatType{}
-	DOUBLE_TYPE = &DoubleType{}
+	BYTE_TYPE    = &ByteType{}
+	CHAR_TYPE    = &CharType{}
+	SHORT_TYPE   = &ShortType{}
+	INT_TYPE     = &IntType{}
+	LONG_TYPE    = &LongType{}
+	FLOAT_TYPE   = &FloatType{}
+	DOUBLE_TYPE  = &DoubleType{}
 	BOOLEAN_TYPE = &BooleanType{}
 
 	RETURN_ADDRESS_TYPE = &ReturnAddressType{}
 )
 
-func (this *ByteType) Name() string    {return JVM_SIGNATURE_BYTE}
-func (this *ShortType) Name() string   {return JVM_SIGNATURE_SHORT}
-func (this *CharType) Name() string    {return JVM_SIGNATURE_CHAR}
-func (this *IntType) Name() string     {return JVM_SIGNATURE_INT}
-func (this *LongType) Name() string    {return JVM_SIGNATURE_LONG}
-func (this *FloatType) Name() string   {return JVM_SIGNATURE_FLOAT}
-func (this *DoubleType) Name() string  {return JVM_SIGNATURE_DOUBLE}
-func (this *BooleanType) Name() string {return JVM_SIGNATURE_BOOLEAN}
-func (this *ReturnAddressType) Name() string {return "&"}
-func (this *ByteType) Descriptor() string    {return JVM_SIGNATURE_BYTE}
-func (this *ShortType) Descriptor() string   {return JVM_SIGNATURE_SHORT}
-func (this *CharType) Descriptor() string    {return JVM_SIGNATURE_CHAR}
-func (this *IntType) Descriptor() string     {return JVM_SIGNATURE_INT}
-func (this *LongType) Descriptor() string    {return JVM_SIGNATURE_LONG}
-func (this *FloatType) Descriptor() string   {return JVM_SIGNATURE_FLOAT}
-func (this *DoubleType) Descriptor() string  {return JVM_SIGNATURE_DOUBLE}
-func (this *BooleanType) Descriptor() string {return JVM_SIGNATURE_BOOLEAN}
-func (this *ReturnAddressType) Descriptor() string {return "&"}
+func (this *ByteType) Name() string                { return JVM_SIGNATURE_BYTE }
+func (this *ShortType) Name() string               { return JVM_SIGNATURE_SHORT }
+func (this *CharType) Name() string                { return JVM_SIGNATURE_CHAR }
+func (this *IntType) Name() string                 { return JVM_SIGNATURE_INT }
+func (this *LongType) Name() string                { return JVM_SIGNATURE_LONG }
+func (this *FloatType) Name() string               { return JVM_SIGNATURE_FLOAT }
+func (this *DoubleType) Name() string              { return JVM_SIGNATURE_DOUBLE }
+func (this *BooleanType) Name() string             { return JVM_SIGNATURE_BOOLEAN }
+func (this *ReturnAddressType) Name() string       { return "&" }
+func (this *ByteType) Descriptor() string          { return JVM_SIGNATURE_BYTE }
+func (this *ShortType) Descriptor() string         { return JVM_SIGNATURE_SHORT }
+func (this *CharType) Descriptor() string          { return JVM_SIGNATURE_CHAR }
+func (this *IntType) Descriptor() string           { return JVM_SIGNATURE_INT }
+func (this *LongType) Descriptor() string          { return JVM_SIGNATURE_LONG }
+func (this *FloatType) Descriptor() string         { return JVM_SIGNATURE_FLOAT }
+func (this *DoubleType) Descriptor() string        { return JVM_SIGNATURE_DOUBLE }
+func (this *BooleanType) Descriptor() string       { return JVM_SIGNATURE_BOOLEAN }
+func (this *ReturnAddressType) Descriptor() string { return "&" }
 
-func (this *ByteType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *ByteType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *ShortType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *ShortType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *CharType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *CharType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *IntType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *IntType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *LongType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *LongType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *FloatType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *FloatType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *DoubleType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *DoubleType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *BooleanType) ClassObject() JavaLangClass    {
-	if this.classObject == nil || this.classObject.IsNull() {
+func (this *BooleanType) ClassObject() JavaLangClass {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
-func (this *ReturnAddressType) ClassObject() JavaLangClass    {
+func (this *ReturnAddressType) ClassObject() JavaLangClass {
 	Bug("Why does Java code need to access ReturnAddress??")
 	return NULL // never should be accessed from Java code
 }
 
 const (
-	FAILED          = -1
-	UNINITIALIZED   = 0
-	INITIALIZING    = 1
-	INITIALIZED     = 2
+	FAILED        = -1
+	UNINITIALIZED = 0
+	INITIALIZING  = 1
+	INITIALIZED   = 2
 )
 
 type InitializeSate struct {
-	state   int
+	state  int
 	thread *Thread
 }
 
 type Class struct {
 	// shared
-	name   string
-	accessFlags         uint16
-	superClassName      string
-	interfaceNames      []string
-	superClass          *Class
-	interfaces          []*Class
+	name           string
+	accessFlags    uint16
+	superClassName string
+	interfaceNames []string
+	superClass     *Class
+	interfaces     []*Class
 
-	classObject         JavaLangClass
+	classObject JavaLangClass
 	//classLoader         JavaLangClassLoader
 
 	// support link and initialization
-	defined     bool
-	linked      bool
+	defined bool
+	linked  bool
 
 	// these 3 flag is closely related class initialization
 	initialized int
@@ -160,17 +161,17 @@ type Class struct {
 	LC          *sync.Cond
 
 	// ---- these fields are only for non-array class ----
-	constantPool        []Constant
-	fields              []*Field
-	methods             []*Method
+	constantPool []Constant
+	fields       []*Field
+	methods      []*Method
 
-	maxInstanceVars     int
-	instanceVarFields   []*Field
-	maxStaticVars       int
-	staticVars          []Value
-	staticVarFields     []*Field
+	maxInstanceVars   int
+	instanceVarFields []*Field
+	maxStaticVars     int
+	staticVars        []Value
+	staticVarFields   []*Field
 
-	sourceFile          string
+	sourceFile string
 
 	// ---- these fields are nly for array class -------
 	componentType Type // any type
@@ -183,25 +184,25 @@ func (this *Class) Name() string {
 }
 
 func (this *Class) ClassObject() JavaLangClass {
-	if this.classObject == nil || this.classObject.IsNull() {
+	if this.classObject.IsNull() {
 		this.classObject = VM.NewJavaLangClass(this)
 	}
 	return this.classObject
 }
 
-func (this *Class) Descriptor() string  {
+func (this *Class) Descriptor() string {
 	return JVM_SIGNATURE_CLASS + this.Name() + JVM_SIGNATURE_ENDCLASS
 }
 
-func (this *Class) IsInterface() bool  {
-	return this.accessFlags & JVM_ACC_INTERFACE > 0
+func (this *Class) IsInterface() bool {
+	return this.accessFlags&JVM_ACC_INTERFACE > 0
 }
 
-func (this *Class) IsArray() bool  {
+func (this *Class) IsArray() bool {
 	return string(this.name[0]) == JVM_SIGNATURE_ARRAY
 }
 
-func (this *Class) IsAssignableFrom(class *Class) bool  {
+func (this *Class) IsAssignableFrom(class *Class) bool {
 	if this == class {
 		return true
 	}
@@ -234,7 +235,7 @@ func (this *Class) IsAssignableFrom(class *Class) bool  {
 			}
 		} else {
 			clazz := class
-			if clazz.IsInterface() {// interface disallow
+			if clazz.IsInterface() { // interface disallow
 				return false
 			}
 			for clazz != nil {
@@ -291,8 +292,8 @@ func (this *Class) GetClassInitializer() *Method {
 <init>(..)V methods
  */
 func (this *Class) GetConstructors(publicOnly bool) []*Method {
-	constructors := []*Method{}
-	for _,method := range this.methods {
+	var constructors []*Method
+	for _, method := range this.methods {
 		if method.name == "<init>" && method.returnDescriptor == JVM_SIGNATURE_VOID && !method.isStatic() { // non-static
 			if publicOnly {
 				if (method.accessFlags & JVM_ACC_PUBLIC) > 0 {
@@ -346,7 +347,7 @@ func (this *Class) GetDeclaredFields(publicOnly bool) []*Field {
 		return this.fields
 	}
 
-	publicFields := []*Field{}
+	var publicFields []*Field
 	for _, field := range this.fields {
 		if (field.accessFlags & JVM_ACC_PUBLIC) > 0 {
 			publicFields = append(publicFields, field)
@@ -364,15 +365,15 @@ func (this *Class) inheritanceDepth() int {
 }
 
 type Field struct {
-	accessFlags        uint16
-	name               string
-	descriptor         string
-	class              *Class
+	accessFlags uint16
+	name        string
+	descriptor  string
+	class       *Class
 	/**
 	index of instanceFields or staticFields
 	for instance fields, it is the global index considering superclass hierarchy
 	 */
-	slot                int
+	slot int
 }
 
 func (this *Field) IsStatic() bool {
@@ -387,19 +388,29 @@ func (this *Field) Qualifier() string {
 	return this.class.name + "." + this.Signature()
 }
 
-func  (this *Field) defaultValue() Value {
+func (this *Field) defaultValue() Value {
 	var t Value
 	switch string(this.descriptor[0]) {
-	case JVM_SIGNATURE_BYTE: t = Byte(0)
-	case JVM_SIGNATURE_SHORT: t = Short(0)
-	case JVM_SIGNATURE_CHAR: t = Char(0)
-	case JVM_SIGNATURE_INT: t = Int(0)
-	case JVM_SIGNATURE_LONG: t = Long(0)
-	case JVM_SIGNATURE_FLOAT: t = Float(0.0)
-	case JVM_SIGNATURE_DOUBLE: t = Double(0.0)
-	case JVM_SIGNATURE_BOOLEAN: t = FALSE
-	case JVM_SIGNATURE_CLASS: t = NULL.AsObjectRef()
-	case JVM_SIGNATURE_ARRAY: t = NULL.AsArrayRef()
+	case JVM_SIGNATURE_BYTE:
+		t = Byte(0)
+	case JVM_SIGNATURE_SHORT:
+		t = Short(0)
+	case JVM_SIGNATURE_CHAR:
+		t = Char(0)
+	case JVM_SIGNATURE_INT:
+		t = Int(0)
+	case JVM_SIGNATURE_LONG:
+		t = Long(0)
+	case JVM_SIGNATURE_FLOAT:
+		t = Float(0.0)
+	case JVM_SIGNATURE_DOUBLE:
+		t = Double(0.0)
+	case JVM_SIGNATURE_BOOLEAN:
+		t = FALSE
+	case JVM_SIGNATURE_CLASS:
+		t = NULL
+	case JVM_SIGNATURE_ARRAY:
+		t = NULL
 	default:
 		Fatal("Not a valid descriptor to get a default value")
 	}
@@ -408,27 +419,27 @@ func  (this *Field) defaultValue() Value {
 }
 
 type ExceptionHandler struct {
-	startPc     int
-	endPc       int
-	handlerPc   int
-	catchType   int   // index of constant pool: ClassRef
+	startPc   int
+	endPc     int
+	handlerPc int
+	catchType int // index of constant pool: ClassRef
 }
 
 type Method struct {
-	accessFlags        uint16
-	name               string
-	descriptor         string
-	class              *Class
+	accessFlags uint16
+	name        string
+	descriptor  string
+	class       *Class
 
 	maxStack    uint
 	maxLocals   uint
-	code        []uint8               //u4 code_length
+	code        []uint8             //u4 code_length
 	exceptions  []*ExceptionHandler //u2 exception_table_length
 	localVars   []*LocalVariable
 	lineNumbers []*LineNumber
 
-	parameterDescriptors  []string
-	returnDescriptor string
+	parameterDescriptors []string
+	returnDescriptor     string
 }
 
 func (this *Method) isStatic() bool {
@@ -443,27 +454,25 @@ func (this *Method) isSynchronized() bool {
 	return (this.accessFlags & JVM_ACC_SYNCHRONIZED) > 0
 }
 
-func (this *Method) Signature() string  {
+func (this *Method) Signature() string {
 	return this.name + JVM_SIGNATURE_FUNC + strings.Join(this.parameterDescriptors, "") + JVM_SIGNATURE_ENDFUNC + this.returnDescriptor
 
 }
 
-func (this *Method) Qualifier() string  {
+func (this *Method) Qualifier() string {
 	return this.class.name + "." + this.Signature()
 }
 
 type LocalVariable struct {
-	method              *Method
-	startPc             uint16
-	length              uint16
-	index               uint16
-	name                string
-	descriptor          string
+	method     *Method
+	startPc    uint16
+	length     uint16
+	index      uint16
+	name       string
+	descriptor string
 }
 
 type LineNumber struct {
-	startPc     int
-	lineNumber  int
+	startPc    int
+	lineNumber int
 }
-
-

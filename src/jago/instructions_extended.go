@@ -28,7 +28,7 @@ func WIDE(t *Thread, f *Frame, c *Class, m *Method) {
 		const_value := f.operandConst16()
 
 		value := f.loadVar(uint(index)).(Int)
-		f.storeVar(uint(index), value + Int(const_value))
+		f.storeVar(uint(index), value+Int(const_value))
 		f.offsetPc(6)
 	default:
 		Fatal("Not support opcode % for wide", instruction.mnemonic)
@@ -44,11 +44,10 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("The dimension of multi-dimensional array must be >= 1")
 	}
 
-
 	t.Trace("\t%d\t dim %d:", index, dimensions)
 
 	counts := make([]Int, dimensions)
-	for j:= int(dimensions-1); j >= 0; j-- {
+	for j := int(dimensions - 1); j >= 0; j-- {
 		counts[j] = f.pop().(Int)
 		if counts[j] < 0 {
 			VM.Throw("java/lang/NegativeArraySizeException", "Array size cannot be negative")
@@ -63,8 +62,6 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 
 	f.push(VM.NewMultiDimensioalArray(class, counts))
 }
-
-
 
 /*198 (0xC6)*/
 func IFNULL(t *Thread, f *Frame, c *Class, m *Method) {

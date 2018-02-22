@@ -22,7 +22,7 @@ func main() {
 	app.Description = "A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc."
 
 	var classpath string
-	var nologo bool = false
+	var nologo = false
 	var log_thread string
 	var log_classloader string
 	app.Flags = []cli.Flag{

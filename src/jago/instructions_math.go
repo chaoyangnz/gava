@@ -268,5 +268,5 @@ func IINC(t *Thread, f *Frame, c *Class, m *Method) {
 	const_value := f.operandConst8()
 
 	value := f.loadVar(uint(index)).(Int)
-	f.storeVar(uint(index), value + Int(const_value))
+	f.storeVar(uint(index), value+Int(const_value))
 }

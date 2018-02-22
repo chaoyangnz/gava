@@ -1,6 +1,6 @@
 package jago
 
-type Constant interface {}
+type Constant interface{}
 
 type SymbolRef interface {
 	Constant
@@ -20,18 +20,18 @@ func (this *ClassRef) ResolvedClass() *Class {
 	return this.class
 }
 
-func (this *ClassRef) resolve()  {
+func (this *ClassRef) resolve() {
 	this.class = VM.resolveClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 	//this.class = VM.CreateClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 }
 
 type MemberRef struct {
-	hostClass   *Class
+	hostClass *Class
 
-	className    string
-	class        *Class
-	name        string
-	descriptor  string
+	className  string
+	class      *Class
+	name       string
+	descriptor string
 }
 
 func (this *MemberRef) ResolvedClass() *Class {
@@ -122,10 +122,9 @@ func (this *StringConstant) resolve() {
 	this.jstring = VM.NewJavaLangString(this.value)
 }
 
-
 type UTF8Constant struct {
-	hostClass   *Class
-	value       string
+	hostClass *Class
+	value     string
 }
 
 type IntegerConstant struct {
@@ -149,14 +148,14 @@ type DoubleConstant struct {
 }
 
 type NameAndTypeConstant struct {
-	hostClass   *Class
-	name        string
-	descriptor  string
+	hostClass  *Class
+	name       string
+	descriptor string
 }
 
 type MethodTypeConstant struct {
-	hostClass   *Class
-	descriptor   string
+	hostClass  *Class
+	descriptor string
 }
 
 type MethodHandleConstant struct {
@@ -166,8 +165,8 @@ type MethodHandleConstant struct {
 }
 
 type InvokeDynamicConstant struct {
-	hostClass   *Class
-	bootstrapMethod          string
-	name                     string
-	descriptor               string
+	hostClass       *Class
+	bootstrapMethod string
+	name            string
+	descriptor      string
 }

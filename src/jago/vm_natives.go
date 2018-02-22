@@ -6,11 +6,11 @@ import (
 
 type NativeMethodRegistry map[string]reflect.Value
 
-func (this NativeMethodRegistry) RegisterNative(qualifier string, function interface{})  {
+func (this NativeMethodRegistry) RegisterNative(qualifier string, function interface{}) {
 	this[qualifier] = reflect.ValueOf(function)
 }
 
-func (this NativeMethodRegistry) unregister(qualifier string, function interface{})  {
+func (this NativeMethodRegistry) unregister(qualifier string, function interface{}) {
 	delete(this, qualifier)
 }
 
@@ -19,7 +19,7 @@ func (this NativeMethodRegistry) FindNative(qualifier string) (reflect.Value, bo
 	return fun, found
 }
 
-func (this NativeMethodRegistry) RegisterNatives()  {
+func (this NativeMethodRegistry) RegisterNatives() {
 	register_java_lang_System()
 	register_java_lang_Object()
 	register_java_lang_Class()

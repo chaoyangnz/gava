@@ -12,9 +12,9 @@ func register_java_lang_Thread() {
 }
 
 // private static void registerNatives()
-func JDK_jang_lang_Thread_registerNatives()  {}
+func JDK_jang_lang_Thread_registerNatives() {}
 
-func JDK_java_lang_Thread_currentThread() JavaLangThread  {
+func JDK_java_lang_Thread_currentThread() JavaLangThread {
 	return VM.CurrentThread().threadObject
 }
 
@@ -38,13 +38,13 @@ func JDK_java_lang_Thread_start0(this Reference) {
 
 	thread := VM.NewThread(name, func() {
 		VM.InvokeMethod(runMethod, this)
-	}, func(){})
+	}, func() {})
 
 	thread.threadObject = this
 	thread.start()
 }
 
-func JDK_java_lang_Thread_sleep(millis Long)  {
+func JDK_java_lang_Thread_sleep(millis Long) {
 	thread := VM.CurrentThread()
 	interrupted := thread.sleep(int64(millis))
 	if interrupted {
@@ -70,4 +70,3 @@ func JDK_java_lang_Thread_isInterrupted(this JavaLangThread, clearInterrupted Bo
 	}
 	return FALSE
 }
-

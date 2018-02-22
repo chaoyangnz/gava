@@ -21,23 +21,31 @@ func register_java_lang_Class() {
 }
 
 // private static void registerNatives()
-func JDK_jang_lang_Class_registerNatives()  {}
+func JDK_jang_lang_Class_registerNatives() {}
 
 // static Class getPrimitiveClass(String name)
 func JDK_java_lang_Class_getPrimitiveClass(name JavaLangString) JavaLangClass {
 	switch name.toNativeString() {
-	case "byte": return BYTE_TYPE.ClassObject()
-	case "short": return SHORT_TYPE.ClassObject()
-	case "char": return CHAR_TYPE.ClassObject()
-	case "int": return INT_TYPE.ClassObject()
-	case "long": return LONG_TYPE.ClassObject()
-	case "float": return FLOAT_TYPE.ClassObject()
-	case "double": return DOUBLE_TYPE.ClassObject()
-	case "boolean": return BOOLEAN_TYPE.ClassObject()
+	case "byte":
+		return BYTE_TYPE.ClassObject()
+	case "short":
+		return SHORT_TYPE.ClassObject()
+	case "char":
+		return CHAR_TYPE.ClassObject()
+	case "int":
+		return INT_TYPE.ClassObject()
+	case "long":
+		return LONG_TYPE.ClassObject()
+	case "float":
+		return FLOAT_TYPE.ClassObject()
+	case "double":
+		return DOUBLE_TYPE.ClassObject()
+	case "boolean":
+		return BOOLEAN_TYPE.ClassObject()
 	default:
 		VM.Throw("java/lang/RuntimeException", "Not a primitive type")
 	}
-	return nil
+	return NULL
 }
 
 // private static boolean desiredAssertionStatus0(Class javaClass)
@@ -45,7 +53,6 @@ func JDK_java_lang_Class_desiredAssertionStatus0(clazz JavaLangClass) Boolean {
 	// Always disable assertions
 	return FALSE
 }
-
 
 func JDK_java_lang_Class_getDeclaredFields0(this JavaLangClass, publicOnly Boolean) ArrayRef {
 	class := this.retrieveType().(*Class)
@@ -99,7 +106,7 @@ func JDK_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly
 	constructors := class.GetConstructors(publicOnly.IsTrue())
 
 	constructorArr := VM.NewArrayOfName("[Ljava/lang/reflect/Constructor;", Int(len(constructors)))
-	for i,constructor := range constructors {
+	for i, constructor := range constructors {
 		constructorArr.SetArrayElement(Int(i), VM.NewJavaLangReflectConstructor(constructor))
 	}
 
@@ -107,7 +114,7 @@ func JDK_java_lang_Class_getDeclaredConstructors0(this JavaLangClass, publicOnly
 }
 
 func JDK_java_lang_Class_getModifiers(this JavaLangClass) Int {
-	return Int(u16toi32((this.retrieveType().(*Class).accessFlags)))
+	return Int(u16toi32(this.retrieveType().(*Class).accessFlags))
 }
 
 func JDK_java_lang_Class_getSuperclass(this JavaLangClass) JavaLangClass {

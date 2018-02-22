@@ -38,12 +38,11 @@ var (
 | method manually.
 */
 
-
 type StringPool map[string]JavaLangString
 
 func (this StringPool) GetStringInPool(str string) (JavaLangString, bool) {
-	strObj, found := this[str];
-	if strObj == nil {
+	strObj, found := this[str]
+	if !found {
 		strObj = NULL
 	}
 	return strObj, found
@@ -87,20 +86,20 @@ type MethodArea struct {
 	*BootstrapClassLoader //bootstrap classloader
 }
 
-func (this MethodArea) getInitiatedClass(className string, classLoader JavaLangClassLoader) (*Class, bool)  {
-	if class, ok := this.InitiatedClasses[NL{className, classLoader.(Reference).oop}]; ok {
+func (this MethodArea) getInitiatedClass(className string, classLoader JavaLangClassLoader) (*Class, bool) {
+	if class, ok := this.InitiatedClasses[NL{className, classLoader.oop}]; ok {
 		return class, true
 	}
 	return nil, false
 }
 
 func (this MethodArea) setInitiatedClass(className string, classLoader JavaLangClassLoader, class *Class) {
-	VM.Info("-> Set initiated class (%s, %p): %p \n", className, classLoader.(Reference).oop, class)
-	this.InitiatedClasses[NL{className, classLoader.(Reference).oop}] = class
+	VM.Info("-> Set initiated class (%s, %p): %p \n", className, classLoader.oop, class)
+	this.InitiatedClasses[NL{className, classLoader.oop}] = class
 }
 
-func (this MethodArea) GetDefinedClass(className string, classLoader JavaLangClassLoader) (*Class, bool)  {
-	if class, ok := this.DefinedClasses[NL{className, classLoader.(Reference).oop}]; ok {
+func (this MethodArea) GetDefinedClass(className string, classLoader JavaLangClassLoader) (*Class, bool) {
+	if class, ok := this.DefinedClasses[NL{className, classLoader.oop}]; ok {
 		return class, true
 	}
 	return nil, false
@@ -125,11 +124,9 @@ func (this MethodArea) getInitiatingClassLoader(class *Class) JavaLangClassLoade
 }
 
 func (this MethodArea) setDefinedClass(className string, classLoader JavaLangClassLoader, class *Class) {
-	VM.Info("-> Set defined class (%s, %p): %p \n", className, classLoader.(Reference).oop, class)
-	this.DefinedClasses[NL{className, classLoader.(Reference).oop}] = class
+	VM.Info("-> Set defined class (%s, %p): %p \n", className, classLoader.oop, class)
+	this.DefinedClasses[NL{className, classLoader.oop}] = class
 }
-
-
 
 var depth = 0
 
@@ -164,7 +161,7 @@ func (this *MethodArea) loadClassUd(N string, L JavaLangClassLoader, triggerReas
 	javaname := binaryName2JavaName(N)
 	classObject := VM.InvokeMethod(loadClassMethod, L, javaname).(JavaLangClass)
 
-	VM.Info("==after java.lang.ClassLoader#loadClass %s %s in LoadClassUd jc=%p \n", N, classObject.Class().name, classObject.(Reference).oop)
+	VM.Info("==after java.lang.ClassLoader#loadClass %s %s in LoadClassUd jc=%p \n", N, classObject.Class().name, classObject.oop)
 	C := classObject.retrieveType().(*Class)
 	//
 	//VM.SetInitiatedClass(N, L, C)
@@ -194,7 +191,7 @@ func componentAndElementTypeName(arrayClassName string) (string, string, int) {
 		{
 			componentArrayClassName := arrayClassName[1:]
 			_, elementTypeName, dimension := componentAndElementTypeName(componentArrayClassName)
-			return componentArrayClassName, elementTypeName, dimension+1
+			return componentArrayClassName, elementTypeName, dimension + 1
 		}
 	}
 	VM.Throw("java/lang/IllegalArgumentException", "%s is not a array class name")
@@ -213,12 +210,12 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 	}
 
 	// ------------------
-	VM.BootstrapClassLoader.Debug(repeat("\t", depth) + "↳ %s ", N)
+	VM.BootstrapClassLoader.Debug(repeat("\t", depth)+"↳ %s ", N)
 	VM.BootstrapClassLoader.Debug("(reason: %s", triggerReason.code)
 	VM.BootstrapClassLoader.Trace(" - %s", triggerReason.desc)
 	VM.BootstrapClassLoader.Debug(") ")
 	var cll string
-	if L.IsNull()  {
+	if L.IsNull() {
 		cll = "<bootstrap>"
 	} else {
 		cll = L.Class().name
@@ -231,13 +228,12 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 		name:           N,
 		superClassName: "java/lang/Object",
 		interfaceNames: []string{"java/io/Serializable", "java/lang/Cloneable"},
-		LC: sync.NewCond(&sync.Mutex{})}
+		LC:             sync.NewCond(&sync.Mutex{})}
 
 	C.superClass = VM.createClass("java/lang/Object", NULL, TRIGGER_BY_AS_SUPERCLASS)
 	C.interfaces = []*Class{
 		VM.createClass("java/io/Serializable", NULL, TRIGGER_BY_AS_SUPERINTERFACE),
 		VM.createClass("java/lang/Cloneable", NULL, TRIGGER_BY_AS_SUPERINTERFACE)}
-
 
 	componentDescriptor := string(N[1])
 	switch componentDescriptor {
@@ -336,29 +332,28 @@ func (this *MethodArea) resolveClass(N string, D *Class, triggerReason *ClassTri
 	C := this.createClass(N, Ld, triggerReason)
 	if C.IsArray() {
 		_, elementTypeName, _ := componentAndElementTypeName(C.Name())
-		 if elementTypeName[:1] == JVM_SIGNATURE_CLASS { // cannot be array for an element type
-			 C.elementType = this.resolveClass(elementTypeName, D, TRIGGER_BY_AS_ARRAY_COMPONENT)
-		 }
+		if elementTypeName[:1] == JVM_SIGNATURE_CLASS { // cannot be array for an element type
+			C.elementType = this.resolveClass(elementTypeName, D, TRIGGER_BY_AS_ARRAY_COMPONENT)
+		}
 	}
 
 	return C
 }
 
-
 // jvms 5.3.5
-func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []byte, triggerReason *ClassTriggerReason) *Class  {
+func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []byte, triggerReason *ClassTriggerReason) *Class {
 
 	if _, ok := VM.getInitiatedClass(N, L); ok {
 		VM.Throw("java/lang/LinkageError", "Classloader %s is an initiating loader of class %s", L.Class().Name(), N)
 	}
 
 	// ------------------
-	VM.BootstrapClassLoader.Debug(repeat("\t", depth) + "↳ %s ", N)
+	VM.BootstrapClassLoader.Debug(repeat("\t", depth)+"↳ %s ", N)
 	VM.BootstrapClassLoader.Debug("(reason: %s", triggerReason.code)
 	VM.BootstrapClassLoader.Trace(" - %s", triggerReason.desc)
 	VM.BootstrapClassLoader.Debug(") ")
 	var cll string
-	if L.IsNull()  {
+	if L.IsNull() {
 		cll = "<bootstrap>"
 	} else {
 		cll = L.Class().name
@@ -383,7 +378,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	constantPool := make([]Constant, classfile.constantPoolCount+1)
 	C.constantPool = constantPool
 
-	for i, _ := range classfile.constantPool {
+	for i := range classfile.constantPool {
 		constInfo := classfile.constantPool[i]
 		var constant Constant
 		switch constInfo.(type) {
@@ -437,7 +432,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 				nil}
 		case *ConstantUtf8Info:
 			constantUtf8Info := constInfo.(*ConstantUtf8Info)
-			constant = &UTF8Constant{C,u2s(constantUtf8Info.bytes)}
+			constant = &UTF8Constant{C, u2s(constantUtf8Info.bytes)}
 		case *ConstantStringInfo:
 			constantStringInfo := constInfo.(*ConstantStringInfo)
 			constant = &StringConstant{C, classfile.cpUtf8(constantStringInfo.stringIndex), NULL}
@@ -449,28 +444,28 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 			constant = &FloatConstant{C, Float(constantFloatInfo.bytes)}
 		case *ConstantLongInfo:
 			constantLongInfo := constInfo.(*ConstantLongInfo)
-			l := int64(uint64(constantLongInfo.highBytes) << 32 + uint64(constantLongInfo.lowBytes))
+			l := int64(uint64(constantLongInfo.highBytes)<<32 + uint64(constantLongInfo.lowBytes))
 			constant = &LongConstant{C, Long(l)}
 		case *ConstantDoubleInfo:
 			constantDoubleInfo := constInfo.(*ConstantDoubleInfo)
-			bits := uint64(constantDoubleInfo.highBytes) << 32 + uint64(constantDoubleInfo.lowBytes)
+			bits := uint64(constantDoubleInfo.highBytes)<<32 + uint64(constantDoubleInfo.lowBytes)
 			d := math.Float64frombits(bits)
 			constant = &DoubleConstant{C, Double(d)}
 		case *ConstantNameAndTypeInfo:
 			constantNameAndTypeInfo := constInfo.(*ConstantNameAndTypeInfo)
-			constant = &NameAndTypeConstant{C,classfile.cpUtf8(constantNameAndTypeInfo.nameIndex),classfile.cpUtf8(constantNameAndTypeInfo.descriptorIndex)}
+			constant = &NameAndTypeConstant{C, classfile.cpUtf8(constantNameAndTypeInfo.nameIndex), classfile.cpUtf8(constantNameAndTypeInfo.descriptorIndex)}
 		case *ConstantMethodTypeInfo:
 			constantMethodTypeInfo := constInfo.(*ConstantMethodTypeInfo)
-			constant = &MethodTypeConstant{C,classfile.cpUtf8(constantMethodTypeInfo.descriptorIndex)}
+			constant = &MethodTypeConstant{C, classfile.cpUtf8(constantMethodTypeInfo.descriptorIndex)}
 		case *ConstantInvokeDynamicInfo:
 			constantInvokeDynamicInfo := constInfo.(*ConstantInvokeDynamicInfo)
 			nameAndTypeInfo := classfile.constantPool[constantInvokeDynamicInfo.nameAndTypeIndex].(*ConstantNameAndTypeInfo)
 			name := classfile.cpUtf8(nameAndTypeInfo.nameIndex)
 			descriptor := classfile.cpUtf8(nameAndTypeInfo.descriptorIndex)
 			constant = &InvokeDynamicConstant{C,
-			                                  "",//TODO classfile.cpUtf8(constantInvokeDynamicInfo.bootstrapMethodAttrIndex),
-			                                  name,
-			                                  descriptor}
+				"", //TODO classfile.cpUtf8(constantInvokeDynamicInfo.bootstrapMethodAttrIndex),
+				name,
+				descriptor}
 		}
 
 		C.constantPool[i] = constant
@@ -484,7 +479,6 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 			C.sourceFile = classfile.cpUtf8(sourceFileAttribue.sourceFileIndex)
 		}
 	}
-
 
 	C.fields = make([]*Field, len(classfile.fields))
 	//class.staticVars = ??
@@ -562,34 +556,36 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 				parameterDescriptors = append(parameterDescriptors, string(ch))
 				i++
 			case 'L':
-			Ref: for j := i+1; j < len(parametersStr); j++ {
-				switch rune(parametersStr[j]) {
-				case ';':
-					parameterDescriptors = append(parameterDescriptors, string(parametersStr[i:j+1]))
-					i = j+1
-					break Ref
+			Ref:
+				for j := i + 1; j < len(parametersStr); j++ {
+					switch rune(parametersStr[j]) {
+					case ';':
+						parameterDescriptors = append(parameterDescriptors, string(parametersStr[i:j+1]))
+						i = j + 1
+						break Ref
+					}
 				}
-			}
 			case '[':
-			Arr: for j := i+1; j < len(parametersStr); j++ {
-				switch rune(parametersStr[j]) {
-				case '[':
-					continue
-				case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z':
-					parameterDescriptors = append(parameterDescriptors, string(parametersStr[i:j+1]))
-					i = j+1
-					break Arr
-				case 'L':
-					for k := j+1; j < len(parametersStr); k++ {
-						switch rune(parametersStr[k]) {
-						case ';':
-							parameterDescriptors = append(parameterDescriptors, string(parametersStr[i:k+1]))
-							i = k+1
-							break Arr
+			Arr:
+				for j := i + 1; j < len(parametersStr); j++ {
+					switch rune(parametersStr[j]) {
+					case '[':
+						continue
+					case 'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z':
+						parameterDescriptors = append(parameterDescriptors, string(parametersStr[i:j+1]))
+						i = j + 1
+						break Arr
+					case 'L':
+						for k := j + 1; j < len(parametersStr); k++ {
+							switch rune(parametersStr[k]) {
+							case ';':
+								parameterDescriptors = append(parameterDescriptors, string(parametersStr[i:k+1]))
+								i = k + 1
+								break Arr
+							}
 						}
 					}
 				}
-			}
 			}
 		}
 		method.parameterDescriptors = parameterDescriptors
@@ -635,15 +631,13 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 		C.interfaces[i] = superinterface
 	}
 
-
 	// calculate static variables and instance variable count
 	// must be immediately after resolving super class
-	maxInstanceVars := 0  // include all the ancestry
+	maxInstanceVars := 0 // include all the ancestry
 	maxStaticVars := 0
 
 	instanceVarFields := make([]*Field, 0)
 	staticVarFields := make([]*Field, 0)
-
 
 	if C.superClass != nil {
 		maxInstanceVars = C.superClass.maxInstanceVars
@@ -679,7 +673,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	return C
 }
 
-func (this *MethodArea) link(class *Class)  {
+func (this *MethodArea) link(class *Class) {
 	if class.linked {
 		return
 	}
@@ -732,7 +726,7 @@ func (this *MethodArea) initialize(class *Class) {
 
 			clinit := class.GetClassInitializer()
 			if clinit != nil {
-				VM.BootstrapClassLoader.Debug(repeat("\t", depth) + "⇉ %s \n", clinit.Qualifier())
+				VM.BootstrapClassLoader.Debug(repeat("\t", depth)+"⇉ %s \n", clinit.Qualifier())
 				VM.InvokeMethod(clinit)
 			}
 
@@ -752,7 +746,7 @@ func (this *MethodArea) verify(class *Class) {
 }
 
 // initialize static variables to default values: no need to execute code
-func (this *MethodArea) prepare(class *Class)  {
+func (this *MethodArea) prepare(class *Class) {
 	// Initialize static variables
 	class.staticVars = make([]Value, class.maxStaticVars)
 	for _, field := range class.fields {
@@ -772,29 +766,38 @@ func (this *MethodArea) ResolveClass(N string, reason *ClassTriggerReason) *Clas
 func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
 	var typeClass JavaLangClass
 	switch string(descriptor[0]) {
-	case JVM_SIGNATURE_CLASS: {
-		fieldTypeClassName := descriptor[1:len(descriptor)-1]
-		typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
-	}
-	case JVM_SIGNATURE_ARRAY: {
-		fieldTypeClassName := descriptor
-		typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
-	}
-	case JVM_SIGNATURE_BYTE: typeClass = BYTE_TYPE.ClassObject()
-	case JVM_SIGNATURE_SHORT: typeClass = SHORT_TYPE.ClassObject()
-	case JVM_SIGNATURE_CHAR: typeClass = CHAR_TYPE.ClassObject()
-	case JVM_SIGNATURE_INT: typeClass = INT_TYPE.ClassObject()
-	case JVM_SIGNATURE_LONG: typeClass = LONG_TYPE.ClassObject()
-	case JVM_SIGNATURE_FLOAT: typeClass = FLOAT_TYPE.ClassObject()
-	case JVM_SIGNATURE_DOUBLE: typeClass = DOUBLE_TYPE.ClassObject()
-	case JVM_SIGNATURE_BOOLEAN: typeClass = BOOLEAN_TYPE.ClassObject()
+	case JVM_SIGNATURE_CLASS:
+		{
+			fieldTypeClassName := descriptor[1:len(descriptor)-1]
+			typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		}
+	case JVM_SIGNATURE_ARRAY:
+		{
+			fieldTypeClassName := descriptor
+			typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
+		}
+	case JVM_SIGNATURE_BYTE:
+		typeClass = BYTE_TYPE.ClassObject()
+	case JVM_SIGNATURE_SHORT:
+		typeClass = SHORT_TYPE.ClassObject()
+	case JVM_SIGNATURE_CHAR:
+		typeClass = CHAR_TYPE.ClassObject()
+	case JVM_SIGNATURE_INT:
+		typeClass = INT_TYPE.ClassObject()
+	case JVM_SIGNATURE_LONG:
+		typeClass = LONG_TYPE.ClassObject()
+	case JVM_SIGNATURE_FLOAT:
+		typeClass = FLOAT_TYPE.ClassObject()
+	case JVM_SIGNATURE_DOUBLE:
+		typeClass = DOUBLE_TYPE.ClassObject()
+	case JVM_SIGNATURE_BOOLEAN:
+		typeClass = BOOLEAN_TYPE.ClassObject()
 	default:
 		Fatal("type %s is not a unsupported type", descriptor)
 	}
 
 	return typeClass
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -805,7 +808,7 @@ func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
 */
 
 type BootstrapClassLoader struct {
-	classPath     *ClassPath
+	classPath *ClassPath
 	*Logger
 }
 
@@ -834,6 +837,3 @@ func (this *BootstrapClassLoader) findClass(className string) []byte {
 
 	return bytecode
 }
-
-
-

@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-
 /*
 |--------------------------------------------------------------------------
 | Heap structure
@@ -21,9 +20,7 @@ import (
 |
 */
 
-
 type Heap struct {
-
 }
 
 func (this *Heap) NewObjectOfName(className string) ObjectRef {
@@ -53,15 +50,15 @@ func hashcode(object *Object) Int {
 	return Int(h.Sum32())
 }
 
-func (this *Heap) NewObject(class *Class) ObjectRef  {
+func (this *Heap) NewObject(class *Class) ObjectRef {
 	if class.IsArray() {
 		VM.Throw("java/lang/IllegalArgumentException", "Class %s must be an Non-Array class", class.name)
 	}
 	object := &Object{}
 	object.header = ObjectHeader{
-		class: class,
+		class:    class,
 		hashCode: hashcode(object),
-		monitor: NewMonitor(object)}
+		monitor:  NewMonitor(object)}
 	object.slots = make([]Value, class.maxInstanceVars)
 	// Initialize instance variables
 	clazz := class
@@ -71,7 +68,7 @@ func (this *Heap) NewObject(class *Class) ObjectRef  {
 				object.slots[field.slot] = field.defaultValue()
 			}
 		}
-	clazz = clazz.superClass
+		clazz = clazz.superClass
 	}
 
 	// verify initialization
@@ -85,9 +82,9 @@ func (this *Heap) NewObject(class *Class) ObjectRef  {
 }
 
 func (this *Heap) NewArrayOfComponent(arrayComponentType Type, length Int) ArrayRef {
-	arrayClass := VM.ResolveClass(JVM_SIGNATURE_ARRAY + arrayComponentType.Descriptor(), TRIGGER_BY_NEW_INSTANCE)
+	arrayClass := VM.ResolveClass(JVM_SIGNATURE_ARRAY+arrayComponentType.Descriptor(), TRIGGER_BY_NEW_INSTANCE)
 
-	return this.NewArray(arrayClass, length).(Reference)
+	return this.NewArray(arrayClass, length)
 }
 
 func (this *Heap) NewArray(arrayClass *Class, length Int) ArrayRef {
@@ -95,17 +92,26 @@ func (this *Heap) NewArray(arrayClass *Class, length Int) ArrayRef {
 		VM.Throw("java/lang/IllegalArgumentException", "Class %s must be an Array class", arrayClass.name)
 	}
 	elements := make([]Value, length)
-	for i, _ := range elements {
+	for i := range elements {
 		switch arrayClass.componentType.(type) {
-		case *ByteType:       elements[i] = Byte(0)
-		case *ShortType:      elements[i] = Short(0)
-		case *CharType:       elements[i] = Char(0)
-		case *IntType:        elements[i] = Int(0)
-		case *LongType:       elements[i] = Long(0)
-		case *FloatType:      elements[i] = Float(0.0)
-		case *DoubleType:     elements[i] = Long(0.0)
-		case *BooleanType:    elements[i] = FALSE
-		case *Class:          elements[i] = NULL
+		case *ByteType:
+			elements[i] = Byte(0)
+		case *ShortType:
+			elements[i] = Short(0)
+		case *CharType:
+			elements[i] = Char(0)
+		case *IntType:
+			elements[i] = Int(0)
+		case *LongType:
+			elements[i] = Long(0)
+		case *FloatType:
+			elements[i] = Float(0.0)
+		case *DoubleType:
+			elements[i] = Long(0.0)
+		case *BooleanType:
+			elements[i] = FALSE
+		case *Class:
+			elements[i] = NULL
 		default:
 			Fatal("Not a valid component type")
 		}
@@ -113,9 +119,9 @@ func (this *Heap) NewArray(arrayClass *Class, length Int) ArrayRef {
 
 	object := &Object{}
 	object.header = ObjectHeader{
-		class: arrayClass,
+		class:    arrayClass,
 		hashCode: hashcode(object),
-		monitor: NewMonitor(object)}
+		monitor:  NewMonitor(object)}
 	object.slots = elements
 
 	return Reference{object}
@@ -132,7 +138,7 @@ func (this *Heap) NewMultiDimensioalArray(arrayClass *Class, lengths []Int) Arra
 		}
 	}
 
-	return  arr
+	return arr
 }
 
 /*
@@ -147,7 +153,7 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 	object := VM.NewObjectOfName(JAVA_LANG_STRING)
 
 	// convert rune (int32) to Java char (UTF-16 with surrogate)
-	chars := []Char{}
+	var chars []Char
 	for _, codepoint := range str {
 		if codepoint <= 0xFFFF {
 			chars = append(chars, Char(codepoint))
@@ -156,14 +162,14 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 				H = (S - 10000) / 400 + D800
 				L = (S - 10000) % 400 + DC00
 			 */
-			high_surrogate := Char((uint32(codepoint) - 0x10000) / 0x400 + 0xD800)
-			low_surrogate := Char((uint32(codepoint) - 0x10000) % 0x400 + 0xDC00)
+			high_surrogate := Char((uint32(codepoint)-0x10000)/0x400 + 0xD800)
+			low_surrogate := Char((uint32(codepoint)-0x10000)%0x400 + 0xDC00)
 			chars = append(chars, high_surrogate, low_surrogate)
 		}
 	}
 	// create value field
 	values := VM.NewArrayOfName("[C", Int(len(chars)))
-	for i, _ := range values.ArrayElements() {
+	for i := range values.ArrayElements() {
 		values.SetArrayElement(Int(i), chars[i])
 	}
 	object.SetInstanceVariableByName("value", "[C", values)
@@ -172,24 +178,31 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 	// TODO
 
 	// intern
-	return VM.InternString(object.(Reference))
+	return VM.InternString(object)
 }
 
 func (this *Heap) NewJavaLangClass(type0 Type) JavaLangClass {
 
-	classObject := VM.NewObjectOfName(JAVA_LANG_CLASS).(JavaLangClass)
+	classObject := VM.NewObjectOfName(JAVA_LANG_CLASS)
 
 	switch type0.(type) {
-	case *BooleanType: type0.(*BooleanType).classObject = classObject
-	case *ByteType: type0.(*ByteType).classObject = classObject
-	case *ShortType: type0.(*ShortType).classObject = classObject
-	case *IntType: type0.(*IntType).classObject = classObject
-	case *LongType: type0.(*LongType).classObject = classObject
-	case *FloatType: type0.(*FloatType).classObject = classObject
-	case *DoubleType: type0.(*DoubleType).classObject = classObject
+	case *BooleanType:
+		type0.(*BooleanType).classObject = classObject
+	case *ByteType:
+		type0.(*ByteType).classObject = classObject
+	case *ShortType:
+		type0.(*ShortType).classObject = classObject
+	case *IntType:
+		type0.(*IntType).classObject = classObject
+	case *LongType:
+		type0.(*LongType).classObject = classObject
+	case *FloatType:
+		type0.(*FloatType).classObject = classObject
+	case *DoubleType:
+		type0.(*DoubleType).classObject = classObject
 	case *Class:
 		type0.(*Class).classObject = classObject
-		VM.Info(">>> create java.lang.Class for %s *c=%p and jc=%p \n", type0.Name(), type0.(*Class), classObject.(Reference).oop)
+		VM.Info(">>> create java.lang.Class for %s *c=%p and jc=%p \n", type0.Name(), type0.(*Class), classObject.oop)
 	}
 
 	classObject.attachType(type0) // attach Class to it
@@ -209,18 +222,18 @@ func (this *Heap) NewJavaLangThread(name string) JavaLangThread {
 	jThread.SetInstanceVariableByName("priority", "I", Int(5))
 	// no initialization here
 
-	return jThread.(JavaLangThread)
+	return jThread
 }
 
 func (this *Heap) NewThrowable(exception string, message string, args ...interface{}) Reference {
 	msg := fmt.Sprintf(message, args...)
 
-	throwable := VM.NewObjectOfName(exception).(Reference)
+	throwable := VM.NewObjectOfName(exception)
 	constructorWithMessage := throwable.Class().GetConstructor("(Ljava/lang/String;)V")
 	if constructorWithMessage != nil {
 		VM.InvokeMethod(constructorWithMessage, throwable, VM.NewJavaLangString(msg))
 	} else {
-		constructorDefault := throwable.Class().GetConstructor( "()V")
+		constructorDefault := throwable.Class().GetConstructor("()V")
 		if constructorDefault == nil {
 			Fatal("%s has no default constructor")
 		}
@@ -247,14 +260,14 @@ Field(Class<?> declaringClass,
 	"[B)V"
 */
 func (this *Heap) NewJavaLangReflectField(field *Field) JavaLangReflectField {
-	fieldObject := VM.NewObjectOfName(JAVA_LANG_REFLECT_FIELD)
-	fieldObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, field.class.ClassObject())
-	fieldObject.SetInstanceVariableByName("name", JVM_SIGNATURE_CLASS + JAVA_LANG_STRING + JVM_SIGNATURE_ENDCLASS, VM.NewJavaLangString(field.name))
+	var fieldObject = VM.NewObjectOfName(JAVA_LANG_REFLECT_FIELD)
+	fieldObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS+JAVA_LANG_CLASS+JVM_SIGNATURE_ENDCLASS, field.class.ClassObject())
+	fieldObject.SetInstanceVariableByName("name", JVM_SIGNATURE_CLASS+JAVA_LANG_STRING+JVM_SIGNATURE_ENDCLASS, VM.NewJavaLangString(field.name))
 
-	fieldObject.SetInstanceVariableByName("type", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, VM.GetTypeClass(field.descriptor))
+	fieldObject.SetInstanceVariableByName("type", JVM_SIGNATURE_CLASS+JAVA_LANG_CLASS+JVM_SIGNATURE_ENDCLASS, VM.GetTypeClass(field.descriptor))
 	fieldObject.SetInstanceVariableByName("modifiers", JVM_SIGNATURE_INT, Int(field.accessFlags))
 	fieldObject.SetInstanceVariableByName("slot", JVM_SIGNATURE_INT, Int(field.slot))
-	fieldObject.SetInstanceVariableByName("signature", JVM_SIGNATURE_CLASS + JAVA_LANG_STRING + JVM_SIGNATURE_ENDCLASS, VM.NewJavaLangString(field.descriptor))
+	fieldObject.SetInstanceVariableByName("signature", JVM_SIGNATURE_CLASS+JAVA_LANG_STRING+JVM_SIGNATURE_ENDCLASS, VM.NewJavaLangString(field.descriptor))
 
 	annotations := VM.NewArrayOfName("[B", 0) //TODO
 	fieldObject.SetInstanceVariableByName("annotations", "[B", annotations)
@@ -276,7 +289,7 @@ Constructor(Class<T> declaringClass,
 */
 func (this *Heap) NewJavaLangReflectConstructor(method *Method) JavaLangReflectConstructor {
 	constructorObject := VM.NewObjectOfName(JAVA_LANG_REFLECT_CONSTRUCTOR)
-	constructorObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS + JAVA_LANG_CLASS + JVM_SIGNATURE_ENDCLASS, method.class.ClassObject())
+	constructorObject.SetInstanceVariableByName("clazz", JVM_SIGNATURE_CLASS+JAVA_LANG_CLASS+JVM_SIGNATURE_ENDCLASS, method.class.ClassObject())
 
 	parameterTypes := VM.NewArrayOfName("[Ljava/lang/Class;", Int(len(method.parameterDescriptors)))
 	for i, parameterDescriptor := range method.parameterDescriptors {
@@ -304,7 +317,7 @@ func (this *Heap) GetInstanceVariable(objref ObjectRef, name string, descriptor 
 	return objref.GetInstanceVariableByName(name, descriptor)
 }
 
-func (this *Heap) SetInstanceVariable(objref ObjectRef, name string, descriptor string, value Value)  {
+func (this *Heap) SetInstanceVariable(objref ObjectRef, name string, descriptor string, value Value) {
 	objref.SetInstanceVariableByName(name, descriptor, value)
 }
 
@@ -316,7 +329,7 @@ func (this *Heap) GetStaticVariable(class *Class, name string, descriptor string
 	return class.staticVars[field.slot]
 }
 
-func (this *Heap) SetStaticVariable(class *Class, name string, descriptor string, value Value)  {
+func (this *Heap) SetStaticVariable(class *Class, name string, descriptor string, value Value) {
 	field := class.FindField(name, descriptor)
 	if field == nil || !field.IsStatic() {
 		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
@@ -335,12 +348,12 @@ func (this *Heap) Clone(obj Reference) Reference {
 
 	var clone Reference
 	if !obj.Class().IsArray() {
-		clone = VM.NewObject(obj.Class()).(Reference)
+		clone = VM.NewObject(obj.Class())
 	} else {
-		clone = VM.NewArray(obj.Class(), obj.ArrayLength()).(Reference)
+		clone = VM.NewArray(obj.Class(), obj.ArrayLength())
 	}
 
-	for i,value := range obj.oop.slots {
+	for i, value := range obj.oop.slots {
 		clone.oop.slots[i] = value
 	}
 

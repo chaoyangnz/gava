@@ -13,9 +13,9 @@ func JDK_sun_reflect_NativeConstructorAccessorImpl_newInstance0(constructor Java
 	method := class.GetConstructor(descriptor)
 
 	objeref := VM.NewObject(class)
-	allArgs := []Value {objeref}
+	allArgs := []Value{objeref}
 	if !args.IsNull() {
-		allArgs = append(allArgs, args.(Reference).oop.slots...)
+		allArgs = append(allArgs, args.oop.slots...)
 	}
 
 	VM.InvokeMethod(method, allArgs...)

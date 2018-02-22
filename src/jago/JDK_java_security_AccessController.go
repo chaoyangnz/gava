@@ -18,6 +18,6 @@ func JDK_java_security_AccessController_getStackAccessControlContext() Reference
 	return NULL
 }
 
-func JDK_java_security_AccessController_doPrivilegedContext(action Reference, context Reference) Reference  {
+func JDK_java_security_AccessController_doPrivilegedContext(action Reference, context Reference) Reference {
 	return JDK_java_security_AccessController_doPrivileged(action)
 }

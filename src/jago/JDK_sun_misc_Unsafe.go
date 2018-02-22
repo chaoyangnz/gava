@@ -1,6 +1,5 @@
 package jago
 
-
 func register_sun_misc_Unsafe() {
 	VM.RegisterNative("sun/misc/Unsafe.registerNatives()V", JDK_sun_misc_Unsafe_registerNatives)
 	VM.RegisterNative("sun/misc/Unsafe.arrayBaseOffset(Ljava/lang/Class;)I", JDK_sun_misc_Unsafe_arrayBaseOffset)
@@ -105,7 +104,7 @@ func JDK_sun_misc_Unsafe_getObjectVolatile(this Reference, obj Reference, offset
 	return slots[offset].(Reference)
 }
 
-func JDK_sun_misc_Unsafe_putObjectVolatile(this Reference, obj Reference, offset Long, val Reference)  {
+func JDK_sun_misc_Unsafe_putObjectVolatile(this Reference, obj Reference, offset Long, val Reference) {
 	slots := obj.oop.slots
 	slots[offset] = val
 }
@@ -124,14 +123,13 @@ func JDK_sun_misc_Unsafe_getByte(this Reference, address Long) Byte {
 	return Byte(0x08) //0x01 big_endian
 }
 
-func JDK_sun_misc_Unsafe_freeMemory(this Reference, size Long)  {
+func JDK_sun_misc_Unsafe_freeMemory(this Reference, size Long) {
 	// do nothing
 }
 
-func JDK_sun_misc_Unsafe_ensureClassInitialized(this Reference, class JavaLangClass)  {
+func JDK_sun_misc_Unsafe_ensureClassInitialized(this Reference, class JavaLangClass) {
 	// LOCK ???
 	if class.retrieveType().(*Class).initialized != INITIALIZED {
 		VM.Throw("java/lang/AssertionError", "Class has not been initialized")
 	}
 }
-
