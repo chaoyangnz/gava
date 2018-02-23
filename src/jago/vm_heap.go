@@ -55,7 +55,7 @@ func (this *Heap) NewObject(class *Class) ObjectRef {
 		VM.Throw("java/lang/IllegalArgumentException", "Class %s must be an Non-Array class", class.name)
 	}
 	object := &Object{}
-	object.header = ObjectHeader{
+	object.header = Header{
 		class:    class,
 		hashCode: hashcode(object),
 		monitor:  NewMonitor(object)}
@@ -118,7 +118,7 @@ func (this *Heap) NewArray(arrayClass *Class, length Int) ArrayRef {
 	}
 
 	object := &Object{}
-	object.header = ObjectHeader{
+	object.header = Header{
 		class:    arrayClass,
 		hashCode: hashcode(object),
 		monitor:  NewMonitor(object)}
