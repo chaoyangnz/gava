@@ -25,6 +25,7 @@ func main() {
 	var nologo = false
 	var log_thread string
 	var log_classloader string
+	var dev = false
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "classpath, cp",
@@ -36,6 +37,11 @@ func main() {
 			Name:        "nologo, nl",
 			Usage:       "don't show logo",
 			Destination: &nologo,
+		},
+		cli.BoolFlag{
+			Name:        "dev, d",
+			Usage:       "dev mode",
+			Destination: &dev,
 		},
 		cli.StringFlag{
 			Name:        "log:thread",
@@ -70,8 +76,6 @@ func main() {
 			fmt.Println("JAGO_HOME needs to be absolute path.")
 			return nil
 		}
-
-		jago.VM.Init()
 
 		jagoClassName := args.Get(0)
 		jagoArgs := make([]string, c.NArg()-1)
@@ -118,8 +122,16 @@ func main() {
 			}
 		}
 
+		if dev {
+			jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.TRACE))
+			jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.TRACE))
+			jago.VM.SetSystemSetting("log.level.io", strconv.Itoa(jago.TRACE))
+			jago.VM.SetSystemSetting("log.level.misc", strconv.Itoa(jago.TRACE))
+		}
+
 		fmt.Println("------------------------------------------------------------\n")
 
+		jago.VM.Init()
 		jago.VM.Startup(strings.Replace(jagoClassName, ".", "/", -1), jagoArgs...)
 		return nil
 	}

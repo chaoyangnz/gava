@@ -19,7 +19,28 @@ func (this SystemSettings) GetSystemSetting(key string) string {
 	return this[key]
 }
 
-var VM = &Jago{}
+var VM = NewVM()
+
+func NewVM() *Jago {
+	vm := &Jago{}
+	jago_home := os.Getenv("JAGO_HOME")
+	vm.SystemSettings = map[string]string{
+	"log.base":              path.Join(jago_home, "log"),
+	"log.level.threads":     strconv.Itoa(WARN),
+	"log.level.thread":      strconv.Itoa(WARN),
+	"log.level.classloader": strconv.Itoa(WARN),
+	"log.level.io":          strconv.Itoa(WARN),
+	"log.level.misc":        strconv.Itoa(WARN),
+
+	"classpath.system":      path.Join(jago_home, "jdk/classes"),
+	"classpath.extension":   "",
+	"classpath.application": "",
+	}
+
+	vm.LoggerFactory = &LoggerFactory{}
+
+	return vm
+}
 
 type Jago struct {
 	SystemSettings
@@ -34,22 +55,6 @@ type Jago struct {
 }
 
 func (this *Jago) Init() {
-	jago_home := os.Getenv("JAGO_HOME")
-	this.SystemSettings = map[string]string{
-		"log.base":              path.Join(jago_home, "log"),
-		"log.level.threads":     strconv.Itoa(WARN),
-		"log.level.thread":      strconv.Itoa(WARN),
-		"log.level.classloader": strconv.Itoa(WARN),
-		"log.level.io":          strconv.Itoa(WARN),
-		"log.level.misc":        strconv.Itoa(WARN),
-
-		"classpath.system":      path.Join(jago_home, "jdk/classes"),
-		"classpath.extension":   "",
-		"classpath.application": "",
-	}
-
-	this.LoggerFactory = &LoggerFactory{}
-
 	natives := make(map[string]reflect.Value)
 
 	threadsLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.threads"))
