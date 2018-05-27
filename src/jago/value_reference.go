@@ -51,6 +51,29 @@ func (this Reference) assertArray() {
 	}
 }
 
+func (this Reference) IHashCode() Int {
+	if this.IsNull() {
+		return Int(0)
+	}
+	return this.oop.header.hashCode
+}
+
+func (this Reference) Clone() Reference {
+
+	var clone Reference
+	if !this.Class().IsArray() {
+		clone = VM.NewObject(this.Class())
+	} else {
+		clone = VM.NewArray(this.Class(), this.ArrayLength())
+	}
+
+	for i, value := range this.oop.slots {
+		clone.oop.slots[i] = value
+	}
+
+	return clone
+}
+
 func (this ObjectRef) GetInstanceVariable(index Int) Value {
 	this.assertObject()
 	return this.oop.slots[index]

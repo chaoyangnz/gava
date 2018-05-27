@@ -8,6 +8,7 @@ import (
 	"strings"
 	"strconv"
 	"path"
+	"github.com/pkg/profile"
 )
 
 func main() {
@@ -22,10 +23,11 @@ func main() {
 	app.Description = "A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc."
 
 	var classpath string
-	var nologo = false
-	var log_thread string
-	var log_classloader string
+	var noLogo = false
+	var logThread string
+	var logClassloader string
 	var dev = false
+	var profiling = false
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "classpath, cp",
@@ -34,9 +36,9 @@ func main() {
 			Destination: &classpath,
 		},
 		cli.BoolFlag{
-			Name:        "nologo, nl",
+			Name:        "noLogo, nl",
 			Usage:       "don't show logo",
-			Destination: &nologo,
+			Destination: &noLogo,
 		},
 		cli.BoolFlag{
 			Name:        "dev, d",
@@ -47,18 +49,23 @@ func main() {
 			Name:        "log:thread",
 			Value:       "",
 			Usage:       "log level of instruction execution in a thread context, options: info, debug, trace",
-			Destination: &log_thread,
+			Destination: &logThread,
 		},
 		cli.StringFlag{
 			Name:        "log:classloader",
 			Value:       "",
 			Usage:       "log level of class loading, options: info, debug, trace",
-			Destination: &log_classloader,
+			Destination: &logClassloader,
+		},
+		cli.BoolFlag{
+			Name:        "profile, p",
+			Usage:       "profile jago",
+			Destination: &profiling,
 		},
 	}
 
 	app.Action = func(c *cli.Context) error {
-		if !nologo {
+		if !noLogo {
 			fmt.Printf("    _                   \r\n   (_) __ _  __ _  ___  \r\n   | |/ _` |/ _` |/ _ \\ \r\n   | | (_| | (_| | (_) |   version %s\r\n  _/ |\\__,_|\\__, |\\___/    \r\n |__/       |___/     \n", app.Version)
 		}
 		fmt.Printf("\n\nCommand: %s \n", strings.Join(os.Args, " "))
@@ -68,11 +75,11 @@ func main() {
 			return nil
 		}
 
-		jago_home := os.Getenv("JAGO_HOME")
-		if jago_home == "" {
+		jagoHome := os.Getenv("JAGO_HOME")
+		if jagoHome == "" {
 			fmt.Println("Please set JAGO_HOME environment variable first.")
 			return nil
-		} else if !path.IsAbs(jago_home) {
+		} else if !path.IsAbs(jagoHome) {
 			fmt.Println("JAGO_HOME needs to be absolute path.")
 			return nil
 		}
@@ -88,7 +95,7 @@ func main() {
 			jago.VM.SetSystemSetting("classpath.application", classpath)
 		}
 
-		switch log_thread {
+		switch logThread {
 		case "error":
 			jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.ERROR))
 		case "warn":
@@ -100,12 +107,12 @@ func main() {
 		case "trace":
 			jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.TRACE))
 		default:
-			if log_thread != "" {
-				fmt.Printf("Invalid log:thread option: %s\n", log_thread)
+			if logThread != "" {
+				fmt.Printf("Invalid log:thread option: %s\n", logThread)
 			}
 		}
 
-		switch log_classloader {
+		switch logClassloader {
 		case "error":
 			jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.ERROR))
 		case "warn":
@@ -117,8 +124,8 @@ func main() {
 		case "trace":
 			jago.VM.SetSystemSetting("log.level.classloader", strconv.Itoa(jago.TRACE))
 		default:
-			if log_classloader != "" {
-				fmt.Printf("Invalid log:classloader option: %s\n", log_classloader)
+			if logClassloader != "" {
+				fmt.Printf("Invalid log:classloader option: %s\n", logClassloader)
 			}
 		}
 
@@ -127,6 +134,11 @@ func main() {
 			jago.VM.SetSystemSetting("log.level.thread", strconv.Itoa(jago.TRACE))
 			jago.VM.SetSystemSetting("log.level.io", strconv.Itoa(jago.TRACE))
 			jago.VM.SetSystemSetting("log.level.misc", strconv.Itoa(jago.TRACE))
+		}
+
+		if profiling {
+			// CPU profiling by default
+			defer profile.Start().Stop()
 		}
 
 		fmt.Println("------------------------------------------------------------\n")

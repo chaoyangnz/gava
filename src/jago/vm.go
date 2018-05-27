@@ -19,29 +19,6 @@ func (this SystemSettings) GetSystemSetting(key string) string {
 	return this[key]
 }
 
-var VM = NewVM()
-
-func NewVM() *Jago {
-	vm := &Jago{}
-	jago_home := os.Getenv("JAGO_HOME")
-	vm.SystemSettings = map[string]string{
-	"log.base":              path.Join(jago_home, "log"),
-	"log.level.threads":     strconv.Itoa(WARN),
-	"log.level.thread":      strconv.Itoa(WARN),
-	"log.level.classloader": strconv.Itoa(WARN),
-	"log.level.io":          strconv.Itoa(WARN),
-	"log.level.misc":        strconv.Itoa(WARN),
-
-	"classpath.system":      path.Join(jago_home, "jdk/classes"),
-	"classpath.extension":   "",
-	"classpath.application": "",
-	}
-
-	vm.LoggerFactory = &LoggerFactory{}
-
-	return vm
-}
-
 type Jago struct {
 	SystemSettings
 
@@ -54,6 +31,30 @@ type Jago struct {
 	*Logger
 }
 
+var VM = NewVM()
+
+func NewVM() *Jago {
+	vm := &Jago{}
+	jagoHome := os.Getenv("JAGO_HOME")
+	vm.SystemSettings = map[string]string{
+		"log.base":              path.Join(jagoHome, "log"),
+		"log.level.threads":     strconv.Itoa(WARN),
+		"log.level.thread":      strconv.Itoa(WARN),
+		"log.level.classloader": strconv.Itoa(WARN),
+		"log.level.io":          strconv.Itoa(WARN),
+		"log.level.misc":        strconv.Itoa(WARN),
+
+		"classpath.system":      path.Join(jagoHome, "jdk/classes"),
+		"classpath.extension":   "",
+		"classpath.application": "",
+	}
+
+	vm.LoggerFactory = &LoggerFactory{}
+
+	return vm
+}
+
+// Before vm initialization, all lot of system settings can be set.
 func (this *Jago) Init() {
 	natives := make(map[string]reflect.Value)
 

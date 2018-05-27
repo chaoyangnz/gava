@@ -281,3 +281,7 @@ This log file records thread creation/exit information and object monitor enter/
 
 ### log/misc.log
 Other trivial logs
+
+# Profiling
+
+https://flaviocopes.com/golang-profiling/

@@ -49,7 +49,7 @@ type Logger struct {
 
 func (this *Logger) log(format string, args ...interface{}) {
 	fmt.Fprintf(this.writer, format, args...)
-	this.writer.Flush()
+	//this.writer.Flush()
 }
 
 func (this *Logger) All(format string, args ...interface{}) {

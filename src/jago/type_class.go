@@ -242,6 +242,22 @@ func (this *Class) inheritanceDepth() int {
 	return depth
 }
 
+func (this *Class) GetStaticVariable(name string, descriptor string) Value {
+	field := this.FindField(name, descriptor)
+	if field == nil || !field.IsStatic() {
+		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, this.name)
+	}
+	return this.staticVars[field.slot]
+}
+
+func (this *Class) SetStaticVariable(name string, descriptor string, value Value) {
+	field := this.FindField(name, descriptor)
+	if field == nil || !field.IsStatic() {
+		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, this.name)
+	}
+	this.staticVars[field.slot] = value
+}
+
 type Field struct {
 	accessFlags uint16
 	name        string

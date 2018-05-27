@@ -75,6 +75,9 @@ func (tcf Block) Do() {
 	tcf.try()
 }
 
+/*
+Get Go Routine ID. this method is quite time-consuming and SHOULD be optimized in the future.
+ */
 func getGID() uint64 {
 	b := make([]byte, 64)
 	b = b[:runtime.Stack(b, false)]

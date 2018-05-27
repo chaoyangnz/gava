@@ -60,7 +60,7 @@ func MULTIANEWARRAY(t *Thread, f *Frame, c *Class, m *Method) {
 		Fatal("Non-Array class %s cannot be used to new multi-dimensional array", class.name)
 	}
 
-	f.push(VM.NewMultiDimensioalArray(class, counts))
+	f.push(VM.NewMultiDimensionalArray(class, counts))
 }
 
 /*198 (0xC6)*/

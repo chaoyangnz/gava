@@ -5,7 +5,6 @@ import (
 	"unsafe"
 	"hash/fnv"
 	"strconv"
-	"time"
 )
 
 /*
@@ -44,8 +43,8 @@ func hashcode(object *Object) Int {
 
 	h.Write([]byte(strconv.Itoa(int(address))))
 
-	ts := time.Now().UnixNano()
-	h.Write([]byte(strconv.Itoa(int(ts))))
+	//ts := time.Now().UnixNano()
+	//h.Write([]byte(strconv.Itoa(int(ts))))
 
 	return Int(h.Sum32())
 }
@@ -127,14 +126,14 @@ func (this *Heap) NewArray(arrayClass *Class, length Int) ArrayRef {
 	return Reference{object}
 }
 
-func (this *Heap) NewMultiDimensioalArray(arrayClass *Class, lengths []Int) ArrayRef {
+func (this *Heap) NewMultiDimensionalArray(arrayClass *Class, lengths []Int) ArrayRef {
 	count := lengths[0]
 	arr := this.NewArray(arrayClass, count)
 
 	if len(lengths) > 1 {
 		elements := arr.ArrayElements()
 		for i := range elements {
-			elements[i] = this.NewMultiDimensioalArray(arrayClass.componentType.(*Class), lengths[1:])
+			elements[i] = this.NewMultiDimensionalArray(arrayClass.componentType.(*Class), lengths[1:])
 		}
 	}
 
@@ -313,49 +312,4 @@ func (this *Heap) NewJavaLangReflectConstructor(method *Method) JavaLangReflectC
 	return constructorObject
 }
 
-func (this *Heap) GetInstanceVariable(objref ObjectRef, name string, descriptor string) Value {
-	return objref.GetInstanceVariableByName(name, descriptor)
-}
 
-func (this *Heap) SetInstanceVariable(objref ObjectRef, name string, descriptor string, value Value) {
-	objref.SetInstanceVariableByName(name, descriptor, value)
-}
-
-func (this *Heap) GetStaticVariable(class *Class, name string, descriptor string) Value {
-	field := class.FindField(name, descriptor)
-	if field == nil || !field.IsStatic() {
-		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
-	}
-	return class.staticVars[field.slot]
-}
-
-func (this *Heap) SetStaticVariable(class *Class, name string, descriptor string, value Value) {
-	field := class.FindField(name, descriptor)
-	if field == nil || !field.IsStatic() {
-		Fatal("Cannot find static variable %s %s in class %s", name, descriptor, class.name)
-	}
-	class.staticVars[field.slot] = value
-}
-
-func (this *Heap) IHashCode(ref Reference) Int {
-	if ref.IsNull() {
-		return Int(0)
-	}
-	return ref.oop.header.hashCode
-}
-
-func (this *Heap) Clone(obj Reference) Reference {
-
-	var clone Reference
-	if !obj.Class().IsArray() {
-		clone = VM.NewObject(obj.Class())
-	} else {
-		clone = VM.NewArray(obj.Class(), obj.ArrayLength())
-	}
-
-	for i, value := range obj.oop.slots {
-		clone.oop.slots[i] = value
-	}
-
-	return clone
-}

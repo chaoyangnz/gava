@@ -14,7 +14,7 @@ func register_java_lang_Object() {
 func JDK_jang_lang_Object_registerNatives() {}
 
 func JDK_java_lang_Object_hashCode(this Reference) Int {
-	return VM.IHashCode(this)
+	return this.IHashCode()
 }
 
 func JDK_java_lang_Object_getClass(this Reference) JavaLangClass {
@@ -27,7 +27,7 @@ func JDK_java_lang_Object_clone(this Reference) Reference {
 		VM.Throw("java/lang/CloneNotSupportedException", "Not implement java.lang.Cloneable")
 	}
 
-	return VM.Clone(this)
+	return this.Clone()
 }
 
 func JDK_java_lang_Object_wait(this Reference, millis Long) {
