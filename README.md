@@ -285,3 +285,6 @@ Other trivial logs
 # Profiling
 
 https://flaviocopes.com/golang-profiling/
+
+# TODO
+- [] add unit tests
