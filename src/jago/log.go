@@ -5,6 +5,7 @@ import (
 	"os"
 	"bufio"
 	"runtime/debug"
+	"github.com/fatih/color"
 )
 
 const (
@@ -89,24 +90,24 @@ func (this *Logger) Error(format string, args ...interface{}) {
 }
 
 func Fatal(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, "VM internal error: ")
-	fmt.Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
+	color.New(color.FgHiRed).Fprintf(os.Stderr, "VM internal error: ")
+	color.New(color.FgRed).Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
+	debug.PrintStack()
+	os.Exit(1)
+}
+
+func Bug(format string, args ...interface{}) {
+	color.New(color.FgHiYellow).Fprintf(os.Stderr, "VM implmentation bug: ")
+	color.New(color.FgYellow).Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
 	debug.PrintStack()
 	os.Exit(2)
 }
 
-func Bug(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, "VM implmentation bug: ")
-	fmt.Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
-	debug.PrintStack()
-	os.Exit(3)
-}
-
 func Assert(expression bool, format string, args ...interface{}) {
 	if !expression {
-		fmt.Fprintf(os.Stderr, "VM runtime assertion violation: ")
-		fmt.Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
-		os.Stderr.Write(debug.Stack())
-		os.Exit(4)
+		color.New(color.FgHiYellow).Fprintf(os.Stderr, "VM runtime assertion violation: ")
+		color.New(color.FgYellow).Fprintf(os.Stderr, format+"\n\n ------------------------\n", args...)
+		debug.PrintStack()
+		os.Exit(3)
 	}
 }

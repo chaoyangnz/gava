@@ -9,6 +9,8 @@ demonstrate the idea. For the educational purpose, it is more than enough.
 
 If you have no time to read OpenJDK source code or always guess the JVM behaviour when you need to tune your program, then your right here to be the lord of your universe.
 
+<img src="https://i.imgur.com/7L7XyqL.gif" width="500" />
+
 The Ebook about how it works internally is in progress: https://www.gitbook.com/book/richdyang/go-my-jvm
 
 # Roadmap
@@ -22,31 +24,42 @@ The Ebook about how it works internally is in progress: https://www.gitbook.com/
 - [ ] GC
 - [ ] JIT
 
-<img src='demo.gif' width='500'/>
-
 # How to run
 
-## build and set gopath
+## build and install
 
 ```bash
 ❯ cd ~/jago
-❯ export JAGO_HOME=`pwd`
 ❯ ./build.sh
 ```
 
-## jago command help
+By default, jago will be installed to `/usr/local/jago`
+```text
+/usr/local/jago
+├── bin
+│   └── jago
+├── jdk
+│   └── classes
+│       ├── META-INF
+│       ├── apple
+│       ├── com
+│       ├── java
+│       ├── javax
+│       ├── jdk
+│       ├── org
+│       └── sun
+└── log
+    ├── classloader.log
+    ├── io.log
+    ├── misc.log
+    ├── thread-bootstrap.log
+    ├── thread-main.log
+    └── threads.log
+```
+
+## jago command
 ```bash
 ❯ jago -h
-    _                   
-   (_) __ _  __ _  ___  
-   | |/ _` |/ _` |/ _ \ 
-   | | (_| | (_| | (_) |   version 1.0.0
-  _/ |\__,_|\__, |\___/    
- |__/       |___/     
-
-
-Command: jago -h 
-
 NAME:
    Jago - A simplified Java Virtual Machine for the educational purpose
 
@@ -60,231 +73,122 @@ DESCRIPTION:
    A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc.
 
 AUTHOR:
-   Chao Yang <richd.yang@gmail.com>
+   Chao Yang <chaoyangnz@gmail.com>
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --classpath value, --cp value  application classpath separated by colon
-   --log:thread value          log level of instruction execution, options: info, debug, trace
-   --log:classloader value          log level of class loading, options: info, debug, trace
+   --noLogo, --nl                 don't show logo
+   --debug, -d                    debug mode
+   --trace, -t                    trace mode
+   --log:thread value             log level of instruction execution in a thread context, options: info, debug, trace
+   --log:classloader value        log level of class loading, options: info, debug, trace
+   --profile, -p                  profile jago
    --help, -h                     show help
    --version, -v                  print the version
 ```
 
-## Run a calendar program
+### Run a calendar program
 
 ```bash
-❯ jago --log:thread info -cp . example/Calendar 8 2017
-    _                   
-   (_) __ _  __ _  ___  
-   | |/ _` |/ _` |/ _ \ 
-   | | (_| | (_| | (_) |   version 1.0.0
-  _/ |\__,_|\__, |\___/    
- |__/       |___/     
-
-
-Command: jago --log:thread info -cp . example/Calendar 8 2017 
-
-Add new classpath: .
-------------------------------------------------------------
-
-   August 2017
- S  M Tu  W Th  F  S
-       1  2  3  4  5 
- 6  7  8  9 10 11 12 
-13 14 15 16 17 18 19 
-20 21 22 23 24 25 26 
-27 28 29 30 31 
+❯ jago --log:thread info -cp . Calendar 8 2018
 ```
+<img src="https://i.imgur.com/7l58Qwe.gif" width="500" />
 
-## Run a pyramid program
+### Run a pyramid program
 
 ```bash
-❯ jago --log:thread info -cp . example/Pyramid        
-    _                   
-   (_) __ _  __ _  ___  
-   | |/ _` |/ _` |/ _ \ 
-   | | (_| | (_| | (_) |   version 1.0.0
-  _/ |\__,_|\__, |\___/    
- |__/       |___/     
-
-
-Command: jago --log:thread info -cp . example/Pyramid 
-
-Add new classpath: .
-------------------------------------------------------------
-
-Pyramid pattern of star in Java : 
-     * 
-    * * 
-   * * * 
-  * * * * 
- * * * * * 
-Pyramid of numbers in Java : 
-     0 
-    0 1 
-   0 1 2 
-  0 1 2 3 
- 0 1 2 3 4 
+❯ jago --log:thread info -cp . Pyramid
 ```
+<img src="https://i.imgur.com/AxFFw8K.gif" width="500" />
 
-## run a program traversing a tree in the level order
+### run a program traversing a tree in the level order
 
 ```bash
-❯ jago --log:thread info -cp . example/TreeLevelOrderTraverse
-    _                   
-   (_) __ _  __ _  ___  
-   | |/ _` |/ _` |/ _ \ 
-   | | (_| | (_| | (_) |   version 1.0.0
-  _/ |\__,_|\__, |\___/    
- |__/       |___/     
-
-
-Command: jago --log:thread info -cp . example/TreeLevelOrderTraverse 
-
-Add a new classpath: .
-------------------------------------------------------------
-
-
-    ___3__
-   /      \
-   9      20
-         /  \
-        15   7
-[[3], [9, 20], [15, 7]]
-
-    ___1__
-   /      \
-  _2       3
- /          \
- 4           5
-[[1], [2, 3], [4, 5]]
-
-                _______________1______________
-               /                              \
-               2______                  _______3______
-                      \                /              \
-                       4            ___5__             6  
-                                   /      \                
-                                  _7       8                
-                                 /                           
-                                 9                            
-[[1], [2, 3], [4, 5, 6], [7, 8], [9]]
-
+❯ jago --log:thread info -cp . TreeLevelOrderTraverse
 ```
+<img src="https://i.imgur.com/RDDvqLA.gif" width="500" />
 
-## Run a program with exception
+### Run a program with exception
 
 ```bash
 ❯ jago --log:thread info -cp . test/test_athrow
-    _                   
-   (_) __ _  __ _  ___  
-   | |/ _` |/ _` |/ _ \ 
-   | | (_| | (_| | (_) |   version 1.0.0
-  _/ |\__,_|\__, |\___/    
- |__/       |___/     
-
-
-Command: jago --log:thread info -cp . test/test_athrow 
-
-Add new classpath: .
-------------------------------------------------------------
-
-prepare to go
-
-Exception in thread "main" test/Exception2: this is exception 2
-         at test.test_athrow.rest(test_athrow.java:33)
-         at test.test_athrow.onRoad(test_athrow.java:25)
-         at test.test_athrow.go(test_athrow.java:20)
-         at test.test_athrow.main(test_athrow.java:8)
-
 ```
+<img src="https://i.imgur.com/Dz0vPnB.gif" width="500" />
 
-# Showcases with example programs
-
-- Print pyramid
-```
-jago --log:thread debug --log:classloader debug example.Pyramid
-```
-- Show Calendar
-```bash
-jago --log:thread debug --log:classloader debug example.Calendar 8 2017
-```
-
-- Tree Traverse
-```bash
-jago --log:thread debug --log:classloader debug example.TreeInOrderTraverse
-```
-```bash
-jago --log:thread debug --log:classloader debug example.TreeLevelOrderTraverse
-```
-- Exception handling
-```bash
-jago --log:thread debug --log:classloader debug test.test_athrow
-```
+### More examples to demonstrate features
 
 - Print system properties
 ```bash
-jago --log:thread debug --log:classloader debug test.test_system_properties
+jago -d test.test_system_properties
 ```
 
 - Multi-threading
 ```bash
-jago --log:thread debug --log:classloader debug test.test_thread
+jago -d test.test_thread
 ```
 
 ```bash
-jago --log:thread debug --log:classloader debug example.Multithread
+jago -d Multithread
 ```
 
-- Thread sleep or wait and interrupt
+- Thread sleep or `wait` / `interrupt`
 ```bash
-jago --log:thread debug --log:classloader debug example.SleepInterrupt
+jago -d SleepInterrupt
 ```
 
 ```bash
-jago --log:thread debug --log:classloader debug example.WaitInterrupt
+jago -d WaitInterrupt
 ```
 
 - Java monitor lock with `synchronized`
 ```bash
-jago --log:thread debug --log:classloader debug example.Counter
+jago -d Counter
 ```
 
 - Java wait() and `notify()`, `notifyAll()`
 ```bash
-jago --log:thread debug --log:classloader debug example.ProducerConsumer
+jago -d ProducerConsumer
 ```
 
-# trace the execution
+## trace the execution
 
 ### log/thread-[name].log 
 This log file records the each instruction execution and method call hierarchy within a thread context. Set the log level to info to view call hierarchy more clearly.
 
-The blue diamond symbols 🔹 mean pure Java methods while the yellow ones 🔸 mean native methods which is implemented within Jago internally.
+The blue diamond symbol 🔹 means pure Java methods while the yellow one 🔸 means native methods which is implemented within Jago internally.
 
-The fire symbols 🔥 mean throwing exception (thrown by `athrow` bytecode, rethrown if uncaught or thrown by VM internally), the blue water symbols 💧 mean an exception is caught by a method.
+The fire symbol 🔥 means exception throwing (thrown by `athrow` bytecode, rethrown if uncaught or thrown by VM internally), while the blue water symbol 💧 means an exception is caught by a method.
 
 - TRACE: log all low level bytecode instructions, method call and exception thrown/caught
 - DEBUG: only method call and exception thrown/caught
 - INFO: only exception thrown/caught info
 
+![](https://i.imgur.com/q0033Kl.gif)
+
+
 ### log/classloader.log 
 This log file records the class loading process, including what triggers a class loading and when its class initialization method \<clinit\> is invoked.
 The trigger reason can be viewed after a class name.
+
+![](https://i.imgur.com/eN8foXd.gif)
 
 ### log/threads.log
 
 This log file records thread creation/exit information and object monitor enter/exit, thread sleep(), wait(), notify() etc.
 
+### log/io.log
+This log file records I/O details around system interactions.
+
+![](https://i.imgur.com/1eQe95o.gif)
+
 ### log/misc.log
 Other trivial logs
+
+![](https://i.imgur.com/2kgfhhb.gif)
 
 # Profiling
 
 https://flaviocopes.com/golang-profiling/
-
-# TODO
-- [] add unit tests

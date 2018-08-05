@@ -3,7 +3,7 @@ package jago
 import (
 	"time"
 	"os"
-	"fmt"
+		"github.com/fatih/color"
 )
 
 type OS struct{}
@@ -17,9 +17,9 @@ func (this *OS) CurrentTimeNano() Long {
 }
 
 func (this *OS) StdoutPrintf(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stdout, format, args...)
+	color.New(color.FgGreen).Fprintf(os.Stdout, format, args...)
 }
 
 func (this *OS) StderrPrintf(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format, args...)
+	color.New(color.FgRed).Fprintf(os.Stderr, format, args...)
 }
