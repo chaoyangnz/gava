@@ -111,7 +111,7 @@ GLOBAL OPTIONS:
 ```
 <img src="https://i.imgur.com/RDDvqLA.gif" width="500" />
 
-### Run a program with exception
+### Run a program into exception
 
 ```bash
 ❯ jago --log:thread info -cp . test/test_athrow
