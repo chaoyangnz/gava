@@ -16,11 +16,11 @@ import (
 |--------------------------------------------------------------------------
 |
 | This part is the runtime component of a VM. It is related to the threads
-| creation, VM Stack, Stack Frames, invoking methods and executes the code
-| bytecode instruction one by one.
+| creation, VM Stack, Stack Frames, methods invocation and bytecode instruction
+| execution one by one.
 |
 | Other things include exception handling, thread exits and many more.
-| The startup of a VM largely depends this module.
+| The startup of a VM instance largely depends on this module.
 |
 */
 

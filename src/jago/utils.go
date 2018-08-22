@@ -92,5 +92,9 @@ func binaryName2JavaName(name string) JavaLangString {
 }
 
 func javaName2BinaryName(name JavaLangString) string {
-	return strings.Replace(name.toNativeString(), ".", "/", -1)
+	return javaName2BinaryName0(name.toNativeString())
+}
+
+func javaName2BinaryName0(name string) string {
+	return strings.Replace(name, ".", "/", -1)
 }

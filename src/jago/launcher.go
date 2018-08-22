@@ -89,10 +89,10 @@ func Go() {
 			return nil
 		}
 
-		jagoClassName := args.Get(0)
-		jagoArgs := make([]string, c.NArg()-1)
+		javaClassName := args.Get(0)
+		javaArgs := make([]string, c.NArg()-1)
 		for i := 0; i < len(args)-1; i++ {
-			jagoArgs[i] = args[i+1]
+			javaArgs[i] = args[i+1]
 		}
 
 		if classpath != "" {
@@ -149,14 +149,16 @@ func Go() {
 		}
 
 		if profiling {
-			// CPU profiling by default
-			defer profile.Start().Stop()
+			// CPU profiling
+			defer profile.Start(profile.CPUProfile).Stop()
+			// Memory profiling
+			//defer profile.Start(profile.MemProfile).Stop()
 		}
 
 		color.Cyan("------------------------------------------------------------\n")
 
 		VM.Init()
-		VM.Startup(strings.Replace(jagoClassName, ".", "/", -1), jagoArgs...)
+		VM.Startup(javaName2BinaryName0(javaClassName), javaArgs...)
 		return nil
 	}
 

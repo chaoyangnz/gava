@@ -202,11 +202,6 @@ func (this JavaLangClass) retrieveType() Type {
 	return this.oop.header.vmType
 }
 
-type JavaLangReflectField = Reference
-type JavaLangReflectConstructor = Reference
-type JavaLangReflectMethod = Reference
-type JavaLangClassLoader = Reference
-
 type JavaLangThread = Reference
 
 func (this JavaLangThread) attachThread(thread *Thread) {
@@ -237,3 +232,8 @@ type StackTraceElement struct {
 func (this StackTraceElement) toString() string {
 	return fmt.Sprintf("%s.%s(%s:%d)", this.declaringClass, this.methodName, this.fileName, this.lineNumber)
 }
+
+type JavaLangReflectField = Reference
+type JavaLangReflectConstructor = Reference
+type JavaLangReflectMethod = Reference
+type JavaLangClassLoader = Reference

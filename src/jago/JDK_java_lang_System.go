@@ -98,7 +98,7 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 
 		"java.vm.name":                  "Jago 64-Bit VM",
 		"java.vm.version":               "1.0.0",
-		"java.vm.vendor":                "Chao Yang", //"Oracle Corporation",
+		"java.vm.vendor":                "Chao Yang",
 		"java.vm.info":                  "mixed mode",
 		"java.vm.specification.name":    "Java Virtual Machine Specification",
 		"java.vm.specification.version": "1.8",
@@ -127,15 +127,15 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 		"sun.stdout.encoding": "UTF-8",
 		"sun.stderr.encoding": "UTF-8",
 
-		"os.name":    "Mac OS X",
-		"os.arch":    "x86_64",
-		"os.version": "10.12.5",
+		"os.name":    "Mac OS X", // FIXME
+		"os.arch":    "x86_64", // FIXME
+		"os.version": "10.12.5", // FIXME
 
 		"user.name":     user.Name,
 		"user.home":     user.HomeDir,
-		"user.country":  "US",
-		"user.language": "en",
-		"user.timezone": "",
+		"user.country":  "US", // FIXME
+		"user.language": "en", // FIXME
+		"user.timezone": "", // FIXME
 		"user.dir":      user.HomeDir,
 
 		"sun.java.launcher":       "SUN_STANDARD",
