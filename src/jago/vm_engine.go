@@ -32,7 +32,7 @@ type ExecutionEngine struct {
 	ioLogger      *Logger
 }
 
-func tid2str(tid uint64) string {
+func tid2str(tid int64) string {
 	return fmt.Sprintf("%v", tid)
 }
 
@@ -320,7 +320,7 @@ const (
 )
 
 type Thread struct {
-	id       uint64
+	id       int64
 	name     string
 	vmStack  []*Frame
 	runBlock Block

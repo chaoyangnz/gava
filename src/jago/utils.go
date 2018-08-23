@@ -3,9 +3,7 @@ package jago
 import (
 	"strings"
 	"fmt"
-	"runtime"
-	"bytes"
-	"strconv"
+	"github.com/petermattis/goid"
 )
 
 func u2b(u1s []u1) []uint8 {
@@ -75,16 +73,8 @@ func (tcf Block) Do() {
 	tcf.try()
 }
 
-/*
-Get Go Routine ID. this method is quite time-consuming and SHOULD be optimized in the future.
- */
-func getGID() uint64 {
-	b := make([]byte, 64)
-	b = b[:runtime.Stack(b, false)]
-	b = bytes.TrimPrefix(b, []byte("goroutine "))
-	b = b[:bytes.IndexByte(b, ' ')]
-	n, _ := strconv.ParseUint(string(b), 10, 64)
-	return n
+func getGID() int64 {
+	return goid.Get()
 }
 
 func binaryName2JavaName(name string) JavaLangString {

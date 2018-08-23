@@ -1,15 +1,16 @@
 #!/bin/bash
 
-export JAGO_HOME=`pwd`
-
 export GOPATH=`pwd`
 go get github.com/urfave/cli
 go get github.com/orcaman/concurrent-map
 go get github.com/fatih/color
+go get github.com/pkg/profile
+go get github.com/petermattis/goid
 go build -o bin/jago
 #export GOBIN=$JAGO_HOME/bin
 
 if [ "$JAGO_HOME" == '' ]; then
+    echo 'Cannot find JAGO_HOME, install to default location: /usr/local/jago'
     sudo mkdir -p /usr/local/jago
     sudo chown -R $USER /usr/local/jago
     mkdir -p /usr/local/jago/bin
