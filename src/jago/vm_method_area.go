@@ -367,7 +367,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 
 	// TODO purported representation is not of a supported major or minor version -> java/lang.UnsupportedClassVersionError
 
-	// TODO class file does not atually represent a class name N -> java/langNoClassDefFoundError
+	// TODO class file does not actually represent a class name N -> java/langNoClassDefFoundError
 
 	C := &Class{LC: sync.NewCond(&sync.Mutex{})}
 

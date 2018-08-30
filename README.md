@@ -194,7 +194,7 @@ Other trivial logs
 https://flaviocopes.com/golang-profiling/
 
 - run jago with `-p` option
-- `go tool pprof --pdf /var/../cpu.pprof > cpu.pdf`
+- `go tool pprof --pdf /usr/local/bin/jago /var/../cpu.pprof > cpu.pdf`
 
 # Documentation
 

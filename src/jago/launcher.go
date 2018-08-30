@@ -8,6 +8,7 @@ import (
 	"github.com/urfave/cli"
 	"github.com/pkg/profile"
 	"github.com/fatih/color"
+	"fmt"
 )
 
 func Go() {
@@ -73,7 +74,8 @@ func Go() {
 		if !noLogo {
 			color.HiMagenta("    _                   \r\n   (_) __ _  __ _  ___  \r\n   | |/ _` |/ _` |/ _ \\ \r\n   | | (_| | (_| | (_) |   version %s\r\n  _/ |\\__,_|\\__, |\\___/    \r\n |__/       |___/     \n", app.Version)
 		}
-		color.Cyan("\n\nCommand: %s \n", strings.Join(os.Args, " "))
+		commandEcho := fmt.Sprintf("Command: %s", strings.Join(os.Args, " "))
+		color.Cyan("\n\n%s\n", commandEcho)
 
 		args := c.Args()
 		if c.NArg() < 1 {
@@ -155,7 +157,7 @@ func Go() {
 			//defer profile.Start(profile.MemProfile).Stop()
 		}
 
-		color.Cyan("------------------------------------------------------------\n")
+		color.Green(strings.Repeat("·", len(commandEcho)) + "\n")
 
 		VM.Init()
 		VM.Startup(javaName2BinaryName0(javaClassName), javaArgs...)
