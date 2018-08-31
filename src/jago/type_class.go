@@ -12,11 +12,6 @@ const (
 	INITIALIZED   = 2
 )
 
-type InitializeSate struct {
-	state  int
-	thread *Thread
-}
-
 type Class struct {
 	// shared
 	name           string
@@ -51,7 +46,7 @@ type Class struct {
 
 	sourceFile string
 
-	// ---- these fields are nly for array class -------
+	// ---- these fields are only for array class -------
 	componentType Type // any type
 	elementType   Type // must be not array type
 	dimensions    int

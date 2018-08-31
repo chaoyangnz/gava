@@ -1,5 +1,6 @@
 log/**/*
 build/**/*
+bin/**/*
 pkg/**/*
 .idea/
 **/*/.DS_Store
