@@ -1,11 +1,6 @@
 #!/bin/bash
 
 export GOPATH=`pwd`
-go get github.com/urfave/cli
-go get github.com/orcaman/concurrent-map
-go get github.com/fatih/color
-go get github.com/pkg/profile
-go get github.com/petermattis/goid
 go build -o bin/jago
 #export GOBIN=$JAGO_HOME/bin
 
