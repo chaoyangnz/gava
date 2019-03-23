@@ -12,9 +12,9 @@ type Header struct {
 	monitor  *Monitor
 
 	// extra data for internal use only
-	vmThread    *Thread             // for java.lang.Thread object use only
-	vmType      Type                // for java.lang.Class object use only
-	vmBackTrace []StackTraceElement // for java.lang.Throwable use only
+	_thread    *Thread             // for java.lang.Thread object use only
+	_type      Type                // for java.lang.Class object use only
+	_backTrace []StackTraceElement // for java.lang.Throwable use only
 }
 
 type Object struct {

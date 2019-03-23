@@ -194,32 +194,32 @@ func (this JavaLangClass) attachType(type0 Type) {
 		C = c
 	}
 	VM.Info(":::%s *Class *c=%p attach to classobject jc=%p\n", type0.Name(), C, this.oop)
-	this.oop.header.vmType = type0
+	this.oop.header._type = type0
 }
 
 func (this JavaLangClass) retrieveType() Type {
 
-	return this.oop.header.vmType
+	return this.oop.header._type
 }
 
 type JavaLangThread = Reference
 
 func (this JavaLangThread) attachThread(thread *Thread) {
-	this.oop.header.vmThread = thread
+	this.oop.header._thread = thread
 }
 
 func (this JavaLangThread) retrieveThread() *Thread {
-	return this.oop.header.vmThread
+	return this.oop.header._thread
 }
 
 type JavaLangThrowable = JavaLangThread
 
 func (this JavaLangThrowable) attachStacktrace(stacktrace []StackTraceElement) {
-	this.oop.header.vmBackTrace = stacktrace
+	this.oop.header._backTrace = stacktrace
 }
 
 func (this JavaLangThrowable) retrieveStacktrace() []StackTraceElement {
-	return this.oop.header.vmBackTrace
+	return this.oop.header._backTrace
 }
 
 type StackTraceElement struct {

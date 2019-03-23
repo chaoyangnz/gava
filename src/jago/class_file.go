@@ -2,7 +2,7 @@ package jago
 
 import (
 	"unsafe"
-	"encoding/binary"
+	. "encoding/binary"
 )
 
 type (
@@ -12,21 +12,19 @@ type (
 	u8 = uint64
 )
 
-var bigEndian = binary.BigEndian
-
 type ClassReader struct {
 	bytecode  []uint8
 	classfile *ClassFile
 }
 
 func (this *ClassReader) readU4() u4 {
-	value := bigEndian.Uint32(this.bytecode[:4])
+	value := BigEndian.Uint32(this.bytecode[:4])
 	this.bytecode = this.bytecode[4:]
 	return value
 }
 
 func (this *ClassReader) readU2() u2 {
-	value := bigEndian.Uint16(this.bytecode[:2])
+	value := BigEndian.Uint16(this.bytecode[:2])
 	this.bytecode = this.bytecode[2:]
 	return value
 }
@@ -56,21 +54,17 @@ func (this *ClassReader) readAttributes() (u2, []AttributeInfo) {
 	return attributesCount, attributes
 }
 
-func u1sToString(u1s []u1) string {
-	return string(*(*[]byte)(&u1s))
-}
-
 // read any attribute
 func (this *ClassReader) readAttribute() AttributeInfo {
 	attributeNameIndex := this.readU2()
 	attributeLength := this.readU4()
-	attributeName := u1sToString(this.classfile.constantPool[attributeNameIndex].(*ConstantUtf8Info).bytes)
+	attributeName := this.classfile.constantPool[attributeNameIndex].(*ConstantUtf8Info).value()
 	var attributeInfo AttributeInfo
 	switch attributeName {
 	case "Code":
 		attributeInfo = &CodeAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	case "SourceFile":
-		attributeInfo = &SourceFileAttribue{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
+		attributeInfo = &SourceFileAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	case "LineNumberTable":
 		attributeInfo = &LineNumberTableAttribute{attributeNameIndex: attributeNameIndex, attributeLength: attributeLength}
 	case "LocalVariableTable":
@@ -459,6 +453,10 @@ func (this *ConstantUtf8Info) readInfo(reader *ClassReader) {
 	this.bytes = reader.readU1s(uint32(this.length))
 }
 
+func (this *ConstantUtf8Info) value() string {
+	return string(*(*[]byte)(&this.bytes))
+}
+
 /*
 CONSTANT_MethodHandle_info {
     u1 tag;
@@ -699,13 +697,13 @@ SourceFile_attribute {
 }
  */
 
-type SourceFileAttribue struct {
+type SourceFileAttribute struct {
 	attributeNameIndex u2
 	attributeLength    u4
 	sourceFileIndex    u2
 }
 
-func (this *SourceFileAttribue) readInfo(reader *ClassReader) {
+func (this *SourceFileAttribute) readInfo(reader *ClassReader) {
 	this.sourceFileIndex = reader.readU2()
 }
 

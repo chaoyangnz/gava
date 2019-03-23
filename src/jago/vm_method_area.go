@@ -432,7 +432,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 				nil}
 		case *ConstantUtf8Info:
 			constantUtf8Info := constInfo.(*ConstantUtf8Info)
-			constant = &UTF8Constant{C, u2s(constantUtf8Info.bytes)}
+			constant = &UTF8Constant{C, constantUtf8Info.value()}
 		case *ConstantStringInfo:
 			constantStringInfo := constInfo.(*ConstantStringInfo)
 			constant = &StringConstant{C, classfile.cpUtf8(constantStringInfo.stringIndex), NULL}
@@ -474,8 +474,8 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	for k := u2(0); k < classfile.attributeCount; k++ {
 		attributeInfo := classfile.attributes[k]
 		switch attributeInfo.(type) {
-		case *SourceFileAttribue:
-			sourceFileAttribue := attributeInfo.(*SourceFileAttribue)
+		case *SourceFileAttribute:
+			sourceFileAttribue := attributeInfo.(*SourceFileAttribute)
 			C.sourceFile = classfile.cpUtf8(sourceFileAttribue.sourceFileIndex)
 		}
 	}
