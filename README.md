@@ -200,3 +200,7 @@ https://flaviocopes.com/golang-profiling/
 
 Really sorry, I have no time to write documentation but it is in my plan.
 The Ebook about how it works internally is in progress: https://www.gitbook.com/book/richdyang/go-my-jvm
+
+# Testing
+
+I am really keen to get missing tests done if I have time. Another reason I didn't enjoy writing tests in Go is that I cannot find an awesome unit test library like Jest. For some libraries I looked into, it requires me to change my code just for testing. I don't like the idea about breaking the encapsulation just for testing. 
