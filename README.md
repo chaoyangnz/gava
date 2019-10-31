@@ -199,7 +199,7 @@ https://flaviocopes.com/golang-profiling/
 # Documentation
 
 Really sorry, I have no time to write documentation but it is in my plan.
-The Ebook about how it works internally is in progress: https://www.gitbook.com/book/richdyang/go-my-jvm
+The Ebook about how it works internally is in progress: https://www.gitbook.com/book/chaoyangnz/go-my-jvm
 
 # Testing
 
