@@ -72,7 +72,7 @@ func Go() {
 
 	app.Action = func(c *cli.Context) error {
 		if !noLogo {
-			color.HiMagenta("    _                   \r\n   (_) __ _  __ _  ___  \r\n   | |/ _` |/ _` |/ _ \\ \r\n   | | (_| | (_| | (_) |   version %s\r\n  _/ |\\__,_|\\__, |\\___/    \r\n |__/       |___/     \n", app.Version)
+			color.HiMagenta("	 _  ____  _     ____ \r\n	   / |/  _ \\/ \\ |\\/  _ \\\r\n	   | || / \\|| | //| / \\|  version %s\r\n	/\\_| || |-||| \\// | \\_/|\r\n	\\____/\\_/ \\|\\__/  \\____/\r\n", app.Version)
 		}
 		commandEcho := fmt.Sprintf("Command: %s", strings.Join(os.Args, " "))
 		color.Cyan("\n\n%s\n", commandEcho)
