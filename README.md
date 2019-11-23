@@ -1,5 +1,5 @@
-![](https://github.com/chaoyangnz/javo/workflows/build/badge.svg)
-![](https://img.shields.io/github/go-mod/go-version/chaoyang/javo?style=flat-square)
+![](https://github.com/chaoyangnz/javo/workflows/build/badge.svg?branch=master)
+![](https://img.shields.io/github/go-mod/go-version/chaoyangnz/javo?style=flat-square&branch=master)
 
 # Javo
 
