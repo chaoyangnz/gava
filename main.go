@@ -1,7 +1,7 @@
 package main
 
-import "jago"
+import "javo"
 
 func main() {
-	jago.Go()
+	javo.Go()
 }

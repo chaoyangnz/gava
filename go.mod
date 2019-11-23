@@ -1,4 +1,4 @@
-module github.com/chaoyangnz/jago/v1.0.0
+module github.com/chaoyangnz/javo/v1.0.0
 
 require (
 	github.com/fatih/color v1.7.0
@@ -10,3 +10,5 @@ require (
 	github.com/urfave/cli v1.20.0
 	golang.org/x/sys v0.0.0-20180903190138-2b024373dcd9 // indirect
 )
+
+go 1.13

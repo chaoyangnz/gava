@@ -1,4 +1,4 @@
-# Jago
+# Javo
 
 A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the
 behind-the-scene behaviour when a Java program runs.
@@ -29,15 +29,15 @@ Any thought is welcome and I am happy to be wrong.
 ## build and install
 
 ```bash
-❯ cd ~/jago
+❯ cd ~/javo
 ❯ ./build.sh
 ```
 
-By default, jago will be installed to `/usr/local/jago`
+By default, javo will be installed to `/usr/local/javo`
 ```text
-/usr/local/jago
+/usr/local/javo
 ├── bin
-│   └── jago
+│   └── javo
 ├── jdk
 │   └── classes
 │       ├── META-INF
@@ -57,14 +57,14 @@ By default, jago will be installed to `/usr/local/jago`
     └── threads.log
 ```
 
-## jago command
+## javo command
 ```bash
-❯ jago -h
+❯ javo -h
 NAME:
-   Jago - A simplified Java Virtual Machine for the educational purpose
+   Javo - A simplified Java Virtual Machine for the educational purpose
 
 USAGE:
-   jago [-options] class [args...]
+   javo [-options] class [args...]
 
 VERSION:
    1.0.0
@@ -85,7 +85,7 @@ GLOBAL OPTIONS:
    --trace, -t                    trace mode
    --log:thread value             log level of instruction execution in a thread context, options: info, debug, trace
    --log:classloader value        log level of class loading, options: info, debug, trace
-   --profile, -p                  profile jago
+   --profile, -p                  profile javo
    --help, -h                     show help
    --version, -v                  print the version
 ```
@@ -93,28 +93,28 @@ GLOBAL OPTIONS:
 ### Run a calendar program
 
 ```bash
-❯ jago --log:thread info -cp . Calendar 8 2018
+❯ javo --log:thread info -cp . Calendar 8 2018
 ```
 <img src="https://i.imgur.com/7l58Qwe.gif" width="500" />
 
 ### Run a pyramid program
 
 ```bash
-❯ jago --log:thread info -cp . Pyramid
+❯ javo --log:thread info -cp . Pyramid
 ```
 <img src="https://i.imgur.com/AxFFw8K.gif" width="500" />
 
 ### run a program traversing a tree in the level order
 
 ```bash
-❯ jago --log:thread info -cp . TreeLevelOrderTraverse
+❯ javo --log:thread info -cp . TreeLevelOrderTraverse
 ```
 <img src="https://i.imgur.com/RDDvqLA.gif" width="500" />
 
 ### Run a program into exception
 
 ```bash
-❯ jago --log:thread info -cp . test/test_athrow
+❯ javo --log:thread info -cp . test/test_athrow
 ```
 <img src="https://i.imgur.com/Dz0vPnB.gif" width="500" />
 
@@ -122,35 +122,35 @@ GLOBAL OPTIONS:
 
 - Print system properties
 ```bash
-jago -d test.test_system_properties
+javo -d test.test_system_properties
 ```
 
 - Multi-threading
 ```bash
-jago -d test.test_thread
+javo -d test.test_thread
 ```
 
 ```bash
-jago -d Multithread
+javo -d Multithread
 ```
 
 - Thread sleep or `wait` / `interrupt`
 ```bash
-jago -d SleepInterrupt
+javo -d SleepInterrupt
 ```
 
 ```bash
-jago -d WaitInterrupt
+javo -d WaitInterrupt
 ```
 
 - Java monitor lock with `synchronized`
 ```bash
-jago -d Counter
+javo -d Counter
 ```
 
 - Java wait() and `notify()`, `notifyAll()`
 ```bash
-jago -d ProducerConsumer
+javo -d ProducerConsumer
 ```
 
 ## trace the execution
@@ -158,7 +158,7 @@ jago -d ProducerConsumer
 ### log/thread-[name].log 
 This log file records the each instruction execution and method call hierarchy within a thread context. Set the log level to info to view call hierarchy more clearly.
 
-The blue diamond symbol 🔹 means pure Java methods while the yellow one 🔸 means native methods which is implemented within Jago internally.
+The blue diamond symbol 🔹 means pure Java methods while the yellow one 🔸 means native methods which is implemented within Javo internally.
 
 The fire symbol 🔥 means exception throwing (thrown by `athrow` bytecode, rethrown if uncaught or thrown by VM internally), while the blue water symbol 💧 means an exception is caught by a method.
 
@@ -193,8 +193,8 @@ Other trivial logs
 
 https://flaviocopes.com/golang-profiling/
 
-- run jago with `-p` option
-- `go tool pprof --pdf /usr/local/bin/jago /var/../cpu.pprof > cpu.pdf`
+- run javo with `-p` option
+- `go tool pprof --pdf /usr/local/bin/javo /var/../cpu.pprof > cpu.pdf`
 
 # Documentation
 

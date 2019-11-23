@@ -29,7 +29,7 @@ public class test_shift {
         System.out.println(a % b);
         System.out.println(la % lb);
 
-//        Jago.print(93.39 % -39.4);
+//        Javo.print(93.39 % -39.4);
         System.out.println(93.39 % -39.4);
     }
 }
