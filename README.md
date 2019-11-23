@@ -1,3 +1,6 @@
+![](https://github.com/chaoyangnz/javo/workflows/build/badge.svg)
+![](https://img.shields.io/github/go-mod/go-version/chaoyang/javo?style=flat-square)
+
 # Javo
 
 A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the
@@ -8,6 +11,8 @@ Some production-level features are intentionally ignored and it is supposed to m
 demonstrate the general idea. For the educational purpose, it is more than enough.
 
 If you have no time to read OpenJDK source code or always guess the JVM behaviour when you need to tune your program, then your right here to be the lord of your universe.
+
+A overview presentation can be found: https://drive.google.com/file/d/1XNlfhbCjPxynO1Io0qTVobc6W8wzYogt/view?usp=sharing
 
 ![](https://i.imgur.com/IWWtSYY.gif)
 
