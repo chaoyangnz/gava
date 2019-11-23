@@ -9,7 +9,7 @@ demonstrate the general idea. For the educational purpose, it is more than enoug
 
 If you have no time to read OpenJDK source code or always guess the JVM behaviour when you need to tune your program, then your right here to be the lord of your universe.
 
-<img src="https://i.imgur.com/7L7XyqL.gif" width="500" />
+![](https://i.imgur.com/IWWtSYY.gif)
 
 Any thought is welcome and I am happy to be wrong.
 
@@ -93,30 +93,30 @@ GLOBAL OPTIONS:
 ### Run a calendar program
 
 ```bash
-❯ javo --log:thread info -cp . Calendar 8 2018
+❯ javo -nl -cp . Calendar 8 2018
 ```
-<img src="https://i.imgur.com/7l58Qwe.gif" width="500" />
+![](https://i.imgur.com/teTi3Ph.gif)
 
 ### Run a pyramid program
 
 ```bash
-❯ javo --log:thread info -cp . Pyramid
+❯ javo -nl -cp . Pyramid
 ```
-<img src="https://i.imgur.com/AxFFw8K.gif" width="500" />
+![](https://i.imgur.com/lJsHits.gif)
 
 ### run a program traversing a tree in the level order
 
 ```bash
-❯ javo --log:thread info -cp . TreeLevelOrderTraverse
+❯ javo -nl -cp . TreeLevelOrderTraverse
 ```
-<img src="https://i.imgur.com/RDDvqLA.gif" width="500" />
+![](https://i.imgur.com/1Oyq7Ep.gif)
 
 ### Run a program into exception
 
 ```bash
-❯ javo --log:thread info -cp . test/test_athrow
+❯ javo -nl . test/test_athrow
 ```
-<img src="https://i.imgur.com/Dz0vPnB.gif" width="500" />
+![](https://i.imgur.com/lDxICzN.gif)
 
 ### More examples to demonstrate features
 
