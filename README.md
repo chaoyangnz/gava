@@ -3,8 +3,7 @@
 
 # Javo ![](https://avatars0.githubusercontent.com/u/58212253?s=50&u=22ffd520fcf8842a796909f8ba760bb03438062b&v=4)
 
-A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the
-behind-the-scene behaviour when a Java program runs.
+A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the behind-the-scene behaviour when a Java program runs. This VM can be used for the educational purpose, for example, for a course about how to design a runtime for a language with the complete specification.
 
 I only refer to "Java Virtual Machine Specification" and then look into how we should design one.
 Some production-level features are intentionally ignored and it is supposed to make it as simplified as possible so as to
