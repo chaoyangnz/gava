@@ -1,7 +1,7 @@
 ![](https://github.com/chaoyangnz/javo/workflows/build/badge.svg?branch=master)
 ![](https://img.shields.io/github/go-mod/go-version/chaoyangnz/javo?style=flat-square&branch=master)
 
-# Javo
+# Javo ![](https://avatars0.githubusercontent.com/u/58212253?s=80&u=22ffd520fcf8842a796909f8ba760bb03438062b&v=4)
 
 A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the
 behind-the-scene behaviour when a Java program runs.
