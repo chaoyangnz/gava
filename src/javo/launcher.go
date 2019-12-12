@@ -19,7 +19,7 @@ func Go() {
 	app.UsageText = "javo [-options] class [args...]"
 	app.Version = "1.0.0"
 	app.Author = "Chao Yang"
-	app.Email = "chaoyangnz@gmail.com"
+	app.Email = "chao@yang.to"
 	app.Description = "A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc."
 
 	var classpath string
