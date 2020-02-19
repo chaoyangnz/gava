@@ -79,7 +79,7 @@ DESCRIPTION:
    A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc.
 
 AUTHOR:
-   Chao Yang <chaoyangnz@gmail.com>
+   Chao Yang <chao@yang.to>
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
