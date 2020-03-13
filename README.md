@@ -1,7 +1,7 @@
 ![](https://github.com/chaoyangnz/javo/workflows/build/badge.svg?branch=master)
 ![](https://img.shields.io/github/go-mod/go-version/chaoyangnz/javo?style=flat-square&branch=master)
 
-# Javo <img src="javo.svg" width="100"/>
+# Javo <img src="javo.svg" width="60"/>
 
 **NOTE**: (previously named `Jago`)
 
