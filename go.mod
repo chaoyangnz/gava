@@ -1,4 +1,4 @@
-module github.com/chaoyangnz/javo/v1.0.0
+module github.com/cloudaffine/javo/v1.0.0
 
 require (
 	github.com/fatih/color v1.7.0
