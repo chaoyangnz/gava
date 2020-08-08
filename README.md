@@ -13,7 +13,7 @@ demonstrate the general idea. For the educational purpose, it is more than enoug
 
 If you have no time to read OpenJDK source code or always guess the JVM behaviour when you need to tune your program, then your right here to be the lord of your universe.
 
-A overview presentation can be found: https://drive.google.com/file/d/1XNlfhbCjPxynO1Io0qTVobc6W8wzYogt/view?usp=sharing
+A overview presentation can be found: https://drive.google.com/file/d/1gESJTwm_tJL8pA7WBxJfhz4iUW7KwihP/view?usp=sharing
 
 ![](https://i.imgur.com/IWWtSYY.gif)
 
