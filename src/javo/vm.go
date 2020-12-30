@@ -2,25 +2,25 @@ package javo
 
 import (
 	"github.com/orcaman/concurrent-map"
-	"sync"
-	"reflect"
-	"strconv"
 	"os"
 	"path"
+	"reflect"
+	"strconv"
+	"sync"
 )
 
-type SystemSettings map[string]string
+type SystemProperties map[string]string
 
-func (this SystemSettings) SetSystemSetting(key string, value string) {
+func (this SystemProperties) SetSystemProperty(key string, value string) {
 	this[key] = value
 }
 
-func (this SystemSettings) GetSystemSetting(key string) string {
+func (this SystemProperties) GetSystemProperty(key string) string {
 	return this[key]
 }
 
 type Javo struct {
-	SystemSettings
+	SystemProperties
 
 	*ExecutionEngine
 	*MethodArea
@@ -36,7 +36,7 @@ var VM = NewVM()
 func NewVM() *Javo {
 	vm := &Javo{}
 	javoHome := os.Getenv("JAVO_HOME")
-	vm.SystemSettings = map[string]string{
+	vm.SystemProperties = map[string]string {
 		"log.base":              path.Join(javoHome, "log"),
 		"log.level.threads":     strconv.Itoa(WARN),
 		"log.level.thread":      strconv.Itoa(WARN),
@@ -58,8 +58,8 @@ func NewVM() *Javo {
 func (this *Javo) Init() {
 	natives := make(map[string]reflect.Value)
 
-	threadsLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.threads"))
-	ioLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.io"))
+	threadsLogLevel, _ := strconv.Atoi(this.GetSystemProperty("log.level.threads"))
+	ioLogLevel, _ := strconv.Atoi(this.GetSystemProperty("log.level.io"))
 	this.ExecutionEngine = &ExecutionEngine{
 		make([]Instruction, JVM_OPC_MAX+1),
 		natives,
@@ -71,8 +71,8 @@ func (this *Javo) Init() {
 
 	this.Heap = &Heap{}
 
-	classloaderLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.classloader"))
-	systemClasspath := VM.GetSystemSetting("classpath.system")
+	classloaderLogLevel, _ := strconv.Atoi(this.GetSystemProperty("log.level.classloader"))
+	systemClasspath := VM.GetSystemProperty("classpath.system")
 	this.MethodArea = &MethodArea{
 		make(map[NL]*Class),
 		make(map[NL]*Class),
@@ -85,7 +85,7 @@ func (this *Javo) Init() {
 
 	this.OS = &OS{}
 
-	miscLogLevel, _ := strconv.Atoi(this.GetSystemSetting("log.level.misc"))
+	miscLogLevel, _ := strconv.Atoi(this.GetSystemProperty("log.level.misc"))
 	this.Logger = this.LoggerFactory.NewLogger("misc", miscLogLevel, "misc.log")
 }
 
@@ -94,10 +94,10 @@ const MAIN_METHOD_DESCRIPTOR = "([Ljava/lang/String;)V"
 
 var VM_WG = &sync.WaitGroup{}
 
-func (this *Javo) Startup(initialClassName string, args ... string) {
+func (this *Javo) Startup(initialClassName string, args ...string) {
 
-	// bootstrap thread don't run in a new go routine, just in Go startup routine
-	VM.RunBootstrapThread(func() {
+	// bootstrap thread don't run in a new go routine, just in Launch startup routine
+	this.RunBootstrapThread(func() {
 		// welcome to the Java world
 		// the Java journey starts here
 		VM.InvokeMethodOf("java/lang/System", "initializeSystemClass", "()V")
@@ -108,17 +108,17 @@ func (this *Javo) Startup(initialClassName string, args ... string) {
 		mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
 
 		// initial a thread
-		VM.NewThread("main",
+		this.NewThread("main",
 			func() {
 				// As per jvm specification, initial main method needs to initialize initial class
 				argsArr := VM.NewArrayOfName("[Ljava/lang/String;", Int(len(args)))
 				for i, arg := range args {
 					argsArr.SetArrayElement(Int(i), VM.NewJavaLangString(arg))
 				}
-				VM.InvokeMethod(mainMethod, argsArr)
+				this.InvokeMethod(mainMethod, argsArr)
 			},
 			func() {
-				VM.exitDaemonThreads()
+				this.exitDaemonThreads()
 			}).start()
 	})
 

@@ -32,7 +32,7 @@ The value of the local variable at index is pushed onto the operand stack.
 
 The iload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*21 (0x15)*/
 func ILOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -71,7 +71,7 @@ Notes
 
 The lload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*22 (0x16)*/
 func LLOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -110,7 +110,7 @@ The value of the local variable at index is pushed onto the operand stack.
 
 The fload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*23 (0x17)*/
 func FLOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -148,7 +148,7 @@ Notes
 
 The dload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*24 (0x18)*/
 func DLOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -190,7 +190,7 @@ This asymmetry with the astore instruction (§astore) is intentional.
 
 The aload opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*25 (0x19)*/
 func ALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -232,7 +232,7 @@ contain an int. The value of the local variable at <n> is pushed onto the operan
 Notes
 
 Each of the iload_<n> instructions is the same as iload with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*26 (0x1A)*/
 func ILOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -289,7 +289,7 @@ must contain a long. The value of the local variable at <n> is pushed onto the o
 Notes
 
 Each of the lload_<n> instructions is the same as lload with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*30 (0x1E)*/
 func LLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -346,7 +346,7 @@ contain a float. The value of the local variable at <n> is pushed onto the opera
 == Notes
 
 Each of the fload_<n> instructions is the same as fload with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*34 (0x22)*/
 func FLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -403,7 +403,7 @@ must contain a double. The value of the local variable at <n> is pushed onto the
 == Notes
 
 Each of the dload_<n> instructions is the same as dload with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*38 (0x26)*/
 func DLOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -463,7 +463,7 @@ An aload_<n> instruction cannot be used to load a value of type returnAddress fr
 stack. This asymmetry with the corresponding astore_<n> instruction (§astore_<n>) is intentional.
 
 Each of the aload_<n> instructions is the same as aload with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*42 (0x2A)*/
 func ALOAD_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -518,7 +518,7 @@ If arrayref is NULL, iaload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the iaload instruction throws an
 ArrayIndexOutOfBoundsException.
- */
+*/
 /*46 (0x2E)*/
 func IALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -569,7 +569,7 @@ If arrayref is NULL, laload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the laload instruction
 throws an ArrayIndexOutOfBoundsException.
- */
+*/
 /*47 (0x2F)*/
 func LALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -619,7 +619,7 @@ If arrayref is NULL, faload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the faload instruction
 throws an ArrayIndexOutOfBoundsException.
- */
+*/
 /*48 (0x30)*/
 func FALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -671,7 +671,7 @@ Otherwise, if index is not within the bounds of the array referenced by arrayref
 throws an ArrayIndexOutOfBoundsException.
 
 
- */
+*/
 /*49 (0x31)*/
 func DALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -721,7 +721,7 @@ If arrayref is NULL, aaload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the aaload instruction throws an
 ArrayIndexOutOfBoundsException.
- */
+*/
 /*50 (0x32)*/
 func AALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -779,7 +779,7 @@ an ArrayIndexOutOfBoundsException.
 The baload instruction is used to load values from both byte and boolean arrays.
 In Oracle's Java Virtual Machine implementation, boolean arrays - that is, arrays of type T_BOOLEAN (§2.2, §newarray) - are implemented as arrays of 8-bit values.
 Other implementations may implement packed boolean arrays; the baload instruction of such implementations must be used to access those arrays.
- */
+*/
 /*51 (0x33)*/
 func BALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -838,7 +838,7 @@ If arrayref is NULL, caload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the caload instruction throws
 an ArrayIndexOutOfBoundsException.
- */
+*/
 /*52 (0x34)*/
 func CALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)
@@ -889,7 +889,7 @@ That value is pushed onto the operand stack.
 If arrayref is NULL, saload throws a NullPointerException.
 
 Otherwise, if index is not within the bounds of the array referenced by arrayref, the saload instruction throws an ArrayIndexOutOfBoundsException.
- */
+*/
 /*53 (0x35)*/
 func SALOAD(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.pop().(Int)

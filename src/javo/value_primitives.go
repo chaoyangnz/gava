@@ -1,19 +1,19 @@
 package javo
 
 type (
-	Byte int8
-	Short int16
-	Char uint16
-	Int int32
-	Long int64
-	Float float32
-	Double float64
+	Byte    int8
+	Short   int16
+	Char    uint16
+	Int     int32
+	Long    int64
+	Float   float32
+	Double  float64
 	Boolean Byte // for boolean array, store as byte array. For other instruction, regarded as int
 
 	ReturnAddress uint32
 )
 
-type Void struct{} // void value has not type
+type Void struct{}           // void value has not type
 func (this Void) Type() Type { return nil }
 
 var (

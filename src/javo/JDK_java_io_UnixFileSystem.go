@@ -1,10 +1,10 @@
 package javo
 
 import (
-	"path/filepath"
-	"os"
-	"runtime"
 	"log"
+	"os"
+	"path/filepath"
+	"runtime"
 )
 
 func register_java_io_UnixFileSystem() {

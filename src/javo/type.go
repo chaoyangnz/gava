@@ -15,7 +15,7 @@ Type system:
         |- *BooleanType
   |- *ReturnAddressType
   |- *Class
- */
+*/
 
 type Type interface {
 	Name() string

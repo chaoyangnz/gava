@@ -7,7 +7,7 @@ func (this InstructionRegistry) GetInstruction(opcode uint8) Instruction {
 }
 
 func (this InstructionRegistry) RegisterInstructions() {
-	instructions := []Instruction{// JVM_OPC_MAX+1
+	instructions := []Instruction{ // JVM_OPC_MAX+1
 		/* ----- CONSTANTS -----------*/
 		/*00 (0x00)*/ {"nop", NOP},
 		/*01 (0x01)*/ {"aconst_null", ACONST_NULL},

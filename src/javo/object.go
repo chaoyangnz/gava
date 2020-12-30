@@ -1,8 +1,8 @@
 package javo
 
 import (
-	"sync"
 	"github.com/orcaman/concurrent-map"
+	"sync"
 	"time"
 )
 
@@ -44,57 +44,57 @@ func NewMonitor(obj *Object) *Monitor {
 	return m
 }
 
-func (self *Monitor) Enter() {
+func (this *Monitor) Enter() {
 	thread := VM.CurrentThread()
-	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d enter monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d enter monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 
-	self.l.Lock()
-	if self.owner == thread {
-		self.entryCount++
-		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d enter already own monitor of object %p (%s)  -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
-		self.l.Unlock()
+	this.l.Lock()
+	if this.owner == thread {
+		this.entryCount++
+		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d enter already own monitor of object %p (%s)  -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
+		this.l.Unlock()
 		return
 	}
-	self.waits.SetIfAbsent(tid2str(thread.id), thread)
-	self.l.Unlock()
+	this.waits.SetIfAbsent(tid2str(thread.id), thread)
+	this.l.Unlock()
 
-	self.lock.Lock()
+	this.lock.Lock()
 
-	self.l.Lock()
-	self.owner = thread
-	self.entryCount = 1
-	self.waits.Remove(tid2str(thread.id))
-	self.l.Unlock()
+	this.l.Lock()
+	this.owner = thread
+	this.entryCount = 1
+	this.waits.Remove(tid2str(thread.id))
+	this.l.Unlock()
 
-	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d acquire monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d acquire monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 }
 
-func (self *Monitor) Exit() {
+func (this *Monitor) Exit() {
 	thread := VM.CurrentThread()
-	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d exit monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d exit monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 
-	self.l.Lock()
+	this.l.Lock()
 	var _unlock bool
-	if self.owner == thread {
-		self.entryCount--
-		if self.entryCount == 0 {
-			self.owner = nil
+	if this.owner == thread {
+		this.entryCount--
+		if this.entryCount == 0 {
+			this.owner = nil
 			_unlock = true
 		}
-		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d exit already own monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d exit already own monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 	}
-	self.l.Unlock()
+	this.l.Unlock()
 
 	if _unlock {
-		self.lock.Unlock()
-		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d release monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+		this.lock.Unlock()
+		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d release monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 	}
 }
 
-func (self *Monitor) HasOwner(thread *Thread) bool {
-	self.l.Lock()
-	isOwner := self.owner == thread
-	self.l.Unlock()
+func (this *Monitor) HasOwner(thread *Thread) bool {
+	this.l.Lock()
+	isOwner := this.owner == thread
+	this.l.Unlock()
 
 	return isOwner
 }
@@ -102,9 +102,9 @@ func (self *Monitor) HasOwner(thread *Thread) bool {
 const _notify = 1
 const _wait_timeout = 2
 
-func (self *Monitor) Wait(millis int64) (interrupted bool) {
+func (this *Monitor) Wait(millis int64) (interrupted bool) {
 	thread := VM.CurrentThread()
-	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d wait of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d wait of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 
 	if thread.interrupted {
 		thread.interrupted = false
@@ -114,13 +114,13 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	// here current thread must acquire lock
 	thread.waiting = true
 
-	self.Exit() // temporarily release owner
+	this.Exit() // temporarily release owner
 
 	if millis != 0 {
 		go func() {
 			time.Sleep(time.Duration(millis) * time.Millisecond)
 
-			self.ch <- _wait_timeout
+			this.ch <- _wait_timeout
 
 			if thread.waiting { // not interrupted
 				thread.waiting = false
@@ -129,7 +129,7 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 	}
 
 	select {
-	case ch := <-self.ch:
+	case ch := <-this.ch:
 		if ch == _notify || ch == _wait_timeout {
 			thread.waiting = false
 			interrupted = false
@@ -144,20 +144,20 @@ func (self *Monitor) Wait(millis int64) (interrupted bool) {
 		}
 	}
 
-	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d wait end of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d wait end of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 
-	self.Enter() // again compete to acquire owner
+	this.Enter() // again compete to acquire owner
 
 	return
 }
 
-func (self *Monitor) NotifyAll() {
+func (this *Monitor) NotifyAll() {
 	thread := VM.CurrentThread()
-	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d notifyAll of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d notifyAll of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 
 	select {
-	case self.ch <- _notify:
-		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d notified of object %p (%s) -> entry: %d \n", thread.name, thread.id, self.object, self.object.header.class.Name(), self.entryCount)
+	case this.ch <- _notify:
+		VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d notified of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)
 	default:
 		// do nothing. no wait
 	}

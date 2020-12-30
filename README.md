@@ -199,6 +199,7 @@ Other trivial logs
 
 https://flaviocopes.com/golang-profiling/
 
+- install Graphviz
 - run javo with `-p` option
 - `go tool pprof --pdf /usr/local/bin/javo /var/../cpu.pprof > cpu.pdf`
 

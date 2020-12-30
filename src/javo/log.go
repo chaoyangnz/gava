@@ -1,11 +1,11 @@
 package javo
 
 import (
-	"fmt"
-	"os"
 	"bufio"
-	"runtime/debug"
+	"fmt"
 	"github.com/fatih/color"
+	"os"
+	"runtime/debug"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 type LoggerFactory struct{}
 
 func (this *LoggerFactory) NewLogger(category string, level int, logfile string) *Logger {
-	path := VM.GetSystemSetting("log.base") + "/" + logfile
+	path := VM.GetSystemProperty("log.base") + "/" + logfile
 	var _, err = os.Stat(path)
 
 	// create file if not exists

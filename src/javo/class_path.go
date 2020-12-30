@@ -1,13 +1,13 @@
 package javo
 
 import (
-	"io/ioutil"
-	"path/filepath"
 	"archive/zip"
 	"errors"
 	"fmt"
-	"strings"
+	"io/ioutil"
 	"log"
+	"path/filepath"
+	"strings"
 )
 
 const CLASS_FILE_SUFFIX = ".class"

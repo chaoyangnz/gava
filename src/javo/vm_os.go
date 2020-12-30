@@ -1,9 +1,9 @@
 package javo
 
 import (
-	"time"
+	"github.com/fatih/color"
 	"os"
-		"github.com/fatih/color"
+	"time"
 )
 
 type OS struct{}

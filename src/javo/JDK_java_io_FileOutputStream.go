@@ -1,8 +1,8 @@
 package javo
 
 import (
-	"os"
 	"bufio"
+	"os"
 )
 
 func register_java_io_FieOutputStream() {
@@ -53,7 +53,7 @@ func JDK_java_io_FileOutputStream_writeBytes(this Reference, byteArr ArrayRef, o
 		bytes[i] = byte(int8(byteArr.GetArrayElement(Int(i)).(Byte)))
 	}
 
-	bytes = bytes[offset: offset+length]
+	bytes = bytes[offset : offset+length]
 	//ptr := unsafe.Pointer(&bytes)
 
 	f := bufio.NewWriter(file)

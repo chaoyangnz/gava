@@ -1,13 +1,13 @@
 package javo
 
 type (
-	ByteType struct{ classObject JavaLangClass }
-	ShortType struct{ classObject JavaLangClass }
-	CharType struct{ classObject JavaLangClass }
-	IntType struct{ classObject JavaLangClass }
-	LongType struct{ classObject JavaLangClass }
-	FloatType struct{ classObject JavaLangClass }
-	DoubleType struct{ classObject JavaLangClass }
+	ByteType    struct{ classObject JavaLangClass }
+	ShortType   struct{ classObject JavaLangClass }
+	CharType    struct{ classObject JavaLangClass }
+	IntType     struct{ classObject JavaLangClass }
+	LongType    struct{ classObject JavaLangClass }
+	FloatType   struct{ classObject JavaLangClass }
+	DoubleType  struct{ classObject JavaLangClass }
 	BooleanType struct{ classObject JavaLangClass }
 
 	ReturnAddressType struct{}

@@ -1,8 +1,8 @@
 package javo
 
 import (
-	"sync"
 	"strings"
+	"sync"
 )
 
 const (
@@ -152,7 +152,7 @@ func (this *Class) GetMethod(name string, descriptor string) *Method {
 
 /*
 <clinit>()V method
- */
+*/
 func (this *Class) GetClassInitializer() *Method {
 	clinit := this.GetMethod("<clinit>", "()V")
 	if clinit != nil && clinit.isStatic() { // must be static
@@ -163,7 +163,7 @@ func (this *Class) GetClassInitializer() *Method {
 
 /*
 <init>(..)V methods
- */
+*/
 func (this *Class) GetConstructors(publicOnly bool) []*Method {
 	var constructors []*Method
 	for _, method := range this.methods {
@@ -261,7 +261,7 @@ type Field struct {
 	/**
 	index of instanceFields or staticFields
 	for instance fields, it is the global index considering superclass hierarchy
-	 */
+	*/
 	slot int
 }
 

@@ -31,7 +31,7 @@ It is popped from the operand stack, and the value of the local variable at inde
 == Notes
 
 The istore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a two-byte unsigned index.
- */
+*/
 /*54 (0x36)*/
 func ISTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -67,7 +67,7 @@ The index is an unsigned byte. Both index and index+1 must be indices into the l
 == Notes
 
 The lstore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a two-byte unsigned index.
- */
+*/
 /*55 (0x37)*/
 func LSTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -107,7 +107,7 @@ The value of the local variable at index is set to value'.
 
 The fstore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*56 (0x38)*/
 func FSTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -147,7 +147,7 @@ The local variables at index and index+1 are set to value'.
 
 The dstore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a
 two-byte unsigned index.
- */
+*/
 /*57 (0x39)*/
 func DSTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -190,7 +190,7 @@ The aload instruction (§aload) cannot be used to load a value of type returnAdd
 This asymmetry with the astore instruction is intentional.
 
 The astore opcode can be used in conjunction with the wide instruction (§wide) to access a local variable using a two-byte unsigned index.
- */
+*/
 /*58 (0x3A)*/
 func ASTORE(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -240,7 +240,7 @@ and the value of the local variable at <n> is set to value.
 == Notes
 
 Each of the istore_<n> instructions is the same as istore with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*59 (0x3B)*/
 func ISTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -298,7 +298,7 @@ and the local variables at <n> and <n>+1 are set to value.
 == Notes
 
 Each of the lstore_<n> instructions is the same as lstore with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 /*63 (0x3F)*/
 func LSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Long))
@@ -356,7 +356,7 @@ The value of the local variable at <n> is set to value'.
 Notes
 
 Each of the fstore_<n> instructions is the same as fstore with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 /*67 (0x43)*/
 func FSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Float))
@@ -414,7 +414,7 @@ The local variables at <n> and <n>+1 are set to value'.
 == Notes
 
 Each of the dstore_<n> instructions is the same as dstore with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 /*71 (0x47)*/
 func DSTORE_0(t *Thread, f *Frame, c *Class, m *Method) {
 	f.storeVar(0, f.pop().(Double))
@@ -476,7 +476,7 @@ An aload_<n> instruction (§aload_<n>) cannot be used to load a value of type re
 This asymmetry with the corresponding astore_<n> instruction is intentional.
 
 Each of the astore_<n> instructions is the same as astore with an index of <n>, except that the operand <n> is implicit.
- */
+*/
 
 /*75 (0x4B)*/
 func ASTORE_0(t *Thread, f *Frame, c *Class, m *Method) {

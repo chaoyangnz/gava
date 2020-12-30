@@ -34,7 +34,7 @@ Push the NULL object reference onto the operand stack.
 == Notes
 
 The Java Virtual Machine does not mandate a concrete value for NULL.
- */
+*/
 func ACONST_NULL(t *Thread, f *Frame, c *Class, m *Method) {
 	f.push(NULL)
 }
@@ -79,7 +79,7 @@ Push the int constant <i> (-1, 0, 1, 2, 3, 4 or 5) onto the operand stack.
 == Notes
 
 Each of this family of instructions is equivalent to bipush <i> for the respective value of <i>, except that the operand <i> is implicit.
- */
+*/
 
 /*02 (0x02)*/
 func ICONST_M1(t *Thread, f *Frame, c *Class, m *Method) {
@@ -142,7 +142,7 @@ lconst_1 = 10 (0xa)
 == Description
 
 Push the long constant <l> (0 or 1) onto the operand stack.
- */
+*/
 
 /*09 (0x09)*/
 func LCONST_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -182,7 +182,7 @@ fconst_2 = 13 (0xd)
 == Description
 
 Push the float constant <f> (0.0, 1.0, or 2.0) onto the operand stack.
- */
+*/
 
 /*11 (0x0B)*/
 func FCONST_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -225,7 +225,7 @@ dconst_1 = 15 (0xf)
 == Description
 
 Push the double constant <d> (0.0 or 1.0) onto the operand stack.
- */
+*/
 
 /*14 (0x0E)*/
 func DCONST_0(t *Thread, f *Frame, c *Class, m *Method) {
@@ -262,7 +262,7 @@ bipush = 16 (0x10)
 == Description
 
 The immediate byte is sign-extended to an int value. That value is pushed onto the operand stack.
- */
+*/
 /*16 (0x10)*/
 func BIPUSH(t *Thread, f *Frame, c *Class, m *Method) {
 	b := f.operandConst8()
@@ -297,7 +297,7 @@ sipush = 17 (0x11)
 The immediate unsigned byte1 and byte2 values are assembled into an intermediate short, where the value of the short is
 (byte1 << 8) | byte2. The intermediate value is then sign-extended to an int value. That value is pushed onto the
 operand stack.
- */
+*/
 /*17 (0x11)*/
 func SIPUSH(t *Thread, f *Frame, c *Class, m *Method) {
 	s := Short(f.operandConst16())
@@ -357,7 +357,7 @@ type or method handle resolution (§5.4.3.5) can be thrown.
 
 The ldc instruction can only be used to push a value of type float taken from the float value set (§2.3.2) because a
 constant of type float in the constant pool (§4.4.4) must be taken from the float value set.
- */
+*/
 /*18 (0x12)*/
 func LDC(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex8()
@@ -437,7 +437,7 @@ The ldc_w instruction is identical to the ldc instruction (§ldc) except for its
 
 The ldc_w instruction can only be used to push a value of type float taken from the float value set (§2.3.2) because a
 constant of type float in the constant pool (§4.4.4) must be taken from the float value set.
- */
+*/
 /*19 (0x13)*/
 func LDC_W(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex16()
@@ -497,7 +497,7 @@ with a single-byte index.
 
 The ldc2_w instruction can only be used to push a value of type double taken from the double value set (§2.3.2) because
 a constant of type double in the constant pool (§4.4.5) must be taken from the double value set.
- */
+*/
 /*20 (0x14)*/
 func LDC2_W(t *Thread, f *Frame, c *Class, m *Method) {
 	index := f.operandIndex16()

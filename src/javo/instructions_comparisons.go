@@ -30,7 +30,7 @@ Both value1 and value2 must be of type long. They are both popped from the opera
 comparison is performed. If value1 is greater than value2, the int value 1 is pushed onto the operand stack.
 If value1 is equal to value2, the int value 0 is pushed onto the operand stack. If value1 is less than value2,
 the int value -1 is pushed onto the operand stack.
- */
+*/
 func LCMP(t *Thread, f *Frame, c *Class, m *Method) {
 	value2 := f.pop().(Long)
 	value1 := f.pop().(Long)
@@ -88,7 +88,7 @@ The fcmpg and fcmpl instructions differ only in their treatment of a comparison 
  float comparison fails if either or both of its operands are NaN. With both fcmpg and fcmpl available, any float
  comparison may be compiled to push the same result onto the operand stack whether the comparison fails on non-NaN
  values or fails because it encountered a NaN. For more information, see §3.5.
- */
+*/
 
 /*149 (0x95)*/
 func FCMPL(t *Thread, f *Frame, c *Class, m *Method) {
@@ -166,7 +166,7 @@ The dcmpg and dcmpl instructions differ only in their treatment of a comparison 
 double comparison fails if either or both of its operands are NaN. With both dcmpg and dcmpl available, any double
 comparison may be compiled to push the same result onto the operand stack whether the comparison fails on non-NaN values
  or fails because it encountered a NaN. For more information, see §3.5.
- */
+*/
 
 /*151 (0x97)*/
 func DCMPL(t *Thread, f *Frame, c *Class, m *Method) {
@@ -252,7 +252,7 @@ the offset is calculated to be (branchbyte1 << 8) | branchbyte2. Execution then 
 of the opcode of this if<cond> instruction. The target address must be that of an opcode of an instruction within the
 method that contains this if<cond> instruction.
 Otherwise, execution proceeds at the address of the instruction following this if<cond> instruction.
- */
+*/
 
 /*153 (0x99)*/
 func IFEQ(t *Thread, f *Frame, c *Class, m *Method) {
@@ -365,7 +365,7 @@ of the opcode of this if_icmp<cond> instruction. The target address must be that
 the method that contains this if_icmp<cond> instruction.
 
 Otherwise, execution proceeds at the address of the instruction following this if_icmp<cond> instruction.
- */
+*/
 
 /*159 (0x9F)*/
 func IF_ICMPEQ(t *Thread, f *Frame, c *Class, m *Method) {
@@ -473,7 +473,7 @@ instruction within the method that contains this if_acmp<cond> instruction.
 
 Otherwise, if the comparison fails, execution proceeds at the address of the instruction following this if_acmp<cond>
 instruction.
- */
+*/
 
 /*165 (0xA5)*/
 func IF_ACMPEQ(t *Thread, f *Frame, c *Class, m *Method) {

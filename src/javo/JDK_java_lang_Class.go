@@ -85,11 +85,11 @@ func JDK_java_lang_Class_isAssignableFrom(this JavaLangClass, cls JavaLangClass)
 }
 
 func JDK_java_lang_Class_getName0(this JavaLangClass) JavaLangString {
-	return binaryName2JavaName(this.retrieveType().Name())
+	return binaryNameToJavaName(this.retrieveType().Name())
 }
 
 func JDK_java_lang_Class_forName0(name JavaLangString, initialize Boolean, loader JavaLangClassLoader, caller JavaLangClass) JavaLangClass {
-	className := javaName2BinaryName(name)
+	className := javaNameToBinaryName(name)
 	return VM.ResolveClass(className, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 }
 

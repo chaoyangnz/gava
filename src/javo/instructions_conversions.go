@@ -30,7 +30,7 @@ a long result. That result is pushed onto the operand stack.
 
 The i2l instruction performs a widening primitive conversion (JLS §5.1.2). Because all values of type int are exactly
 representable by type long, the conversion is exact.
- */
+*/
 /*133 (0x85)*/
 func I2L(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
@@ -68,7 +68,7 @@ the float result using IEEE 754 round to nearest mode. The result is pushed onto
 
 The i2f instruction performs a widening primitive conversion (JLS §5.1.2), but may result in a loss of precision
 because values of type float have only 24 significand bits.
- */
+*/
 /*134 (0x86)*/
 func I2F(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
@@ -104,7 +104,7 @@ The value on the top of the operand stack must be of type int. It is popped from
 == Notes
 
 The i2d instruction performs a widening primitive conversion (JLS §5.1.2). Because all values of type int are exactly representable by type double, the conversion is exact.
- */
+*/
 /*135 (0x87)*/
 func I2D(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
@@ -143,7 +143,7 @@ The result is pushed onto the operand stack.
 
 The l2i instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value. The result may also not have the same sign as value.
- */
+*/
 /*136 (0x88)*/
 func L2I(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
@@ -181,7 +181,7 @@ Notes
 
 The l2f instruction performs a widening primitive conversion (JLS §5.1.2) that may lose precision because values of
 type float have only 24 significand bits.
- */
+*/
 /*137 (0x89)*/
 func L2F(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
@@ -219,7 +219,7 @@ double result using IEEE 754 round to nearest mode. The result is pushed onto th
 
 The l2d instruction performs a widening primitive conversion (JLS §5.1.2) that may lose precision because values of
 type double have only 53 significand bits.
- */
+*/
 /*138 (0x8A)*/
 func L2D(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Long)
@@ -265,7 +265,7 @@ This result is pushed onto the operand stack:
 
 The f2i instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value' and may also lose precision.
- */
+*/
 /*139 (0x8B)*/
 func F2I(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
@@ -311,7 +311,7 @@ This result is pushed onto the operand stack:
 
 The f2l instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value' and may also lose precision.
- */
+*/
 /*140 (0x8C)*/
 func F2L(t *Thread, f *Frame, c *Class, m *Method) {
 	Fatal("Not implemented for opcode %d\n", f.opcode())
@@ -354,7 +354,7 @@ Where an f2d instruction is not FP-strict, the result of the conversion may be t
 value set; it is not necessarily rounded to the nearest representable value in the double value set. However, if the
 operand value is taken from the float-extended-exponent value set and the target result is constrained to the double
 value set, rounding of value may be required.
- */
+*/
 /*141 (0x8D)*/
 func F2D(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Float)
@@ -402,7 +402,7 @@ magnitude or positive infinity), and the result is the largest representable val
 
 The d2i instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value' and may also lose precision.
- */
+*/
 /*142 (0x8E)*/
 func D2I(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Double)
@@ -450,7 +450,7 @@ magnitude or positive infinity), and the result is the largest representable val
 
 The d2l instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value' and may also lose precision.
- */
+*/
 /*143 (0x8F)*/
 func D2L(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Double)
@@ -499,7 +499,7 @@ float NaN.
 
 The d2f instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value' and may also lose precision.
- */
+*/
 /*144 (0x90)*/
 func D2F(t *Thread, f *Frame, c *Class, m *Method) {
 	Fatal("Not implemented for opcode %d\n", f.opcode())
@@ -535,7 +535,7 @@ The value on the top of the operand stack must be of type int. It is popped from
 
 The i2b instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value. The result may also not have the same sign as value.
- */
+*/
 /*145 (0x91)*/
 func I2B(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
@@ -574,7 +574,7 @@ then zero-extended to an int result. That result is pushed onto the operand stac
 
 The i2c instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value. The result (which is always positive) may also not have the same sign as value.
- */
+*/
 /*146 (0x92)*/
 func I2C(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)
@@ -613,7 +613,7 @@ short, then sign-extended to an int result. That result is pushed onto the opera
 
 The i2s instruction performs a narrowing primitive conversion (JLS §5.1.3). It may lose information about the overall
 magnitude of value. The result may also not have the same sign as value.
- */
+*/
 /*147 (0x93)*/
 func I2S(t *Thread, f *Frame, c *Class, m *Method) {
 	value := f.pop().(Int)

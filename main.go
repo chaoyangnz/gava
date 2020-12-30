@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	javo.Go()
+	javo.Launch()
 }

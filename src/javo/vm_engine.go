@@ -1,13 +1,13 @@
 package javo
 
 import (
-	"strconv"
-	"github.com/orcaman/concurrent-map"
 	"fmt"
-	"time"
-	"sync"
+	"github.com/orcaman/concurrent-map"
 	"reflect"
+	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 /*
@@ -81,7 +81,7 @@ func (this *ExecutionEngine) RunBootstrapThread(run func()) {
 }
 
 func precreateThread(name string, run func(), exitHook func()) *Thread {
-	logLevel, _ := strconv.Atoi(VM.GetSystemSetting("log.level.thread"))
+	logLevel, _ := strconv.Atoi(VM.GetSystemProperty("log.level.thread"))
 	logger := VM.NewLogger("thread", logLevel, "thread-"+name+".log")
 	thread := &Thread{
 		name:    name,
@@ -133,7 +133,7 @@ func printStackTrace(throwable Reference) {
 			if !detailMessage.IsNull() {
 				detailMessageStr = detailMessage.toNativeString()
 			}
-			VM.StderrPrintf("Caused by: %s: %s\n", binaryName2JavaName(cause.Class().Name()).toNativeString(), detailMessageStr)
+			VM.StderrPrintf("Caused by: %s: %s\n", binaryNameToJavaName(cause.Class().Name()).toNativeString(), detailMessageStr)
 			printStackTrace(cause)
 		} else {
 			VM.StderrPrintf("\t... 1 more")
@@ -181,7 +181,7 @@ func (this *ExecutionEngine) CurrentClass() *Class {
 	return D
 }
 
-func (this *ExecutionEngine) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ... Value) Value {
+func (this *ExecutionEngine) InvokeMethodOf(className string, methodName string, methodDescriptor string, params ...Value) Value {
 	class := VM.ResolveClass(className, TRIGGER_BY_ACCESS_MEMBER)
 	method := class.GetMethod(methodName, methodDescriptor)
 	return this.InvokeMethod(method, params...)
@@ -189,8 +189,8 @@ func (this *ExecutionEngine) InvokeMethodOf(className string, methodName string,
 
 /*
 This method is used to run a method and return value (even void method return a void value)
- */
-func (this *ExecutionEngine) InvokeMethod(method *Method, params ... Value) Value {
+*/
+func (this *ExecutionEngine) InvokeMethod(method *Method, params ...Value) Value {
 	thread := this.CurrentThread()
 	if method.isSynchronized() {
 		var monitor *Monitor
@@ -291,7 +291,7 @@ const (
 
 /*
 The whole project should use panic only here !!!!!
- */
+*/
 func (this *ExecutionEngine) Throw0(throwable Reference, thrownReason string) {
 	thread := this.CurrentThread()
 	if thread.currentFrame() != nil {
@@ -519,7 +519,7 @@ type Frame struct {
 
 /*
 Should be called only by Run() method
- */
+*/
 func (this *Frame) nextPc() {
 	opcode := this.method.code[this.pc]
 	this.pc += JVM_OPCODE_LENGTH_INITIALIZER[opcode]
@@ -561,7 +561,7 @@ func (this *Frame) opcode() uint8 {
 
 /*
 padding operand start pos to multiply of 4
- */
+*/
 func (this *Frame) operandPadding() {
 	var start int
 	for i := 0; i <= 3; i++ {
@@ -685,7 +685,7 @@ func (this *Frame) loadParameters(callee *Method) []Value {
 
 /*
 Parameters are passed in a reversed order from operand stack in JVM
- */
+*/
 func (this *Frame) passParameters(callee *Frame) {
 	method := callee.method
 	start := len(method.parameterDescriptors) - 1
@@ -706,9 +706,9 @@ func (this *Frame) passReturn(caller *Frame) {
 	ret := this.pop()
 
 	if caller == nil || // directly call in bootstrap when stack is empty
-	// not invoked by normal invokeXXXX instruction, e.g.
-	// 1) class loading call: loadClass(..)Ljava/lang/Class
-	// 2) class initialisation: <clinit>
+		// not invoked by normal invokeXXXX instruction, e.g.
+		// 1) class loading call: loadClass(..)Ljava/lang/Class
+		// 2) class initialisation: <clinit>
 		len(caller.operandStack) == cap(caller.operandStack) {
 		this.danglingReturn = ret
 		return
@@ -789,7 +789,7 @@ func (this *Frame) clear() {
 
 /*
 Should be called only by VM_invokeMethod(..)
- */
+*/
 func (this *Thread) push(stackFrame *Frame) {
 	size := len(this.vmStack)
 	if size == DEFAULT_VM_STACK_SIZE {

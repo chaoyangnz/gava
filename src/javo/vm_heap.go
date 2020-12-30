@@ -2,9 +2,9 @@ package javo
 
 import (
 	"fmt"
-	"unsafe"
 	"hash/fnv"
 	"strconv"
+	"unsafe"
 )
 
 /*
@@ -13,10 +13,11 @@ import (
 |--------------------------------------------------------------------------
 |
 | Heap stores all the Java objects. Here, its major functionality includes
-| factories of instantiation of many well-know class: java.lang.Object,
+| factories of instantiation of many well-known classes: java.lang.Object,
 | java.lang.Class, java.lang.String, java.lang.Thread, java.lang.Throwable,
 | and Array, because these classes are necessary when bootstrapping the VM.
-|
+| As per the object location, we don't have the control of where the objects
+| are located like realistic VM has a dedicated area to hold objects.
 */
 
 type Heap struct {
@@ -30,7 +31,7 @@ func (this *Heap) NewObjectOfName(className string) ObjectRef {
 
 /*
 arrayClassName is the full array class, not its component type
- */
+*/
 func (this *Heap) NewArrayOfName(arrayClassName string, length Int) ArrayRef {
 	arrayClass := VM.ResolveClass(arrayClassName, TRIGGER_BY_NEW_INSTANCE)
 
@@ -142,7 +143,7 @@ func (this *Heap) NewMultiDimensionalArray(arrayClass *Class, lengths []Int) Arr
 
 /*
 Create interned java.lang.String
- */
+*/
 func (this *Heap) NewJavaLangString(str string) JavaLangString {
 	// check string table
 	if strObj, found := VM.GetStringInPool(str); found {
@@ -160,7 +161,7 @@ func (this *Heap) NewJavaLangString(str string) JavaLangString {
 			/*
 				H = (S - 10000) / 400 + D800
 				L = (S - 10000) % 400 + DC00
-			 */
+			*/
 			high_surrogate := Char((uint32(codepoint)-0x10000)/0x400 + 0xD800)
 			low_surrogate := Char((uint32(codepoint)-0x10000)%0x400 + 0xDC00)
 			chars = append(chars, high_surrogate, low_surrogate)
@@ -311,5 +312,3 @@ func (this *Heap) NewJavaLangReflectConstructor(method *Method) JavaLangReflectC
 	//constructorObject.SetExtra(method)
 	return constructorObject
 }
-
-

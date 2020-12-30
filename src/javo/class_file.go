@@ -1,8 +1,8 @@
 package javo
 
 import (
-	"unsafe"
 	. "encoding/binary"
+	"unsafe"
 )
 
 type (
@@ -262,7 +262,7 @@ cp_info {
     u1 tag;
     u1 info[];
 }
- */
+*/
 type ConstantPoolInfo interface {
 	readInfo(reader *ClassReader)
 }
@@ -272,7 +272,7 @@ CONSTANT_Class_info {
     u1 tag;
     u2 name_index;
 }
- */
+*/
 type ConstantClassInfo struct {
 	tag       u1
 	nameIndex u2
@@ -288,7 +288,7 @@ CONSTANT_Fieldref_info {
     u2 class_index;
     u2 name_and_type_index;
 }
- */
+*/
 type ConstantFieldrefInfo struct {
 	tag              u1
 	classIndex       u2
@@ -306,7 +306,7 @@ CONSTANT_Methodref_info {
     u2 class_index;
     u2 name_and_type_index;
 }
- */
+*/
 type ConstantMethodrefInfo struct {
 	tag              u1
 	classIndex       u2
@@ -324,7 +324,7 @@ CONSTANT_InterfaceMethodref_info {
     u2 class_index;
     u2 name_and_type_index;
 }
- */
+*/
 type ConstantInterfaceMethodrefInfo struct {
 	tag              u1
 	classIndex       u2
@@ -341,7 +341,7 @@ CONSTANT_String_info {
     u1 tag;
     u2 string_index;
 }
- */
+*/
 type ConstantStringInfo struct {
 	tag         u1
 	stringIndex u2
@@ -356,7 +356,7 @@ CONSTANT_Integer_info {
     u1 tag;
     u4 bytes;
 }
- */
+*/
 type ConstantIntegerInfo struct {
 	tag   u1
 	bytes u4
@@ -371,7 +371,7 @@ CONSTANT_Float_info {
     u1 tag;
     u4 bytes;
 }
- */
+*/
 type ConstantFloatInfo struct {
 	tag   u1
 	bytes u4
@@ -387,7 +387,7 @@ CONSTANT_Long_info {
     u4 high_bytes;
     u4 low_bytes;
 }
- */
+*/
 type ConstantLongInfo struct {
 	tag       u1
 	highBytes u4
@@ -405,7 +405,7 @@ CONSTANT_Double_info {
     u4 high_bytes;
     u4 low_bytes;
 }
- */
+*/
 type ConstantDoubleInfo struct {
 	tag       u1
 	highBytes u4
@@ -423,7 +423,7 @@ CONSTANT_NameAndType_info {
     u2 name_index;
     u2 descriptor_index;
 }
- */
+*/
 type ConstantNameAndTypeInfo struct {
 	tag             u1
 	nameIndex       u2
@@ -441,7 +441,7 @@ CONSTANT_Utf8_info {
     u2 length;
     u1 bytes[length];
 }
- */
+*/
 type ConstantUtf8Info struct {
 	tag    u1
 	length u2
@@ -463,7 +463,7 @@ CONSTANT_MethodHandle_info {
     u1 reference_kind;
     u2 reference_index;
 }
- */
+*/
 type ConstantMethodHandleInfo struct {
 	tag            u1
 	referenceKind  u1
@@ -480,7 +480,7 @@ CONSTANT_MethodType_info {
     u1 tag;
     u2 descriptor_index;
 }
- */
+*/
 type ConstantMethodTypeInfo struct {
 	tag             u1
 	descriptorIndex u2
@@ -496,7 +496,7 @@ CONSTANT_InvokeDynamic_info {
     u2 bootstrap_method_attr_index;
     u2 name_and_type_index;
 }
- */
+*/
 type ConstantInvokeDynamicInfo struct {
 	tag                      u1
 	bootstrapMethodAttrIndex u2
@@ -659,7 +659,7 @@ LocalVariableTable_attribute {
         u2 index;
     } local_variable_table[local_variable_table_length];
 }
- */
+*/
 type LocalVariableTableAttribute struct {
 	attributeNameIndex       u2
 	attributeLength          u4
@@ -695,7 +695,7 @@ SourceFile_attribute {
     u4 attribute_length;
     u2 sourcefile_index;
 }
- */
+*/
 
 type SourceFileAttribute struct {
 	attributeNameIndex u2
@@ -714,7 +714,7 @@ RuntimeVisibleAnnotations_attribute {
     u2         num_annotations;
     annotation annotations[num_annotations];
 }
- */
+*/
 
 type RuntimeVisibleAnnotationsAttribute struct {
 	attributeNameIndex u2
@@ -731,9 +731,9 @@ annotation {
         element_value value;
     } element_value_pairs[num_element_value_pairs];
 }
- */
+*/
 type Annotation struct {
-	typeIndex u2
+	typeIndex         u2
 	elementValuePairs []struct {
 		element_name_index u2
 		value              ElementValue
@@ -759,17 +759,17 @@ element_value {
         } array_value;
     } value;
 }
- */
+*/
 
 type ElementValue struct {
 	tag               u1
 	const_value_index u2
-	enum_const_value struct {
+	enum_const_value  struct {
 		type_name_index  u2
 		const_name_index u2
 	}
 	class_info_index u2
-	array_value struct {
+	array_value      struct {
 		num_values u2
 		values     []ElementValue
 	}

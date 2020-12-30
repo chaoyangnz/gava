@@ -1,10 +1,10 @@
 package javo
 
 import (
-	"path/filepath"
 	"os"
-	"strings"
 	"os/user"
+	"path/filepath"
+	"strings"
 )
 
 func register_java_lang_System() {
@@ -73,9 +73,9 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 	currentPath, _ := filepath.Abs(filepath.Dir(os.Args[0]) + "/..")
 	user, _ := user.Current()
 
-	classpath := VM.GetSystemSetting("classpath.system") + ":" +
-		VM.GetSystemSetting("classpath.extension") + ":" +
-		VM.GetSystemSetting("classpath.application") + ":."
+	classpath := VM.GetSystemProperty("classpath.system") + ":" +
+		VM.GetSystemProperty("classpath.extension") + ":" +
+		VM.GetSystemProperty("classpath.application") + ":."
 
 	paths := strings.Split(classpath, ":")
 	var abs_paths []string
@@ -128,14 +128,14 @@ func JDK_java_lang_System_initProperties(properties ObjectRef) ObjectRef {
 		"sun.stderr.encoding": "UTF-8",
 
 		"os.name":    "Mac OS X", // FIXME
-		"os.arch":    "x86_64", // FIXME
-		"os.version": "10.12.5", // FIXME
+		"os.arch":    "x86_64",   // FIXME
+		"os.version": "10.12.5",  // FIXME
 
 		"user.name":     user.Name,
 		"user.home":     user.HomeDir,
 		"user.country":  "US", // FIXME
 		"user.language": "en", // FIXME
-		"user.timezone": "", // FIXME
+		"user.timezone": "",   // FIXME
 		"user.dir":      user.HomeDir,
 
 		"sun.java.launcher":       "SUN_STANDARD",

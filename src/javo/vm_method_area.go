@@ -1,10 +1,10 @@
 package javo
 
 import (
-	"strings"
 	"math"
-	"unsafe"
+	"strings"
 	"sync"
+	"unsafe"
 )
 
 type ClassTriggerReason struct {
@@ -14,7 +14,7 @@ type ClassTriggerReason struct {
 
 var (
 	TRIGGER_BY_JAVA_REFLECTION    = &ClassTriggerReason{"JR", "java reflection from name"}
-	TRIGGER_BY_JAVA_CLASSLOADER   = &ClassTriggerReason{"JR", "user defined classloader except bootstrap classloader"}
+	TRIGGER_BY_JAVA_CLASSLOADER   = &ClassTriggerReason{"JC", "user defined classloader except bootstrap classloader"}
 	TRIGGER_BY_CHECK_OBJECT_TYPE  = &ClassTriggerReason{"CT", "check java object type"}
 	TRIGGER_BY_AS_SUPERCLASS      = &ClassTriggerReason{"SC", "as superclass"}
 	TRIGGER_BY_AS_SUPERINTERFACE  = &ClassTriggerReason{"SI", "as superinterface"}
@@ -151,14 +151,14 @@ func (this *MethodArea) createClass(N string, Ld JavaLangClassLoader, triggerRea
 
 /*
 Load class using user-defined class loader
- */
+*/
 func (this *MethodArea) loadClassUd(N string, L JavaLangClassLoader, triggerReason *ClassTriggerReason) *Class {
 	if C, ok := VM.getInitiatedClass(N, L); ok {
 		return C
 	}
 	loadClassMethod := L.Class().FindMethod("loadClass", "(Ljava/lang/String;)Ljava/lang/Class;")
 	VM.Info("==before java.lang.ClassLoader#loadClass %s in LoadClassUd \n", N)
-	javaname := binaryName2JavaName(N)
+	javaname := binaryNameToJavaName(N)
 	classObject := VM.InvokeMethod(loadClassMethod, L, javaname).(JavaLangClass)
 
 	VM.Info("==after java.lang.ClassLoader#loadClass %s %s in LoadClassUd jc=%p \n", N, classObject.Class().name, classObject.oop)
@@ -184,7 +184,7 @@ func componentAndElementTypeName(arrayClassName string) (string, string, int) {
 		}
 	case JVM_SIGNATURE_CLASS:
 		{
-			className := arrayClassName[2:len(arrayClassName)-1]
+			className := arrayClassName[2 : len(arrayClassName)-1]
 			return className, className, 1
 		}
 	case JVM_SIGNATURE_ARRAY:
@@ -287,14 +287,14 @@ func (this *MethodArea) createArrayClass(N string, L JavaLangClassLoader, trigge
 		}
 	case JVM_SIGNATURE_CLASS:
 		{
-			componentTypeName := N[2:len(N)-1]
+			componentTypeName := N[2 : len(N)-1]
 			C.componentType = VM.createClass(componentTypeName, L, TRIGGER_BY_AS_ARRAY_COMPONENT)
 			C.elementType = C.componentType
 			C.dimensions = 1
 		}
 	case JVM_SIGNATURE_ARRAY:
 		{
-			componentTypeName := N[2:len(N)-1]
+			componentTypeName := N[2 : len(N)-1]
 			componentArrayClass := VM.createClass(componentTypeName, L, TRIGGER_BY_AS_ARRAY_COMPONENT)
 			C.componentType = componentArrayClass
 			C.elementType = componentArrayClass.elementType
@@ -365,8 +365,10 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	classfile := &ClassFile{}
 	classfile.read(bytecode)
 
-	// TODO purported representation is not of a supported major or minor version -> java/lang.UnsupportedClassVersionError
-
+	// purported representation is not of a supported major or minor version -> java/lang.UnsupportedClassVersionError
+	if classfile.majorVersion > MAJOR_VERSION_JAVA_8 {
+		Fatal("Incompatible class version, Java 8 or lower is supported")
+	}
 	// TODO class file does not actually represent a class name N -> java/langNoClassDefFoundError
 
 	C := &Class{LC: sync.NewCond(&sync.Mutex{})}
@@ -758,7 +760,7 @@ func (this *MethodArea) prepare(class *Class) {
 
 /*
 Always use current class's class loader to resolve class
- */
+*/
 func (this *MethodArea) ResolveClass(N string, reason *ClassTriggerReason) *Class {
 	return VM.resolveClass(N, VM.CurrentClass(), reason)
 }
@@ -768,7 +770,7 @@ func (this *MethodArea) GetTypeClass(descriptor string) JavaLangClass {
 	switch string(descriptor[0]) {
 	case JVM_SIGNATURE_CLASS:
 		{
-			fieldTypeClassName := descriptor[1:len(descriptor)-1]
+			fieldTypeClassName := descriptor[1 : len(descriptor)-1]
 			typeClass = VM.ResolveClass(fieldTypeClassName, TRIGGER_BY_JAVA_REFLECTION).ClassObject()
 		}
 	case JVM_SIGNATURE_ARRAY:
@@ -828,7 +830,7 @@ func (this *BootstrapClassLoader) LoadClass(N string, triggerReason *ClassTrigge
 
 /*
 @throw java.lang.ClassNotFoundException
- */
+*/
 func (this *BootstrapClassLoader) findClass(className string) []byte {
 	bytecode, err := this.classPath.ReadClass(className)
 	if err != nil {

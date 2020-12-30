@@ -1,17 +1,17 @@
 package javo
 
 import (
-	"strings"
+	"fmt"
+	"github.com/fatih/color"
+	"github.com/pkg/profile"
+	"github.com/urfave/cli"
 	"os"
 	"path"
 	"strconv"
-	"github.com/urfave/cli"
-	"github.com/pkg/profile"
-	"github.com/fatih/color"
-	"fmt"
+	"strings"
 )
 
-func Go() {
+func Launch() {
 	app := cli.NewApp()
 	app.Name = "Javo"
 	app.Usage = "A simplified Java Virtual Machine for the educational purpose"
@@ -72,7 +72,7 @@ func Go() {
 
 	app.Action = func(c *cli.Context) error {
 		if !noLogo {
-			color.HiMagenta("	 _  ____  _     ____ \r\n	   / |/  _ \\/ \\ |\\/  _ \\\r\n	   | || / \\|| | //| / \\|  version %s\r\n	/\\_| || |-||| \\// | \\_/|\r\n	\\____/\\_/ \\|\\__/  \\____/\r\n", app.Version)
+			color.HiMagenta("               __       ___   ____    ____  ______   \n              |  |     /   \\  \\   \\  /   / /  __  \\  \n              |  |    /  ^  \\  \\   \\/   / |  |  |  | \n        .--.  |  |   /  /_\\  \\  \\      /  |  |  |  |  version %s\n        |  `--'  |  /  _____  \\  \\    /   |  `--'  | \n         \\______/  /__/     \\__\\  \\__/     \\______/  ", app.Version)
 		}
 		commandEcho := fmt.Sprintf("Command: %s", strings.Join(os.Args, " "))
 		color.Cyan("\n\n%s\n", commandEcho)
@@ -92,6 +92,7 @@ func Go() {
 		}
 
 		javaClassName := args.Get(0)
+		javaClassName = strings.TrimSuffix(javaClassName, ".class")
 		javaArgs := make([]string, c.NArg()-1)
 		for i := 0; i < len(args)-1; i++ {
 			javaArgs[i] = args[i+1]
@@ -99,20 +100,20 @@ func Go() {
 
 		if classpath != "" {
 			color.Blue("Add a new classpath: %s\n", classpath)
-			VM.SetSystemSetting("classpath.application", classpath)
+			VM.SetSystemProperty("classpath.application", classpath)
 		}
 
 		switch logThread {
 		case "error":
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(ERROR))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(ERROR))
 		case "warn":
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(WARN))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(WARN))
 		case "info":
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(INFO))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(INFO))
 		case "debug":
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(DEBUG))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(DEBUG))
 		case "trace":
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(TRACE))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(TRACE))
 		default:
 			if logThread != "" {
 				color.Yellow("Invalid log:thread option: %s\n", logThread)
@@ -121,15 +122,15 @@ func Go() {
 
 		switch logClassloader {
 		case "error":
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(ERROR))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(ERROR))
 		case "warn":
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(WARN))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(WARN))
 		case "info":
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(INFO))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(INFO))
 		case "debug":
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(DEBUG))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(DEBUG))
 		case "trace":
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(TRACE))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(TRACE))
 		default:
 			if logClassloader != "" {
 				color.Yellow("Invalid log:classloader option: %s\n", logClassloader)
@@ -137,17 +138,17 @@ func Go() {
 		}
 
 		if debug {
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(DEBUG))
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(DEBUG))
-			VM.SetSystemSetting("log.level.io", strconv.Itoa(DEBUG))
-			VM.SetSystemSetting("log.level.misc", strconv.Itoa(DEBUG))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(DEBUG))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(DEBUG))
+			VM.SetSystemProperty("log.level.io", strconv.Itoa(DEBUG))
+			VM.SetSystemProperty("log.level.misc", strconv.Itoa(DEBUG))
 		}
 
 		if trace {
-			VM.SetSystemSetting("log.level.classloader", strconv.Itoa(TRACE))
-			VM.SetSystemSetting("log.level.thread", strconv.Itoa(TRACE))
-			VM.SetSystemSetting("log.level.io", strconv.Itoa(TRACE))
-			VM.SetSystemSetting("log.level.misc", strconv.Itoa(TRACE))
+			VM.SetSystemProperty("log.level.classloader", strconv.Itoa(TRACE))
+			VM.SetSystemProperty("log.level.thread", strconv.Itoa(TRACE))
+			VM.SetSystemProperty("log.level.io", strconv.Itoa(TRACE))
+			VM.SetSystemProperty("log.level.misc", strconv.Itoa(TRACE))
 		}
 
 		if profiling {
@@ -160,7 +161,7 @@ func Go() {
 		color.Green(strings.Repeat("·", len(commandEcho)) + "\n")
 
 		VM.Init()
-		VM.Startup(javaName2BinaryName0(javaClassName), javaArgs...)
+		VM.Startup(javaNameToBinaryName0(javaClassName), javaArgs...)
 		return nil
 	}
 

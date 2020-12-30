@@ -23,7 +23,7 @@ func JDK_java_lang_ClassLoader_NativeLibrary_load(this JavaLangClassLoader, name
 }
 
 func JDK_java_lang_ClassLoader_findLoadedClass0(this JavaLangClassLoader, className JavaLangString) JavaLangClass {
-	name := javaName2BinaryName(className)
+	name := javaNameToBinaryName(className)
 	var C = NULL
 	if class, ok := VM.getInitiatedClass(name, this); ok {
 		C = class.ClassObject()
@@ -37,7 +37,7 @@ func JDK_java_lang_ClassLoader_findLoadedClass0(this JavaLangClassLoader, classN
 }
 
 func JDK_java_lang_ClassLoader_findBootstrapClass(this JavaLangClassLoader, className JavaLangString) JavaLangClass {
-	name := javaName2BinaryName(className)
+	name := javaNameToBinaryName(className)
 	var C = NULL
 	if class, ok := VM.GetDefinedClass(name, NULL); ok {
 		C = class.ClassObject()
@@ -53,13 +53,13 @@ func JDK_java_lang_ClassLoader_findBootstrapClass(this JavaLangClassLoader, clas
 }
 
 func JDK_java_lang_ClassLoader_defineClass1(this JavaLangClassLoader, className JavaLangString, byteArrRef ArrayRef, offset Int, length Int, pd Reference, source JavaLangString) JavaLangClass {
-	byteArr := byteArrRef.ArrayElements()[offset: offset+length]
+	byteArr := byteArrRef.ArrayElements()[offset : offset+length]
 	bytes := make([]byte, length)
 	for i, b := range byteArr {
 		bytes[i] = byte(b.(Byte))
 	}
 
-	C := VM.deriveClass(javaName2BinaryName(className), this, bytes, TRIGGER_BY_JAVA_CLASSLOADER)
+	C := VM.deriveClass(javaNameToBinaryName(className), this, bytes, TRIGGER_BY_JAVA_CLASSLOADER)
 	//VM.link(C)
 
 	// associate JavaLangClass object

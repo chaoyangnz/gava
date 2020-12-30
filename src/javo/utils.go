@@ -1,9 +1,9 @@
 package javo
 
 import (
-	"strings"
 	"fmt"
 	"github.com/petermattis/goid"
+	"strings"
 )
 
 func u16toi32(i uint16) int32 {
@@ -24,7 +24,7 @@ func repeat(str string, times int) string {
 
 /*
 A Java try {} catch() {} finally {} block
- */
+*/
 type Block struct {
 	try     func()
 	catch   func(throwable Reference) // throwable never be nil
@@ -57,14 +57,14 @@ func getGID() int64 {
 	return goid.Get()
 }
 
-func binaryName2JavaName(name string) JavaLangString {
+func binaryNameToJavaName(name string) JavaLangString {
 	return VM.NewJavaLangString(strings.Replace(name, "/", ".", -1))
 }
 
-func javaName2BinaryName(name JavaLangString) string {
-	return javaName2BinaryName0(name.toNativeString())
+func javaNameToBinaryName(name JavaLangString) string {
+	return javaNameToBinaryName0(name.toNativeString())
 }
 
-func javaName2BinaryName0(name string) string {
+func javaNameToBinaryName0(name string) string {
 	return strings.Replace(name, ".", "/", -1)
 }
