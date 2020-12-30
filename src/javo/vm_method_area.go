@@ -366,7 +366,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 	classfile.read(bytecode)
 
 	// purported representation is not of a supported major or minor version -> java/lang.UnsupportedClassVersionError
-	if classfile.majorVersion > MAJOR_VERSION_JAVA_8 {
+	if classfile.majorVersion > JVM_MAJOR_VERSION_JAVA_8 {
 		Fatal("Incompatible class version, Java 8 or lower is supported")
 	}
 	// TODO class file does not actually represent a class name N -> java/langNoClassDefFoundError
@@ -635,30 +635,30 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 
 	// calculate static variables and instance variable count
 	// must be immediately after resolving super class
-	maxInstanceVars := 0 // include all the ancestry
-	maxStaticVars := 0
+	instanceVarsCount := 0 // include all the ancestry
+	staticVarsCount := 0
 
 	instanceVarFields := make([]*Field, 0)
 	staticVarFields := make([]*Field, 0)
 
 	if C.superClass != nil {
-		maxInstanceVars = C.superClass.maxInstanceVars
+		instanceVarsCount = C.superClass.instanceVarsCount
 
 		instanceVarFields = append(instanceVarFields, C.superClass.instanceVarFields...)
 	}
 	for _, field := range C.fields {
 		if field.IsStatic() {
-			field.slot = maxStaticVars
+			field.slot = staticVarsCount
 			staticVarFields = append(staticVarFields, field)
-			maxStaticVars++
+			staticVarsCount++
 		} else {
-			field.slot = maxInstanceVars
+			field.slot = instanceVarsCount
 			instanceVarFields = append(instanceVarFields, field)
-			maxInstanceVars++
+			instanceVarsCount++
 		}
 	}
-	C.maxInstanceVars = maxInstanceVars
-	C.maxStaticVars = maxStaticVars
+	C.instanceVarsCount = instanceVarsCount
+	C.staticVarsCount = staticVarsCount
 
 	C.instanceVarFields = instanceVarFields
 	C.staticVarFields = staticVarFields
@@ -750,7 +750,7 @@ func (this *MethodArea) verify(class *Class) {
 // initialize static variables to default values: no need to execute code
 func (this *MethodArea) prepare(class *Class) {
 	// Initialize static variables
-	class.staticVars = make([]Value, class.maxStaticVars)
+	class.staticVars = make([]Value, class.staticVarsCount)
 	for _, field := range class.fields {
 		if field.IsStatic() {
 			class.staticVars[field.slot] = field.defaultValue()

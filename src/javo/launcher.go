@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func Launch() {
@@ -165,5 +166,7 @@ func Launch() {
 		return nil
 	}
 
+	t := time.Now()
 	app.Run(os.Args)
+	color.Yellow("\n\n%dms elapsed", time.Now().Sub(t).Milliseconds())
 }

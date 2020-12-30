@@ -443,6 +443,7 @@ func (this *Thread) ExecuteFrame() /* this return is throwable if this method is
 				// try catch exception
 				caught := false
 				handlePc := -1
+				// TODO: optimise here, not iterate each invocation
 				for _, exception := range f.method.exceptions {
 					if f.pc >= exception.startPc && f.pc < exception.endPc {
 						if exception.catchType == 0 { // catch-all

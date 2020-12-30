@@ -59,7 +59,7 @@ func (this *Heap) NewObject(class *Class) ObjectRef {
 		class:    class,
 		hashCode: hashcode(object),
 		monitor:  NewMonitor(object)}
-	object.slots = make([]Value, class.maxInstanceVars)
+	object.slots = make([]Value, class.instanceVarsCount)
 	// Initialize instance variables
 	clazz := class
 	for clazz != nil {

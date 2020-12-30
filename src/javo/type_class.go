@@ -21,10 +21,26 @@ type Class struct {
 	superClass     *Class
 	interfaces     []*Class
 
-	classObject JavaLangClass
-	//classLoader         JavaLangClassLoader
+	// ---- these fields are only for non-array class ----
+	constantPool []Constant
+	fields       []*Field
+	methods      []*Method
 
-	// support link and initialization
+	instanceVarsCount int
+	instanceVarFields []*Field
+	staticVarsCount   int
+	staticVarFields   []*Field
+
+	staticVars        []Value
+
+	sourceFile string
+
+	// ---- these fields are only for array class -------
+	componentType Type // any type
+	elementType   Type // must be not array type
+	dimensions    int
+
+	// status flags: support link and initialization
 	defined bool
 	linked  bool
 
@@ -33,23 +49,8 @@ type Class struct {
 	T           *Thread
 	LC          *sync.Cond
 
-	// ---- these fields are only for non-array class ----
-	constantPool []Constant
-	fields       []*Field
-	methods      []*Method
-
-	maxInstanceVars   int
-	instanceVarFields []*Field
-	maxStaticVars     int
-	staticVars        []Value
-	staticVarFields   []*Field
-
-	sourceFile string
-
-	// ---- these fields are only for array class -------
-	componentType Type // any type
-	elementType   Type // must be not array type
-	dimensions    int
+	classObject JavaLangClass
+	//classLoader         JavaLangClassLoader
 }
 
 func (this *Class) Name() string {

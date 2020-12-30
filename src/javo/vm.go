@@ -106,6 +106,9 @@ func (this *Javo) Startup(initialClassName string, args ...string) {
 		systemClassLoaderObject := VM.InvokeMethodOf("java/lang/ClassLoader", "getSystemClassLoader", "()Ljava/lang/ClassLoader;").(JavaLangClassLoader)
 		initialClass := VM.createClass(initialClassName, systemClassLoaderObject, TRIGGER_BY_ACCESS_MEMBER)
 		mainMethod := initialClass.FindMethod(MAIN_METHOD_NAME, MAIN_METHOD_DESCRIPTOR)
+		if mainMethod == nil {
+			Fatal("main method not found")
+		}
 
 		// initial a thread
 		this.NewThread("main",

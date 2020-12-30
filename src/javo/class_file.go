@@ -159,39 +159,39 @@ func (this *ClassFile) readConstantPool(reader *ClassReader) {
 
 		var cpInfo ConstantPoolInfo
 		switch tag {
-		case CONSTANT_Class:
+		case JVM_TAG_Class:
 			cpInfo = &ConstantClassInfo{tag: tag}
-		case CONSTANT_Fieldref:
+		case JVM_TAG_Fieldref:
 			cpInfo = &ConstantFieldrefInfo{tag: tag}
-		case CONSTANT_Methodref:
+		case JVM_TAG_Methodref:
 			cpInfo = &ConstantMethodrefInfo{tag: tag}
-		case CONSTANT_InterfaceMethodref:
+		case JVM_TAG_InterfaceMethodref:
 			cpInfo = &ConstantInterfaceMethodrefInfo{tag: tag}
-		case CONSTANT_String:
+		case JVM_TAG_String:
 			cpInfo = &ConstantStringInfo{tag: tag}
-		case CONSTANT_Integer:
+		case JVM_TAG_Integer:
 			cpInfo = &ConstantIntegerInfo{tag: tag}
-		case CONSTANT_Float:
+		case JVM_TAG_Float:
 			cpInfo = &ConstantFloatInfo{tag: tag}
-		case CONSTANT_Long:
+		case JVM_TAG_Long:
 			// occupy two entries
 			cpInfo = &ConstantLongInfo{tag: tag}
 			this.constantPool[i] = cpInfo
 			i++
-		case CONSTANT_Double:
+		case JVM_TAG_Double:
 			// occupy two entries
 			cpInfo = &ConstantDoubleInfo{tag: tag}
 			this.constantPool[i] = cpInfo
 			i++
-		case CONSTANT_NameAndType:
+		case JVM_TAG_NameAndType:
 			cpInfo = &ConstantNameAndTypeInfo{tag: tag}
-		case CONSTANT_Utf8:
+		case JVM_TAG_Utf8:
 			cpInfo = &ConstantUtf8Info{tag: tag}
-		case CONSTANT_MethodHandle:
+		case JVM_TAG_MethodHandle:
 			cpInfo = &ConstantMethodHandleInfo{tag: tag}
-		case CONSTANT_MethodType:
+		case JVM_TAG_MethodType:
 			cpInfo = &ConstantMethodTypeInfo{tag: tag}
-		case CONSTANT_InvokeDynamic:
+		case JVM_TAG_InvokeDynamic:
 			cpInfo = &ConstantInvokeDynamicInfo{tag: tag}
 		default:
 			// ignore
