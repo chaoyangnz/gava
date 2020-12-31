@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/chaoyangnz/javo/v1.0.0/src/javo"
+	"github.com/chaoyangnz/javo"
 )
 
 func main() {

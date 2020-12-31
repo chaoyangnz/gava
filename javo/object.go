@@ -1,7 +1,6 @@
 package javo
 
 import (
-	"github.com/orcaman/concurrent-map"
 	"sync"
 	"time"
 )
@@ -31,7 +30,7 @@ type Monitor struct {
 
 	ch chan int
 
-	waits cmap.ConcurrentMap
+	waits sync.Map
 }
 
 func NewMonitor(obj *Object) *Monitor {
@@ -40,7 +39,7 @@ func NewMonitor(obj *Object) *Monitor {
 	m.l = &sync.Mutex{}
 	m.lock = &sync.Mutex{}
 	m.ch = make(chan int)
-	m.waits = cmap.New()
+	m.waits = sync.Map{}
 	return m
 }
 
@@ -55,7 +54,7 @@ func (this *Monitor) Enter() {
 		this.l.Unlock()
 		return
 	}
-	this.waits.SetIfAbsent(tid2str(thread.id), thread)
+	this.waits.LoadOrStore(thread.id, thread)
 	this.l.Unlock()
 
 	this.lock.Lock()
@@ -63,7 +62,7 @@ func (this *Monitor) Enter() {
 	this.l.Lock()
 	this.owner = thread
 	this.entryCount = 1
-	this.waits.Remove(tid2str(thread.id))
+	this.waits.Delete(thread.id)
 	this.l.Unlock()
 
 	VM.ExecutionEngine.threadsLogger.Info("[monitor] thread '%s' #%d acquire monitor of object %p (%s) -> entry: %d \n", thread.name, thread.id, this.object, this.object.header.class.Name(), this.entryCount)

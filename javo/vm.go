@@ -1,7 +1,6 @@
 package javo
 
 import (
-	"github.com/orcaman/concurrent-map"
 	"os"
 	"path"
 	"reflect"
@@ -63,7 +62,7 @@ func (this *Javo) Init() {
 	this.ExecutionEngine = &ExecutionEngine{
 		make([]Instruction, JVM_OPC_MAX+1),
 		natives,
-		cmap.New(),
+		sync.Map{},
 		this.NewLogger("threads", threadsLogLevel, "threads.log"),
 		this.NewLogger("io", ioLogLevel, "io.log")}
 	this.RegisterInstructions()

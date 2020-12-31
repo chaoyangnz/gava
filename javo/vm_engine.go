@@ -1,8 +1,6 @@
 package javo
 
 import (
-	"fmt"
-	"github.com/orcaman/concurrent-map"
 	"reflect"
 	"strconv"
 	"strings"
@@ -27,37 +25,34 @@ import (
 type ExecutionEngine struct {
 	InstructionRegistry
 	NativeMethodRegistry
-	threads       cmap.ConcurrentMap // [string]*Thread
+	threads       sync.Map // [string]*Thread
 	threadsLogger *Logger
 	ioLogger      *Logger
 }
 
-func tid2str(tid int64) string {
-	return fmt.Sprintf("%v", tid)
-}
-
 func (this *ExecutionEngine) RegisterThread(thread *Thread) {
-	this.threads.Set(tid2str(thread.id), thread)
+	this.threads.Store(thread.id, thread)
 }
 
 func (this *ExecutionEngine) UnregisterThread(thread *Thread) {
-	this.threads.Remove(tid2str(thread.id))
+	this.threads.Delete(thread.id)
 }
 
 func (this *ExecutionEngine) exitDaemonThreads() {
-	for _, t := range this.threads.Items() {
+	this.threads.Range(func(key, t interface{}) bool {
 		thread := t.(*Thread)
 		jt := thread.threadObject
 		jt.IsNull()
 		if thread.daemon {
 			thread.interrupt()
 		}
-	}
+		return true
+	})
 }
 
 func (this *ExecutionEngine) CurrentThread() *Thread {
 	gid := getGID()
-	if t, ok := this.threads.Get(tid2str(gid)); ok {
+	if t, ok := this.threads.Load(gid); ok {
 		return t.(*Thread)
 	}
 
