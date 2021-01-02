@@ -154,7 +154,12 @@ func Launch() {
 
 		if profiling {
 			// CPU profiling
-			defer profile.Start(profile.CPUProfile).Stop()
+			defer profile.Start(func(p *profile.Profile) {
+				path := "./profile"
+				profile.ProfilePath(path)(p)
+				profile.CPUProfile(p)
+				color.Yellow("Run go tool pprof --pdf /usr/local/bin/javo %s/cpu.pprof > %s/cpu.pdf", path, path)
+			}).Stop()
 			// Memory profiling
 			//defer profile.Start(profile.MemProfile).Stop()
 		}

@@ -12,13 +12,13 @@ func register_java_lang_Throwable() {
 
 func JDK_jang_lang_Throwable_getStackTraceDepth(this Reference) Int {
 	thread := VM.CurrentThread()
-	return Int(len(thread.vmStack) - this.Class().inheritanceDepth()) // skip how many frames
+	return Int(len(thread.vmStack) - this.Class().InheritanceDepth()) // skip how many frames
 }
 
 func JDK_jang_lang_Throwable_fillInStackTrace(this Reference, dummy Int) Reference {
 	thread := VM.CurrentThread()
 
-	depth := len(thread.vmStack) - this.Class().inheritanceDepth() // skip how many frames
+	depth := len(thread.vmStack) - this.Class().InheritanceDepth() // skip how many frames
 	//backtrace := NewArray("[Ljava/lang/String;", Int(depth))
 	//
 	//for i, frame := range thread.vmStack[:depth] {

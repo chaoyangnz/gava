@@ -124,6 +124,20 @@ func (this *Class) IsAssignableFrom(class *Class) bool {
 	return false
 }
 
+func (this *Class) GetDeclaredFields(publicOnly bool) []*Field {
+	if !publicOnly {
+		return this.fields
+	}
+
+	var publicFields []*Field
+	for _, field := range this.fields {
+		if (field.accessFlags & JVM_ACC_PUBLIC) > 0 {
+			publicFields = append(publicFields, field)
+		}
+	}
+	return publicFields
+}
+
 /**
  * Find field with its name and descriptor in the class hierarchy
  * Java doesn't permit a static and instance field with same name + signature
@@ -145,6 +159,31 @@ func (this *Class) FindField(name string, descriptor string) *Field {
 func (this *Class) GetMethod(name string, descriptor string) *Method {
 	for _, method := range this.methods {
 		if method.name == name && method.descriptor == descriptor {
+			return method
+		}
+	}
+	return nil
+}
+
+/**
+ * Find field with its name and descriptor in the class hierarchy
+ * Java doesn't permit a static and instance method with same name + signature
+ */
+func (this *Class) FindMethod(name string, descriptor string) *Method {
+	for _, method := range this.methods {
+		if method.name == name && method.descriptor == descriptor {
+			return method
+		}
+	}
+	if this.superClass != nil {
+		method := this.superClass.FindMethod(name, descriptor)
+		if method != nil {
+			return method
+		}
+	}
+	for _, iface := range this.interfaces {
+		method := iface.FindMethod(name, descriptor)
+		if method != nil {
 			return method
 		}
 	}
@@ -191,46 +230,7 @@ func (this *Class) GetConstructor(descriptor string) *Method {
 	return nil
 }
 
-/**
- * Find field with its name and descriptor in the class hierarchy
- * Java doesn't permit a static and instance method with same name + signature
- */
-func (this *Class) FindMethod(name string, descriptor string) *Method {
-	for _, method := range this.methods {
-		if method.name == name && method.descriptor == descriptor {
-			return method
-		}
-	}
-	if this.superClass != nil {
-		method := this.superClass.FindMethod(name, descriptor)
-		if method != nil {
-			return method
-		}
-	}
-	for _, iface := range this.interfaces {
-		method := iface.FindMethod(name, descriptor)
-		if method != nil {
-			return method
-		}
-	}
-	return nil
-}
-
-func (this *Class) GetDeclaredFields(publicOnly bool) []*Field {
-	if !publicOnly {
-		return this.fields
-	}
-
-	var publicFields []*Field
-	for _, field := range this.fields {
-		if (field.accessFlags & JVM_ACC_PUBLIC) > 0 {
-			publicFields = append(publicFields, field)
-		}
-	}
-	return publicFields
-}
-
-func (this *Class) inheritanceDepth() int {
+func (this *Class) InheritanceDepth() int {
 	depth := 1
 	for c := this.superClass; c != nil; c = c.superClass {
 		depth++
@@ -255,7 +255,7 @@ func (this *Class) SetStaticVariable(name string, descriptor string, value Value
 }
 
 type Field struct {
-	accessFlags uint16
+	accessFlags FieldAccessFlag
 	name        string
 	descriptor  string
 	class       *Class
@@ -267,7 +267,7 @@ type Field struct {
 }
 
 func (this *Field) IsStatic() bool {
-	return (this.accessFlags & JVM_ACC_STATIC) > 0
+	return (this.accessFlags & JVM_FIELD_ACC_STATIC) > 0
 }
 
 func (this *Field) Signature() string {
@@ -278,7 +278,7 @@ func (this *Field) Qualifier() string {
 	return this.class.name + "." + this.Signature()
 }
 
-func (this *Field) defaultValue() Value {
+func (this *Field) DefaultValue() Value {
 	var t Value
 	switch string(this.descriptor[0]) {
 	case JVM_SIGNATURE_BYTE:
@@ -316,7 +316,7 @@ type ExceptionHandler struct {
 }
 
 type Method struct {
-	accessFlags uint16
+	accessFlags MethodAccessFlag
 	name        string
 	descriptor  string
 	class       *Class
@@ -333,15 +333,15 @@ type Method struct {
 }
 
 func (this *Method) isStatic() bool {
-	return (this.accessFlags & JVM_ACC_STATIC) > 0
+	return (this.accessFlags & JVM_METHOD_ACC_STATIC) > 0
 }
 
 func (this *Method) isNative() bool {
-	return (this.accessFlags & JVM_ACC_NATIVE) > 0
+	return (this.accessFlags & JVM_METHOD_ACC_NATIVE) > 0
 }
 
 func (this *Method) isSynchronized() bool {
-	return (this.accessFlags & JVM_ACC_SYNCHRONIZED) > 0
+	return (this.accessFlags & JVM_METHOD_ACC_SYNCHRONIZED) > 0
 }
 
 func (this *Method) Signature() string {
@@ -374,7 +374,7 @@ type Constant interface{}
 
 type SymbolRef interface {
 	Constant
-	resolve()
+	Resolve()
 }
 
 type ClassRef struct {
@@ -385,12 +385,12 @@ type ClassRef struct {
 
 func (this *ClassRef) ResolvedClass() *Class {
 	if this.class == nil {
-		this.resolve()
+		this.Resolve()
 	}
 	return this.class
 }
 
-func (this *ClassRef) resolve() {
+func (this *ClassRef) Resolve() {
 	this.class = VM.resolveClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 	//this.class = VM.CreateClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 }
@@ -406,12 +406,12 @@ type MemberRef struct {
 
 func (this *MemberRef) ResolvedClass() *Class {
 	if this.class == nil {
-		this.resolve()
+		this.Resolve()
 	}
 	return this.class
 }
 
-func (this *MemberRef) resolve() {
+func (this *MemberRef) Resolve() {
 	this.class = VM.resolveClass(this.className, this.hostClass, TRIGGER_BY_RESOLVE_CLASS_REF)
 	//this.class.Link()
 }
@@ -423,12 +423,12 @@ type FieldRef struct {
 
 func (this *FieldRef) ResolvedField() *Field {
 	if this.field == nil {
-		this.resolve()
+		this.Resolve()
 	}
 	return this.field
 }
 
-func (this *FieldRef) resolve() {
+func (this *FieldRef) Resolve() {
 	class := this.ResolvedClass()
 	this.field = class.FindField(this.name, this.descriptor)
 }
@@ -440,12 +440,12 @@ type MethodRef struct {
 
 func (this *MethodRef) ResolvedMethod() *Method {
 	if this.method == nil {
-		this.resolve()
+		this.Resolve()
 	}
 	return this.method
 }
 
-func (this *MethodRef) resolve() {
+func (this *MethodRef) Resolve() {
 	class := this.ResolvedClass()
 	method := class.FindMethod(this.name, this.descriptor)
 	if method == nil {
@@ -461,12 +461,12 @@ type InterfaceMethodRef struct {
 
 func (this *InterfaceMethodRef) ResolvedMethod() *Method {
 	if this.method == nil {
-		this.resolve()
+		this.Resolve()
 	}
 	return this.method
 }
 
-func (this *InterfaceMethodRef) resolve() {
+func (this *InterfaceMethodRef) Resolve() {
 	class := this.ResolvedClass()
 	method := class.FindMethod(this.name, this.descriptor)
 	if method == nil {
@@ -483,12 +483,12 @@ type StringConstant struct {
 
 func (this *StringConstant) ResolvedString() ObjectRef {
 	if this.jstring.IsNull() {
-		this.resolve()
+		this.Resolve()
 	}
 	return this.jstring
 }
 
-func (this *StringConstant) resolve() {
+func (this *StringConstant) Resolve() {
 	this.jstring = VM.NewJavaLangString(this.value)
 }
 

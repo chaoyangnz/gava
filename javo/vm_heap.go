@@ -65,7 +65,7 @@ func (this *Heap) NewObject(class *Class) ObjectRef {
 	for clazz != nil {
 		for _, field := range clazz.fields {
 			if !field.IsStatic() {
-				object.slots[field.slot] = field.defaultValue()
+				object.slots[field.slot] = field.DefaultValue()
 			}
 		}
 		clazz = clazz.superClass

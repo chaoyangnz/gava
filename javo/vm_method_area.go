@@ -487,7 +487,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 
 	for i, fieldInfo := range classfile.fields {
 		field := &Field{}
-		field.accessFlags = uint16(fieldInfo.accessFlags)
+		field.accessFlags = FieldAccessFlag(fieldInfo.accessFlags)
 		field.name = classfile.cpUtf8(fieldInfo.nameIndex)
 		field.descriptor = classfile.cpUtf8(fieldInfo.descriptorIndex)
 		field.class = C
@@ -499,7 +499,7 @@ func (this *MethodArea) deriveClass(N string, L JavaLangClassLoader, bytecode []
 
 	for i, methodInfo := range classfile.methods {
 		method := &Method{}
-		method.accessFlags = uint16(methodInfo.accessFlags)
+		method.accessFlags = MethodAccessFlag(methodInfo.accessFlags)
 		method.name = classfile.cpUtf8(methodInfo.nameIndex)
 		method.descriptor = classfile.cpUtf8(methodInfo.descriptorIndex)
 		method.class = C
@@ -753,7 +753,7 @@ func (this *MethodArea) prepare(class *Class) {
 	class.staticVars = make([]Value, class.staticVarsCount)
 	for _, field := range class.fields {
 		if field.IsStatic() {
-			class.staticVars[field.slot] = field.defaultValue()
+			class.staticVars[field.slot] = field.DefaultValue()
 		}
 	}
 }

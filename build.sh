@@ -24,4 +24,4 @@ sudo cp -rf jdk $JAVO_HOME/
 
 echo "Done! 🍻"
 
-javo
+javo -cp example HelloWorld

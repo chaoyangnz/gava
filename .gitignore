@@ -5,5 +5,5 @@ pkg/**/*
 .idea/
 **/*/.DS_Store
 .DS_Store
-src/github.com
 vendor/**/*
+profile
