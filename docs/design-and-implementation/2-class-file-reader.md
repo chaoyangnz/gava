@@ -1,0 +1,5 @@
+A class file has a well-defined structure described inThe Structure of the Java Virtual Machineof Java Virtual Machine Specification. So, what I did is to write a reader rather that a parser to identify the structure which can be further used to be the base of class loading.
+
+A class file has a constant pool which shoulders the responsibility of a symbolic table in a traditional language compiler. The most important part of a class file is its fields and methods. And a method can have a Code attribute and other attributes, such as LineNumberTable, LocalVaribleTable etc.
+
+I’d like to keep this class file reader to be reused in other projects, because this module is relatively independent, not like other parts of this project. A thought is I can use it to implement to a GUI tool to help view the internal structure of a class file and make the classwork more human-readable, likejclasslib bytecode viewerdid.
