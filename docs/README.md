@@ -1,11 +1,11 @@
-![](https://github.com/chaoyangnz/javo/workflows/build/badge.svg?branch=master)
-![](https://img.shields.io/github/go-mod/go-version/chaoyangnz/javo?style=flat-square&branch=master)
+![](https://github.com/chaoyangnz/gava/workflows/build/badge.svg?branch=master)
+![](https://img.shields.io/github/go-mod/go-version/chaoyangnz/gava?style=flat-square&branch=master)
 
-# Javo
+# Gava
 
-<img src="javo.svg" width="60"/>
+<img src="gava.svg" width="60"/>
 
-**NOTE**: (previously named `Jago`)
+**NOTE**: (previously named `Javo/Jago`)
 
 A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the behind-the-scene behaviour when a Java program runs. This VM can be used for the educational purpose, for example, for a course about how to design a runtime for a language with the complete specification.
 
@@ -37,15 +37,15 @@ Any thought is welcome and I am happy to be wrong.
 ## build and install
 
 ```bash
-❯ cd ~/javo
+❯ cd ~/gava
 ❯ ./build.sh
 ```
 
-By default, javo will be installed to `/usr/local/javo`
+By default, gava will be installed to `/usr/local/gava`
 ```text
-/usr/local/javo
+/usr/local/gava
 ├── bin
-│   └── javo
+│   └── gava
 ├── jdk
 │   └── classes
 │       ├── META-INF
@@ -65,23 +65,23 @@ By default, javo will be installed to `/usr/local/javo`
     └── threads.log
 ```
 
-## javo command
+## gava command
 ```bash
-❯ javo -h
+❯ gava -h
 NAME:
-   Javo - A simplified Java Virtual Machine for the educational purpose
+   Gava - A simplified Java Virtual Machine for the educational purpose
 
 USAGE:
-   javo [-options] class [args...]
+   gava [-options] class [args...]
 
 VERSION:
    1.0.0
 
 DESCRIPTION:
-   A Java Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc.
+   A Java* Virtual Machine demonstrating the basic features of execution engine, class loading, type/value system, exception handling, native methods etc.
 
 AUTHOR:
-   Chao Yang <chao@yang.to>
+   Chao Yang <chao@yang.so>
 
 COMMANDS:
      help, h  Shows a list of commands or help for one command
@@ -93,7 +93,7 @@ GLOBAL OPTIONS:
    --trace, -t                    trace mode
    --log:thread value             log level of instruction execution in a thread context, options: info, debug, trace
    --log:classloader value        log level of class loading, options: info, debug, trace
-   --profile, -p                  profile javo
+   --profile, -p                  profile gava
    --help, -h                     show help
    --version, -v                  print the version
 ```
@@ -101,28 +101,28 @@ GLOBAL OPTIONS:
 ### Run a calendar program
 
 ```bash
-❯ javo -nl -cp . Calendar 8 2018
+❯ gava -nl -cp . Calendar 8 2018
 ```
 ![](https://i.imgur.com/teTi3Ph.gif)
 
 ### Run a pyramid program
 
 ```bash
-❯ javo -nl -cp . Pyramid
+❯ gava -nl -cp . Pyramid
 ```
 ![](https://i.imgur.com/lJsHits.gif)
 
 ### run a program traversing a tree in the level order
 
 ```bash
-❯ javo -nl -cp . TreeLevelOrderTraverse
+❯ gava -nl -cp . TreeLevelOrderTraverse
 ```
 ![](https://i.imgur.com/1Oyq7Ep.gif)
 
 ### Run a program into exception
 
 ```bash
-❯ javo -nl . test/test_athrow
+❯ gava -nl . test/test_athrow
 ```
 ![](https://i.imgur.com/lDxICzN.gif)
 
@@ -130,35 +130,35 @@ GLOBAL OPTIONS:
 
 - Print system properties
 ```bash
-javo -d test.test_system_properties
+gava -d test.test_system_properties
 ```
 
 - Multi-threading
 ```bash
-javo -d test.test_thread
+gava -d test.test_thread
 ```
 
 ```bash
-javo -d Multithread
+gava -d Multithread
 ```
 
 - Thread sleep or `wait` / `interrupt`
 ```bash
-javo -d SleepInterrupt
+gava -d SleepInterrupt
 ```
 
 ```bash
-javo -d WaitInterrupt
+gava -d WaitInterrupt
 ```
 
 - Java monitor lock with `synchronized`
 ```bash
-javo -d Counter
+gava -d Counter
 ```
 
 - Java wait() and `notify()`, `notifyAll()`
 ```bash
-javo -d ProducerConsumer
+gava -d ProducerConsumer
 ```
 
 ## trace the execution
@@ -166,7 +166,7 @@ javo -d ProducerConsumer
 ### log/thread-[name].log 
 This log file records the each instruction execution and method call hierarchy within a thread context. Set the log level to info to view call hierarchy more clearly.
 
-The blue diamond symbol 🔹 means pure Java methods while the yellow one 🔸 means native methods which is implemented within Javo internally.
+The blue diamond symbol 🔹 means pure Java methods while the yellow one 🔸 means native methods which is implemented within Gava internally.
 
 The fire symbol 🔥 means exception throwing (thrown by `athrow` bytecode, rethrown if uncaught or thrown by VM internally), while the blue water symbol 💧 means an exception is caught by a method.
 
@@ -202,8 +202,8 @@ Other trivial logs
 https://flaviocopes.com/golang-profiling/
 
 - install Graphviz
-- run javo with `-p` option
-- `go tool pprof --pdf /usr/local/bin/javo /var/../cpu.pprof > cpu.pdf`
+- run gava with `-p` option
+- `go tool pprof --pdf /usr/local/bin/gava /var/../cpu.pprof > cpu.pdf`
 
 # Documentation
 

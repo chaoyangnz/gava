@@ -1,27 +1,27 @@
 #!/bin/bash
 
-echo "Building Javo ..."
+echo "Building Gava ..."
 go mod download
-go build -o bin/javo
+go build -o bin/gava
 
-if [ "$JAVO_HOME" == '' ]; then
-    echo 'Cannot find JAVO_HOME, install to default location: /usr/local/javo'
-    sudo mkdir -p /usr/local/javo
-    sudo chown -R $USER /usr/local/javo
-    mkdir -p /usr/local/javo/bin
-    mkdir -p /usr/local/javo/log
-    export JAVO_HOME=/usr/local/javo
-    echo "export JAVO_HOME=$JAVO_HOME" >> ~/.bash_profile
+if [ "$GAVA_HOME" == '' ]; then
+    echo 'Cannot find GAVA_HOME, install to default location: /usr/local/gava'
+    sudo mkdir -p /usr/local/gava
+    sudo chown -R $USER /usr/local/gava
+    mkdir -p /usr/local/gava/bin
+    mkdir -p /usr/local/gava/log
+    export GAVA_HOME=/usr/local/gava
+    echo "export GAVA_HOME=$GAVA_HOME" >> ~/.bash_profile
     source ~/.bash_profile
 fi
 
-echo "Installing package to $JAVO_HOME ..."
+echo "Installing package to $GAVA_HOME ..."
 
-sudo cp bin/* $JAVO_HOME/bin/
-sudo ln -sf $JAVO_HOME/bin/javo /usr/local/bin/javo
+sudo cp bin/* $GAVA_HOME/bin/
+sudo ln -sf $GAVA_HOME/bin/gava /usr/local/bin/gava
 
-sudo cp -rf jdk $JAVO_HOME/
+sudo cp -rf jdk $GAVA_HOME/
 
 echo "Done! 🍻"
 
-javo -cp example HelloWorld
+gava -cp example HelloWorld

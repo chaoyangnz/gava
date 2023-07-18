@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/chaoyangnz/javo"
+	"github.com/chaoyangnz/gava"
 )
 
 func main() {
-	javo.Launch()
+	gava.Launch()
 }
