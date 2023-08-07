@@ -3,9 +3,11 @@
 
 # Gava
 
-<img src="gava.svg" width="60"/>
+<img src="gava.svg" width="60" height="60"/>
 
 **NOTE**: (previously named `Javo/Jago`)
+
+> This project is not supposed to extend the features, more focus will be moved to its sister project [zava](https://github.com/chaoyangnz/zava) - a rewrite in Zig
 
 A simplified Java virtual machine written in Go language. One aim is to learn JVM specification in depth and try to understand the behind-the-scene behaviour when a Java program runs. This VM can be used for the educational purpose, for example, for a course about how to design a runtime for a language with the complete specification.
 
